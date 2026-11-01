@@ -1,0 +1,25 @@
+{
+  "name": "medo-remotion-reel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "node scripts/launch-remotion.mjs studio src/index.ts --no-open",
+    "render": "node scripts/render.mjs",
+    "stills": "node scripts/stills.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.539",
+    "@remotion/renderer": "4.0.539",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.539"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.7",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "zod": "^4.6.7"
+  }
+}

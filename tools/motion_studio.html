@@ -45,7 +45,7 @@
 <body>
 <header>
   <h1>Motion Studio · استوديو الحركة</h1>
-  <span class="hint">keyframes + springs → نفس الرقم في المحركين</span>
+  <span class="hint">keyframes + springs → نفس الرقم في المحركات الثلاثة</span>
   <span class="spacer"></span>
   <button id="play" class="primary">تشغيل ▸</button>
   <button id="reset">من الأول</button>
@@ -163,7 +163,7 @@ function draw(time) {
   ctx.fillText('الحركة بقت أرقام', 0, -46);
   ctx.globalAlpha = v['card.opacity'] ?? 1;
   ctx.fillStyle = C.gray4; ctx.font = '400 30px "Cairo", system-ui, sans-serif';
-  ctx.fillText('keyframes + springs · JSON واحد للمحركين', 0, 14);
+  ctx.fillText('keyframes + springs · JSON واحد للمحركات الثلاثة', 0, 14);
   ctx.fillStyle = C.gray2; roundRect(ctx, -210, 78, 420, 10, 5); ctx.fill();
   ctx.fillStyle = C.red;
   roundRect(ctx, -210, 78, Math.max(10, ((v['bar.width'] ?? 0) / 520) * 420), 10, 5); ctx.fill();

@@ -98,6 +98,25 @@ def test_check_flags_a_reel_that_is_not_the_vo_length(vo: Path, tmp_path: Path):
     assert "MISMATCH" in bad.stdout
 
 
+def test_remotion_project_bounds_use_the_shared_beats_json(vo: Path, tmp_path: Path):
+    proj = tmp_path / "remotion-project"
+    (proj / "plan").mkdir(parents=True)
+    beats = {
+        "duration": 4.4,
+        "fps": 30,
+        "scenes": [
+            {"start": 0.0, "end": 1.3},
+            {"start": 1.3, "end": 3.25},
+            {"start": 3.25, "end": 4.4},
+        ],
+    }
+    (proj / "plan" / "beats.json").write_text(json.dumps(beats), encoding="utf-8")
+    r = subprocess.run([sys.executable, str(TOOL), str(vo), "--check", str(proj)],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "OK — the reel is exactly as long as the voice-over" in r.stdout
+
+
 def test_sfx_bus_length_defaults_to_the_vo(vo: Path, tmp_path: Path):
     cues = tmp_path / "cues.json"
     cues.write_text(json.dumps([{"t": 0.2, "sfx": "pop"}]), encoding="utf-8")
@@ -131,6 +150,7 @@ def test_nothing_prescribes_a_fixed_reel_length():
         *(ROOT / "medo-motion" / "styles").glob("*.md"),
         *(ROOT / "medo-motion" / "templates" / "procedural-reels").glob("*.py"),
         *(ROOT / "medo-motion" / "templates" / "render").glob("*.js"),
+        *(ROOT / "medo-motion" / "templates" / "remotion" / "src").glob("*.ts*"),
         ROOT / "medo-motion" / "brand" / "brand.json",
     ]
     offenders = []

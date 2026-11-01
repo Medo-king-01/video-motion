@@ -50,13 +50,17 @@ const browserPath=process.env.KHAAM_CHROMIUM;
 // Serve only render resources on loopback; never expose project .env/config or arbitrary files.
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf','.otf':'font/otf','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4'};
 const srcUrl='/'+path.relative(root,src).split(path.sep).join('/');
+const assetsRoot=path.resolve(process.env.KHAAM_ASSETS_DIR||path.join(root,'assets'));
 if(srcUrl.includes('..'))throw Error('Renderer must live inside the selected project');
 const server=http.createServer(async (request,response)=>{
   try{
     const u=decodeURIComponent(new URL(request.url,'http://localhost').pathname);
     if(u.split('/').some(s=>s.startsWith('.'))||![srcUrl+'/', '/assets/','/node_modules/'].some(s=>u.startsWith(s)))throw Error('Forbidden');
-    const f=path.resolve(root,'.'+u);
-    if(!f.startsWith(root+path.sep)||(await stat(f)).isDirectory())throw Error('Forbidden');
+    const asset=u.startsWith('/assets/');
+    const base=asset?assetsRoot:root;
+    const relative=asset?u.slice('/assets'.length):u;
+    const f=path.resolve(base,'.'+relative);
+    if(!f.startsWith(base+path.sep)||(await stat(f)).isDirectory())throw Error('Forbidden');
     response.writeHead(200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream'});response.end(await readFile(f));
   }catch{response.writeHead(404);response.end('Not found');}
 });

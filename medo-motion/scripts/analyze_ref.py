@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Analyze a reference locally. Owned outputs are refreshed on each run; no downloads.
+"""Analyze a short video reference locally; no downloads or use of its assets in the reel.
 Usage: python analyze_ref.py ref.mp4 --dur 15 --start 0 --fps 4 --frames 3 --out cache/ref_name
+Outputs: timestamped sheets, opening strip, rough palette/motion report, cuts and optional audio diagnostics.
 Pillow gives timestamp labels; without it FFmpeg makes an explicitly unlabelled sheet.
 """
 import sys, json, argparse, subprocess, re
 from pathlib import Path
 from fractions import Fraction
 from _common import ffmpeg, ffprobe
+from reference_report import build_report
 p=argparse.ArgumentParser();p.add_argument('ref');p.add_argument('--dur',type=float,default=15);p.add_argument('--start',type=float,default=0);p.add_argument('--fps',type=float,default=4);p.add_argument('--frames',type=float,default=3);p.add_argument('--stems',action='store_true');p.add_argument('--out');o=p.parse_args()
 import math
 if not all(math.isfinite(x) for x in [o.dur,o.start,o.fps,o.frames]) or o.dur<=0 or o.fps<=0 or o.start<0 or o.frames<0:p.error('Use positive duration/fps and non-negative start/hook duration')
@@ -33,8 +35,10 @@ for d in [out/'f',out/'frames']:
         if f.stem.isdigit():f.unlink()
 for f in out.glob('sheet_*.jpg'):
     if re.fullmatch(r'sheet_\d+\.jpg',f.name):f.unlink()
-for name in ['strip_hook.jpg','spectrogram.png','audio.wav','audio44.wav']:
+for name in ['strip_hook.jpg','spectrogram.png','audio.wav','audio44.wav','palette.png','palette.json','report.md','analysis.json']:
     (out/name).unlink(missing_ok=True)
+for f in (out/'motion').glob('strip_*.jpg'):
+    if f.is_file() and not f.is_symlink():f.unlink()
 (out/'info.txt').write_text(json.dumps(info,indent=2),encoding='utf8')
 ss=['-ss',str(o.start)] if o.start else []
 base=[FF,'-v','error','-y']+ss
@@ -73,5 +77,13 @@ if has_audio:
     for name,channels,rate in [('audio.wav',1,16000),('audio44.wav',2,44100)]:run(base+['-t',str(o.dur),'-i',str(ref),'-map','0:a:0','-vn','-ac',str(channels),'-ar',str(rate),str(out/name)])
     if o.stems:run([sys.executable,'-m','demucs','-n','htdemucs','-o',str(out/'stems'),str(out/'audio44.wav')])
 else:print('No audio stream: spectrogram, audio extraction and requested stems skipped. Existing stems, if any, are not part of this run.')
-(out/'analysis.json').write_text(json.dumps({'source':ref.name,'start':o.start,'duration_requested':o.dur,'sample_fps':o.fps,'frames':len(fs),'sheets':(len(fs)+29)//30,'has_audio':has_audio,'stems_generated_this_run':bool(has_audio and o.stems)},indent=2),encoding='utf8')
-print(f'Done -> {out} | {(len(fs)+29)//30} sheet(s), {len(fr)} hook frames, {len(cuts)} cuts')
+try:fps_value=float(Fraction(v.get('avg_frame_rate') or v.get('r_frame_rate','30/1')))
+except (ValueError,ZeroDivisionError):fps_value=0.0
+summary=build_report(source=ref,out=out,sample_paths=fs,sample_fps=o.fps,start=o.start,duration=o.dur,
+    info={'width':v.get('width'),'height':v.get('height'),'fps':fps_value},cuts=cuts,
+    audio=out/'audio.wav' if has_audio else None,ffmpeg=FF)
+summary.update({'start':o.start,'sheets':(len(fs)+29)//30,'hook_frames':len(fr),
+                'has_audio':has_audio,'stems_generated_this_run':bool(has_audio and o.stems)})
+(out/'analysis.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
+print(f"Done -> {out} | {(len(fs)+29)//30} sheet(s), {len(fr)} hook frames, {len(cuts)} cuts, {len(summary['motion_strips'])} motion strips")
+print(f"Report: {out/'report.md'}")

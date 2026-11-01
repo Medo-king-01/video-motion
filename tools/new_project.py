@@ -4,6 +4,8 @@
     python3 tools/new_project.py my-reel                 # scaffold only
     python3 tools/new_project.py my-reel --engine p      # + copy engine P into the project
     python3 tools/new_project.py my-reel --engine k      # + copy engine K into src/
+    python3 tools/new_project.py my-reel --engine r      # + copy Remotion (React/TS) into the project
+    python3 tools/new_project.py my-reel --engine hybrid # + install P, K and R sequential hybrid scaffold
 
 Layout follows medo-motion/reference/planning-and-tracking.md.
 The scaffold asks for nothing: fill BRIEF.md with the four inputs (script, scene
@@ -44,9 +46,12 @@ BRIEF = """# BRIEF — {slug}
    (شوف `docs/presenter.md`; الوضعيات: neutral, explain, point, welcome, wave, clap, like,
    thinking, thinking-deep, puzzled, sad, shocked, walk, run)
 
+## مرجع بصري (اختياري) — Visual reference
+- file/link: `assets/refs/` — حلّله كإلهام للحركة والتكوين فقط؛ ممنوع نسخ شعاراته أو أصوله.
+
 ---
 ## قرارات الوكيل — Agent decisions (auto-filled)
-- engine: `—`            <!-- P = procedural-reels، K = canvas/playwright -->
+- engine: `—`            <!-- P = Pillow، K = Canvas/Playwright، R = Remotion، Hybrid = مقاطع متتابعة -->
 - font: `Cairo` (locked)
 - music: `Am–F–C–G · 76 BPM · ducked` (locked) / none
 - sfx source: `procedural` → Openverse → (ElevenLabs with approval)
@@ -61,6 +66,7 @@ PROGRESS = """# PROGRESS — {slug}
 | stage | state | note |
 |---|---|---|
 | intake (4 inputs) | ⬜ | |
+| reference analysed / STYLE.md | ⬜ | optional — no reference is required |
 | VO analysed / beats locked | ⬜ | |
 | engine chosen | ⬜ | |
 | scene 1 prototype | ⬜ | |
@@ -79,7 +85,7 @@ PROGRESS = """# PROGRESS — {slug}
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("slug", help="short project name, e.g. laptop-ep1")
-    ap.add_argument("--engine", choices=["p", "k", "none"], default="none")
+    ap.add_argument("--engine", choices=["p", "k", "r", "hybrid", "none"], default="none")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
 
@@ -88,7 +94,7 @@ def main():
     if proj.exists() and not a.force:
         raise SystemExit(f"projects/{slug} already exists (use --force)")
 
-    for d in ["plan", "assets/vo", "assets/poses", "assets/fonts/Cairo", "assets/sfx", "out", "cache"]:
+    for d in ["plan", "assets/vo", "assets/poses", "assets/refs", "assets/fonts/Cairo", "assets/sfx", "out", "cache"]:
         (proj / d).mkdir(parents=True, exist_ok=True)
 
     (proj / "BRIEF.md").write_text(BRIEF.format(slug=slug), encoding="utf-8")
@@ -118,10 +124,13 @@ def main():
                 shutil.copy2(f, dst / f.name)
     if (ROOT / "assets" / "fonts" / "fonts.json").is_file():
         shutil.copy2(ROOT / "assets" / "fonts" / "fonts.json", proj / "assets" / "fonts" / "fonts.json")
-    # taste file (brand-prefilled template)
+    # Project memory (brand-prefilled) and the optional reference-to-style recipe.
     taste = SKILL / "templates" / "TASTE.md"
     if taste.is_file():
         shutil.copy2(taste, proj / "TASTE.md")
+    style = SKILL / "templates" / "STYLE.md"
+    if style.is_file():
+        shutil.copy2(style, proj / "STYLE.md")
 
     if a.engine == "p":
         for f in (SKILL / "templates" / "procedural-reels").iterdir():
@@ -130,6 +139,41 @@ def main():
     elif a.engine == "k":
         shutil.copytree(SKILL / "templates" / "render", proj / "src", dirs_exist_ok=True)
         (proj / "package.json").write_text('{"type":"module","private":true}\n', encoding="utf-8")
+    elif a.engine in {"r", "hybrid"}:
+        shutil.copytree(SKILL / "templates" / "remotion", proj, dirs_exist_ok=True)
+        # Remotion serves local media from public/. Keep only the locked display faces here;
+        # the full 14-family type system remains in assets/fonts for the other tools.
+        public_fonts = proj / "public" / "fonts"
+        public_fonts.mkdir(parents=True, exist_ok=True)
+        for family, names in {
+            "Cairo": ("Cairo_400Regular.ttf", "Cairo_800ExtraBold.ttf", "OFL.txt"),
+            "Inter": ("Inter_400Regular.ttf", "Inter_800ExtraBold.ttf", "OFL.txt"),
+        }.items():
+            for name in names:
+                source = ROOT / "assets" / "fonts" / family / name
+                if source.is_file():
+                    shutil.copy2(source, public_fonts / name)
+        # Keep Medo's existing pose library addressable through Remotion's staticFile().
+        public_poses = proj / "public" / "assets" / "poses"
+        public_poses.mkdir(parents=True, exist_ok=True)
+        for image in (proj / "assets" / "poses").glob("*.png"):
+            shutil.copy2(image, public_poses / image.name)
+        pose_manifest = proj / "assets" / "poses" / "poses.json"
+        if pose_manifest.is_file():
+            shutil.copy2(pose_manifest, public_poses / pose_manifest.name)
+
+        if a.engine == "hybrid":
+            # Keep P, K and R as separate, inspectable engines. The hybrid runner
+            # renders a sequential timeline and then normalizes/assembles the clips.
+            for source in (SKILL / "templates" / "procedural-reels").iterdir():
+                if source.is_file():
+                    shutil.copy2(source, proj / source.name)
+            shutil.copytree(SKILL / "templates" / "render", proj / "src", dirs_exist_ok=True)
+            (proj / "HYBRID.md").write_text((SKILL / "templates" / "HYBRID.md").read_text(encoding="utf-8"), encoding="utf-8")
+            (proj / "plan" / "hybrid.json").write_text(json.dumps({
+                "version": 1, "fps": 30, "width": 1080, "height": 1920,
+                "duration_frames": None, "segments": [], "audio": None,
+            }, indent=2) + "\n", encoding="utf-8")
 
     print(f"created projects/{slug}  (engine={a.engine})")
     print("next: fill BRIEF.md with the 4 inputs, then read AGENTS.md §5")

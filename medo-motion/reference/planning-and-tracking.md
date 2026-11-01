@@ -15,6 +15,7 @@
 ```
 <project>/
   TASTE.md          # THE memory: brief + concept, theme, design system, motion, sound, voice, feedback rules (from <skill>/templates/TASTE.md) — read FIRST in every chat
+  STYLE.md          # this project's visual recipe; reference breakdown translated to the locked studio + selected engine
   PROGRESS.md       # where we are now: phase, approvals, next step, open feedback (short, overwritten)
   LOG.md            # append-only history: what, why, files, result
   manifest.json     # every asset: path, source, licence, author, used_in (credits come from here)
@@ -26,7 +27,7 @@
     storyboard.md   # per shot: time · VO line · visual · motion · transition · SFX · on-screen text
     beats.json      # the ONLY timing source (locked to VO word timestamps) — src reads it directly
     frames/         # code-rendered key frames shown in design.html (created when needed)
-  assets/           # inputs only; subfolders created on first use: vo/ sfx/ music/ fonts/<Family>/ images/ footage/ lottie/ refs/ ai/
+  assets/           # inputs only: vo/ sfx/ music/ fonts/<Family>/ images/ footage/ lottie/ refs/ ai/ (references are reference-only unless licensed)
   src/              # scene code + render.js (CLI contract, §2)
   renders/          # previews/ (named review clips only) · final/ (named approved versions) · logs/ (render output)
   cache/            # regenerable stuff, created by the tools (frames, stems, ref analysis, browser downloads) — safe to delete
@@ -37,6 +38,7 @@
 | File | Job | Write / read |
 |---|---|---|
 | `TASTE.md` | Brief + concept (§1 of the file), theme & feel, design system, motion language, sound identity, voice, technical setup, do/don't, feedback rules, decision history, new-chat checklist | Fill each part the moment it is approved; read first in every chat (details below) |
+| `STYLE.md` | This reel's design recipe; reference observations, what is adapted, engine-supported primitives, and what is deliberately omitted | Create when there is a visual direction/reference; keep sampled palette separate from locked brand colors |
 | `plan/design.html` | The visual version of TASTE §2–§5: concept & feel, colours, every font written in its own typeface (with what it is used for + a real sample line), live looping text-animation demos, key frames, sound table, do/don't | Created at step 4; the user double-clicks it to review; updated whenever the style changes (same values as TASTE.md) |
 | `PROGRESS.md` | Phase, **approvals (date + what)**, next step, open feedback, key file paths (template below) | Overwrite after every step/decision and before long renders |
 | `LOG.md` | `YYYY-MM-DD HH:mm · action · why · files · result` | Append after every meaningful step; never rewrite |

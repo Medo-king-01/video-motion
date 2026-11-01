@@ -11,6 +11,7 @@
 // Usage:
 //   node tools/chromium.mjs --env     # prints `export KHAAM_CHROMIUM=...` lines
 //   node tools/chromium.mjs --path    # prints the executable path only
+//   node tools/chromium.mjs --json    # machine-readable browser path, libraries and args
 //   node tools/chromium.mjs --check   # launches a page and prints the version
 import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
@@ -64,6 +65,8 @@ const libs = libsDir(pkgDir);
 
 if (mode === '--path') {
   process.stdout.write(exe);
+} else if (mode === '--json') {
+  process.stdout.write(JSON.stringify({executablePath: exe, libraryPath: libs, args: chromium.args}));
 } else if (mode === '--env') {
   console.log(`export KHAAM_CHROMIUM="${exe}"`);
   if (libs) console.log(`export LD_LIBRARY_PATH="${libs}\${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"`);
@@ -77,6 +80,6 @@ if (mode === '--path') {
   console.log('CHROMIUM_OK', await b.version());
   await b.close();
 } else {
-  console.error('usage: node tools/chromium.mjs [--env|--path|--check]');
+  console.error('usage: node tools/chromium.mjs [--env|--path|--json|--check]');
   process.exit(1);
 }

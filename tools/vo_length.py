@@ -84,7 +84,7 @@ def bounds_from_silences(silences: list[tuple[float, float]], total: float,
 
 # ---------------------------------------------------------------- checks
 def project_bounds(proj: Path) -> tuple[list[float] | None, str]:
-    """The scene bounds a project currently declares — engine K (`data.js`) or engine P (`scenes.py`)."""
+    """The declared bounds: engine K (`src/data.js`), engine P (`scenes.py`), or engine R (`plan/beats.json`)."""
     data = proj / "src" / "data.js"
     if data.is_file():
         text = data.read_text(encoding="utf-8")

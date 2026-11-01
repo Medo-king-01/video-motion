@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
 """End-to-end self test: prove this machine can really make a reel.
 
-    python3 tools/selftest.py            # doctor + unit tests + a few real frames
-    python3 tools/selftest.py --fast     # skip the engine renders
+    python3 tools/selftest.py                 # doctor + unit tests + P/K smoke renders
+    python3 tools/selftest.py --fast          # skip the engine renders
+    python3 tools/selftest.py --remotion      # also npm ci + R typecheck + 6-frame render
+    python3 tools/selftest.py --hybrid        # end-to-end 18-frame P + K + R assembly
 
-Each step prints PASS / FAIL / SKIP. Exit code 1 if anything failed. Nothing is
-written outside a temporary directory.
+Each step prints PASS / FAIL / SKIP. Exit code 1 if anything failed. The `--remotion`
+option installs pinned dependencies in a throwaway ignored project under `projects/` and
+removes it when finished.
 """
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+import wave
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -22,6 +27,8 @@ ENGINE_P = SKILL / "templates" / "procedural-reels"
 ENGINE_K = SKILL / "templates" / "render"
 TOOLKIT = ROOT / "tools" / "toolkit"
 FAST = "--fast" in sys.argv
+WITH_REMOTION = "--remotion" in sys.argv
+WITH_HYBRID = "--hybrid" in sys.argv
 results: list[tuple[str, str, str]] = []
 
 
@@ -100,6 +107,101 @@ def step_engine_k(work: Path) -> bool:
                   f"{len(frames)} frames via Chromium" if ok else r.stdout + r.stderr)
 
 
+def step_engine_r() -> bool:
+    npm = shutil.which("npm")
+    node = shutil.which("node")
+    if not npm or not node:
+        return record("engine R render", 2, "npm/Node.js not found")
+    proj = ROOT / "projects" / f"_selftest-remotion-{os.getpid()}"
+    if proj.exists():
+        return record("engine R render", 1, f"refusing to overwrite {proj.relative_to(ROOT)}")
+    scaffold = run([sys.executable, str(ROOT / "tools" / "new_project.py"), proj.name, "--engine", "r"],
+                   cwd=ROOT, timeout=60)
+    if scaffold.returncode:
+        return record("engine R render", 1, scaffold.stdout + scaffold.stderr)
+    try:
+        installed = run([npm, "ci"], cwd=proj, timeout=600)
+        if installed.returncode:
+            return record("engine R render", 1, installed.stdout + installed.stderr)
+        beats = {"duration": 0.4, "fps": 30, "frames": 12, "bounds": [0, 0.4],
+                 "scenes": [{"index": 1, "start": 0, "end": 0.4, "dur": 0.4, "frames": 12}]}
+        (proj / "plan" / "beats.json").write_text(json.dumps(beats) + "\n", encoding="utf-8")
+        stills = run([npm, "run", "stills", "--", "0", "0.1"], cwd=proj, timeout=300)
+        if stills.returncode:
+            return record("engine R render", 1, stills.stdout + stills.stderr)
+        checked = run([npm, "run", "typecheck"], cwd=proj, timeout=180)
+        if checked.returncode:
+            return record("engine R render", 1, checked.stdout + checked.stderr)
+        rendered = run([node, str(proj / "scripts" / "render.mjs"), "--silent",
+                        "--from-frame", "2", "--to-frame", "8", "--out", "out/selftest.mp4"],
+                       cwd=proj, timeout=600)
+        output = proj / "out" / "selftest.mp4"
+        ok = rendered.returncode == 0 and output.is_file() and output.stat().st_size > 1000
+        return record("engine R render", 0 if ok else 1,
+                      "6 frames via Remotion + shared Chromium" if ok else rendered.stdout + rendered.stderr)
+    finally:
+        shutil.rmtree(proj, ignore_errors=True)
+
+
+def step_hybrid() -> bool:
+    npm = shutil.which("npm")
+    node = shutil.which("node")
+    ff = ffmpeg_bin()
+    if not npm or not node or not ff:
+        return record("hybrid P/K/R render", 2, "npm, Node.js or ffmpeg not found")
+    if not (TOOLKIT / "node_modules" / "playwright-core").exists():
+        return record("hybrid P/K/R render", 2, "shared K toolkit not installed")
+    proj = ROOT / "projects" / f"_selftest-hybrid-{os.getpid()}"
+    if proj.exists():
+        return record("hybrid P/K/R render", 1, f"refusing to overwrite {proj.relative_to(ROOT)}")
+    scaffold = run([sys.executable, str(ROOT / "tools" / "new_project.py"), proj.name, "--engine", "hybrid"],
+                   cwd=ROOT, timeout=60)
+    if scaffold.returncode:
+        return record("hybrid P/K/R render", 1, scaffold.stdout + scaffold.stderr)
+    try:
+        installed = run([npm, "ci"], cwd=proj, timeout=600)
+        if installed.returncode:
+            return record("hybrid P/K/R render", 1, installed.stdout + installed.stderr)
+        checked = run([npm, "run", "typecheck"], cwd=proj, timeout=180)
+        if checked.returncode:
+            return record("hybrid P/K/R render", 1, checked.stdout + checked.stderr)
+        browser_info = run([node, str(ROOT / "tools" / "chromium.mjs"), "--json"], cwd=ROOT, timeout=180)
+        if browser_info.returncode:
+            return record("hybrid P/K/R render", 1, browser_info.stdout + browser_info.stderr)
+        browser = json.loads(browser_info.stdout)
+        env = {**os.environ, "KHAAM_TOOLKIT": str(TOOLKIT), "KHAAM_CHROMIUM": browser["executablePath"],
+               "FFMPEG_BIN": ff, "PYTHONUNBUFFERED": "1"}
+        if browser.get("libraryPath"):
+            env["LD_LIBRARY_PATH"] = browser["libraryPath"] + ":" + env.get("LD_LIBRARY_PATH", "")
+        audio_path = proj / "assets" / "vo" / "hybrid-selftest.wav"
+        with wave.open(str(audio_path), "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(48_000)
+            wav.writeframes(bytes(2 * int(0.6 * 48_000)))
+        (proj / "plan" / "hybrid.json").write_text(json.dumps({
+            "version": 1, "fps": 30, "width": 1080, "height": 1920, "duration_frames": 18,
+            "audio": "assets/vo/hybrid-selftest.wav",
+            "segments": [
+                {"id": "p-smoke", "engine": "p", "start_frame": 0, "end_frame": 6},
+                {"id": "k-smoke", "engine": "k", "start_frame": 6, "end_frame": 12},
+                {"id": "r-smoke", "engine": "r", "start_frame": 12, "end_frame": 18},
+            ],
+        }) + chr(10), encoding="utf-8")
+        beats = {"duration": 0.6, "fps": 30, "frames": 18, "bounds": [0, 0.6],
+                 "scenes": [{"index": 1, "start": 0, "end": 0.6, "dur": 0.6, "frames": 18}]}
+        (proj / "plan" / "beats.json").write_text(json.dumps(beats) + chr(10), encoding="utf-8")
+        rendered = run([sys.executable, str(ROOT / "tools" / "render_hybrid.py"), "--project", str(proj),
+                        "--ffmpeg", ff, "--ffprobe", str(ROOT / "tools" / "bin" / "ffprobe")],
+                       cwd=proj, env=env, timeout=900)
+        output = proj / "out" / "hybrid.mp4"
+        ok = rendered.returncode == 0 and output.is_file() and output.stat().st_size > 1000
+        return record("hybrid P/K/R render", 0 if ok else 1,
+                      "P + K + R segments assembled and probed" if ok else rendered.stdout + rendered.stderr)
+    finally:
+        shutil.rmtree(proj, ignore_errors=True)
+
+
 def main() -> int:
     print("medo-motion self test\n")
     step_doctor()
@@ -107,10 +209,20 @@ def main() -> int:
     if FAST:
         record("engine P render", 2, "--fast")
         record("engine K render", 2, "--fast")
+        record("engine R render", 2, "--fast")
+        record("hybrid P/K/R render", 2, "--fast")
     else:
         with tempfile.TemporaryDirectory(prefix="medo-selftest-") as tmp:
             step_engine_p(Path(tmp))
             step_engine_k(Path(tmp))
+        if WITH_REMOTION:
+            step_engine_r()
+        else:
+            record("engine R render", 2, "per-project npm deps; pass --remotion to test this engine")
+        if WITH_HYBRID:
+            step_hybrid()
+        else:
+            record("hybrid P/K/R render", 2, "pass --hybrid to test end-to-end assembly")
 
     width = max(len(n) for n, _, _ in results) + 2
     print()

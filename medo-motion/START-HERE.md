@@ -39,10 +39,12 @@ python3 tools/doctor.py    # بيقولك READY ولا BLOCKED وليه
 
 ```bash
 python3 tools/new_project.py اسم-المشروع --engine p
+# أو: --engine k (Canvas) أو --engine r (Remotion)
 ```
 
-`--engine p` = المحرك اللي فيه شخصيتك (الأنسب للريلز اللي فيها كلام).
-`--engine k` = محرك الكانفس/التايبوغرافي.
+`--engine p` = محرك الشخصية والشرح (الأنسب لمعظم الريلز اللي فيها كلام).
+`--engine k` = محرك Canvas/التايبوغرافي.
+`--engine r` = Remotion بـReact/TypeScript؛ بعد إنشاء المشروع شغّل `npm install` ثم `npm run studio`.
 
 ---
 
@@ -95,7 +97,7 @@ python3 tools/new_project.py اسم-المشروع --engine p
    والسكريبت ممكن هنا، والرندر محتاج وكيل/جهاز فيه ملفات.
 2. **افحص البيئة:** `bash tools/setup.sh` (بإذنه) ثم `python3 tools/doctor.py`.
    اشرح النتيجة في ٣–٥ سطور: جاهز إيه وناقص إيه. متثبّتش أي حاجة زيادة «للاحتياط».
-3. **مشروع جديد:** `python3 tools/new_project.py <slug> --engine p|k`.
+3. **مشروع جديد:** `python3 tools/new_project.py <slug> --engine p|k|r`.
 4. **اقرأ الهوية والدمج:** `brand/BRAND.md` + `reference/medo-playbook.md`.
    الهوية مقفولة — متسألش عن ألوان ولا خطوط ولا لوجو ولا اسم سلسلة.
 5. **اطلب الأربعة في رسالة واحدة** بس: السكريبت، توجيه المشاهد، الصوت، الصور.

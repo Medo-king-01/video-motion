@@ -14,8 +14,8 @@
 | **motion.dev** | أسماء ومنحنيات الـeasing (linear/easeIn/easeOut/circ/back/anticipate) بنفس أرقامها · Springs بـstiffness/damping/mass · فكرة `pathLength` (رسم المسار تدريجي) · `stagger` و`at` للتسلسل | `animate()` نفسها — بتشتغل على عناصر DOM في الزمن الحقيقي |
 | **Theatre.js** | **نموذج التأليف**: sheets/objects/tracks/keyframes بمواضع زمنية ومنحنيات bezier · تصدير الـstate كـJSON | الـStudio والـruntime — مش محتاجينهم وقت الرندر |
 
-النتيجة: **لغة حركة واحدة** في المحركين (Canvas + Pillow)، بتتألّف إما بإيدك في JSON، أو من
-Theatre.js Studio وتتحوّل بأمر واحد.
+النتيجة: **لغة حركة واحدة** في المحركات الثلاثة (Canvas + Pillow + Remotion)، بتتألّف إما بإيدك في JSON، أو من
+Theatre.js Studio وتتحوّل بأمر واحد. R بيستخدم نسخة مطابقة من ملف حركة K، والاختبار بيمنع الانحراف.
 
 ## اللي موجود في المشروع | What ships
 | الملف | إيه ده |
@@ -23,13 +23,14 @@ Theatre.js Studio وتتحوّل بأمر واحد.
 | `medo-motion/motion/easings.json` | **مصدر المنحنيات**: ١٢ cubic-bezier بأسماء motion.dev + ٥ spring presets + توقيتات البراند |
 | `templates/render/lib/motion.js` | المحرك K: `ease` · `spring` · `keyframes` · `timeline` · `stagger` · `reveal` |
 | `templates/procedural-reels/motion.py` | المحرك P: نفس الـAPI بالحرف ونفس الأرقام |
+| `templates/remotion/src/lib/motion.js` | المحرك R: نسخة مطابقة لمحرك K، وتستخدمه مكونات React كدوال نقية للفريم الحالي |
 | `medo-motion/motion/examples/card-entrance.json` | تايملاين جاهز (spring + back + circ) |
 | `tools/motion_studio.html` | استوديو صغير أوفلاين: اكتب/عدّل الـJSON، اسحب المؤشر، شوف الحركة والقيم، نزّل الملف |
-| `tools/theatre_import.py` | يقرأ Theatre.js state export → تايملاين المحركين (`--list`, `--offset`, `--sheet`, `--out`) |
+| `tools/theatre_import.py` | يقرأ Theatre.js state export → تايملاين JSON المشتركة لـP/K/R (`--list`, `--offset`, `--sheet`, `--out`) |
 | `templates/render/scenes/motion-example.js` | مشهد فعلي (٢٢–٢٥ث) كل حاجة فيه متحركة بالتيملاين |
 
-`tests/test_motion.py` بيفشل لو الجداول في الـJS والـPython اختلفت عن `easings.json`، أو لو النتيجتين
-مش متطابقتين رقميًا (JS ↔ Python على نفس التايملاين).
+`tests/test_motion.py` بيفشل لو نسخة R اختلفت عن ملف JS المرجعي، أو لو الجداول اختلفت عن `easings.json`، أو لو
+نتائج JS وPython مش متطابقة رقميًا على نفس التايملاين.
 
 ## منحنيات بالمعادلات | Equation easings
 الـcubic-bezier مش قادر يعمل elastic ولا bounce، فـ`easings.json` فيه كمان `formulas` (معادلات Penner
@@ -44,7 +45,7 @@ Theatre.js Studio وتتحوّل بأمر واحد.
 ```js
 ease('bounceOut', p); ease('elasticOut', p); ease('expoIn', p);   // نفس الأرقام في Python
 ```
-`EASING_NAMES` في المحركين بيطلّع القائمة الكاملة (٣٨ اسم) — والاختبارات بتتأكد إن الاسم في
+`EASING_NAMES` في وحدتَي JavaScript (K/R) وPython (P) بيطلّعوا القائمة الكاملة (٣٨ اسم) — والاختبارات بتتأكد إن الاسم في
 `transitions.json` أو في تايملاين موجود فعلًا.
 
 ## التايملاين والانتقالات | Motion + transitions
@@ -101,7 +102,7 @@ v = timeline(spec).at(local_time)
    - الـhandles بتتحوّل صح: الـhandle الطالع من الكيفريم + الداخل للكيفريم اللي بعده = `[x1,y1,x2,y2]`.
    - الخصائص الـvector (`{x,y}`) بتتفرّع لمسارات: `Card.position.x` / `Card.position.y`.
    - المدة = طول الـsequence في الـsheet (مضاف عليه الـoffset)، مش آخر كيفريم — يعني الهولد في الآخر محفوظ.
-5. الحركة تبقى `timeline(json).at(t)` في المحركين — deterministic، بنفس النتيجة في كل رندر.
+5. الحركة تبقى `timeline(json).at(t)` في P/K/R — deterministic، بنفس النتيجة في كل رندر.
 
 ## الاستوديو الصغير | The offline studio
 ```bash

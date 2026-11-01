@@ -28,6 +28,9 @@ def test_engine_templates_are_present():
         assert (ENGINE_P / f).is_file(), f
     for f in ("render.js", "main.js", "data.js", "lib/kit.js", "lib/arabic.js", "lib/brand.js"):
         assert (SKILL / "templates" / "render" / f).is_file(), f
+    for f in ("package.json", "src/index.ts", "src/Root.tsx", "src/RemotionRoot.tsx",
+              "src/brand.ts", "src/lib/motion.js", "src/lib/Presenter.tsx", "scripts/render.mjs"):
+        assert (SKILL / "templates" / "remotion" / f).is_file(), f
 
 
 def test_new_project_scaffolds(tmp_path):
@@ -37,15 +40,74 @@ def test_new_project_scaffolds(tmp_path):
     assert r.returncode == 0, r.stderr
     proj = ROOT / "projects" / slug
     try:
-        for sub in ("plan", "assets/vo", "assets/poses", "assets/fonts/Cairo", "out"):
+        for sub in ("plan", "assets/vo", "assets/poses", "assets/refs", "assets/fonts/Cairo", "out"):
             assert (proj / sub).is_dir(), sub
         brief = (proj / "BRIEF.md").read_text(encoding="utf-8")
         assert "Scene direction" in brief and "Poses" in brief
         assert "logo" not in brief.lower()
+        style = (proj / "STYLE.md").read_text(encoding="utf-8")
+        assert "brand/brand.json" in style and "Do not reproduce" in style
         assert (proj / "scenes.py").is_file()          # engine P copied in
         assert list((proj / "assets" / "fonts" / "Cairo").glob("*.ttf"))
         beats = json.loads((proj / "plan" / "beats.json").read_text(encoding="utf-8"))
         assert "scenes" in beats
+    finally:
+        import shutil
+        shutil.rmtree(proj, ignore_errors=True)
+
+
+def test_reference_analysis_workflow_is_documented_and_scaffolded():
+    assert (ROOT / "docs" / "reference-workflow.md").is_file()
+    assert (ROOT / "medo-motion" / "scripts" / "reference_report.py").is_file()
+    assert (ROOT / "medo-motion" / "templates" / "STYLE.md").is_file()
+
+
+def test_new_project_scaffolds_remotion(tmp_path):
+    slug = f"_pytest-remotion-{tmp_path.name}"
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "new_project.py"), slug, "--engine", "r"],
+                       capture_output=True, text=True, cwd=str(ROOT))
+    assert r.returncode == 0, r.stderr
+    proj = ROOT / "projects" / slug
+    try:
+        package = json.loads((proj / "package.json").read_text(encoding="utf-8"))
+        assert package["dependencies"]["remotion"] == "4.0.539"
+        assert (proj / "src" / "index.ts").is_file()
+        assert (proj / "src" / "lib" / "Presenter.tsx").is_file()
+        assert (proj / "STYLE.md").is_file()
+        assert (proj / "assets" / "refs").is_dir()
+        assert (proj / "public" / "fonts" / "Cairo_800ExtraBold.ttf").is_file()
+        assert (proj / "public" / "assets" / "poses" / "poses.json").is_file()
+        beats = json.loads((proj / "plan" / "beats.json").read_text(encoding="utf-8"))
+        assert beats["duration"] is None
+        import shutil
+        if shutil.which("node"):
+            blocked = subprocess.run(["node", str(proj / "scripts" / "render.mjs"), "--silent"],
+                                     capture_output=True, text=True, cwd=str(proj))
+            assert blocked.returncode == 2
+            assert "measured VO duration" in blocked.stderr
+    finally:
+        import shutil
+        shutil.rmtree(proj, ignore_errors=True)
+
+
+def test_new_project_scaffolds_three_engine_hybrid(tmp_path):
+    slug = f"_pytest-hybrid-{tmp_path.name}"
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "new_project.py"), slug, "--engine", "hybrid"],
+                       capture_output=True, text=True, cwd=str(ROOT))
+    assert r.returncode == 0, r.stderr
+    proj = ROOT / "projects" / slug
+    try:
+        assert (proj / "scenes.py").is_file()                 # P
+        assert (proj / "src" / "render.js").is_file()        # K
+        assert (proj / "src" / "index.html").is_file()       # K
+        assert (proj / "src" / "index.ts").is_file()         # R
+        assert (proj / "scripts" / "render.mjs").is_file()   # R
+        assert (proj / "HYBRID.md").is_file()
+        assert (proj / "package-lock.json").is_file()
+        plan = json.loads((proj / "plan" / "hybrid.json").read_text(encoding="utf-8"))
+        assert plan["version"] == 1 and plan["segments"] == []
+        package = json.loads((proj / "package.json").read_text(encoding="utf-8"))
+        assert package["dependencies"]["remotion"] == "4.0.539"
     finally:
         import shutil
         shutil.rmtree(proj, ignore_errors=True)

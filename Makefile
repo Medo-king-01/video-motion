@@ -17,7 +17,7 @@ test:            ## unit tests (no renders)
 ci:              ## lint + unit tests + brand audit (what CI would run)
 	bash tools/ci.sh
 
-selftest:        ## doctor + tests + a few real frames from both engines
+selftest:        ## doctor + tests + P/K frames (R render: python3 tools/selftest.py --remotion)
 	$(PY) tools/selftest.py
 
 new:             ## scaffold a project: make new SLUG=my-reel ENGINE=p

@@ -2,11 +2,14 @@
 
 ## 13. Reference-video protocol (if the user attaches references, use them)
 
-Always ask: *"Do you have a reference video or look? Attach it — I'll reverse-engineer it."* (How to download one: "How we make top-level videos together", step 2.) Run `python3 <skill>/scripts/analyze_ref.py ref.mp4 [--dur 15] [--frames 3] [--stems]` (Windows `py <skill>\scripts\analyze_ref.py …`) — analyse ≤ 15 s per pass; for longer references run several `--start` windows on the important parts:
-1. **Picture:** `info.txt` (size, fps, duration); timestamped contact sheets (4 fps); **every frame of the first 3 s** (`frames/`, `strip_hook.jpg`) — the hook is where top designers hide the most technique, study it frame by frame (how each word enters, smear frames, overshoot, particles, transitions); `cuts.txt` (scene cuts); full-res stills of key frames.
-2. **Sound:** original-mix spectrogram/waveform and onset candidates; short visual-event crops; optional available CoNeTTE captions/PANNs clip tags, CLAP candidate ranking (§0f); VO word timing. Demucs only optional diagnostics, never a guaranteed SFX isolation or gain-ratio measurement.
-3. **Breakdown:** format & grade · type system (fonts, weights, hex colors, sizes, positions/safe area) · per-shot timeline (t, visual, motion, easing, transition) · recurring devices · SFX map (t → sound type → length → syncs to → level) · cut rhythm (avg shot length, BPM) · which pipeline (A/B/C, §2c) it was made with.
-4. Turn it into a recipe (format of §14), confirm with the user, then build. After v1, compare your contact sheets + onset list side by side with the reference's and list the gaps — that drives v2.
+A reference is **optional**, not a fifth required input. If the user supplies one or asks to match its look, analyze it locally before locking the visual direction. Do not fetch a copyrighted video or ask for a reference the user has not offered. From the project root:
+
+```bash
+python3 ../../medo-motion/scripts/analyze_ref.py assets/refs/reference.mp4 \
+  --start 0 --dur 15 --fps 4 --frames 3 --out cache/reference-analysis
+```
+
+Use another `--start` and a distinct `--out` for another short window. Review `report.md`, the timestamped `sheet_*.jpg` overview, `strip_hook.jpg`, `motion/strip_*.jpg`, and audio diagnostics when present. The report and palette are rough observations—not a finished design or a color prescription. Inspect the actual frames, then complete the project `STYLE.md`: composition, recurring device, type roles, motion entry/hold/exit, pacing, what the selected engine can implement, and what must be omitted. Translate all choices through the locked Medo brand. Reference media stays reference-only; never copy its text, logo, footage, characters or distinctive assets into the reel without documented rights. See `docs/reference-workflow.md`.
 
 ## 14. Reverse-engineered reference recipes (build these without seeing the videos)
 
@@ -38,4 +41,4 @@ Whenever the plan needs an image, texture, footage, icon, mockup or style refere
 
 
 ### Reference-helper output ownership
-`analyze_ref.py` refreshes its numbered frame files, numbered sheets, hook strip and extracted audio/spectrogram on each run. Inputs must live outside that analysis directory. Silent references explicitly skip audio/spectrogram/stems. Check `analysis.json` for what this run produced; existing optional stems from older runs are not current results. Actual FFmpeg/probe failures are reported instead of a false Done. Sheets contain at most 30 frames. Pillow gives labels; the FFmpeg fallback explicitly warns that labels are unavailable. ImageMagick is not required by this Python helper.
+`analyze_ref.py` refreshes only its numbered samples/sheets, hook strip, motion strips, palette, report, JSON and extracted audio/spectrogram. Inputs must live outside that analysis directory. Silent references skip audio/spectrogram/stems. Check `analysis.json` for this run's outputs; existing optional stems from older runs are not current results. FFmpeg/probe errors must not be reported as a successful analysis. Sheets contain at most 30 frames. Palette, brightness, motion and audio-onset numbers are rough signals for human inspection, not verified style values. ImageMagick is not required.

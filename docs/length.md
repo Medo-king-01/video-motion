@@ -6,7 +6,7 @@
 ## الطول بيخرج من فين؟
 
 ```bash
-# 1) حضّر ماستر التعليق (24kHz mono PCM16 زي ما المحركين متوقعين)
+# 1) حضّر ماستر التعليق (24kHz mono PCM16 زي ما المحركات متوقعة)
 ffmpeg -y -i assets/vo/<voice>.mp3 -ac 1 -ar 24000 -c:a pcm_s16le out/vo24.wav
 
 # 2) قيسه — بيطلّع المدة + حدود المشاهد من السكتات
@@ -27,6 +27,7 @@ python3 tools/vo_length.py out/vo24.wav --json plan/beats.json      # أو: make
 |---|---|---|
 | K — `src/data.js` | `DURATION = scenes.at(-1).end` | آخر `end` = مدة الـVO |
 | P — `scenes.py` | `B=[...]` | `B[-1]` = مدة الـVO |
+| R — `src/data.ts` | `plan/beats.json` | Composition frames = المدة المقاسة × 30fps; الرندر يرفض timeline ناقص |
 | P — `mix.py` | `TOTAL` | بيتقري من الـVO نفسه، والأحداث بتتقدّم على `B` |
 | `tools/sfx_kit.py` | `--length` | لو مش موجود = طول الـVO تلقائيًا |
 | P — `run_all.py` | `N` | عدد الفريمات من طول الـVO (و`scenes.B` fallback بس لو مفيش VO) |

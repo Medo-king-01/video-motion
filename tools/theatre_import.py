@@ -3,8 +3,8 @@
 
 Theatre.js Studio is a great place to *author* motion (scrub, drag keyframes, tweak curves), but its
 runtime is real-time and DOM-shaped, while a reel is rendered frame by frame. So: author in Studio →
-export the state JSON → import it here → both engines play it deterministically
-(`templates/render/lib/motion.js` and `templates/procedural-reels/motion.py`).
+export the state JSON → import it here → all three engines use the same deterministic timeline math
+(`templates/render/lib/motion.js`, its tested R copy, and `templates/procedural-reels/motion.py`).
 
     python3 tools/theatre_import.py state.json                    # write <name>.timeline.json next to it
     python3 tools/theatre_import.py state.json --out tl.json --offset 18.5
