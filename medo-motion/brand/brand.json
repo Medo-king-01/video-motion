@@ -1,0 +1,256 @@
+{
+  "_doc": "Single machine-readable source of truth for Medo / Kodo Medo. Human version: brand/BRAND.md. Values marked status:proposed are NOT approved yet.",
+  "brand": {
+    "name": "Kodo Medo",
+    "name_ar": "كودو ميدو",
+    "name_status": "archived working name — never put any name on screen (studio, not a series)",
+    "on_screen_name": null,
+    "logo": null,
+    "logo_rule": "NONE. This is a reel studio, not a named series: no logo, no series name, no episode number, no descriptive chip, no reserved empty circle. Never ask for these; never invent them. End cards are typographic only."
+  },
+  "palette": {
+    "red": {
+      "hex": "#E5262B",
+      "rgb": [
+        229,
+        38,
+        43
+      ],
+      "role": "primary / accent / warning"
+    },
+    "red_dark": {
+      "hex": "#96141A",
+      "rgb": [
+        150,
+        20,
+        26
+      ],
+      "role": "deep red (negative state, depth)"
+    },
+    "black": {
+      "hex": "#0A0A0C",
+      "rgb": [
+        10,
+        10,
+        12
+      ],
+      "role": "base black"
+    },
+    "ink": {
+      "hex": "#18161A",
+      "rgb": [
+        24,
+        22,
+        26
+      ],
+      "role": "outline / device body / text on light"
+    },
+    "ink2": {
+      "hex": "#342A2C",
+      "rgb": [
+        52,
+        42,
+        44
+      ],
+      "role": "secondary ink, caption plate base"
+    },
+    "white": {
+      "hex": "#F6F3ED",
+      "rgb": [
+        246,
+        243,
+        237
+      ],
+      "role": "warm white: paper, text on dark"
+    },
+    "yellow": {
+      "hex": "#F4C430",
+      "rgb": [
+        244,
+        196,
+        48
+      ],
+      "role": "secondary: numbers, highlights (DARK backgrounds only)"
+    },
+    "gold": {
+      "hex": "#CD8C0A",
+      "rgb": [
+        205,
+        140,
+        10
+      ],
+      "role": "yellow replacement on LIGHT backgrounds: DECORATIVE/large accents only (measured 2.3-2.6:1 on the light bg, below 3:1)"
+    },
+    "emerald": {
+      "hex": "#14B88A",
+      "rgb": [
+        20,
+        184,
+        138
+      ],
+      "role": "secondary: positive / success"
+    },
+    "teal": {
+      "hex": "#1F8A8A",
+      "rgb": [
+        31,
+        138,
+        138
+      ],
+      "role": "secondary: tertiary / device-screen bars"
+    },
+    "pistachio": {
+      "hex": null,
+      "rgb": null,
+      "role": "secondary colour named by Medo but NO hex has been approved yet: do not use until a value is approved"
+    },
+    "gold_text_proposed": {
+      "hex": "#AD7608",
+      "rgb": [
+        173,
+        118,
+        8
+      ],
+      "role": "PROPOSED (not approved) darker gold for READABLE large text on light: 3.1:1 worst case; #895D07 reaches 4.57:1 for body-size text",
+      "status": "proposed"
+    }
+  },
+  "backgrounds": {
+    "dark": {
+      "top": [
+        16,
+        15,
+        19
+      ],
+      "bottom": [
+        7,
+        7,
+        9
+      ]
+    },
+    "light": {
+      "top": [
+        247,
+        245,
+        243
+      ],
+      "bottom": [
+        231,
+        228,
+        226
+      ]
+    },
+    "rule": "alternate light/dark per scene; every scene has a different grid cell size/speed/direction; 30 dust particles"
+  },
+  "contrast_rules": [
+    "No white or yellow text on a light background (use ink, red, or gold)",
+    "Body text >= 4.5:1 against its real background",
+    "Large text/keywords >= 3:1"
+  ],
+  "typography": {
+    "arabic": "Cairo",
+    "arabic_weight": "ExtraBold/Bold",
+    "arabic_fallback": "Tajawal ExtraBold",
+    "english": "Cairo (or a modern minimal pair)",
+    "temp_fallback": "DejaVu Sans Bold ONLY if declared as temporary in the delivery",
+    "download": "python <skill>/scripts/get_fonts.py \"Cairo\"",
+    "numerals": "Western 0-9 (matches the delivered laptop intro)",
+    "rules": "whole words only, RTL, raqm layout (direction='rtl', language='ar'); never arabic_reshaper/python-bidi with Pillow"
+  },
+  "canvas": {
+    "w": 1080,
+    "h": 1920,
+    "fps": 30
+  },
+  "safe_zone": {
+    "margin_px": 40,
+    "content_y": [
+      200,
+      1350
+    ],
+    "caption_center_y": 1455,
+    "nothing_important_below_y": 1500,
+    "progress_bar_y": 64,
+    "series_chip_center_y": null,
+    "character_ground_y": [
+      1380,
+      1400
+    ],
+    "max_vertical_gap_px": 300
+  },
+  "caption": {
+    "plate_rgba": [
+      48,
+      38,
+      40,
+      232
+    ],
+    "border": "red 3px",
+    "text": "white 58px",
+    "max_width_px": 970,
+    "max_lines": 2,
+    "word_pop": true,
+    "keyword_colours": {
+      "numbers": "yellow",
+      "problem": "red",
+      "positive": "emerald"
+    }
+  },
+  "min_sizes_px": {
+    "card_label": 44,
+    "chip": 40,
+    "icon": 128
+  },
+  "character": {
+    "presenter": "Medo (anime-style, uploaded poses: wave / think / point)",
+    "height_px": [
+      650,
+      1000
+    ],
+    "size_changes": "never random",
+    "head_min_pct_of_height_in_emotion": [
+      15,
+      18
+    ],
+    "background_disc": "red circle 80-95% of canvas width behind hero + ground shadow",
+    "motion": "bob + tilt +/-1.6 deg + sparkles; do not promise hand animation",
+    "logo_persona": "faceless black backlit silhouette: voluminous curly hair, round mirrored glasses (white lenses), dark blazer + collared shirt, light gradient background (LOGO only; presenter on screen is the anime Medo)"
+  },
+  "motion": {
+    "camera_zoom": "1.00 <-> 1.04 alternating per scene + horizontal drift +/-14px",
+    "impact_per_scene_min": 1,
+    "idle_hold_max_s": 2.5,
+    "transition": "red wipe with white edge, 0.4s at scene boundaries"
+  },
+  "audio": {
+    "lufs": -14.5,
+    "lufs_tolerance": 0.3,
+    "true_peak_max_dbtp": -1.5,
+    "sfx_level_vs_vo_peak": 0.4,
+    "music": "Am-F-C-G, 76 BPM, ducked 62% under VO, level ~0.17x",
+    "dialect": "Egyptian Arabic (ar-EG)",
+    "tts_rule": "at least 2 rounds (4 voice profiles), Medo picks; then ONE voice + ONE fixed atempo 1.15-1.22x"
+  },
+  "export": {
+    "codec": "H.264 high, yuv420p, AAC 192-256k, faststart",
+    "master_encode": "-preset medium -crf 13 -tune animation -x264-params aq-mode=3:ref=4:deblock=1,1",
+    "min_mbps": 2.5,
+    "duration": "= audio duration (45-60 s typical)",
+    "preview_name": "*_preview.mp4 (optional; the 1080x1920 master is 'the video')"
+  },
+  "vibe": {
+    "words": [
+      "calm",
+      "mysterious",
+      "deep",
+      "minimalist",
+      "artistic"
+    ],
+    "priority": "detail quality and strong identity over showiness",
+    "references": [
+      "red-circle black-and-white cutout movie-poster style",
+      "philosopher quote-card series with red geometric shapes",
+      "deep-red circle profile card"
+    ]
+  }
+}

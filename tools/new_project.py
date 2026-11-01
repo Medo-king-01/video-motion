@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Create a reel project scaffold.
+
+    python3 tools/new_project.py my-reel                 # scaffold only
+    python3 tools/new_project.py my-reel --engine p      # + copy engine P into the project
+    python3 tools/new_project.py my-reel --engine k      # + copy engine K into src/
+
+Layout follows medo-motion/reference/planning-and-tracking.md.
+The scaffold asks for nothing: fill BRIEF.md with the four inputs (script, scene
+direction, VO, poses). There is no logo and no series name — by design.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import shutil
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SKILL = ROOT / "medo-motion"
+
+BRIEF = """# BRIEF — {slug}
+
+> المصدر الوحيد للطلبات: العناصر الأربعة. أي حاجة تانية الوكيل بيقررها.
+> The four inputs. Everything else is the agent's decision.
+
+## 1) السكريبت — Script
+<!-- الصق السكريبت هنا. الأفضل: beats مرقمة، ومع كل beat اللي يظهر على الشاشة. -->
+```
+(1) ...
+(2) ...
+```
+
+## 2) توجيه المشاهد — Scene direction
+<!-- إزاي عايز المشاهد تتقدم: الترتيب، الإحساس، كل مشهد فيه إيه. -->
+
+## 3) صوت التعليق — VO
+- file: `assets/vo/` (لسه؟ حط الملف هنا)
+- measured duration: `—`
+
+## 4) صور ميدو — Poses
+- [ ] `assets/poses/wave.png`
+- [ ] `assets/poses/think.png`
+- [ ] `assets/poses/point.png`
+
+---
+## قرارات الوكيل — Agent decisions (auto-filled)
+- engine: `—`            <!-- P = procedural-reels، K = canvas/playwright -->
+- font: `Cairo` (locked)
+- music: `Am–F–C–G · 76 BPM · ducked` (locked) / none
+- sfx source: `procedural` → Openverse → (ElevenLabs with approval)
+- assumptions: `—`
+
+## اللي ناقص — Missing / at risk
+- `—`
+"""
+
+PROGRESS = """# PROGRESS — {slug}
+
+| stage | state | note |
+|---|---|---|
+| intake (4 inputs) | ⬜ | |
+| VO analysed / beats locked | ⬜ | |
+| engine chosen | ⬜ | |
+| scene 1 prototype | ⬜ | |
+| contact sheet (4–8 frames) | ⬜ | |
+| full render (chunks) | ⬜ | |
+| mix (−14.5 LUFS) | ⬜ | |
+| master encode (CRF13 ≥2.5Mbps) | ⬜ | |
+| QC + brand_check | ⬜ | |
+| delivered | ⬜ | |
+
+## Log
+- {slug} scaffolded by tools/new_project.py
+"""
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("slug", help="short project name, e.g. laptop-ep1")
+    ap.add_argument("--engine", choices=["p", "k", "none"], default="none")
+    ap.add_argument("--force", action="store_true")
+    a = ap.parse_args()
+
+    slug = re.sub(r"[^a-z0-9\-_]+", "-", a.slug.lower()).strip("-")
+    proj = ROOT / "projects" / slug
+    if proj.exists() and not a.force:
+        raise SystemExit(f"projects/{slug} already exists (use --force)")
+
+    for d in ["plan", "assets/vo", "assets/poses", "assets/fonts/Cairo", "assets/sfx", "out", "cache"]:
+        (proj / d).mkdir(parents=True, exist_ok=True)
+
+    (proj / "BRIEF.md").write_text(BRIEF.format(slug=slug), encoding="utf-8")
+    (proj / "PROGRESS.md").write_text(PROGRESS.format(slug=slug), encoding="utf-8")
+    (proj / "plan" / "beats.json").write_text(json.dumps(
+        {"duration": None, "scenes": [], "note": "fill from the VO after silencedetect"}, indent=2), encoding="utf-8")
+    (proj / "plan" / "script.md").write_text("# Script\n\n(paste the numbered beats here)\n", encoding="utf-8")
+
+    # brand font
+    src_fonts = sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"))
+    for f in src_fonts:
+        shutil.copy2(f, proj / "assets" / "fonts" / "Cairo" / f.name)
+    # taste file (brand-prefilled template)
+    taste = SKILL / "templates" / "TASTE.md"
+    if taste.is_file():
+        shutil.copy2(taste, proj / "TASTE.md")
+
+    if a.engine == "p":
+        for f in (SKILL / "templates" / "procedural-reels").iterdir():
+            if f.is_file():
+                shutil.copy2(f, proj / f.name)
+    elif a.engine == "k":
+        shutil.copytree(SKILL / "templates" / "render", proj / "src", dirs_exist_ok=True)
+        (proj / "package.json").write_text('{"type":"module","private":true}\n', encoding="utf-8")
+
+    print(f"created projects/{slug}  (engine={a.engine})")
+    print("next: fill BRIEF.md with the 4 inputs, then read AGENTS.md §5")
+
+
+if __name__ == "__main__":
+    main()

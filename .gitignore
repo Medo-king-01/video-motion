@@ -1,3 +1,21 @@
-# الحزمة مستخرجة من zip_data.json — رخصة Khaam: ممنوع إعادة النشر، فمش مربوطة بالريبو
-# (الملفات موجودة في الوركسبيس لكن مش هتترفع على GitHub)
-/medo-motion/
+# node
+node_modules/
+package-lock.json.bak
+
+# render output and caches (big, reproducible)
+projects/*/out/
+projects/*/cache/
+projects/*/renders/
+*.mp4
+*.wav.tmp
+*_preview.mp4
+
+# runtime caches
+.cache/
+__pycache__/
+*.pyc
+.DS_Store
+
+# secrets — never commit
+.env
+*.key
