@@ -33,6 +33,47 @@ export const SPRING_PRESETS = {
   heavy: { stiffness: 120, damping: 26, mass: 2 },
 };
 
+// Classic Penner equations (the MIT `easing-functions` implementation): the shapes a cubic-bezier
+// simply cannot express — elastic, bounce — plus the exact quad/cubic/quart/quint/sine/expo families.
+// Names never collide with the bezier vocabulary above, so `ease()` can dispatch on both.
+const n1 = 7.5625, d1 = 2.75;
+const bounceOut = t =>
+  t < 1 / d1 ? n1 * t * t
+    : t < 2 / d1 ? n1 * (t -= 1.5 / d1) * t + 0.75
+      : t < 2.5 / d1 ? n1 * (t -= 2.25 / d1) * t + 0.9375
+        : n1 * (t -= 2.625 / d1) * t + 0.984375;
+export const FORMULAS = {
+  smoothstep: t => t * t * (3 - 2 * t),
+  smootherstep: t => t * t * t * (t * (t * 6 - 15) + 10),
+  quadIn: t => t * t,
+  quadOut: t => 1 - (1 - t) * (1 - t),
+  quadInOut: t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),
+  cubicIn: t => t * t * t,
+  cubicOut: t => 1 - Math.pow(1 - t, 3),
+  cubicInOut: t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  quartIn: t => t * t * t * t,
+  quartOut: t => 1 - Math.pow(1 - t, 4),
+  quartInOut: t => (t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2),
+  quintIn: t => Math.pow(t, 5),
+  quintOut: t => 1 - Math.pow(1 - t, 5),
+  quintInOut: t => (t < 0.5 ? 16 * Math.pow(t, 5) : 1 - Math.pow(-2 * t + 2, 5) / 2),
+  sineIn: t => 1 - Math.cos((t * Math.PI) / 2),
+  sineOut: t => Math.sin((t * Math.PI) / 2),
+  sineInOut: t => -(Math.cos(Math.PI * t) - 1) / 2,
+  expoIn: t => (t === 0 ? 0 : Math.pow(2, 10 * t - 10)),
+  expoOut: t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+  expoInOut: t => (t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2),
+  elasticIn: t => (t === 0 ? 0 : t === 1 ? 1 : -Math.pow(2, 10 * t - 10) * Math.sin((t * 10 - 10.75) * ((2 * Math.PI) / 3))),
+  elasticOut: t => (t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * ((2 * Math.PI) / 3)) + 1),
+  elasticInOut: t => (t === 0 ? 0 : t === 1 ? 1
+    : (t < 0.5
+      ? -(Math.pow(2, 20 * t - 10) * Math.sin((20 * t - 11.125) * ((2 * Math.PI) / 4.5))) / 2
+      : (Math.pow(2, -20 * t + 10) * Math.sin((20 * t - 11.125) * ((2 * Math.PI) / 4.5))) / 2 + 1)),
+  bounceIn: t => 1 - bounceOut(1 - t),
+  bounceOut,
+  bounceInOut: t => (t < 0.5 ? (1 - bounceOut(1 - 2 * t)) / 2 : (1 + bounceOut(2 * t - 1)) / 2),
+};
+
 export const clamp = (v, lo = 0, hi = 1) => (v < lo ? lo : v > hi ? hi : v);
 export const lerp = (a, b, p) => a + (b - a) * p;
 export const progress = (t, start, dur) => (dur <= 0 ? (t >= start ? 1 : 0) : clamp((t - start) / dur));
@@ -81,8 +122,12 @@ function curve(spec) {
 
 /** ease('backOut', 0.4) · ease([0.34,1.56,0.64,1], 0.4) */
 export function ease(name, p) {
+  if (typeof name === 'string' && FORMULAS[name]) return FORMULAS[name](clamp(p));
   return curve(name)(clamp(p));
 }
+
+/** Every easing name this engine understands (bezier vocabulary + equation vocabulary). */
+export const EASING_NAMES = [...Object.keys(CUBIC_BEZIER), ...Object.keys(FORMULAS)];
 
 /**
  * Closed-form damped spring, normalised so it settles at 1 (it overshoots on purpose).

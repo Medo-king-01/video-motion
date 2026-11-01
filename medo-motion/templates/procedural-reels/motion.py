@@ -42,6 +42,68 @@ SPRING_PRESETS = {
 }
 
 
+# Classic Penner equations (the MIT `easing-functions` implementation) — elastic and bounce are the
+# shapes a cubic-bezier cannot express. Names never collide with the bezier vocabulary above.
+_N1, _D1 = 7.5625, 2.75
+
+
+def _bounce_out(t: float) -> float:
+    if t < 1 / _D1:
+        return _N1 * t * t
+    if t < 2 / _D1:
+        t -= 1.5 / _D1
+        return _N1 * t * t + 0.75
+    if t < 2.5 / _D1:
+        t -= 2.25 / _D1
+        return _N1 * t * t + 0.9375
+    t -= 2.625 / _D1
+    return _N1 * t * t + 0.984375
+
+
+def _elastic_in_out(t: float) -> float:
+    if t == 0 or t == 1:
+        return t
+    c = (2 * math.pi) / 4.5
+    if t < 0.5:
+        return -(2 ** (20 * t - 10) * math.sin((20 * t - 11.125) * c)) / 2
+    return (2 ** (-20 * t + 10) * math.sin((20 * t - 11.125) * c)) / 2 + 1
+
+
+FORMULAS = {
+    "smoothstep": lambda t: t * t * (3 - 2 * t),
+    "smootherstep": lambda t: t * t * t * (t * (t * 6 - 15) + 10),
+    "quadIn": lambda t: t * t,
+    "quadOut": lambda t: 1 - (1 - t) ** 2,
+    "quadInOut": lambda t: 2 * t * t if t < 0.5 else 1 - (-2 * t + 2) ** 2 / 2,
+    "cubicIn": lambda t: t**3,
+    "cubicOut": lambda t: 1 - (1 - t) ** 3,
+    "cubicInOut": lambda t: 4 * t**3 if t < 0.5 else 1 - (-2 * t + 2) ** 3 / 2,
+    "quartIn": lambda t: t**4,
+    "quartOut": lambda t: 1 - (1 - t) ** 4,
+    "quartInOut": lambda t: 8 * t**4 if t < 0.5 else 1 - (-2 * t + 2) ** 4 / 2,
+    "quintIn": lambda t: t**5,
+    "quintOut": lambda t: 1 - (1 - t) ** 5,
+    "quintInOut": lambda t: 16 * t**5 if t < 0.5 else 1 - (-2 * t + 2) ** 5 / 2,
+    "sineIn": lambda t: 1 - math.cos(t * math.pi / 2),
+    "sineOut": lambda t: math.sin(t * math.pi / 2),
+    "sineInOut": lambda t: -(math.cos(math.pi * t) - 1) / 2,
+    "expoIn": lambda t: 0.0 if t == 0 else 2 ** (10 * t - 10),
+    "expoOut": lambda t: 1.0 if t == 1 else 1 - 2 ** (-10 * t),
+    "expoInOut": lambda t: 0.0 if t == 0 else 1.0 if t == 1
+    else 2 ** (20 * t - 10) / 2 if t < 0.5 else (2 - 2 ** (-20 * t + 10)) / 2,
+    "elasticIn": lambda t: 0.0 if t == 0 else 1.0 if t == 1
+    else -(2 ** (10 * t - 10)) * math.sin((t * 10 - 10.75) * (2 * math.pi / 3)),
+    "elasticOut": lambda t: 0.0 if t == 0 else 1.0 if t == 1
+    else 2 ** (-10 * t) * math.sin((t * 10 - 0.75) * (2 * math.pi / 3)) + 1,
+    "elasticInOut": _elastic_in_out,
+    "bounceIn": lambda t: 1 - _bounce_out(1 - t),
+    "bounceOut": _bounce_out,
+    "bounceInOut": lambda t: (1 - _bounce_out(1 - 2 * t)) / 2 if t < 0.5 else (1 + _bounce_out(2 * t - 1)) / 2,
+}
+
+EASING_NAMES = [*CUBIC_BEZIER, *FORMULAS]
+
+
 def clamp(v, lo=0.0, hi=1.0):
     return lo if v < lo else hi if v > hi else v
 
@@ -107,6 +169,8 @@ def ease(spec, p):
     """ease('backOut', 0.4) · ease([0.34, 1.56, 0.64, 1], 0.4)"""
     if callable(spec):
         return spec(clamp(p))
+    if isinstance(spec, str) and spec in FORMULAS:
+        return FORMULAS[spec](clamp(p))
     pts = spec if isinstance(spec, (list, tuple)) else CUBIC_BEZIER.get(spec, CUBIC_BEZIER["easeOut"])
     return _bezier(float(pts[0]), float(pts[1]), float(pts[2]), float(pts[3]))(clamp(p))
 

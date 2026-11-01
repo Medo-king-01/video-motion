@@ -16,6 +16,8 @@
 | `icons_preview.mjs` | نفس الشيت بس من رسّام المحرك K (Canvas/Chromium) | `node tools/icons_preview.mjs --limit 24` |
 | `motion_studio.html` | استوديو الحركة الأوفلاين: محرر تايملاين JSON + سكرَب + قيم لحظية | `python3 -m http.server 8080` ثم `/tools/motion_studio.html` |
 | `theatre_import.py` | يحوّل Theatre.js state export لتايملاين المحركين | `python3 tools/theatre_import.py state.json --offset 18.5` |
+| `sfx_kit.py` | مكتبة المؤثرات البرمجية: `--list` · `--bank` · `--demo` · `--cues` (ميكس مع التعليق) |
+| `transitions_sheet.py` | شيت مراجعة + كليب معاينة لكل انتقال (بصوته) |
 | `toolkit/` | اعتماديات Node (`playwright-core`, `@sparticuz/chromium`, خطوط OFL) | `cd tools/toolkit && npm install` |
 | `bin/` | روابط ffmpeg/ffprobe اللي بيعملها `setup.sh` (مش متتبعة في git) | — |
 
@@ -30,6 +32,8 @@ make selftest   # فحص كامل + رندر
 make new SLUG=my-reel ENGINE=p
 make icons      # يعيد بناء الأيقونات + شيت مراجعة
 make studio     # استوديو الحركة على :8080
+make sfx        # معاينة مكتبة المؤثرات (cache/sfx-demo.mp3)
+make transitions # شيت + كليب لكل انتقال
 make clean      # مسح الكاش ومخرجات الرندر
 ```
 

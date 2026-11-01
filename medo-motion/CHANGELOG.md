@@ -1,5 +1,29 @@
 # Changelog — Medo Motion (private fork)
 
+## 1.6 — 2026-11-01 — transitions + a procedural sound kit
+- **Transition catalogue** (`motion/transitions.json`, 14 entries): wipe, wipeUp, diagonal, iris,
+  irisClose, slide, cover, blinds, checker, bands, dissolve, zoom, glitch, flash. Every entry declares
+  its `kind`, easing and the sound it pairs with. Names/kinds are inspired by the MIT gl-transitions
+  collection; the maths is vector/CPU so nothing depends on a GPU or on real time.
+- **One geometry, two engines**: `templates/render/lib/transition.js` (`transitionLayer`,
+  `makeLayer`, `compositeTransition`) and `templates/procedural-reels/transition.py` (`layer`,
+  `composite`). Masks are normalised, so the same numbers paint the same picture;
+  `tests/test_transitions.py` compares JS↔Python sample by sample and checks endpoint/invert behaviour.
+- **Sound kit** (`templates/procedural-reels/sfx.py`): 15 synthesised, deterministic sounds with a
+  `CATALOG` (family + base gain), a cue-sheet `bus()`, `duck()` for voice-over, `cues_for_transitions()`
+  (cuts → hits via the transition catalogue) and `render_bank()` for editor imports.
+- **Tools**: `tools/sfx_kit.py` (`--list`, `--bank`, `--demo`, `--cues … --vo … --out …`) and
+  `tools/transitions_sheet.py` (contact sheet + preview clip with the matched sounds). `make sfx`,
+  `make sfx-bank`, `make transitions`.
+- **Equation easings**: `motion/easings.json` gained the Penner `formulas` family (elastic, bounce,
+  quad/cubic/quart/quint, sine, expo, smoothstep) — names that don't collide with the bezier
+  vocabulary, identical in both engines.
+- **Engine K demo**: `scenes/transition-example.js` (25–28.2 s) cuts between two scenes through the
+  catalogue; the reel template's duration is now 28.2 s.
+- Docs: `docs/transitions.md`, `docs/audio.md`, motion doc updated; README/AGENTS/docs index/tools
+  README/Makefile wired.
+- Verified: `ruff` clean · `pytest` 113 passed · `make ci` OK · `selftest` PASS · sheet + clip inspected.
+
 ## 1.5 — 2026-11-01 — motion grammar (motion.dev + Theatre.js, without their runtimes)
 - **`medo-motion/motion/easings.json`**: 12 named cubic-beziers with motion.dev's control points
   (easeIn/Out/InOut, circ…, back…, anticipate) + 5 spring presets + the brand's locked timings.

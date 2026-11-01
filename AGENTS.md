@@ -49,6 +49,10 @@ finished video on guessed timing without saying so.
    `motion.py` (P). The same timeline JSON must render identically in both engines —
    `tests/test_motion.py` enforces it. `docs/motion.md` maps motion.dev recipes onto it and
    `tools/theatre_import.py` converts a Theatre.js state export.
+8. **Cuts and sound are catalogue-driven**: scene changes use `transition.py` / `lib/transition.js`
+   (`medo-motion/motion/transitions.json`) and every hit comes from `sfx.py` (`BANK` + `CATALOG`) via a
+   cue sheet — never a hand-rolled mask or an unlicensed audio file. `docs/transitions.md` and
+   `docs/audio.md` are the references; `make transitions` and `make sfx` produce the QA artefacts.
 
 ## 3. What YOU produce
 

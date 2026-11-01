@@ -29,6 +29,27 @@ Theatre.js Studio وتتحوّل بأمر واحد.
 `tests/test_motion.py` بيفشل لو الجداول في الـJS والـPython اختلفت عن `easings.json`، أو لو النتيجتين
 مش متطابقتين رقميًا (JS ↔ Python على نفس التايملاين).
 
+## منحنيات بالمعادلات | Equation easings
+الـcubic-bezier مش قادر يعمل elastic ولا bounce، فـ`easings.json` فيه كمان `formulas` (معادلات Penner
+زي ما هي في حزمة `easing-functions` المIT). الأسماء منفصلة عن مفردات الـbezier فمفيش تعارض:
+
+| العيلة | الأسماء |
+|---|---|
+| فيزيائية | `elasticIn/Out/InOut` · `bounceIn/Out/InOut` |
+| دقيقة | `quadIn/Out/InOut` · `cubicIn/Out/InOut` · `quartIn/Out/InOut` · `quintIn/Out/InOut` |
+| ناعمة | `sineIn/Out/InOut` · `expoIn/Out/InOut` · `smoothstep` · `smootherstep` |
+
+```js
+ease('bounceOut', p); ease('elasticOut', p); ease('expoIn', p);   // نفس الأرقام في Python
+```
+`EASING_NAMES` في المحركين بيطلّع القائمة الكاملة (٣٨ اسم) — والاختبارات بتتأكد إن الاسم في
+`transitions.json` أو في تايملاين موجود فعلًا.
+
+## التايملاين والانتقالات | Motion + transitions
+الانتقالات بقت جزء من نفس اللغة: `medo-motion/motion/transitions.json` + `lib/transition.js` (K)
+و`transition.py` (P) — كل انتقال دالة في التقدّم، ومربوط بصوت من مكتبة المؤثرات.
+التفاصيل في `docs/transitions.md`، والصوت في `docs/audio.md`.
+
 ## صيغة التايملاين | Timeline format
 ```json
 {

@@ -1,0 +1,125 @@
+{
+  "_doc": "The transition vocabulary shared by both engines. A transition is a pure function layer(name, p) -> {rects, circles, alpha, scaleB, aDx, dx...} in normalised units (x/w of frame width, y/h of frame height, circle radius of width), so engine K (Canvas) and engine P (Pillow/numpy) rasterise the *same* geometry. Names/kinds are inspired by the MIT gl-transitions collection (gl-transitions.com), but the maths is vector/CPU so it stays deterministic frame by frame.",
+  "default": {
+    "duration": 0.5,
+    "ease": "easeInOut",
+    "sfx": "whoosh"
+  },
+  "transitions": {
+    "wipe": {
+      "kind": "reveal",
+      "ease": "easeInOut",
+      "sfx": "whoosh",
+      "params": {
+        "dir": "right"
+      }
+    },
+    "wipeUp": {
+      "kind": "reveal",
+      "ease": "easeInOut",
+      "sfx": "whoosh",
+      "params": {
+        "dir": "up"
+      }
+    },
+    "diagonal": {
+      "kind": "reveal",
+      "ease": "easeInOut",
+      "sfx": "swipe",
+      "params": {
+        "dir": "diagonal",
+        "cols": 12
+      }
+    },
+    "iris": {
+      "kind": "circle",
+      "ease": "backOut",
+      "sfx": "pop",
+      "params": {}
+    },
+    "irisClose": {
+      "kind": "circle",
+      "ease": "easeInOut",
+      "sfx": "whoosh",
+      "params": {
+        "mode": "close"
+      }
+    },
+    "slide": {
+      "kind": "slide",
+      "ease": "easeInOut",
+      "sfx": "swipe",
+      "params": {
+        "push": true
+      }
+    },
+    "cover": {
+      "kind": "slide",
+      "ease": "expoOut",
+      "sfx": "swipe",
+      "params": {
+        "push": false
+      }
+    },
+    "blinds": {
+      "kind": "blinds",
+      "ease": "easeInOut",
+      "sfx": "tick",
+      "params": {
+        "bars": 8
+      }
+    },
+    "checker": {
+      "kind": "checker",
+      "ease": "easeInOut",
+      "sfx": "pop",
+      "params": {
+        "cols": 6,
+        "rows": 10
+      }
+    },
+    "bands": {
+      "kind": "bands",
+      "ease": "easeInOut",
+      "sfx": "whoosh",
+      "params": {
+        "bands": 6
+      }
+    },
+    "dissolve": {
+      "kind": "fade",
+      "ease": "linear",
+      "sfx": "noise"
+    },
+    "zoom": {
+      "kind": "zoom",
+      "ease": "expoOut",
+      "sfx": "whoosh"
+    },
+    "glitch": {
+      "kind": "slices",
+      "ease": "linear",
+      "sfx": "glitch",
+      "params": {
+        "slices": 12
+      }
+    },
+    "flash": {
+      "kind": "flash",
+      "ease": "easeInOut",
+      "sfx": "impact"
+    }
+  },
+  "notes": {
+    "reveal": "rect mask grows from one edge; diagonal grows column by column",
+    "circle": "iris opens from the centre (or closes: the mask is inverted)",
+    "slide": "the incoming frame slides over (cover) or pushes the outgoing one",
+    "blinds": "vertical slats open from alternating top/bottom edges",
+    "checker": "tiles pop in on a diagonal stagger",
+    "bands": "horizontal bands wipe in from alternating sides",
+    "fade": "straight cross-dissolve",
+    "zoom": "the incoming frame settles from 1.12x while fading in",
+    "slices": "rows are revealed in a hashed order with a residual horizontal jitter",
+    "flash": "a quick dip through the paper colour — good for impact cuts"
+  }
+}

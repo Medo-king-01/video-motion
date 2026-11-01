@@ -1,25 +1,105 @@
 {
-  "_doc": "Single source of truth for the studio's motion grammar. The names and control points follow motion.dev (framer-motion's named easings) so any recipe copied from https://motion.dev/docs can be typed straight into engine K (templates/render/lib/motion.js) or engine P (templates/procedural-reels/motion.py). tests/test_motion.py fails if either engine drifts from this file.",
+  "_doc": "Single source of truth for the studio's motion grammar. The names and control points follow motion.dev (framer-motion's named easings) so any recipe copied from https://motion.dev/docs can be typed straight into engine K (templates/render/lib/motion.js) or engine P (templates/procedural-reels/motion.py). tests/test_motion.py fails if either engine drifts from this file. `formulas` are the classic Penner equations (as implemented by the MIT 'easing-functions' package) for the shapes a cubic-bezier cannot express: elastic, bounce, and the exact quad/cubic/quart/quint/sine/expo families. They deliberately use names that do not collide with the bezier vocabulary.",
   "cubicBezier": {
-    "linear": [0, 0, 1, 1],
-    "ease": [0.25, 0.1, 0.25, 1],
-    "easeIn": [0.42, 0, 1, 1],
-    "easeOut": [0, 0, 0.58, 1],
-    "easeInOut": [0.42, 0, 0.58, 1],
-    "circIn": [0.55, 0, 1, 0.45],
-    "circOut": [0, 0.55, 0.45, 1],
-    "circInOut": [0.85, 0, 0.15, 1],
-    "backIn": [0.36, 0, 0.66, -0.56],
-    "backOut": [0.34, 1.56, 0.64, 1],
-    "backInOut": [0.68, -0.6, 0.32, 1.6],
-    "anticipate": [0.36, 0, 0.66, -0.56]
+    "linear": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "ease": [
+      0.25,
+      0.1,
+      0.25,
+      1
+    ],
+    "easeIn": [
+      0.42,
+      0,
+      1,
+      1
+    ],
+    "easeOut": [
+      0,
+      0,
+      0.58,
+      1
+    ],
+    "easeInOut": [
+      0.42,
+      0,
+      0.58,
+      1
+    ],
+    "circIn": [
+      0.55,
+      0,
+      1,
+      0.45
+    ],
+    "circOut": [
+      0,
+      0.55,
+      0.45,
+      1
+    ],
+    "circInOut": [
+      0.85,
+      0,
+      0.15,
+      1
+    ],
+    "backIn": [
+      0.36,
+      0,
+      0.66,
+      -0.56
+    ],
+    "backOut": [
+      0.34,
+      1.56,
+      0.64,
+      1
+    ],
+    "backInOut": [
+      0.68,
+      -0.6,
+      0.32,
+      1.6
+    ],
+    "anticipate": [
+      0.36,
+      0,
+      0.66,
+      -0.56
+    ]
   },
   "springPresets": {
-    "default": { "stiffness": 100, "damping": 10, "mass": 1 },
-    "soft": { "stiffness": 80, "damping": 18, "mass": 1 },
-    "snappy": { "stiffness": 220, "damping": 22, "mass": 1 },
-    "bouncy": { "stiffness": 260, "damping": 12, "mass": 1 },
-    "heavy": { "stiffness": 120, "damping": 26, "mass": 2 }
+    "default": {
+      "stiffness": 100,
+      "damping": 10,
+      "mass": 1
+    },
+    "soft": {
+      "stiffness": 80,
+      "damping": 18,
+      "mass": 1
+    },
+    "snappy": {
+      "stiffness": 220,
+      "damping": 22,
+      "mass": 1
+    },
+    "bouncy": {
+      "stiffness": 260,
+      "damping": 12,
+      "mass": 1
+    },
+    "heavy": {
+      "stiffness": 120,
+      "damping": 26,
+      "mass": 2
+    }
   },
   "brand": {
     "_doc": "Medo's locked motion timing (brand/BRAND.md §6). These are the defaults the engines use when a scene does not ask for something else.",
@@ -28,5 +108,34 @@
     "exit": "circIn",
     "caption": "easeInOut",
     "wipe": "easeInOut"
-  }
+  },
+  "formulas": {
+    "smoothstep": "quadInOut",
+    "smootherstep": "quintInOut",
+    "quadIn": "t*t",
+    "quadOut": "1-(1-t)^2",
+    "quadInOut": "t<.5 ? 2t^2 : 1-(-2t+2)^2/2",
+    "cubicIn": "t^3",
+    "cubicOut": "1-(1-t)^3",
+    "cubicInOut": "t<.5 ? 4t^3 : 1-(-2t+2)^3/2",
+    "quartIn": "t^4",
+    "quartOut": "1-(1-t)^4",
+    "quartInOut": "t<.5 ? 8t^4 : 1-(-2t+2)^4/2",
+    "quintIn": "t^5",
+    "quintOut": "1-(1-t)^5",
+    "quintInOut": "t<.5 ? 16t^5 : 1-(-2t+2)^5/2",
+    "sineIn": "1-cos(t*PI/2)",
+    "sineOut": "sin(t*PI/2)",
+    "sineInOut": "-(cos(PI*t)-1)/2",
+    "expoIn": "t==0 ? 0 : 2^(10t-10)",
+    "expoOut": "t==1 ? 1 : 1-2^(-10t)",
+    "expoInOut": "t==0 ? 0 : t==1 ? 1 : t<.5 ? 2^(20t-10)/2 : (2-2^(-20t+10))/2",
+    "elasticIn": "t==0 ? 0 : t==1 ? 1 : -2^(10t-10)*sin((10t-10.75)*2PI/3)",
+    "elasticOut": "t==0 ? 0 : t==1 ? 1 : 2^(-10t)*sin((10t-0.75)*2PI/3)+1",
+    "elasticInOut": "t==0 ? 0 : t==1 ? 1 : t<.5 ? -(2^(20t-10)*sin((20t-11.125)*2PI/4.5))/2 : (2^(-20t+10)*sin((20t-11.125)*2PI/4.5))/2+1",
+    "bounceIn": "1-bounceOut(1-t)",
+    "bounceOut": "n1=7.5625, d1=2.75 (piecewise parabolas)",
+    "bounceInOut": "t<.5 ? (1-bounceOut(1-2t))/2 : (1+bounceOut(2t-1))/2"
+  },
+  "formulaDoc": "Readable equations only — the engines hold the executable copies and tests/test_motion.py compares JS↔Python sample by sample."
 }

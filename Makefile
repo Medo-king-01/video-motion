@@ -33,6 +33,15 @@ studio:          ## open the offline motion studio (tools/motion_studio.html) on
 theatre:         ## convert a Theatre.js state export: make theatre F=state.json [OFFSET=18.5]
 	$(PY) tools/theatre_import.py $(or $(F),state.json) $(if $(OFFSET),--offset $(OFFSET),)
 
+sfx:             ## render the sound-kit audition (cache/sfx-demo.mp3)
+	$(PY) tools/sfx_kit.py --demo cache/sfx-demo.mp3
+
+sfx-bank:        ## write one WAV per sound: make sfx-bank DIR=out/sfx
+	$(PY) tools/sfx_kit.py --bank $(or $(DIR),out/sfx)
+
+transitions:     ## QA sheet + preview clip of every transition: make transitions [VIDEO=1]
+	$(PY) tools/transitions_sheet.py $(if $(VIDEO),--video cache/transitions.mp4,)
+
 icons:           ## rebuild the animated icon layer + a QA sheet
 	$(PY) medo-motion/icons/build.py
 	$(PY) tools/icons_sheet.py --out cache/icons-sheet.png
@@ -42,4 +51,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup doctor test ci selftest new brand icons studio theatre clean
+.PHONY: help setup doctor test ci selftest new brand icons studio theatre sfx sfx-bank transitions clean
