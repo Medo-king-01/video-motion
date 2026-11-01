@@ -27,10 +27,12 @@ from __future__ import annotations
 import functools
 import unicodedata
 
+import freetype
 import numpy as np
 import uharfbuzz as hb
-import freetype
 from PIL import Image
+
+__all__ = ['text_sprite', 'draw', 'measure', 'LAYOUT_NAME']
 
 # ---------------------------------------------------------------- classification
 ARABIC_RANGES = (
@@ -41,6 +43,10 @@ ARABIC_RANGES = (
 ARABIC_PUNCT = set('،؛؟٪٫٬۔﴾﴿')
 # Arabic-Indic digits read left-to-right inside an RTL paragraph
 AN_DIGITS = ((0x0660, 0x0669), (0x06F0, 0x06F9))
+# Explicit bidi controls travel with the neutral run, never with the words
+BIDI_MARKS = frozenset('\u200e\u200f\u202a\u202b\u202c\u2066\u2067\u2068\u2069')
+# Separators that belong INSIDE a number run: 25,000 / 12:30 / 3.5 / ٢٥٬٠٠٠
+NUMBER_SEPARATORS = frozenset(',.:٬٫')
 
 
 def _is_arabic(ch: str) -> bool:
@@ -60,26 +66,26 @@ def _is_number(ch: str) -> bool:
 def _is_neutral(ch: str) -> bool:
     if ch.isspace():
         return True
-    if ch in '\u200e\u200f\u202a\u202b\u202c\u2066\u2067\u2068\u2069':
+    if ch in BIDI_MARKS:
         return True
     cat = unicodedata.category(ch)
     return cat[0] in ('Z', 'P', 'S') and not _is_arabic(ch)
 
 
-def _runs(text: str, base_rtl: bool):
-    """Split into directional runs; merge neutrals into the neighbouring run.
+def _runs(text: str, base_rtl: bool) -> list[tuple[str, bool]]:
+    """Split a paragraph into directional runs, returned in VISUAL order (L→R).
 
-    Returns a list of (text, is_rtl) in **visual** order (left to right).
+    Neutrals (spaces, punctuation) become their own runs with the base direction:
+    that keeps the space between an Arabic word and an embedded number or Latin
+    word on the correct side once the runs are reversed for RTL.
     """
-    logical = []            # list of [text, rtl, is_neutral]
-    # separators that belong INSIDE a number run (25,000 / 12:30 / 3.5)
-    NUM_SEP = set(',.:٬٫')
+    logical: list[list] = []            # [text, is_rtl, is_neutral]
     for i, ch in enumerate(text):
         prev_d = i > 0 and _is_number(text[i - 1])
         next_d = i + 1 < len(text) and _is_number(text[i + 1])
         if _is_arabic(ch) and not _is_number(ch):
             rtl, neutral = True, False
-        elif ch in NUM_SEP and prev_d and next_d:
+        elif ch in NUMBER_SEPARATORS and prev_d and next_d:
             rtl, neutral = False, False      # keep the number in one LTR run
         elif _is_neutral(ch):
             # Neutrals sit BETWEEN runs. Giving them the base direction keeps
@@ -102,7 +108,8 @@ def _runs(text: str, base_rtl: bool):
 # ---------------------------------------------------------------- shaping engine
 @functools.lru_cache(maxsize=32)
 def _font(path: str, size: int):
-    data = open(path, 'rb').read()
+    with open(path, 'rb') as fh:
+        data = fh.read()
     hb_face = hb.Face(data)
     hb_font = hb.Font(hb_face)
     upem = hb_face.upem
@@ -187,7 +194,7 @@ def _compose(font_path, text, size, color, rtl, stroke, stroke_color, pad=0):
         img = Image.new('RGBA', blank.size, (0, 0, 0, 0))
         img.putalpha(blank)
         return img, 0, 0
-    mask, width, asc, desc = _mask(font_path, text, size, rtl)
+    mask, width, asc, _desc = _mask(font_path, text, size, rtl)
     c = tuple(color[:3]) if isinstance(color, (tuple, list)) else (255, 255, 255)
     if stroke > 0:
         import cv2
@@ -215,6 +222,9 @@ def _compose(font_path, text, size, color, rtl, stroke, stroke_color, pad=0):
 
 
 # ---------------------------------------------------------------- public API
+LAYOUT_NAME = 'harfbuzz-fallback'
+
+
 def text_sprite(font_path, text, size, color=(255, 255, 255), rtl=True,
                 stroke=0, stroke_color=(0, 0, 0)):
     """Premultiplied RGBA float32 (h, w, 4) — drop-in for lib.text_sprite.

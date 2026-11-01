@@ -19,8 +19,8 @@ PY=$(command -v python3 || command -v python || true)
 [ -z "$PY" ] && { echo "python3 not found"; exit 1; }
 
 # ---------------------------------------------------------------- python deps
-say "Python packages"
-PKGS="pillow numpy scipy opencv-python-headless imageio-ffmpeg av uharfbuzz freetype-py"
+say "Python packages (tools/requirements.txt)"
+REQ="$ROOT/tools/requirements.txt"
 NEED=$($PY - <<'EOF'
 import importlib
 need=[]
@@ -34,9 +34,11 @@ EOF
 if [ -n "$NEED" ]; then
   if [ "$CHECK_ONLY" = "1" ]; then bad "missing: $NEED"; else
     echo "  installing: $NEED"
-    $PY -m pip install --quiet --no-input $NEED 2>/dev/null \
-      || $PY -m pip install --quiet --no-input --break-system-packages $NEED \
-      || echo "  pip failed — install manually: $NEED"
+    FLAGS=""
+    if [ -f "$REQ" ]; then TARGET="-r $REQ"; else TARGET="$NEED"; fi
+    $PY -m pip install --quiet --no-input $TARGET 2>/dev/null \
+      || $PY -m pip install --quiet --no-input --break-system-packages $TARGET \
+      || echo "  pip failed — install manually: pip install -r tools/requirements.txt"
   fi
 else ok "all python packages present"; fi
 

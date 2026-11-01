@@ -15,7 +15,6 @@
 import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { Readable } from 'node:stream';
 import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';

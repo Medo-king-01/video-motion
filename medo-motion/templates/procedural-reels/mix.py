@@ -1,4 +1,4 @@
-import os,sys,json,subprocess,re,math,shutil
+import os,sys,json,subprocess,re,shutil
 FF=os.environ.get('FFMPEG_BIN') or shutil.which('ffmpeg') or 'ffmpeg'
 HERE=os.path.dirname(os.path.abspath(__file__)); os.chdir(os.environ.get('REEL_DIR',HERE)); sys.path.insert(0,HERE)
 import numpy as np

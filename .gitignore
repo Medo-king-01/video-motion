@@ -2,18 +2,23 @@
 node_modules/
 package-lock.json.bak
 
-# render output and caches (big, reproducible)
+# render output and runtime caches (big, reproducible)
 projects/*/out/
 projects/*/cache/
 projects/*/renders/
+projects/*/frames/
+projects/*/out_log.txt
+projects/*/src/node_modules
 *.mp4
-*.wav.tmp
 *_preview.mp4
 
-# runtime caches
+# tooling caches
 .cache/
+.pytest_cache/
+.ruff_cache/
 __pycache__/
 *.pyc
+tools/bin/
 .DS_Store
 
 # secrets — never commit

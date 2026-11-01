@@ -4,7 +4,7 @@
                                                 and (if a procedural-reels project is given with --project) palette drift vs lib.py
   python brand_check.py --frame frame.png    -> report how much of a frame is on-palette (rough, for contact-sheet QA)
 Read-only: installs nothing, uses no network."""
-import json, sys, os, re, argparse
+import json, sys, re, argparse
 from pathlib import Path
 HERE=Path(__file__).resolve().parent.parent
 def lum(c):

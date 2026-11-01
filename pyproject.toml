@@ -1,0 +1,41 @@
+[project]
+name = "medo-motion-studio"
+version = "0.2.0"
+description = "Arabic vertical-reel studio: locked brand, two render engines, agent-agnostic contract"
+requires-python = ">=3.10"
+readme = "README.md"
+
+# Tooling config only — the studio is scripts, not an installable package.
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+exclude = [
+  "tools/toolkit/node_modules",
+  "medo-motion/reference/source",
+  ".git",
+]
+
+[tool.ruff.lint]
+# E7 (one-statement-per-line, ambiguous names) is skipped on purpose: the render
+# engines are dense graphics code written in a compact style. E4/E9/F catch the
+# real bugs (bad imports, syntax, undefined names).
+select = ["E4", "E9", "F", "I", "UP", "B"]
+ignore = [
+  "E501",   # long lines: the guides are prose, the engines are compact on purpose
+  "B008",   # function calls in defaults are fine for small helpers
+  "UP007",  # Optional[...] vs |: vendored code targets 3.9+
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The procedural engine intentionally uses `from lib import *` / `from art import *`
+# (upstream design). Keeping it avoids a risky rewrite of 600 lines of scene code.
+# Vendored helpers keep their original style (compact one-line imports); we only
+# care about real bugs there, so F (unused/undefined names) stays enabled.
+"medo-motion/scripts/*.py" = ["E401", "E402", "I", "UP", "B"]
+"medo-motion/templates/procedural-reels/*.py" = ["E401", "E402", "F403", "F405", "I", "UP", "B"]
+"tools/ffprobe_shim.py" = ["B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["slow: needs ffmpeg/chromium and takes a few seconds"]

@@ -1,5 +1,23 @@
 # Changelog — Medo Motion (private fork)
 
+## 1.2 — 2026-11-01 — clean-code pass
+- **Tests:** `tests/` with 26 pytest cases — Arabic shaping invariants (joined forms,
+  visual run order, number separators, ink-tight sprites, strokes keeping counters,
+  determinism, anchor centring), the brand lock (tokens, no-logo rule, JS↔JSON sync,
+  contrast), the scaffold, and one real 1080×1920 engine-P frame.
+- **Self test:** `tools/selftest.py` (doctor → tests → engine P render → engine K render)
+  and a `Makefile` (`make setup|doctor|test|selftest|new|brand|clean`).
+- **Lint:** `pyproject.toml` with ruff (E4/E9/F/I/UP/B), documented per-file ignores for
+  the vendored engines' compact style. `ruff check .` is clean.
+- **Code cleanups:** removed dead imports/locals in `art.py`, `scenes.py`, `mix.py`,
+  `brand_check.py`; `lib.py` gained `_shaper()` instead of duplicated backend guards;
+  `arabic_shape.py` got named constants (`BIDI_MARKS`, `NUMBER_SEPARATORS`), typed run
+  splitting, `__all__` and a context-managed font read; `doctor.py` de-duplicated.
+- **Repo hygiene:** `docs/` (analysis + conventions), `tools/README.md`,
+  `tools/requirements.txt`, `.editorconfig`, `.github/workflows/ci.yml`, and a
+  `.gitignore` that covers render output, caches and secrets.
+- Verified: `ruff check .` clean · `pytest` 26 passed · `tools/selftest.py` all PASS.
+
 ## 1.1 — 2026-11-01 — agent-agnostic studio + new contract
 - **Works with any coding agent.** The operating contract moved to `AGENTS.md` at the
   repo root; `SKILL.md` now defers to it and no longer assumes Claude Code.

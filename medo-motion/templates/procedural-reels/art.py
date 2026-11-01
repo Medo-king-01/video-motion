@@ -1,6 +1,5 @@
 import functools, math
 from lib import *
-from PIL import ImageFilter
 OL=(18,16,20)
 # ================= DEVICES =================
 @functools.lru_cache(maxsize=None)
@@ -40,7 +39,7 @@ def desktop(w=420):
 # ================= PART ICONS (200x200) =================
 @functools.lru_cache(maxsize=None)
 def icon(kind,s=170,color=WHITE):
-    d=D(s,s); c=s/2; k=s/200.0; ac=RED
+    d=D(s,s); k=s/200.0; ac=RED
     if kind=='cpu':
         for i in range(5):
             p=40+i*30*1
@@ -78,7 +77,6 @@ def icon(kind,s=170,color=WHITE):
 # ================= PEOPLE =================
 def _hair(d,cx,cy,r,col,style='curly'):
     if style=='curly':
-        import random; rnd=random.Random(7)
         for a in range(190,351,16):
             x=cx+(r+4)*math.cos(math.radians(a)); y=cy+(r+4)*math.sin(math.radians(a))*0.95
             d.circ(x,y,r*0.40,fill=col,outline=OL,width=3)

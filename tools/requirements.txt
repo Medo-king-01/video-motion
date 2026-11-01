@@ -1,0 +1,10 @@
+# Python deps for the studio tools and both render engines.
+# Install with: bash tools/setup.sh   (or pip install -r tools/requirements.txt)
+pillow>=10
+numpy>=1.24
+scipy>=1.10
+opencv-python-headless>=4.8
+imageio-ffmpeg>=0.5     # ships a static ffmpeg binary
+av>=12                  # powers the ffprobe shim (no ffprobe binary needed)
+uharfbuzz>=0.37         # Arabic shaping for engine P when Pillow lacks libraqm
+freetype-py>=2.4        # glyph rasterising for that fallback

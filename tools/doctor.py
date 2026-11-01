@@ -11,12 +11,10 @@ Read-only apart from a Chromium launch and one temporary 64×64 PNG.
 """
 from __future__ import annotations
 
-import json
 import os
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -67,7 +65,7 @@ except Exception:
 if backend == "none":
     try:
         sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
-        import arabic_shape                                        # noqa: F401
+        import arabic_shape  # noqa: PLC0415 — path is injected right above                                        # noqa: F401
         backend = "harfbuzz-fallback"
         detail = "Pillow has no libraqm; arabic_shape.py (HarfBuzz+FreeType) used"
     except Exception as e:
@@ -79,8 +77,7 @@ font = next(iter(sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"))), N
 if font and backend != "none":
     try:
         sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
-        import numpy as np
-        import arabic_shape
+        import arabic_shape  # noqa: PLC0415 — path is injected right above
         spr = arabic_shape.text_sprite(str(font), "مرحبا", 48, (255, 255, 255), True, 0)
         ink = float((spr[..., 3] > 0).mean())
         add("Arabic render smoke", "OK" if ink > 0.02 else "FAIL", f"ink coverage {ink:.0%} with {font.name}")
@@ -145,7 +142,7 @@ degraded = [r for r in rows if r[1] in ("WARN", "DEGRADED")]
 if blocked:
     verdict = f"BLOCKED — {len(blocked)} item(s): " + ", ".join(r[0] for r in blocked)
 elif degraded:
-    verdict = f"DEGRADED — usable, but check: " + ", ".join(r[0] for r in degraded)
+    verdict = "DEGRADED — usable, but check: " + ", ".join(r[0] for r in degraded)
 else:
     verdict = "READY — engine P and engine K can both render a reel"
 print(verdict)

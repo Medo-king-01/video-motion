@@ -62,7 +62,11 @@ Medo gives you words, timing, voice and poses. Everything visual and audible is 
 ```bash
 bash tools/setup.sh          # installs python + node deps, ffmpeg, fonts, chromium
 python3 tools/doctor.py      # prints READY / BLOCKED for every capability
+python3 tools/selftest.py    # doctor + unit tests + a few real frames (the real proof)
 ```
+
+`make setup`, `make doctor`, `make selftest`, `make test`, `make new SLUG=…` are the
+same commands in short form.
 
 Then start a project:
 
@@ -123,6 +127,7 @@ and reliably. Copy the template into the project, never edit the toolkit in plac
 - No text over a face, nothing important outside y 200–1350, captions at y≈1455
 - Every placeholder declared, every external asset in `assets/CREDITS.md`
 - `python3 medo-motion/scripts/brand_check.py --project <project>` is clean
+- `python3 tools/selftest.py` still passes after your changes (it is the regression net)
 
 ## 8. Delivery message
 
@@ -151,7 +156,9 @@ AGENTS.md              ← this contract (any agent)
 README.md              ← Arabic overview
 assets/                ← shared inputs: fonts/, poses/, sfx/
 projects/<slug>/       ← one video: BRIEF.md, plan/, assets/, out/, PROGRESS.md
-tools/                 ← setup.sh, doctor.py, new_project.py, ffprobe_shim.py, chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · ffprobe_shim.py · chromium.mjs
+tests/                 ← pytest: Arabic shaping invariants, brand lock, scaffold, one real frame
+docs/                  ← analysis + conventions (docs/README.md)
 medo-motion/           ← the toolkit
   SKILL.md             ← entry point (Claude Code reads this; it defers to AGENTS.md)
   brand/               ← locked identity (human + machine)

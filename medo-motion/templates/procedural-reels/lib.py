@@ -25,14 +25,22 @@ try:
 except Exception:
     HAS_RAQM=False
 LAYOUT_BACKEND='raqm' if HAS_RAQM else 'harfbuzz'
+_ar=None
 if not HAS_RAQM:
     try:
         import arabic_shape as _ar
-        print('[layout] libraqm not available -> using arabic_shape.py (HarfBuzz + FreeType)')
-    except Exception as _e:
-        _ar=None
-        print('[layout] FATAL: no libraqm and arabic_shape.py unavailable:',_e)
-        print('        install: python -m pip install uharfbuzz freetype-py   (Arabic will NOT be shaped)')
+    except Exception as _e:                     # pragma: no cover - env problem, not logic
+        print('[layout] FATAL: no libraqm and no arabic_shape.py:',_e)
+        print('        fix: python -m pip install uharfbuzz freetype-py')
+    else:
+        print('[layout] libraqm not available -> arabic_shape.py (HarfBuzz + FreeType)')
+
+
+def _shaper():
+    """Return the fallback shaper or fail loudly. Never silently draw unjoined text."""
+    if _ar is None:
+        raise RuntimeError('Arabic shaping backend missing: python -m pip install uharfbuzz freetype-py')
+    return _ar
 
 @functools.lru_cache(maxsize=None)
 def font(size):
@@ -66,8 +74,7 @@ def lerp(a,b,x): return a+(b-a)*x
 @functools.lru_cache(maxsize=2000)
 def text_sprite(txt,size,color=(255,255,255),rtl=True,stroke=0,scolor=(0,0,0)):
     if not HAS_RAQM:
-        if _ar is None: raise RuntimeError('Arabic shaping backend missing: pip install uharfbuzz freetype-py')
-        return _ar.text_sprite(FONT,txt,size,color,rtl,stroke,scolor)
+        return _shaper().text_sprite(FONT,txt,size,color,rtl,stroke,scolor)
     f=font(size)
     kw=dict(direction='rtl',language='ar') if rtl else dict(direction='ltr')
     d0=ImageDraw.Draw(Image.new('L',(4,4)))
@@ -98,8 +105,7 @@ class D:
     def circ(s,cx,cy,r,fill=None,outline=None,width=0): s.ell((cx-r,cy-r,cx+r,cy+r),fill,outline,width)
     def text(s,xy,txt,size,fill,rtl=False,anchor='mm'):
         if not HAS_RAQM:
-            if _ar is None: raise RuntimeError('Arabic shaping backend missing: pip install uharfbuzz freetype-py')
-            _ar.draw(s.im,(xy[0]*SS,xy[1]*SS),FONT,txt,size*SS,fill,rtl,anchor); return
+            _shaper().draw(s.im,(xy[0]*SS,xy[1]*SS),FONT,txt,size*SS,fill,rtl,anchor); return
         f=font(size*SS)
         kw=dict(direction='rtl',language='ar') if rtl else {}
         s.d.text((xy[0]*SS,xy[1]*SS),txt,font=f,fill=fill,anchor=anchor,**kw)

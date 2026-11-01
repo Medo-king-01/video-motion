@@ -29,7 +29,10 @@
 ```bash
 bash tools/setup.sh        # بينزّل اللي ناقص (python deps · ffmpeg · خطوط · كروميوم)
 python3 tools/doctor.py    # تقرير READY / DEGRADED / BLOCKED لكل قدرة
+python3 tools/selftest.py  # فحص كامل: doctor + اختبارات + رندر حقيقي من المحركين
 ```
+
+أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم`
 
 مشروع جديد:
 
@@ -48,7 +51,9 @@ python3 tools/new_project.py اسم-المشروع --engine k   # محرك كا�
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
 assets/                ← مدخلات مشتركة: fonts/Cairo · poses/ · sfx/
 projects/<slug>/       ← كل فيديو: BRIEF.md · plan/ · assets/ · out/ · PROGRESS.md
-tools/                 ← setup.sh · doctor.py · new_project.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · ffprobe_shim.py · chromium.mjs
+tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
+docs/                  ← التحليل + قواعد الاتساق
 medo-motion/           ← الحزمة (النسخة الخاصة من «موشن خام» v1.4.1)
   SKILL.md             ← نقطة دخول كلود كود (بتحوّل لـ AGENTS.md)
   brand/               ← الهوية: BRAND.md للبني آدم + brand.json للكود
@@ -81,6 +86,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
 | محركي الرندر P و K | ✅ اتجربوا ورندروا فريمات عربية صح |
+| الاختبارات (`make test` · `make selftest`) | ✅ ٢٦ اختبار + رندر من المحركين |
 | مفتاح ElevenLabs | ❌ اختياري — الصوت بييجي منك |
 
 شغّل `python3 tools/doctor.py` في أي وقت للتأكد.

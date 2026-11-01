@@ -180,13 +180,12 @@ def scene1(fr,t):
     scl=1+0.22*max(0,1-abs(lt-0.12)/0.25)
     txt(fr,f"{n:,} ج.م",540+sh,300,118,col,scale=scl*(1 if lt<3.1 else 0.96),alpha=prog(lt,0,0.15))
     if lt>3.1:
-        wd=text_sprite(f"25,000 ج.م",118,col,True,5).shape[1]*0.96*e_out(prog(lt,3.1,3.45))
+        wd=text_sprite("25,000 ج.م",118,col,True,5).shape[1]*0.96*e_out(prog(lt,3.1,3.45))
         fill_rect(fr,540+sh-wd/2,296,540+sh+wd/2,306,INK2,1.0)
         c=prog(lt,3.15,3.5); paste(fr,pill(400,92,(18,18,22),240),540,430,scale=c,alpha=c)
         txt(fr,"بعد 30 يوم",540,430,56,YEL,scale=c,alpha=c)
     # buyer
     bob=-abs(math.sin(lt*9))*20*(1-hot) if lt<3.2 else 0
-    body='excited' if lt<3.2 else 'frustrated'
     gy=1385+bob
     if lt<3.2:
         sc=1.15*(1+0.025*max(0,math.sin(lt*9))); paste(fr,person((31,138,138),'excited','hold',blink=bl(lt)),540,gy,scale=sc,anchor=(0.5,1.0))
@@ -227,7 +226,6 @@ def scene2(fr,t):
             t0=6.3+i*0.14; k=e_back(prog(t,t0,t0+0.4))
             x=150+i*156+(0 if ca==1 else -60*(1-ca)); by=1110-(1-ca)*40
             paste(fr,crowd_person(i),x,by,scale=0.5*k,anchor=(0.5,1.0),alpha=ca)
-            m='؟' if i%2 else '✕'; 
             txt(fr,'؟',x,by-0.5*780-30+math.sin(t*5+i)*6,80,GOLD if i%2 else RED,scale=k,alpha=ca,stroke=4)
     # buyer
     enter=e_out(prog(t,8.0,8.9))
@@ -284,7 +282,7 @@ def scene4(fr,t):
     c=e_back(prog(lt,0.2,0.65)); paste(fr,pill(420,92,RED),540,255,scale=c,alpha=min(1,c)); txt(fr,"الحلقة الأولى",540,255,52,WHITE,scale=c)
     c2=prog(lt,0.7,1.2); txt(fr,"لابتوب ولا كمبيوتر مكتبي؟",540,355-(1-c2)*20,60,INK2,alpha=c2)
     # devices
-    k1=e_back(prog(lt,2.3,2.8)); k2=e_back(prog(lt,3.4,3.9)); gl=0
+    k1=e_back(prog(lt,2.3,2.8)); k2=e_back(prog(lt,3.4,3.9))
     hl1=prog(lt,5.0,5.3)*(1-prog(lt,6.4,6.7)); hl2=prog(lt,6.5,6.8)*(1-prog(lt,7.8,8.1))
     if hl1>0: red_circle(fr,260,560,200,EMER,0.28*hl1,60)
     if hl2>0: red_circle(fr,815,560,200,TEAL,0.35*hl2,60)
