@@ -32,7 +32,7 @@ python3 tools/doctor.py    # تقرير READY / DEGRADED / BLOCKED لكل قدر
 python3 tools/selftest.py  # فحص كامل: doctor + اختبارات + رندر حقيقي من المحركين
 ```
 
-أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio` · `make transitions` · `make sfx`
+أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio` · `make transitions` · `make sfx` · `make poses`
 
 مشروع جديد:
 
@@ -82,6 +82,10 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 والحركة ليها لغة واحدة (`medo-motion/motion/`) بنفس منحنيات **motion.dev** وتايملاين keyframes زي **Theatre.js**:
 نفس الـJSON بيشتغل في المحركين، وفي استوديو أوفلاين بتراجع بيه الحركة قبل الرندر — `docs/motion.md`.
 
+**ميدو بقى جوه المشروع:** ١٤ وضعية (طبيعي، شرح، بيشاور، ترحيب، تلويح، تسقيف، إعجاب، تفكير،
+تفكير عميق، حيرة، حزين، مصدوم، مشي، جري) مقصوصة بشفافية من الأصل، كلها بنفس الطول ونفس خط الأرض،
+بحركة تنفّس وميلان وقطع مشكّل — المحركين بيرسموها بنفس الأرقام. `docs/presenter.md`.
+
 **القطع والمؤثرات كمان بقوا كتالوج:** ١٤ انتقال (`wipe`, `iris`, `checker`, `slide`, `glitch`…) هندستهم
 واحدة في المحركين وكل واحد مربوط بصوته من مكتبة **١٥ مؤثر برمجي** (`whoosh`, `pop`, `impact`, `chime`…) —
 الـhits بتتولّد بالكود فالترخيص مفتوح والتزامن مظبوط للفريم. `docs/transitions.md` · `docs/audio.md`.
@@ -98,7 +102,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
 | محركي الرندر P و K | ✅ اتجربوا ورندروا فريمات عربية صح |
-| الاختبارات (`make test` · `make selftest`) | ✅ ١١٣ اختبار + رندر من المحركين |
+| الاختبارات (`make test` · `make selftest`) | ✅ ١٢٣ اختبار + رندر من المحركين |
 | مفتاح ElevenLabs | ❌ اختياري — الصوت بييجي منك |
 
 شغّل `python3 tools/doctor.py` في أي وقت للتأكد.

@@ -129,6 +129,12 @@ def load_png(name,height):
     p=f'assets/{name}.png'
     if not os.path.exists(p):
         if name.startswith('medo'):
+            # real presenter art first (assets/poses/<slug>.png), then the brand silhouette
+            try:
+                import presenter
+                return presenter.sprite(name,int(height))
+            except Exception:
+                pass
             print('[brand] WARNING: missing',p,'-> using brand-silhouette PLACEHOLDER'); return placeholder_medo(height)
         raise FileNotFoundError(p)
     im=cv2.imread(p,cv2.IMREAD_UNCHANGED)

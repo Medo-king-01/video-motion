@@ -40,9 +40,9 @@ BRIEF = """# BRIEF — {slug}
 - measured duration: `—`
 
 ## 4) صور ميدو — Poses
-- [ ] `assets/poses/wave.png`
-- [ ] `assets/poses/think.png`
-- [ ] `assets/poses/point.png`
+- [x] `assets/poses/` — صور ميدو (١٤ وضعية) + `poses.json` بتتنسخ أوتوماتيك من الاستوديو
+   (شوف `docs/presenter.md`; الوضعيات: neutral, explain, point, welcome, wave, clap, like,
+   thinking, thinking-deep, puzzled, sad, shocked, walk, run)
 
 ---
 ## قرارات الوكيل — Agent decisions (auto-filled)
@@ -98,6 +98,12 @@ def main():
     (proj / "plan" / "script.md").write_text("# Script\n\n(paste the numbered beats here)\n", encoding="utf-8")
 
     # brand font
+    poses_src = ROOT / "assets" / "poses"
+    if poses_src.exists():
+        for f in poses_src.glob("*.png"):
+            shutil.copy2(f, proj / "assets" / "poses" / f.name)
+        if (poses_src / "poses.json").exists():
+            shutil.copy2(poses_src / "poses.json", proj / "assets" / "poses" / "poses.json")
     src_fonts = sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"))
     for f in src_fonts:
         shutil.copy2(f, proj / "assets" / "fonts" / "Cairo" / f.name)

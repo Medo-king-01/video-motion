@@ -1,5 +1,24 @@
 # Changelog — Medo Motion (private fork)
 
+## 1.7 — 2026-11-01 — Medo's pose library (14 cut-outs, both engines)
+- **`assets/poses/`**: 14 presenter poses delivered as light-background JPEGs, rebuilt into trimmed
+  transparent PNGs (figure height normalised to 1200 px, feet on one baseline) + `poses.json`
+  (Arabic/English label, tags, facing, per-pose scale, feet anchor). Originals kept in `raw/`.
+- **`tools/presenter_build.py`**: background removal tuned for studio art — pure-white background and
+  grey contact shadow out, enclosed *shaded* whites (the t-shirt) filled, enclosed *pure-white* gaps
+  (between stool legs / limbs) punched out, JPEG rim de-haloed, then normalised. `make poses` also
+  renders a contact sheet on the brand background.
+- **Both engines got the presenter module**: `templates/procedural-reels/presenter.py` and
+  `templates/render/lib/presenter.js` — `draw`/`drawPresenter`, `PoseTrack` (shaped cross-fade,
+  0.12 s), idle life (breathe 0.8 %, bob, sway, per-pose lean/pulse) with identical numbers, and the
+  ground-line anchor. Old `medo_*` sprite names resolve to the new poses, so existing scenes picked up
+  the real art instead of the placeholder silhouette.
+- **`scenes/presenter-example.js`** (28.2–31.4 s): greet → explain → point over the brand circle.
+- `new_project.py` copies `assets/poses/` + the manifest into every new project.
+- Docs: `docs/presenter.md`; README/AGENTS/docs index/tools README/Makefile/CREDITS updated.
+- Verified: 14 poses inspected on the dark background, `ruff` clean, `pytest` 123 passed, JS↔Python
+  pose-transform parity asserted.
+
 ## 1.6 — 2026-11-01 — transitions + a procedural sound kit
 - **Transition catalogue** (`motion/transitions.json`, 14 entries): wipe, wipeUp, diagonal, iris,
   irisClose, slide, cover, blinds, checker, bands, dissolve, zoom, glitch, flash. Every entry declares
