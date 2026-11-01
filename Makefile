@@ -46,6 +46,16 @@ fonts:           ## (re)install the free type system into assets/fonts: make fon
 fonts-sheet:     ## specimen sheet of every family + pairings (cache/fonts-sheet.png)
 	$(PY) tools/fonts_preview.py
 
+techniques:      ## draw this reel's moves from the library: make techniques PLAN=projects/x/plan/beats.json
+	$(PY) tools/techniques.py --draw $(if $(PLAN),--from-plan $(PLAN) --json $(dir $(PLAN))techniques.json,) \
+		$(if $(SEED),--seed $(SEED),) $(if $(ENERGY),--energy $(ENERGY),)
+
+techniques-doc:  ## regenerate docs/techniques.md from assets/techniques.json
+	$(PY) tools/techniques.py --markdown docs/techniques.md
+
+lint:            ## lint a reel plan before rendering: make lint P=projects/x [STRICT=1]
+	$(PY) tools/reel_lint.py $(or $(P),.) $(if $(STRICT),--strict,) $(if $(SCAN),--scan-code,)
+
 poses:           ## rebuild Medo's pose cut-outs + a QA sheet: make poses
 	$(PY) tools/presenter_build.py --sheet cache/poses-sheet.png
 
@@ -67,4 +77,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup doctor test ci selftest new brand icons studio theatre poses sfx sfx-bank transitions clean
+.PHONY: help setup doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint poses sfx sfx-bank transitions clean

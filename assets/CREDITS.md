@@ -20,6 +20,8 @@
 | خط Instrument Serif | fonts.google.com/specimen/Instrument+Serif · npm `@expo-google-fonts/instrument-serif` | SIL OFL 1.1 | 2026-11-01 | editorial serif (`docs/fonts.md`) |
 | أيقونات itshover (263 أيقونة) | https://itshover.com · https://github.com/itshover/itshover | **Apache-2.0** | 2026-11-01 | `medo-motion/icons/itshover/tsx/` — مولّد منها أيقونات المحركين. نص الترخيص في `medo-motion/icons/itshover/LICENSE` |
 
+| منهج الحرفة + مكتبة الحركات (مُعاد كتابتها) | https://github.com/Leonxlnx/cinetic | **MIT** | 2026-11-01 | `assets/techniques.json` + `docs/craft.md`, `docs/techniques.md`: أرقام المونتاج/النص مقاسة من فيلم‑فيلم، ومكتبة ٤١ حركة **اتعادت كتابتها** على primitives الاستوديو (مفيش React/Remotion/GSAP ولا كود منسوخ؛ `tests/test_techniques.py` بيمنع الرجوع ليهم). الأصل MIT © 2026 Leonxlnx |
+
 ## Type system — `assets/fonts/` (14 families, SIL OFL 1.1)
 كل العيلات من Google Fonts، اتسحبت كـTTF من حزم npm `@expo-google-fonts/*` بـ`tools/fonts_install.py`،
 وكل عيلة معاها `OFL.txt` في فولدرها. الـOFL بيسمح بالاستخدام التجاري وإعادة التوزيع من غير أي حقوق

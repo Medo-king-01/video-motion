@@ -1,0 +1,78 @@
+{
+  "duration": 24.0,
+  "fps": 30,
+  "frames": 720,
+  "bounds": [
+    0,
+    3.17,
+    6.3,
+    10.2,
+    13.2,
+    17.1,
+    19.8,
+    24.0
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 3.17,
+      "dur": 3.17,
+      "frames": 95,
+      "events": []
+    },
+    {
+      "index": 2,
+      "start": 3.17,
+      "end": 6.3,
+      "dur": 3.13,
+      "frames": 94,
+      "events": []
+    },
+    {
+      "index": 3,
+      "start": 6.3,
+      "end": 10.2,
+      "dur": 3.9,
+      "frames": 117,
+      "events": [
+        {
+          "t": 6.4,
+          "what": "counter"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "start": 10.2,
+      "end": 13.2,
+      "dur": 3.0,
+      "frames": 90,
+      "events": []
+    },
+    {
+      "index": 5,
+      "start": 13.2,
+      "end": 17.1,
+      "dur": 3.9,
+      "frames": 117,
+      "events": []
+    },
+    {
+      "index": 6,
+      "start": 17.1,
+      "end": 19.8,
+      "dur": 2.7,
+      "frames": 81,
+      "events": []
+    },
+    {
+      "index": 7,
+      "start": 19.8,
+      "end": 24.0,
+      "dur": 4.2,
+      "frames": 126,
+      "events": []
+    }
+  ]
+}

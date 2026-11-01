@@ -53,7 +53,9 @@ Ask **once** for whatever is missing, then decide and state the decision.
 
 New project: `python3 tools/new_project.py <slug> [--engine p|k]` (repo root), then fill
 `BRIEF.md`. Full contract in `../AGENTS.md` §5. In short:
-intake → analyse the VO (`silencedetect`) → lock `plan/beats.json` → scene prototype (3 stills)
+intake → analyse the VO (`silencedetect`) → lock `plan/beats.json` → draw the moves
+(`tools/techniques.py --draw --from-plan plan/beats.json`) → write `plan/copy.json` → **lint**
+(`tools/reel_lint.py <project> --scan-code`) → scene prototype (3 stills)
 → contact sheet → assets → chunked render → mix (−14.5 LUFS) → master (CRF 13 ≥2.5 Mbps)
 → ≥3 visual QC rounds → deliver with an 8–10 line Arabic message.
 

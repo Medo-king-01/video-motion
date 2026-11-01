@@ -1,0 +1,130 @@
+{
+  "duration": 24.0,
+  "fps": 30,
+  "frames": 720,
+  "audio": "assets/vo/vo.wav",
+  "bounds": [
+    0,
+    3.0,
+    6.3,
+    10.2,
+    13.2,
+    17.1,
+    19.8,
+    24.0
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "start": 0,
+      "end": 3.0,
+      "dur": 3.0,
+      "frames": 90,
+      "events": [
+        {
+          "t": 0.1,
+          "what": "cold open mid-move"
+        },
+        {
+          "t": 2.0,
+          "what": "second fragment"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "start": 3.0,
+      "end": 6.3,
+      "dur": 3.3,
+      "frames": 99,
+      "events": [
+        {
+          "t": 3.3,
+          "what": "punch-in insert"
+        },
+        {
+          "t": 4.6,
+          "what": "masked baseline rise"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "start": 6.3,
+      "end": 10.2,
+      "dur": 3.9,
+      "frames": 117,
+      "events": [
+        {
+          "t": 6.4,
+          "what": "counter runs"
+        },
+        {
+          "t": 8.8,
+          "what": "word roll"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "start": 10.2,
+      "end": 13.2,
+      "dur": 3.0,
+      "frames": 90,
+      "events": [
+        {
+          "t": 10.5,
+          "what": "polarity flip"
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "start": 13.2,
+      "end": 17.1,
+      "dur": 3.9,
+      "frames": 117,
+      "events": [
+        {
+          "t": 13.4,
+          "what": "crane push"
+        },
+        {
+          "t": 15.0,
+          "what": "single word lands"
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "start": 17.1,
+      "end": 19.8,
+      "dur": 2.7,
+      "frames": 81,
+      "events": [
+        {
+          "t": 17.5,
+          "what": "pose swap"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "start": 19.8,
+      "end": 24.0,
+      "dur": 4.2,
+      "frames": 126,
+      "events": [
+        {
+          "t": 20.0,
+          "what": "3D slab turn"
+        },
+        {
+          "t": 21.4,
+          "what": "closing line"
+        }
+      ]
+    }
+  ],
+  "note": "fixture — the length is the VO length, 24 s here because the fake VO is 24 s"
+}

@@ -1,0 +1,59 @@
+{
+  "seed": 7,
+  "seconds": 24.0,
+  "energy": "calm",
+  "format": "reel",
+  "planned": 5,
+  "picks": [
+    {
+      "id": "oh-one-beat-of-still-then-slam",
+      "name": "oh-one-beat-of-still-then-slam",
+      "category": "opening_hook",
+      "role": "signature",
+      "timing": "—",
+      "primitive": "type",
+      "how": "—",
+      "bans": []
+    },
+    {
+      "id": "ty-staggered-word-roll",
+      "name": "ty-staggered-word-roll",
+      "category": "typography",
+      "role": "signature",
+      "timing": "—",
+      "primitive": "type",
+      "how": "—",
+      "bans": []
+    },
+    {
+      "id": "ty-vertical-word-stack",
+      "name": "ty-vertical-word-stack",
+      "category": "typography",
+      "role": "workhorse",
+      "timing": "—",
+      "primitive": "type",
+      "how": "—",
+      "bans": []
+    },
+    {
+      "id": "ty-scaled-echo-extrusion",
+      "name": "ty-scaled-echo-extrusion",
+      "category": "typography",
+      "role": "accent",
+      "timing": "—",
+      "primitive": "type",
+      "how": "—",
+      "bans": []
+    },
+    {
+      "id": "tr-dot-relay",
+      "name": "tr-dot-relay",
+      "category": "transition",
+      "role": "signature",
+      "timing": "—",
+      "primitive": "type",
+      "how": "—",
+      "bans": []
+    }
+  ]
+}
