@@ -12,7 +12,8 @@ projects/*/src/node_modules
 *.mp4
 *_preview.mp4
 
-# tooling caches
+# tooling caches / local previews
+cache/
 .cache/
 .pytest_cache/
 .ruff_cache/
