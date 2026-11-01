@@ -35,6 +35,10 @@ finished video on guessed timing without saying so.
    `medo-motion/brand/BRAND.md` + `brand/brand.json` are the source of truth: **exactly 12
    colours** (palette v2) plus the derived `ink_shadow`. Never re-ask about colours/fonts and
    never improvise outside the palette — `brand_check.py` fails the build if you do.
+   **Type:** `assets/fonts/fonts.json` is the whole allowed set — 14 families, all SIL OFL 1.1
+   (free, commercial, no on-screen attribution). Cairo stays the default for on-screen Arabic and
+   Inter for Latin; every other family is a *role* (hook, telemetry, quote…) and at most two families
+   share a scene. `docs/fonts.md`; `make fonts` installs, `make fonts-sheet` shows them.
 3. **VO is Medo's.** Never generate TTS unless Medo explicitly asks for it. If he does,
    `medo-motion/scripts/gen_tts_elevenlabs.py` is there — and it asks for approval
    before any paid request.

@@ -104,9 +104,15 @@ def main():
             shutil.copy2(f, proj / "assets" / "poses" / f.name)
         if (poses_src / "poses.json").exists():
             shutil.copy2(poses_src / "poses.json", proj / "assets" / "poses" / "poses.json")
-    src_fonts = sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"))
-    for f in src_fonts:
-        shutil.copy2(f, proj / "assets" / "fonts" / "Cairo" / f.name)
+    # the whole free type system (docs/fonts.md) — engine K resolves it through lib/fonts.js
+    for fam_dir in sorted(p for p in (ROOT / "assets" / "fonts").iterdir() if p.is_dir()):
+        dst = proj / "assets" / "fonts" / fam_dir.name
+        dst.mkdir(parents=True, exist_ok=True)
+        for f in fam_dir.iterdir():
+            if f.is_file():
+                shutil.copy2(f, dst / f.name)
+    if (ROOT / "assets" / "fonts" / "fonts.json").is_file():
+        shutil.copy2(ROOT / "assets" / "fonts" / "fonts.json", proj / "assets" / "fonts" / "fonts.json")
     # taste file (brand-prefilled template)
     taste = SKILL / "templates" / "TASTE.md"
     if taste.is_file():

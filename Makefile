@@ -40,6 +40,12 @@ grid:            ## tempo-locked cue sheet: make grid PATTERN="k.h.|k.h." BPM=12
 length:          ## measure the VO and derive the timeline: make length VO=assets/vo/x.wav
 	$(PY) tools/vo_length.py $(or $(VO),out/vo24.wav) $(if $(JSON),--json $(JSON),)
 
+fonts:           ## (re)install the free type system into assets/fonts: make fonts
+	$(PY) tools/fonts_install.py
+
+fonts-sheet:     ## specimen sheet of every family + pairings (cache/fonts-sheet.png)
+	$(PY) tools/fonts_preview.py
+
 poses:           ## rebuild Medo's pose cut-outs + a QA sheet: make poses
 	$(PY) tools/presenter_build.py --sheet cache/poses-sheet.png
 

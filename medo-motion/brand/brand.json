@@ -157,11 +157,31 @@
     "arabic": "Cairo",
     "arabic_weight": "ExtraBold/Bold",
     "arabic_fallback": "Tajawal ExtraBold",
-    "english": "Cairo (or a modern minimal pair)",
+    "english": "Inter (Latin default); IBM Plex Sans for the technical pairs",
     "temp_fallback": "DejaVu Sans Bold ONLY if declared as temporary in the delivery",
-    "download": "python <skill>/scripts/get_fonts.py \"Cairo\"",
+    "download": "python3 tools/fonts_install.py   # 14 free families (SIL OFL 1.1) -> assets/fonts/",
     "numerals": "Western 0-9",
-    "rules": "whole words only, RTL, raqm layout (direction='rtl', language='ar'); never arabic_reshaper/python-bidi with Pillow"
+    "rules": "whole words only, RTL, raqm layout (direction='rtl', language='ar'); never arabic_reshaper/python-bidi with Pillow",
+    "type_system": {
+      "manifest": "assets/fonts/fonts.json",
+      "licence": "SIL OFL 1.1 — free for commercial use, no on-screen attribution, redistribution allowed",
+      "default": {
+        "arabic": "Cairo",
+        "latin": "Inter"
+      },
+      "roles": {
+        "brand_body": "Cairo 400/700/800/900 — captions, body, lower thirds",
+        "headline_geometric": "Tajawal 700/800",
+        "headline_heavy": "Alexandria 700/800",
+        "kufic_statement": "Kufam 500/700",
+        "display_warm": "El Messiri 500/700",
+        "technical": "IBM Plex Sans Arabic 400/600 + IBM Plex Sans / IBM Plex Mono",
+        "legible_small": "Almarai 400/700",
+        "editorial_serif": "Amiri 400/700 + Instrument Serif",
+        "latin_display": "Space Grotesk 500/700 · Anton 400"
+      },
+      "rule": "Every family on screen must be in the manifest (free/OFL). Cairo stays the default: a second family is a deliberate role, never decoration, and never more than two families in one scene."
+    }
   },
   "canvas": {
     "w": 1080,

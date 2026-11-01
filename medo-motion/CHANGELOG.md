@@ -1,5 +1,25 @@
 # Changelog — Medo Motion (private fork)
 
+## 2.1 — 2026-11-01 — the free type system (14 families, SIL OFL 1.1)
+- **14 families in `assets/fonts/`** — Arabic: Cairo (brand default), Tajawal, Alexandria, Kufam,
+  El Messiri, IBM Plex Sans Arabic, Almarai, Amiri. Latin: Inter (default), Space Grotesk,
+  IBM Plex Sans, IBM Plex Mono, Anton, Instrument Serif. 5.4 MB of TTF, every family with its
+  `OFL.txt`; free for commercial use, no on-screen attribution.
+- **`tools/fonts_install.py`** — pulls the TTFs from `@expo-google-fonts/*` on npm (the same binaries
+  Google serves) and writes `assets/fonts/fonts.json`: role, pairing, weights, licence, source.
+  `--only`, `--force`, `--list`. `make fonts`.
+- **`tools/fonts_preview.py`** / `make fonts-sheet` — a specimen sheet (cache/fonts-sheet.png) with all
+  families and 7 Arabic×Latin pairings, rendered through `arabic_shape` so it matches engine P exactly.
+- **Both engines read the manifest**: `lib.font(size, family, weight)` (P) and `lib/fonts.js`
+  (`useFont`/`family`, lazy FontFace registration) (K). `tools/new_project.py` ships the whole set.
+  Fix: engine P's default font was `Cairo_400Regular` (glob order) — it is now Cairo **800**, the
+  brand weight, as `brand.json` always said.
+- **Rejected with evidence**: Reem Kufi (npm statics have advances narrower than their outlines →
+  words collide under HarfBuzz: 0.27 overlap vs ≤0.14 for every shipped family). `tests/test_fonts.py`
+  now fails any family above 0.20, so this cannot come back.
+- `docs/fonts.md` (roles, pairings, usage, how to add), `assets/CREDITS.md` licences, `brand.json`
+  `typography.type_system`, AGENTS rule 2, TASTE type line. `pytest` 181 passed.
+
 ## 2.0 — 2026-11-01 — rhythm, space and velocity blur (from the programmatic-motion doctrine)
 - **`beat.py` / `lib/beat.js`** — a tempo grid both engines compute identically: `grid`, `quantize`
   (nearest/floor/ceil), `offset_of`, `ping`, `swell`, `ladder`, `on_grid`, `snap_bounds`,

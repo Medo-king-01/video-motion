@@ -1,4 +1,4 @@
-import numpy as np, cv2, math, functools, os, glob
+import numpy as np, cv2, math, functools, os, glob, json
 from PIL import Image, ImageDraw, ImageFont
 W,H=1080,1920
 def _find_font():
@@ -42,12 +42,45 @@ def _shaper():
         raise RuntimeError('Arabic shaping backend missing: python -m pip install uharfbuzz freetype-py')
     return _ar
 
-@functools.lru_cache(maxsize=None)
-def font(size):
+def _font_manifest():
+    """assets/fonts/fonts.json — the free type system (see docs/fonts.md). Missing file = brand only."""
+    root=os.environ.get('REEL_DIR') or os.getcwd()
+    p=os.path.join(root,'assets','fonts','fonts.json')
+    if not os.path.isfile(p): return {}
+    try:
+        return json.load(open(p,encoding='utf-8')).get('families',{})
+    except Exception:
+        return {}
+
+
+@functools.lru_cache(maxsize=64)
+def font_file(family=None, weight=800):
+    """Path to a family's TTF at the closest available weight; None when the family is unknown."""
+    fams=_font_manifest()
+    if not family or family not in fams:
+        return None
+    root=os.environ.get('REEL_DIR') or os.getcwd()
+    ws=sorted(fams[family]['weights'],key=lambda w:w['weight'])
+    fit=[w for w in ws if w['weight']<=weight] or ws
+    return os.path.join(root,'assets','fonts',family,fit[-1]['file'])
+
+
+@functools.lru_cache(maxsize=256)
+def font(size, family=None, weight=800):
+    """A Pillow font at `size` px: the brand face by default, any manifest family by name.
+
+    `font(58)`            -> Cairo 800 (brand default, unchanged)
+    `font(48,'Kufam')`    -> Kufam at the nearest weight <= 800
+    """
+    # explicit family > REEL_FONT override > the brand face at its brand weight (Cairo 800)
+    # (`_find_font` alone can pick Cairo_400Regular, because the glob sorts by name not weight)
+    path=((font_file(family,weight) if family else None)
+          or os.environ.get('REEL_FONT') or font_file('Cairo',800) or FONT)
+    FONT_PATH=path
     if HAS_RAQM:
-        f=ImageFont.truetype(FONT,size,layout_engine=ImageFont.Layout.RAQM)
+        f=ImageFont.truetype(FONT_PATH,size,layout_engine=ImageFont.Layout.RAQM)
     else:
-        f=ImageFont.truetype(FONT,size)
+        f=ImageFont.truetype(FONT_PATH,size)
     try:  # variable fonts (Cairo[slnt,wght].ttf): force a bold weight
         vals=[]
         for a in f.get_variation_axes():

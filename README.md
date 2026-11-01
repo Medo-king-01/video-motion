@@ -22,6 +22,9 @@
 
 **مفيش لوجو، مفيش اسم سلسلة، مفيش رقم حلقة.** ده استوديو: إنت بتقول عايز إيه.
 
+**الخطوط مجانية كلها:** ١٤ عيلة (٨ عربي + ٦ إنجليزي) SIL OFL 1.1 — Cairo الافتراضي، وكل عيلة ليها
+دور محدد (هوك، تيليمتري، اقتباس…)، مع أزواج جاهزة عربي×إنجليزي وشيت معاينة (`docs/fonts.md`).
+
 **الحركة على إيقاع:** شبكة BPM واحدة بتحكم القطع والـhits والميكرو-حركة (`beat.py`/`lib/beat.js`)، والعناصر
 بتتحوّل في مساحة 3D (`space3d.py`/`lib/space3d.js`) بدل ما تتقطع، وأي حركة سريعة بتاخد velocity blur
 من سرعتها الحقيقية (`docs/rhythm.md`).
@@ -39,7 +42,7 @@ python3 tools/doctor.py    # تقرير READY / DEGRADED / BLOCKED لكل قدر
 python3 tools/selftest.py  # فحص كامل: doctor + اختبارات + رندر حقيقي من المحركين
 ```
 
-أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make length VO=…`
+أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make fonts` · `make length VO=…`
 
 مشروع جديد:
 
@@ -109,7 +112,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
 | محركي الرندر P و K | ✅ اتجربوا ورندروا فريمات عربية صح |
-| الاختبارات (`make test` · `make selftest`) | ✅ ١٥٣ اختبار + رندر من المحركين |
+| الاختبارات (`make test` · `make selftest`) | ✅ ١٨١ اختبار + رندر من المحركين |
 | مفتاح ElevenLabs | ❌ اختياري — الصوت بييجي منك |
 
 شغّل `python3 tools/doctor.py` في أي وقت للتأكد.

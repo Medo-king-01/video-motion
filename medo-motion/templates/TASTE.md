@@ -38,6 +38,7 @@ Visual version for the user: plan/design.html (same values as §2–§5 — alwa
 - **Arabic (if any):** display <family + weight + file> · text <family> · numerals Western 0–9 (locked) · language <Egyptian dialect (ar-EG) — LOCKED> · line-height <1.4–1.7> · rules: whole words only, RTL, no tracking (`<skill>/reference/arabic-typography.md`)
 - **Style preset:** <name from <skill>/styles/ or "custom"> · changes from the preset: <…>
 - **Text treatment:** <fill, outline px, offset shadow (x,y,color), glow, backing rule for contrast>
+- **Type [LOCKED set]:** Cairo = default Arabic (brand weight 800) · Inter = default Latin · one extra family per scene from `assets/fonts/fonts.json` (all SIL OFL 1.1, see `docs/fonts.md`) · headline family / caption family / mono family — never three at once.
 - **Layout [LOCKED brand]:** canvas 1080×1920 @30 · content y 200–1350 · caption centre y≈1455 · nothing important below y≈1500 · margin 40px · progress bar y≈64 (no chip)· character ground y≈1380–1400 · no vertical gap >300px
 - **Textures & finish:** <grain %, scanlines, halftone, vignette, grade/LUT file>
 - **Illustration / asset style:** <pixel size (e.g. 6 px grid), line weight, shading style, character proportions, AI-image prompt + style-sheet file for pipeline B>

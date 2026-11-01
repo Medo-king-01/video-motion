@@ -9,6 +9,7 @@
 //                       (displacement = v · shutter), not a fake blur filter.
 import { BRAND } from '../lib/brand.js';
 import { loadFirstFont } from '../lib/arabic.js';
+import { useFont, family } from '../lib/fonts.js';
 import { grid, ping, quantize } from '../lib/beat.js';
 import { prism, camera, drawMesh, transform } from '../lib/space3d.js';
 import { drawBlurred, velocity } from '../lib/motion.js';
@@ -36,6 +37,9 @@ export async function init() {
   for (const f of ['Cairo/Cairo_800ExtraBold.ttf', 'Cairo/Cairo[wght].ttf', 'Cairo/Cairo-Bold.ttf']) {
     try { await loadFirstFont('Cairo', [F + f], { weight: '800' }); break; } catch { /* next file */ }
   }
+  // the type system (docs/fonts.md): the big word is Kufam, the readouts are IBM Plex Mono
+  await useFont('Kufam', 700);
+  await useFont('IBM Plex Mono', 600);
 }
 
 export function draw(ctx, t, { W, H, dur }) {
@@ -78,14 +82,14 @@ export function draw(ctx, t, { W, H, dur }) {
   ctx.translate(x, 420);
   ctx.direction = 'rtl'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillStyle = C.paper;
-  ctx.font = `800 ${Math.round(150 * scale)}px Cairo`;
+  ctx.font = `700 ${Math.round(150 * scale)}px ${family('Kufam')}`;
   drawBlurred(ctx, (c) => c.fillText('حركة', 0, 0), vx, 0, { samples: 5, shutter: 0.06, maxPx: 34 });
   ctx.restore();
 
   // ---- readouts (real numbers from the same functions, so QA can see the grid)
   ctx.save();
   ctx.direction = 'ltr'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.font = '400 34px Cairo'; ctx.fillStyle = C.gray4;
+  ctx.font = `600 34px ${family('IBM Plex Mono', 'latin')}`; ctx.fillStyle = C.gray4;
   ctx.fillText(`beat ${beat.beat} · phase ${beat.phase.toFixed(2)}`, 90, 1180);
   ctx.fillText(`v ${Math.round(vx)} px/s · grid ${quantize(t, BPM, 4).toFixed(2)}s`, 90, 1232);
   ctx.restore();
