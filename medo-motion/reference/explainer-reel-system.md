@@ -6,7 +6,11 @@ Use this for reels that **explain, teach, list or sell an idea**: tools, tips, "
 The grammar comes from analysing high-performing faceless explainer reels: one consistent frame, one idea per beat, a literal visual for every spoken phrase, constant small motion, and a comment-keyword ending.
 
 ## 1. Script skeleton (write this before any visuals)
-| Beat | Time (30–55 s reel) | Job | Arabic pattern |
+
+**Length is never fixed:** the reel is exactly as long as the voice-over. The seconds below are one
+worked example for a 55 s VO — stretch or compress them proportionally to the real VO duration
+(`tools/vo_length.py`).
+| Beat | Time (scale to the VO) | Job | Arabic pattern |
 |---|---|---|---|
 | **Hook** | 0–3 s | A number/result claim, or a warning | «كبّرت هالحساب لـ ٤٠ ألف في ٥ أسابيع…» / «لا تبدأ [س] قبل ما تثبّت هذي الـ٤» |
 | **Stakes** | 3–10 s | Why now: urgency, a gap, a cost | «بعد ٣ شهور السوق بيمتلي…» |

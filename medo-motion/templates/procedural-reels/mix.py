@@ -6,12 +6,16 @@ from scipy.io import wavfile
 from scipy.signal import resample_poly, butter, lfilter
 from sfx import *
 import scenes
-B=scenes.B; PT=scenes.PT; TOTAL=B[-1]
-N=int((TOTAL+0.3)*SR)
-# ---- voice ----
+B=scenes.B; PT=scenes.PT
+# ---- voice FIRST: the reel is exactly as long as the voice-over (there is no target length) ----
 sr,v=wavfile.read(sys.argv[1] if len(sys.argv)>1 else 'out/vo24.wav'); v=v.astype(np.float32)/32768
 if v.ndim>1: v=v.mean(1)
 v=resample_poly(v,441,240).astype(np.float32)
+TOTAL=len(v)/SR
+if abs(B[-1]-TOTAL)>0.05:
+    print(f'note: scenes.B ends at {B[-1]:.2f}s but the VO is {TOTAL:.2f}s -> mixing to the VO')
+    print('      rebuild B from the audio: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json')
+N=int((TOTAL+0.3)*SR)
 vo=np.zeros(N,np.float32); vo[:min(N,len(v))]=v[:N]
 vpk=np.max(np.abs(vo)); print('vo peak',vpk)
 # ---- events ----

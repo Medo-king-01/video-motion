@@ -22,6 +22,9 @@
 
 **مفيش لوجو، مفيش اسم سلسلة، مفيش رقم حلقة.** ده استوديو: إنت بتقول عايز إيه.
 
+**وطول الفيديو = طول تسجيلك بالظبط** — مفيش طول مستهدف ولا تطويل ولا قص لتوصيل رقم:
+`tools/vo_length.py` بيقيس الصوت ويطلّع منه حدود المشاهد، والمحركين بيمشوا عليه (`docs/length.md`).
+
 ---
 
 ## أول تشغيل
@@ -32,7 +35,7 @@ python3 tools/doctor.py    # تقرير READY / DEGRADED / BLOCKED لكل قدر
 python3 tools/selftest.py  # فحص كامل: doctor + اختبارات + رندر حقيقي من المحركين
 ```
 
-أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio` · `make transitions` · `make sfx` · `make poses`
+أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make length VO=…`
 
 مشروع جديد:
 
@@ -51,7 +54,7 @@ python3 tools/new_project.py اسم-المشروع --engine k   # محرك كا�
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
 assets/                ← مدخلات مشتركة: fonts/Cairo · poses/ · sfx/
 projects/<slug>/       ← كل فيديو: BRIEF.md · plan/ · assets/ · out/ · PROGRESS.md
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · vo_length.py (طول الـVO) · ffprobe_shim.py · chromium.mjs
                          · icons_sheet.py (مراجعة الأيقونات) · icons_preview.mjs
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
 docs/                  ← التحليل + قواعد الاتساق
@@ -102,7 +105,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
 | محركي الرندر P و K | ✅ اتجربوا ورندروا فريمات عربية صح |
-| الاختبارات (`make test` · `make selftest`) | ✅ ١٢٦ اختبار + رندر من المحركين |
+| الاختبارات (`make test` · `make selftest`) | ✅ ١٣٣ اختبار + رندر من المحركين |
 | مفتاح ElevenLabs | ❌ اختياري — الصوت بييجي منك |
 
 شغّل `python3 tools/doctor.py` في أي وقت للتأكد.

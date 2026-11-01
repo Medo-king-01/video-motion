@@ -1,5 +1,7 @@
 import math, functools, random
 from art import *
+# The demo episode's VO is 55.2 s — this is that episode's data, NOT a length rule.
+# A real project rebuilds B from its own VO: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json
 B=[0,5.9,15.75,20.2,28.7,43.5,48.9,55.2]
 FPS=30
 # HUD: progress bar only. There is NO series name and NO logo in this studio, so

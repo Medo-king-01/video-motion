@@ -1,11 +1,28 @@
 """Chunked, restartable render (works on Windows/macOS/Linux). Re-run it if it stops: finished chunks are skipped.
 Each chunk is a NEW process (lesson learned: one long render silently died mid-way)."""
-import os,sys,subprocess,glob,shutil
+import os,sys,subprocess,glob,shutil,json
 FF=os.environ.get('FFMPEG_BIN') or shutil.which('ffmpeg') or 'ffmpeg'
 HERE=os.path.dirname(os.path.abspath(__file__)); os.chdir(os.environ.get('REEL_DIR',HERE)); sys.path.insert(0,HERE)
 FPS=30; CH=int(os.environ.get('REEL_CHUNK','276'))
 from scenes import B
-N=round(B[-1]*FPS)
+
+def _vo_seconds(path):
+    # The reel is exactly as long as the VO; fall back to scenes.B only when the VO isn't there yet.
+    try:
+        r=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration','-of','json',path],
+                         capture_output=True,text=True)
+        if r.returncode!=0: return None
+        return float(json.loads(r.stdout)['format']['duration'])   # -of json works with the shim too
+    except Exception:
+        return None
+
+TOTAL=_vo_seconds(os.path.join('out','vo24.wav'))
+if TOTAL is None:
+    TOTAL=B[-1]; print(f'note: no out/vo24.wav -> using scenes.B ({TOTAL:.2f}s)')
+elif abs(B[-1]-TOTAL)>0.05:
+    print(f'note: scenes.B ends at {B[-1]:.2f}s but the VO is {TOTAL:.2f}s -> rendering the VO length')
+    print('      rebuild the bounds: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json')
+N=round(TOTAL*FPS)
 if os.environ.get('REEL_MAXFRAMES'): N=min(N,int(os.environ['REEL_MAXFRAMES']))  # smoke test only
 os.makedirs('out',exist_ok=True)
 import hashlib

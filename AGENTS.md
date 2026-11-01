@@ -114,8 +114,17 @@ is the portable inventory it extends. Do not install anything else "just in case
 
    Until the poses exist, engine P draws a silhouette marked `PLACEHOLDER` — that is
    allowed for a prototype, but declare it in the delivery.
-2. **Timing** — analyse the VO (`silencedetect`), align beats to the real audio, write
-   `plan/beats.json`. Scene boundaries = midpoint of silences; duration = VO duration.
+2. **Timing — there is no target length.** The video is exactly as long as the voice-over, and
+   every number derives from it. Measure it, don't guess it:
+
+   ```bash
+   python3 tools/vo_length.py out/vo24.wav --json plan/beats.json   # duration + scene bounds
+   python3 tools/vo_length.py out/vo24.wav --check projects/<slug>  # must print OK before rendering
+   ```
+
+   Scene boundaries = midpoint of silences; `DURATION` (engine K, `src/data.js`) and `B` (engine P,
+   `scenes.py`) end exactly on the VO's duration; the SFX bus and the mix are cut to it.
+   `tests/test_vo_length.py` fails if any doc or template reintroduces a fixed length.
 3. **Engine choice** — see §6. One engine per video.
 4. **Scenes** — build one scene, render 3 stills, then a 4–8 frame contact sheet.
    Do not go to "production" from the first attempt.

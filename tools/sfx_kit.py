@@ -7,7 +7,7 @@ deterministic: the same seed renders the same samples, so a mix can be rebuilt b
     python3 tools/sfx_kit.py --list
     python3 tools/sfx_kit.py --bank out/sfx                    # one WAV per sound (editor import)
     python3 tools/sfx_kit.py --demo cache/sfx-demo.mp3          # 20 s audition of the whole kit
-    python3 tools/sfx_kit.py --cues cuts.json --length 12 --vo vo.wav --out mix.wav
+    python3 tools/sfx_kit.py --cues cuts.json --vo vo.wav --out mix.wav   # length = the VO's
 
 Cue sheet (JSON) — `t` in seconds, gain/pan optional, `sfx` must exist in the catalogue:
 
@@ -77,6 +77,21 @@ def demo(out: Path, limit_db: float = -1.5) -> Path:
     return _to_mp3(wav, out) if out.suffix == ".mp3" else wav
 
 
+def audio_duration(path: Path) -> float:
+    """Length of an audio file in seconds (the reel is as long as its voice-over)."""
+    r = subprocess.run([shutil.which("ffprobe") or "ffprobe", "-v", "error", "-show_entries",
+                        "format=duration", "-of", "json", str(path)], capture_output=True, text=True)
+    if r.returncode == 0:
+        try:
+            return float(json.loads(r.stdout)["format"]["duration"])
+        except (KeyError, ValueError, json.JSONDecodeError):
+            pass
+    import wave  # noqa: PLC0415
+
+    with wave.open(str(path), "rb") as w:
+        return w.getnframes() / float(w.getframerate())
+
+
 def mix(cues_path: Path, length: float, voice: Path | None, out: Path, duck: float = 0.6) -> Path:
     cues = json.loads(cues_path.read_text(encoding="utf-8"))
     if isinstance(cues, dict):  # {"cuts": [...]} or {"cues": [...]}
@@ -84,7 +99,8 @@ def mix(cues_path: Path, length: float, voice: Path | None, out: Path, duck: flo
             cues = sfx.cues_for_transitions(cues["cuts"])
         else:
             cues = cues.get("cues", [])
-    total = length or (max((c["t"] for c in cues), default=0.0) + 2.0)
+    # the bus lasts exactly as long as the mix: an explicit --length, else the VO, else the last cue
+    total = length or (audio_duration(voice) if voice else (max((c["t"] for c in cues), default=0.0) + 2.0))
     bus = sfx.bus(total, cues)
     if voice:
         from scipy.io import wavfile  # noqa: PLC0415

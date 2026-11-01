@@ -9,6 +9,8 @@ export const scenes = [
   { id: 'transition-example', start: 25, end: 28.2 },  // mask/transition demo (lib/transition.js)
   { id: 'presenter-example', start: 28.2, end: 31.4 }, // Medo poses demo (lib/presenter.js)
 ];
+// The reel has no target length: DURATION is whatever the VO measures. Build `scenes` from
+// `python3 tools/vo_length.py <vo> --json plan/beats.json` and keep the last end == VO duration.
 export const DURATION = scenes.at(-1).end;
 // Arabic display font = brand lock (Cairo). Put it in the project:
 //   python <skill>/scripts/get_fonts.py "Cairo"     (or copy your own Cairo*.ttf)

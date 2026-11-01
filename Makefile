@@ -33,6 +33,9 @@ studio:          ## open the offline motion studio (tools/motion_studio.html) on
 theatre:         ## convert a Theatre.js state export: make theatre F=state.json [OFFSET=18.5]
 	$(PY) tools/theatre_import.py $(or $(F),state.json) $(if $(OFFSET),--offset $(OFFSET),)
 
+length:          ## measure the VO and derive the timeline: make length VO=assets/vo/x.wav
+	$(PY) tools/vo_length.py $(or $(VO),out/vo24.wav) $(if $(JSON),--json $(JSON),)
+
 poses:           ## rebuild Medo's pose cut-outs + a QA sheet: make poses
 	$(PY) tools/presenter_build.py --sheet cache/poses-sheet.png
 

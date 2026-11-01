@@ -94,7 +94,7 @@ def main():
     (proj / "BRIEF.md").write_text(BRIEF.format(slug=slug), encoding="utf-8")
     (proj / "PROGRESS.md").write_text(PROGRESS.format(slug=slug), encoding="utf-8")
     (proj / "plan" / "beats.json").write_text(json.dumps(
-        {"duration": None, "scenes": [], "note": "fill from the VO after silencedetect"}, indent=2), encoding="utf-8")
+        {"duration": None, "scenes": [], "note": "fill it from the VO: python3 tools/vo_length.py <vo> --json plan/beats.json"}, indent=2), encoding="utf-8")
     (proj / "plan" / "script.md").write_text("# Script\n\n(paste the numbered beats here)\n", encoding="utf-8")
 
     # brand font

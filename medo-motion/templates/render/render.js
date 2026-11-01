@@ -21,6 +21,17 @@ const name=String(opt('name','Smoke v1'));
 if(!name||/[\\/:*?"<>|]/.test(name))throw Error('Use a plain output name without path separators');
 const dest=path.join(out,name+'.mp4'),audio=opt('audio');
 if(audio&&!existsSync(path.resolve(audio)))throw Error('Audio file not found');
+// The reel is exactly as long as the VO (no target length): say it out loud when they disagree,
+// because `-af apad` + a fixed frame count would silently cut a longer voice-over.
+async function probeDuration(file){
+  try{
+    const p=spawn(process.env.KHAAM_FFPROBE||'ffprobe',
+      ['-v','error','-show_entries','format=duration','-of','json',path.resolve(file)]);
+    let out='';for await(const c of p.stdout)out+=c;
+    await once(p,'close');
+    const d=Number(JSON.parse(out).format.duration);return Number.isFinite(d)?d:null;
+  }catch{return null;}
+}
 if(!jpg&&existsSync(dest))throw Error('Output exists; use a new version name');
 await mkdir(out,{recursive:true});
 if(jpg&&(await readdir(out)).some(f=>/^\d{5}\.(jpg|png)$/.test(f)))throw Error('Frame output already exists; choose a fresh cache directory');
@@ -75,6 +86,12 @@ try{
     else if(!encoder.stdin.write(bytes))await Promise.race([once(encoder.stdin,'drain'),encodeResult.then(()=>{throw Error('Encoder ended early');})]);
   }
   if(encoder){encoder.stdin.end();await encodeResult;}
+  if(audio&&!jpg){
+    const dur=await probeDuration(audio);
+    if(dur!==null&&Math.abs(dur-to)>0.15)console.warn(
+      `!! audio is ${dur.toFixed(2)}s but the render window ends at ${to.toFixed(2)}s — `
+      +'the reel must be exactly the VO length (python3 tools/vo_length.py <vo>)');
+  }
   console.log(`Rendered ${count} frames at ${fps} fps${jpg?'':audio?' with audio':' (silent; supply --audio for sound)'}`);
 }finally{
   if(encoder&&encoder.exitCode===null)encoder.kill();

@@ -247,7 +247,7 @@
     "codec": "H.264 high, yuv420p, AAC 192-256k, faststart",
     "master_encode": "-preset medium -crf 13 -tune animation -x264-params aq-mode=3:ref=4:deblock=1,1",
     "min_mbps": 2.5,
-    "duration": "= audio duration (45-60 s typical)",
+    "duration": "= VO duration, measured with tools/vo_length.py — no target length exists",
     "preview_name": "*_preview.mp4 (optional; the 1080x1920 master is 'the video')"
   },
   "vibe": {

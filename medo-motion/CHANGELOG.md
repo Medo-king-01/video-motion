@@ -1,5 +1,24 @@
 # Changelog — Medo Motion (private fork)
 
+## 1.9 — 2026-11-01 — length comes from the VO (no target length anywhere)
+- **Rule, stated and enforced**: the reel is exactly as long as the voice-over. There is no target
+  duration, no "45–60 s typical", no padding/trimming to hit a number.
+- New `tools/vo_length.py` (+ `make length VO=…`): measures the VO with `ffprobe`, cuts scene bounds
+  at the midpoint of each silence (`--min-gap`), merges scenes shorter than `--min-scene`, writes
+  `plan/beats.json`, and gates a project with `--check` (fails on any mismatch with the VO length).
+- `mix.py` (engine P) now reads `TOTAL` from the VO and warns when `scenes.B` disagrees, instead of
+  trusting `B[-1]`; `run_all.py` takes the frame count from `out/vo24.wav` the same way; engine K's
+  `render.js` warns when `--audio` isn't the length of the render window. The SFX bus in
+  `tools/sfx_kit.py` defaults to the VO length instead of "last cue + 2 s".
+- `docs/length.md` documents the A/V mux with `-shortest` (the mix keeps a 0.3 s decay tail, so the
+  master is trimmed to the video, i.e. the VO).
+- Docs corrected: `brand.json` export duration, `TASTE.md` intake, `styles/editorial-explainer.md`,
+  `reference/explainer-reel-system.md` (seconds are a worked example, scaled to the real VO),
+  `docs/audio.md`, `docs/motion.md`; new `docs/length.md`; AGENTS §5 step 2 now says *measure, don't guess*.
+- Tests: `tests/test_vo_length.py` — duration/bounds from a synthetic VO, the `--check` gate, the
+  bus length defaulting to the VO, and a scan that fails if any doc or template reintroduces a fixed
+  length. `pytest` 133 passed.
+
 ## 1.8 — 2026-11-01 — pose library batch 2 (24 poses, two framings)
 - **Ten new poses**: `waiting` (hands in pockets), `warm` (hand on chest), `phone`, `unfold`
   (script/paper), `point-up`, `seated-talk` — all normalised like the first batch (1200 px figure,

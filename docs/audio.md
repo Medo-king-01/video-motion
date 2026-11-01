@@ -37,7 +37,7 @@
 python3 tools/sfx_kit.py --list                 # الكتالوج + المدد
 python3 tools/sfx_kit.py --bank out/sfx         # WAV لكل صوت (للـeditor أو After Effects)
 python3 tools/sfx_kit.py --demo cache/sfx.mp3   # معاينة مسموعة للكتالوج كله + كل الانتقالات
-python3 tools/sfx_kit.py --cues cues.json --length 12 --vo vo.wav --out mix.wav
+python3 tools/sfx_kit.py --cues cues.json --vo vo.wav --out mix.wav   # المدة = طول الـVO
 ```
 `make sfx` بيعمل المعاينة، و`make sfx-bank DIR=out/sfx` بيطلّع الملفات.
 
@@ -58,7 +58,8 @@ python3 tools/sfx_kit.py --cues cues.json --length 12 --vo vo.wav --out mix.wav
 {"cuts": [{"scene": 2, "t": 12.4, "name": "wipe"}, {"scene": 3, "t": 19.1, "name": "iris"}]}
 ```
 ```bash
-python3 tools/sfx_kit.py --cues cuts.json --length 55 --vo vo.wav --out out/mix_raw.wav
+# مفيش --length: طول الميكس = طول الـVO تلقائيًا (أو حدده صراحةً لو عندك سبب)
+python3 tools/sfx_kit.py --cues cuts.json --vo vo.wav --out out/mix_raw.wav
 ```
 كل cut بيتحوّل لصوته (`wipe` → `whoosh`، `iris` → `pop`، `glitch` → `glitch`…).
 
@@ -66,7 +67,8 @@ python3 tools/sfx_kit.py --cues cuts.json --length 55 --vo vo.wav --out out/mix_
 ```python
 from sfx import bus, duck, cues_for_transitions   # templates/procedural-reels/sfx.py
 cues = cues_for_transitions(cuts, gain=0.9, pan=(0.6, -0.6))
-sfx_bus = bus(55.0, cues)
+vo_dur = len(vo_mono) / 44100            # طول الريل = طول التعليق، مش رقم ثابت
+sfx_bus = bus(vo_dur, cues)
 sfx_bus = duck(vo_mono, sfx_bus, depth=0.62)      # بيتوتّى تحت الكلام
 ```
 والباقي زي ما هو في `mix.py`: `vo + sfx + bed` → `loudnorm` مرتين → limiter → **−14.5 ±0.3 LUFS، TP ≤ −1.5 dBTP**.

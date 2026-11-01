@@ -17,7 +17,7 @@ Visual version for the user: plan/design.html (same values as §2–§5 — alwa
 
 ## 1. Brief, concept & story (what we are making and why)
 - **One-line concept:** <e.g. "A pixel-art founder fights a giant 'busywork' monster; words decode from binary">
-- **Video type / platform / format:** <e.g. Instagram Reel, 9:16 1080×1920, 30 fps, 45 s> · series part <1 of 3?>
+- **Video type / platform / format:** <e.g. Instagram Reel, 9:16 1080×1920, 30 fps> · **length = the VO duration** (measure it: `tools/vo_length.py`; never plan a target length) · series part <1 of 3?>
 - **Audience & goal / CTA:** <who, what they should do>
 - **Inputs (only these):** script (beats) · scene direction · VO audio · Medo poses · **use:** <personal | client/commercial (licences!)> · **deadline:** <…>
 - **No logo / no series name / no episode chip.** Never ask for them; never reserve a circle for one.
