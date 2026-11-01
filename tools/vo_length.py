@@ -24,6 +24,7 @@ import wave
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 FFPROBE = shutil.which("ffprobe") or "ffprobe"
 FFMPEG = shutil.which("ffmpeg") or "ffmpeg"
 
@@ -135,6 +136,9 @@ def main() -> int:
     ap.add_argument("--min-scene", type=float, default=1.2, help="shortest scene kept (smaller ones merge)")
     ap.add_argument("--noise", type=float, default=-38.0, help="silence threshold in dB")
     ap.add_argument("--tol", type=float, default=0.15, help="allowed mismatch in --check")
+    ap.add_argument("--bpm", type=float, default=0.0, help="tempo: snap cut points to its grid")
+    ap.add_argument("--snap-div", type=int, default=2, help="grid steps per beat for --bpm (2 = eighths)")
+    ap.add_argument("--snap-tol", type=float, default=0.12, help="max distance a cut may move (s)")
     a = ap.parse_args()
 
     if a.check:
@@ -158,6 +162,13 @@ def main() -> int:
     total = duration_of(audio)
     silences = silences_of(audio, a.noise, a.min_gap)
     bounds = bounds_from_silences(silences, total, a.min_scene)
+    if a.bpm > 0:
+        from beat import snap_bounds  # noqa: PLC0415  (engine P module, same maths as engine K)
+
+        before = list(bounds)
+        bounds, moved = snap_bounds(bounds, a.bpm, a.snap_div, tol=a.snap_tol)
+        print(f"grid     {a.bpm:g} BPM / {a.snap_div} steps per beat -> {moved} of "
+              f"{len(before) - 2} cuts snapped (tol {a.snap_tol:g}s)")
 
     print(f"VO       {audio}  {total:.2f} s  =  {round(total * a.fps)} frames @ {a.fps:g} fps")
     print(f"speech   {total - sum(e - s for s, e in silences if e != float('inf')):.2f} s "

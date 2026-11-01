@@ -1,5 +1,26 @@
 # Changelog — Medo Motion (private fork)
 
+## 2.0 — 2026-11-01 — rhythm, space and velocity blur (from the programmatic-motion doctrine)
+- **`beat.py` / `lib/beat.js`** — a tempo grid both engines compute identically: `grid`, `quantize`
+  (nearest/floor/ceil), `offset_of`, `ping`, `swell`, `ladder`, `on_grid`, `snap_bounds`,
+  `bar_seconds`. Pure functions, so a frame still renders the same at any fps.
+- **`space3d.py` / `lib/space3d.js`** — meshes (`box`, `prism`), an orbiting pinhole `camera`, `project`,
+  `sorted_faces` (painter's algorithm), flat `shade` with hex or RGB, `draw_mesh`/`drawMesh` with
+  back-face culling. A scene can now *turn* into the next composition instead of cutting to it.
+- **Velocity blur** — `motion.velocity()` + `motion.blur_steps()` (P) and `velocity()`/`blurSteps()`/
+  `drawBlurred()` (K): displacement = v · shutter, clamped, weights summing to 1, one sharp step at
+  zero velocity.
+- **`sfx.grid_cues()`** and `tools/sfx_kit.py --grid` (+ `make grid`): a cue sheet generated one
+  character per sixteenth, tiled to a 16-step bar, so hits cannot drift off the beat.
+- **`vo_length.py --bpm/--snap-div/--snap-tol`**: cut points snap to the tempo grid while the VO's
+  start and end stay exactly where the voice is.
+- **`scenes/kinetic-example.js`** (31.4–35.4 s of the demo reel): a real usage of all three — a 3D plate
+  turning with the beat, Arabic type sliding on a quarter-note cycle and blurred by its own velocity,
+  live `beat/phase/velocity` readouts. QA'd as a 16-frame contact sheet.
+- Docs: new `docs/rhythm.md` (what was adopted, what was refused and why), AGENTS rule 10, README,
+  `docs/README.md` index. Tests: `tests/test_rhythm.py` (9) + `tests/test_space3d.py` (10) + a snapping
+  case in `tests/test_vo_length.py` — `pytest` 153 passed, ruff clean, `make ci` PASS, selftest OK.
+
 ## 1.9 — 2026-11-01 — length comes from the VO (no target length anywhere)
 - **Rule, stated and enforced**: the reel is exactly as long as the voice-over. There is no target
   duration, no "45–60 s typical", no padding/trimming to hit a number.

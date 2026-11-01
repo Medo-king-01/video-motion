@@ -207,3 +207,47 @@ def duck(vo, bus_buf, depth=0.62, release=6.0, sr=SR):
     out = bus_buf[:n].copy()
     out *= gain
     return out
+
+
+# ---------------------------------------------------------------- rhythm-locked cue sheets
+GRID_MAP = {"k": "impact", "s": "click", "h": "tick", "p": "pop", "z": "zip", "w": "whoosh"}
+
+
+def grid_cues(pattern="k...h...k...h...", bpm=120.0, bars=1, start=0.0, gain=1.0,
+              mapping=None, pan=None):
+    """A cue sheet locked to the tempo grid — one character per sixteenth note.
+
+    `k` hit · `s` click (snare-ish) · `h` tick (hat) · `p` pop · `z` zip · `w` whoosh · `.` or ` `
+    silence · `|` is ignored, so patterns can be written in bars: `"k.h.|k.h.|k.k.|k..."`.
+
+    Times are computed from `bpm`, never hand-typed, so the hits can't drift off the beat.
+    """
+    cmap = dict(GRID_MAP, **(mapping or {}))
+    step = 60.0 / float(bpm) / 4.0                     # one sixteenth
+    chars = [c for c in str(pattern) if c != "|"]
+    if not chars:
+        raise ValueError("empty grid pattern")
+    # one bar = 4/4 = 16 sixteenths; a shorter pattern tiles inside the bar, so `bars` always
+    # means bars (and `bars_seconds(bpm, bars)` is exactly its length)
+    per_bar = 16
+    tiled = (chars * (per_bar // len(chars) + 1))[:per_bar]
+    cues = []
+    for bar in range(int(bars)):
+        for i, c in enumerate(tiled):
+            if c in ". _":
+                continue
+            if c not in cmap:
+                raise ValueError(f"unknown grid step {c!r} (use {''.join(sorted(GRID_MAP))} or .)")
+            t = round(float(start) + (bar * per_bar + i) * step, 4)
+            cue = {"t": t, "sfx": cmap[c], "gain": float(gain) * (1.0 if c == "k" else 0.62)}
+            if c == "k":
+                cue["gain"] = float(gain)
+            if pan is not None:
+                cue["pan"] = pan
+            cues.append(cue)
+    return cues
+
+
+def bars_seconds(bpm=120.0, bars=1, beats=4):
+    """How long `bars` bars last — for a loop bed or a pattern buffer."""
+    return float(bars) * float(beats) * 60.0 / float(bpm)

@@ -8,6 +8,7 @@ deterministic: the same seed renders the same samples, so a mix can be rebuilt b
     python3 tools/sfx_kit.py --bank out/sfx                    # one WAV per sound (editor import)
     python3 tools/sfx_kit.py --demo cache/sfx-demo.mp3          # 20 s audition of the whole kit
     python3 tools/sfx_kit.py --cues cuts.json --vo vo.wav --out mix.wav   # length = the VO's
+    python3 tools/sfx_kit.py --grid "k.h.|k.h." --bpm 120 --bars 2 --out cache/grid-cues.json
 
 Cue sheet (JSON) — `t` in seconds, gain/pan optional, `sfx` must exist in the catalogue:
 
@@ -129,12 +130,15 @@ def main() -> int:
     ap.add_argument("--bank", help="directory for one WAV per sound")
     ap.add_argument("--demo", nargs="?", const=str(ROOT / "cache" / "sfx-demo.mp3"), help="audition mix")
     ap.add_argument("--cues", help="cue sheet JSON (or a cut list under 'cuts')")
+    ap.add_argument("--grid", help="write a tempo-locked cue sheet: 'k.h.|k.h.' (one char per 16th)")
+    ap.add_argument("--bpm", type=float, default=120.0, help="tempo for --grid")
+    ap.add_argument("--bars", type=int, default=1, help="how many bars for --grid")
     ap.add_argument("--length", type=float, default=0.0)
     ap.add_argument("--vo", help="voice track to duck the sfx under")
     ap.add_argument("--out", default="mix.wav")
     args = ap.parse_args()
 
-    if args.list or not any((args.bank, args.demo, args.cues)):
+    if args.list or not any((args.bank, args.demo, args.cues, args.grid)):
         width = max(len(n) for n in sfx.BANK)
         print(f"{len(sfx.BANK)} procedural sounds @ {sfx.SR} Hz")
         for name in sfx.BANK:
@@ -145,6 +149,15 @@ def main() -> int:
         print(f"bank -> {len(files)} wav(s) in {args.bank}")
     if args.demo:
         print(f"demo -> {demo(Path(args.demo))}")
+    if args.grid:
+        dest = Path(args.out)
+        if dest.suffix.lower() != ".json":
+            dest = Path("cache") / "grid-cues.json"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        cues = sfx.grid_cues(args.grid, args.bpm, args.bars)
+        dest.write_text(json.dumps(cues, indent=2) + "\n", encoding="utf-8")
+        print(f"grid -> {dest}  ({len(cues)} cues @ {args.bpm:g} BPM, {args.bars} bar(s), "
+              f"{sfx.bars_seconds(args.bpm, args.bars):.2f}s)")
     if args.cues:
         out = mix(Path(args.cues), args.length, Path(args.vo) if args.vo else None, Path(args.out))
         print(f"mix  -> {out}")

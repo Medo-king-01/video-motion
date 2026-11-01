@@ -60,6 +60,24 @@ def test_duration_and_bounds_come_from_the_audio(vo: Path, tmp_path: Path):
     assert sum(s["dur"] for s in d["scenes"]) == pytest.approx(d["duration"], abs=0.02)
 
 
+def test_cuts_can_be_snapped_to_a_tempo(vo: Path, tmp_path: Path):
+    """Optional: pull each cut onto the beat grid, so the edit lands with the music."""
+    beats = tmp_path / "beats.json"
+    r = subprocess.run([sys.executable, str(TOOL), str(vo), "--json", str(beats),
+                        "--bpm", "120", "--snap-tol", "0.3"], capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    d = json.loads(beats.read_text(encoding="utf-8"))
+    # 1.30 → the nearest eighth note at 120 BPM (0.25 s grid) is 1.25
+    assert d["bounds"][1] == pytest.approx(1.25, abs=1e-6)
+    assert d["bounds"][-1] == pytest.approx(d["duration"], abs=0.02)   # the VO end never moves
+    assert "snapped" in r.stdout
+    # without --bpm the cut stays on the silence midpoint
+    plain = tmp_path / "plain.json"
+    subprocess.run([sys.executable, str(TOOL), str(vo), "--json", str(plain)], check=True,
+                   capture_output=True)
+    assert json.loads(plain.read_text(encoding="utf-8"))["bounds"][1] == pytest.approx(1.30, abs=0.06)
+
+
 def test_check_flags_a_reel_that_is_not_the_vo_length(vo: Path, tmp_path: Path):
     proj = tmp_path / "proj"
     (proj / "src").mkdir(parents=True)

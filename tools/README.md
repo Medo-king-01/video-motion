@@ -17,8 +17,8 @@
 | `motion_studio.html` | استوديو الحركة الأوفلاين: محرر تايملاين JSON + سكرَب + قيم لحظية | `python3 -m http.server 8080` ثم `/tools/motion_studio.html` |
 | `theatre_import.py` | يحوّل Theatre.js state export لتايملاين المحركين | `python3 tools/theatre_import.py state.json --offset 18.5` |
 | `presenter_build.py` | يقص صور ميدو من الخلفية ويطبّعها ويكتب `assets/poses/poses.json` | `python3 tools/presenter_build.py --sheet cache/poses-sheet.png` |
-| `sfx_kit.py` | مكتبة المؤثرات البرمجية: `--list` · `--bank` · `--demo` · `--cues` (ميكس مع التعليق، طوله = طول الـVO) |
-| `vo_length.py` | **مصدر الطول الوحيد**: مدة التعليق الصوتي + حدود المشاهد من السكتات + `--check` للمشروع | `python3 tools/vo_length.py out/vo24.wav --json plan/beats.json` |
+| `sfx_kit.py` | مكتبة المؤثرات البرمجية: `--list` · `--bank` · `--demo` · `--cues` (ميكس مع التعليق، طوله = طول الـVO) · `--grid` (cue sheet على شبكة الـBPM) |
+| `vo_length.py` | **مصدر الطول الوحيد**: مدة التعليق الصوتي + حدود المشاهد من السكتات + `--bpm` يزحزح القطع للشبكة + `--check` للمشروع | `python3 tools/vo_length.py out/vo24.wav --json plan/beats.json` |
 | `transitions_sheet.py` | شيت مراجعة + كليب معاينة لكل انتقال (بصوته) |
 | `toolkit/` | اعتماديات Node (`playwright-core`, `@sparticuz/chromium`, خطوط OFL) | `cd tools/toolkit && npm install` |
 | `bin/` | روابط ffmpeg/ffprobe اللي بيعملها `setup.sh` (مش متتبعة في git) | — |

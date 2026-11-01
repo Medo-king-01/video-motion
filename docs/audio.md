@@ -63,6 +63,16 @@ python3 tools/sfx_kit.py --cues cuts.json --vo vo.wav --out out/mix_raw.wav
 ```
 كل cut بيتحوّل لصوته (`wipe` → `whoosh`، `iris` → `pop`، `glitch` → `glitch`…).
 
+### على الشبكة | On the tempo grid
+بدل ما تكتب وقت كل صوت بإيدك، اكتب **pattern** بحرف لكل ١/١٦ (bars = 4/4):
+
+```bash
+make grid PATTERN="k.h.|k.hh|k.h.|k..." BPM=120 BARS=2 OUT=cache/grid-cues.json
+python3 tools/sfx_kit.py --cues cache/grid-cues.json --vo vo.wav --out out/mix_raw.wav
+```
+`k` impact · `s` click · `h` tick · `p` pop · `z` zip · `w` whoosh · `.` سكوت. النمط بيتكرر جوّه التاكت
+عشان `bars` يفضل معناها بارات بالظبط، فالأصوات ما بتزيحش عن الضربة (`docs/rhythm.md`).
+
 ## الميكس مع التعليق | Mixing
 ```python
 from sfx import bus, duck, cues_for_transitions   # templates/procedural-reels/sfx.py

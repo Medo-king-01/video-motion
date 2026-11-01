@@ -218,3 +218,44 @@ export function timeline(spec) {
 export function reveal(t, start, dur, easeName = 'easeOut') {
   return ease(easeName, progress(t, start, dur));
 }
+
+// ---------------------------------------------------------------- velocity & motion blur
+/** Central-difference velocity of a scalar property (px or rad per second) — a pure function of t. */
+export function velocity(fn, t, dt = 1 / 240) {
+  const h = Math.max(1e-6, dt) / 2;
+  return (fn(t + h) - fn(t - h)) / (2 * h);
+}
+
+/**
+ * Offsets + weights for a directional motion blur, from a velocity in px/s.
+ * `shutter` = virtual exposure (s), displacement = v · shutter clamped to `max_px`, weights uniform
+ * and summing to 1 so `alpha * w` keeps the exposure. Zero velocity → [[0, 0, 1]] (a sharp draw).
+ */
+export function blurSteps(vx, vy, samples = 6, shutter = 0.055, maxPx = 26) {
+  let dx = vx * shutter, dy = vy * shutter;
+  let dist = Math.hypot(dx, dy);
+  if (dist < 0.35 || samples < 2) return [[0, 0, 1]];
+  if (dist > maxPx) { const k = maxPx / dist; dx *= k; dy *= k; }
+  const n = Math.max(2, Math.floor(samples));
+  const w = 1 / n;
+  return Array.from({ length: n }, (_, i) => [
+    Math.round((-dx * (i + 1) / n) * 1e4) / 1e4,
+    Math.round((-dy * (i + 1) / n) * 1e4) / 1e4,
+    Math.round(w * 1e6) / 1e6,
+  ]);
+}
+
+/** Draw something N times along its own velocity. `draw(alpha)` receives the per-step opacity. */
+export function drawBlurred(ctx, draw, vx, vy, opts = {}) {
+  const steps = blurSteps(vx, vy, opts.samples ?? 6, opts.shutter ?? 0.055, opts.maxPx ?? 26);
+  ctx.save();
+  for (const [dx, dy, w] of steps) {
+    ctx.save();
+    ctx.translate(dx, dy);
+    ctx.globalAlpha *= w * (opts.alpha ?? 1);
+    draw(ctx);
+    ctx.restore();
+  }
+  ctx.restore();
+  return steps;
+}

@@ -33,6 +33,10 @@ studio:          ## open the offline motion studio (tools/motion_studio.html) on
 theatre:         ## convert a Theatre.js state export: make theatre F=state.json [OFFSET=18.5]
 	$(PY) tools/theatre_import.py $(or $(F),state.json) $(if $(OFFSET),--offset $(OFFSET),)
 
+grid:            ## tempo-locked cue sheet: make grid PATTERN="k.h.|k.h." BPM=120 BARS=2 [OUT=c.json]
+	$(PY) tools/sfx_kit.py --grid "$(or $(PATTERN),k.h.|k.h.|k.h.|k...)" --bpm $(or $(BPM),120) \
+		--bars $(or $(BARS),1) --out $(or $(OUT),cache/grid-cues.json)
+
 length:          ## measure the VO and derive the timeline: make length VO=assets/vo/x.wav
 	$(PY) tools/vo_length.py $(or $(VO),out/vo24.wav) $(if $(JSON),--json $(JSON),)
 

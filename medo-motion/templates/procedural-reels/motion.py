@@ -259,3 +259,37 @@ def load(path):
 
 def reveal(t, start, dur, ease_name="easeOut"):
     return ease(ease_name, progress(t, start, dur))
+
+
+# ---------------------------------------------------------------- velocity & motion blur
+def velocity(fn, t: float, dt: float = 1 / 240):
+    """Central-difference velocity of a scalar property (pixels or radians per second).
+
+    The property must be a pure function of `t` — which is the whole point of this kit: a blur that
+    needs the velocity of the *previous* frame would make the render fps-dependent.
+    """
+    h = max(1e-6, float(dt)) / 2
+    return (float(fn(t + h)) - float(fn(t - h))) / (2 * h)
+
+
+def blur_steps(vx: float, vy: float, samples: int = 6, shutter: float = 0.055,
+               max_px: float = 26.0) -> list[tuple[float, float, float]]:
+    """Offsets + weights for a directional motion blur, from a velocity in px/s.
+
+    `shutter` is the virtual exposure in seconds: displacement = v · shutter, clamped to `max_px`
+    so a warp-speed move doesn't smear the frame. Weights are uniform and sum to 1, so drawing the
+    element once per step with `alpha * w` keeps the exposure and the brand colours honest.
+    Zero velocity → a single step at (0, 0, 1) → a normal, sharp draw.
+    """
+    dx, dy = float(vx) * float(shutter), float(vy) * float(shutter)
+    dist = math.hypot(dx, dy)
+    if dist < 0.35 or samples < 2:
+        return [(0.0, 0.0, 1.0)]
+    if dist > max_px:
+        k = max_px / dist
+        dx, dy, dist = dx * k, dy * k, max_px
+    n = max(2, int(samples))
+    w = 1.0 / n
+    # sample the *trail*: the element sits at the head, the copies fall behind along -v
+    return [(round(-dx * (i + 1) / n, 4), round(-dy * (i + 1) / n, 4), round(w, 6))
+            for i in range(n)]
