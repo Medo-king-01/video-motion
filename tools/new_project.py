@@ -96,6 +96,11 @@ def main():
     (proj / "plan" / "beats.json").write_text(json.dumps(
         {"duration": None, "scenes": [], "note": "fill it from the VO: python3 tools/vo_length.py <vo> --json plan/beats.json"}, indent=2), encoding="utf-8")
     (proj / "plan" / "script.md").write_text("# Script\n\n(paste the numbered beats here)\n", encoding="utf-8")
+    # What appears on screen, and the moves drawn for this reel (docs/craft.md §3 and §4).
+    (proj / "plan" / "copy.json").write_text(json.dumps({
+        "pace": "calm", "bpm": 100, "copy": [],
+        "note": "one entry per on-screen fragment: {scene, text, start, end, mode: build|replace}",
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     # brand font
     poses_src = ROOT / "assets" / "poses"

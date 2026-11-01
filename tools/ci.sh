@@ -12,6 +12,17 @@ $PY -m ruff check . 2>/dev/null || ruff check .
 echo "== pytest =="
 $PY -m pytest -q
 
+echo "== technique library =="
+$PY tools/techniques.py --validate
+$PY tools/techniques.py --markdown docs/techniques.md --check
+
+echo "== reel lint =="
+$PY tools/reel_lint.py tests/fixtures/reel/good --strict
+if $PY tools/reel_lint.py tests/fixtures/reel/bad >/dev/null 2>&1; then
+  echo "!! the deliberately-bad fixture passed the lint — a rule stopped firing"
+  exit 1
+fi
+
 echo "== icons =="
 $PY medo-motion/icons/build.py --check
 

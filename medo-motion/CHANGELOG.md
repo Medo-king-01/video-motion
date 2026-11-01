@@ -1,5 +1,50 @@
 # Changelog — Medo Motion (private fork)
 
+## 2.3 — 2026-11-01 — the screen families: UI, product demo, numbers, micro-interaction
+- **Library grew 41 → 58 moves** across 13 families. The four new families cover scenes that show a
+  screen: `ui_choreography` (state change on the tap frame, row insert that makes room, checklist on
+  the grid, sheet over a dimmed screen, focus ring that snaps), `product_demo` (phone in Medo's hand
+  inheriting the pose's bob, cursor-led demo, window that builds itself, before/after cut not faded),
+  `data_and_numbers` (counter rolling onto the beat, bar then label, one number full bleed, unit
+  arriving after the digits) and `micro_interaction` (press depth without overshoot, toggle knob,
+  self-drawing check, caret that only blinks when idle).
+- **Built, never captured**: every recipe names the studio's own art layer — `kit.phone`,
+  `appWindow`, `card`, `checklist`, `rolling`, `typeLines` (K) and `art.laptop`, `desktop`,
+  `follow_button`, `paper_spec`, `cursor`, `lib.text_sprite` (P). `tests/test_techniques.py` fails a
+  UI recipe that does not, and a new test proves a 40 s draw reaches the UI families.
+- **Reel order extended** with the four families (after `layout`, before `pacing`) so an insert is
+  drawn where a film actually cuts to a screen, and the plan can now hold 17 moves.
+- **`U01` lint rule** — a scene flagged `"ui": true` must declare its interaction (`events[]`) and
+  run at least 1.2 s; a screen that never changes is a mock, not a scene.
+- **`docs/craft.md` §3b** — what we build and what we refuse to fake: no screenshots, no UI kits,
+  no fake metrics, one accent with one meaning, dim and scale instead of glass/glow, and the
+  presenter stays the anchor.
+
+## 2.2 — 2026-11-01 — craft gates: a measured technique library and a pre-render lint
+- **`assets/techniques.json` — 41 moves**, adapted from **cinetic** (MIT, © 2026 Leonxlnx) and
+  rewritten against this studio's primitives (`beat`, `space3d`, `blur_steps`/`drawBlurred`,
+  `presenter`, `transition`, `sfx`). Nine categories in the reel's order of need: hook, typography,
+  transition, camera, pacing, layout, depth, finish, sound. Every entry carries `how` (a build step,
+  not a mood), `timing`, `use_when`, `avoid_when`, `evidence`. No React, no Remotion, no GSAP:
+  `tests/test_techniques.py` fails if a recipe drifts back.
+- **`tools/techniques.py`** — a reproducible draw (`--draw --from-plan plan/beats.json`,
+  `--energy`, `--seed`, `--category`, `--exclude`, `--json plan/techniques.json`), plus `--list`,
+  `--show`, `--validate` and `--markdown docs/techniques.md --check`. Weighted by role × evidence ×
+  energy fit, filled in the format's order, with a signature budget; a calm reel never draws a slam.
+  Seconds come from the VO (`vo_length.py`), never from a target length. `make techniques`.
+- **`tools/reel_lint.py`** — the pre-render gate, 21 rules in four groups: structure (`S01–S05`:
+  bounds, short scenes, long scenes with no picture event, grid drift), copy (`C00–C11`: words per
+  fragment, visible at once, dwell per word, copy rate, coverage, text-free stretch, banned words,
+  sentence dumps, scene links, grid arrivals), moves (`M00–M02`: variety, signature budget) and an
+  opt-in code scan (`K01`: sparkle/confetti/particle/lens flare/RGB split/crossfade/shake, with
+  `# lint: allow`). `--strict`, `--json`. `make lint`.
+- **`docs/craft.md`** — the measured numbers (shot length, dwell, copy rate, blur trigger, grid
+  lock) plus **the conflicts and who wins** (serif/italic ban vs the Arabic brand type, 1.1 s holds
+  vs the 0.5 s house ban, 60 fps vs our 30 fps delivery, the format length table vs "the VO decides").
+- **`docs/techniques.md`** — generated from the JSON, freshness-checked in CI.
+- `tools/new_project.py` now scaffolds `plan/copy.json`; CI validates the library, checks the docs
+  are regenerated, and asserts the good fixture passes while the bad one fails. `pytest` 206 passed.
+
 ## 2.1 — 2026-11-01 — the free type system (14 families, SIL OFL 1.1)
 - **14 families in `assets/fonts/`** — Arabic: Cairo (brand default), Tajawal, Alexandria, Kufam,
   El Messiri, IBM Plex Sans Arabic, Almarai, Amiri. Latin: Inter (default), Space Grotesk,

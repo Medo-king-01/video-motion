@@ -1,0 +1,79 @@
+{
+  "seed": 41,
+  "seconds": 24.0,
+  "energy": "calm",
+  "format": "reel",
+  "planned": 7,
+  "picks": [
+    {
+      "id": "oh-cold-open-mid-move",
+      "name": "oh cold open mid move",
+      "category": "opening_hook",
+      "role": "workhorse",
+      "timing": "—",
+      "primitive": "type",
+      "how": "see assets/techniques.json",
+      "bans": []
+    },
+    {
+      "id": "ty-masked-baseline-rise",
+      "name": "ty masked baseline rise",
+      "category": "typography",
+      "role": "workhorse",
+      "timing": "—",
+      "primitive": "type",
+      "how": "see assets/techniques.json",
+      "bans": []
+    },
+    {
+      "id": "tr-velocity-handoff-cut",
+      "name": "tr velocity handoff cut",
+      "category": "transition",
+      "role": "workhorse",
+      "timing": "—",
+      "primitive": "type",
+      "how": "see assets/techniques.json",
+      "bans": []
+    },
+    {
+      "id": "cam-punch-in-insert",
+      "name": "cam punch in insert",
+      "category": "camera",
+      "role": "workhorse",
+      "timing": "—",
+      "primitive": "type",
+      "how": "see assets/techniques.json",
+      "bans": []
+    },
+    {
+      "id": "ps-breath-envelope",
+      "name": "ps breath envelope",
+      "category": "pacing",
+      "role": "workhorse",
+      "timing": "—",
+      "primitive": "type",
+      "how": "see assets/techniques.json",
+      "bans": []
+    },
+    {
+      "id": "lc-negative-space-caption",
+      "name": "lc negative space caption",
+      "category": "layout",
+      "role": "workhorse",
+      "timing": "—",
+      "primitive": "type",
+      "how": "see assets/techniques.json",
+      "bans": []
+    },
+    {
+      "id": "d3-extruded-slab-orbit",
+      "name": "d3 extruded slab orbit",
+      "category": "depth",
+      "role": "signature",
+      "timing": "—",
+      "primitive": "type",
+      "how": "see assets/techniques.json",
+      "bans": []
+    }
+  ]
+}

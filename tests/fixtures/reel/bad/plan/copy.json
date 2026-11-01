@@ -1,0 +1,41 @@
+{
+  "pace": "calm",
+  "bpm": 100,
+  "copy": [
+    {
+      "scene": 1,
+      "text": "Introducing النهاردة",
+      "start": 0.4,
+      "end": 0.7,
+      "mode": "build"
+    },
+    {
+      "scene": 1,
+      "text": "احنا بنعمل حاجة مختلفة جدا النهاردة",
+      "start": 1.0,
+      "end": 1.6,
+      "mode": "build"
+    },
+    {
+      "scene": 2,
+      "text": "احنا بنشرح كل حاجة لازم تعرفها عن الشغل ده.",
+      "start": 3.4,
+      "end": 5.0,
+      "mode": "build"
+    },
+    {
+      "scene": 3,
+      "text": "كلمة",
+      "start": 6.5,
+      "end": 6.7,
+      "mode": "build"
+    },
+    {
+      "scene": 9,
+      "text": "مشهد مش موجود",
+      "start": 8.0,
+      "end": 9.0,
+      "mode": "build"
+    }
+  ]
+}

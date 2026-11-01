@@ -1,0 +1,83 @@
+{
+  "pace": "calm",
+  "bpm": 100,
+  "copy": [
+    {
+      "scene": 1,
+      "text": "النهاردة",
+      "start": 0.4,
+      "end": 1.5,
+      "mode": "build"
+    },
+    {
+      "scene": 1,
+      "text": "سؤال واحد",
+      "start": 2.0,
+      "end": 3.0,
+      "mode": "build"
+    },
+    {
+      "scene": 2,
+      "text": "ليه بنعمل ده",
+      "start": 4.6,
+      "end": 6.0,
+      "mode": "build"
+    },
+    {
+      "scene": 3,
+      "text": "كل يوم",
+      "start": 6.3,
+      "end": 7.2,
+      "mode": "build"
+    },
+    {
+      "scene": 3,
+      "text": "الرقم بيزيد",
+      "start": 8.8,
+      "end": 10.1,
+      "mode": "build"
+    },
+    {
+      "scene": 4,
+      "text": "بيزيد بسرعة",
+      "start": 10.5,
+      "end": 11.4,
+      "mode": "build"
+    },
+    {
+      "scene": 5,
+      "text": "وعشان كده بنكمل",
+      "start": 13.4,
+      "end": 14.8,
+      "mode": "build"
+    },
+    {
+      "scene": 5,
+      "text": "بجد",
+      "start": 15.0,
+      "end": 15.9,
+      "mode": "build"
+    },
+    {
+      "scene": 6,
+      "text": "مش كلام",
+      "start": 17.5,
+      "end": 18.9,
+      "mode": "build"
+    },
+    {
+      "scene": 6,
+      "text": "تجربة حقيقية",
+      "start": 18.9,
+      "end": 19.8,
+      "mode": "build"
+    },
+    {
+      "scene": 7,
+      "text": "جرّبها بنفسك الآن",
+      "start": 21.4,
+      "end": 23.2,
+      "mode": "build"
+    }
+  ]
+}
