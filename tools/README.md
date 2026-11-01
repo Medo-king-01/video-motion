@@ -14,6 +14,8 @@
 | `itshover_import.py` | يستورد مكوّنات itshover المنسوخة (٢٦٣) ويحوّلها geometry للمحركين | `python3 tools/itshover_import.py --list` |
 | `icons_sheet.py` | شيت مراجعة بصري لكل الأيقونات (المحرك P) | `python3 tools/icons_sheet.py --group itshover --limit 24` |
 | `icons_preview.mjs` | نفس الشيت بس من رسّام المحرك K (Canvas/Chromium) | `node tools/icons_preview.mjs --limit 24` |
+| `motion_studio.html` | استوديو الحركة الأوفلاين: محرر تايملاين JSON + سكرَب + قيم لحظية | `python3 -m http.server 8080` ثم `/tools/motion_studio.html` |
+| `theatre_import.py` | يحوّل Theatre.js state export لتايملاين المحركين | `python3 tools/theatre_import.py state.json --offset 18.5` |
 | `toolkit/` | اعتماديات Node (`playwright-core`, `@sparticuz/chromium`, خطوط OFL) | `cd tools/toolkit && npm install` |
 | `bin/` | روابط ffmpeg/ffprobe اللي بيعملها `setup.sh` (مش متتبعة في git) | — |
 
@@ -27,6 +29,7 @@ make ci         # lint + tests + تدقيق براند
 make selftest   # فحص كامل + رندر
 make new SLUG=my-reel ENGINE=p
 make icons      # يعيد بناء الأيقونات + شيت مراجعة
+make studio     # استوديو الحركة على :8080
 make clean      # مسح الكاش ومخرجات الرندر
 ```
 

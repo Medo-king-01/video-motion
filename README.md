@@ -32,7 +32,7 @@ python3 tools/doctor.py    # تقرير READY / DEGRADED / BLOCKED لكل قدر
 python3 tools/selftest.py  # فحص كامل: doctor + اختبارات + رندر حقيقي من المحركين
 ```
 
-أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم`
+أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio`
 
 مشروع جديد:
 
@@ -60,6 +60,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
   brand/               ← الهوية: BRAND.md للبني آدم + brand.json للكود
   reference/           ← أدلة تُقرأ عند الحاجة (العربي إلزامي قبل أي نص على الشاشة)
   icons/              ← ٢٧٥ أيقونة متحركة (١٢ بيت + ٢٦٣ من itshover): registry → SVG + محرك K + محرك P
+  motion/             ← لغة الحركة: easings.json (منحنيات motion.dev) + تايملاين + أمثلة
   styles/               ← ٩ ستايلات إلهام، والافتراضي medo-red-circle
   templates/           ← محرك P (Pillow/OpenCV/FFmpeg) + محرك K (Canvas/Playwright)
   scripts/             ← preflight · brand_check · get_fonts · SFX · TTS · preview
@@ -78,6 +79,9 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 الأيقونات مشتركة بينهم: `medo-motion/icons/` → `lib/icons.js` (K) + `icons.py` (P) + `svg/` (ويب).
 مكتبة **itshover** كاملة (٢٦٣ أيقونة، Apache-2.0) متاخدة من مستودعهم ومولّد منها نسخة للمحركين — الشرح في `docs/icons.md`.
 
+والحركة ليها لغة واحدة (`medo-motion/motion/`) بنفس منحنيات **motion.dev** وتايملاين keyframes زي **Theatre.js**:
+نفس الـJSON بيشتغل في المحركين، وفي استوديو أوفلاين بتراجع بيه الحركة قبل الرندر — `docs/motion.md`.
+
 ---
 
 ## حالة البيئة (اللي اتظبط)
@@ -90,7 +94,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
 | محركي الرندر P و K | ✅ اتجربوا ورندروا فريمات عربية صح |
-| الاختبارات (`make test` · `make selftest`) | ✅ ٧٦ اختبار + رندر من المحركين |
+| الاختبارات (`make test` · `make selftest`) | ✅ ٨٧ اختبار + رندر من المحركين |
 | مفتاح ElevenLabs | ❌ اختياري — الصوت بييجي منك |
 
 شغّل `python3 tools/doctor.py` في أي وقت للتأكد.

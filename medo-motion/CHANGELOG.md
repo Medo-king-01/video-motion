@@ -1,5 +1,24 @@
 # Changelog — Medo Motion (private fork)
 
+## 1.5 — 2026-11-01 — motion grammar (motion.dev + Theatre.js, without their runtimes)
+- **`medo-motion/motion/easings.json`**: 12 named cubic-beziers with motion.dev's control points
+  (easeIn/Out/InOut, circ…, back…, anticipate) + 5 spring presets + the brand's locked timings.
+- **Deterministic motion module in both engines**: `templates/render/lib/motion.js` and
+  `templates/procedural-reels/motion.py` — `ease`, closed-form `spring` (stiffness/damping/mass,
+  overshoot included), `springDuration`, `keyframes`, `timeline().at(t)`, `stagger`, `reveal`.
+  Same numbers in JS and Python (asserted numerically by the tests).
+- **Timeline JSON format** (+ `motion/examples/card-entrance.json`): keyframe tracks with per-segment
+  easing, colour interpolation, clamping outside the range.
+- **Theatre.js bridge**: `tools/theatre_import.py` converts a Studio state export into our timeline
+  (bezier handles → cubic-bezier, `--offset`, `--sheet`, `--list`).
+- **Offline motion studio**: `tools/motion_studio.html` (JSON editor, scrub, play, live values,
+  download) — imports the engine's module, so what you preview is exactly what renders. `make studio`.
+- **Engine K demo**: `scenes/motion-example.js` (22–25 s) driven entirely by a timeline; visible in
+  `make selftest` renders and the palette audit stays clean.
+- Docs: `docs/motion.md` (what we took, what we deliberately skipped, recipes, limits),
+  `motion/README.md`, README/AGENTS/docs index/tools README updated.
+- Verified: `ruff check .` clean · `pytest` 87 passed · `make ci` OK · `selftest` all PASS.
+
 ## 1.4 — 2026-11-01 — the whole itshover library, inside both engines
 - **Vendored itshover** (Apache-2.0, `itshover/itshover` on GitHub) into `icons/itshover/tsx/`
   with its LICENSE and upstream registry — 263 components, the complete set behind

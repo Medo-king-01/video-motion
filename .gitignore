@@ -3,6 +3,8 @@ node_modules/
 package-lock.json.bak
 
 # render output and runtime caches (big, reproducible)
+projects/*/
+!projects/README.md
 projects/*/out/
 projects/*/cache/
 projects/*/renders/

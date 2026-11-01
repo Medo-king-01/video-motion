@@ -26,6 +26,13 @@ new:             ## scaffold a project: make new SLUG=my-reel ENGINE=p
 brand:           ## audit brand tokens of a project: make brand P=projects/x
 	$(PY) medo-motion/scripts/brand_check.py --project $(or $(P),.)
 
+studio:          ## open the offline motion studio (tools/motion_studio.html) on :8080
+	@echo "http://localhost:8080/tools/motion_studio.html"
+	$(PY) -m http.server 8080
+
+theatre:         ## convert a Theatre.js state export: make theatre F=state.json [OFFSET=18.5]
+	$(PY) tools/theatre_import.py $(or $(F),state.json) $(if $(OFFSET),--offset $(OFFSET),)
+
 icons:           ## rebuild the animated icon layer + a QA sheet
 	$(PY) medo-motion/icons/build.py
 	$(PY) tools/icons_sheet.py --out cache/icons-sheet.png
@@ -35,4 +42,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup doctor test ci selftest new brand icons clean
+.PHONY: help setup doctor test ci selftest new brand icons studio theatre clean

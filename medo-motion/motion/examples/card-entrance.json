@@ -1,0 +1,12 @@
+{
+  "_doc": "Example timeline: a card springs in, drifts, and its accent bar draws. Same file plays in engine K (lib/motion.js) and engine P (motion.py).",
+  "duration": 2.4,
+  "tracks": {
+    "card.y": [{ "t": 0, "v": 260 }, { "t": 0.75, "v": 0, "ease": "spring" }],
+    "card.scale": [{ "t": 0, "v": 0.82 }, { "t": 0.65, "v": 1, "ease": "backOut" }],
+    "card.opacity": [{ "t": 0, "v": 0 }, { "t": 0.3, "v": 1, "ease": "easeOut" }],
+    "card.rotate": [{ "t": 0, "v": -6 }, { "t": 0.9, "v": 0, "ease": "easeInOut" }],
+    "bar.width": [{ "t": 0.35, "v": 0 }, { "t": 1.35, "v": 420, "ease": "circOut" }],
+    "title.opacity": [{ "t": 0.5, "v": 0 }, { "t": 0.95, "v": 1, "ease": "easeOut" }]
+  }
+}

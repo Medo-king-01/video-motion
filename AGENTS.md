@@ -44,6 +44,11 @@ finished video on guessed timing without saying so.
    `medo-motion/reference/arabic-typography.md`. Whole words only, RTL, real shaping.
    Never letter-by-letter, never `arabic_reshaper`.
 6. **Never print, ask for, or store API keys** in chat or in files.
+7. **Motion comes from the studio grammar**, not ad-hoc maths: easings/springs in
+   `medo-motion/motion/easings.json`, keyframe timelines played by `lib/motion.js` (K) or
+   `motion.py` (P). The same timeline JSON must render identically in both engines —
+   `tests/test_motion.py` enforces it. `docs/motion.md` maps motion.dev recipes onto it and
+   `tools/theatre_import.py` converts a Theatre.js state export.
 
 ## 3. What YOU produce
 
