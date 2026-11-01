@@ -1,0 +1,29 @@
+# node
+node_modules/
+package-lock.json.bak
+
+# render output and runtime caches (big, reproducible)
+projects/*/
+!projects/README.md
+projects/*/out/
+projects/*/cache/
+projects/*/renders/
+projects/*/frames/
+projects/*/out_log.txt
+projects/*/src/node_modules
+*.mp4
+*_preview.mp4
+
+# tooling caches / local previews
+cache/
+.cache/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.pyc
+tools/bin/
+.DS_Store
+
+# secrets — never commit
+.env
+*.key

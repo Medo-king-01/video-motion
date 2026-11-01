@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Arrow Down 1 0 Icon" data-icon="arrow-down-1-0-icon">
+  <title>Arrow Down 1 0 Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="m3 16 4 4 4-4" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M7 20V4" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="M17 10V4h-2" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M15 10h4" style="animation-delay:0.18s"/>
+  <polygon class="a" pathLength="1" points="17,14 17.765,14.152 18.414,14.586 18.848,15.235 19,16 19,18 18.848,18.765 18.414,19.414 17.765,19.848 17,20 17,20 16.235,19.848 15.586,19.414 15.152,18.765 15,18 15,16 15.152,15.235 15.586,14.586 16.235,14.152 17,14" style="animation-delay:0.24s"/>
+</svg>

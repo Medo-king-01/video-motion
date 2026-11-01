@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Layout Dashboard Icon" data-icon="layout-dashboard-icon">
+  <title>Layout Dashboard Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="9,3 9.383,3.076 9.707,3.293 9.924,3.617 10,4 10,11 9.924,11.383 9.707,11.707 9.383,11.924 9,12 4,12 3.617,11.924 3.293,11.707 3.076,11.383 3,11 3,4 3.076,3.617 3.293,3.293 3.617,3.076 4,3" style="animation-delay:0.0s"/>
+  <polygon class="a" pathLength="1" points="20,3 20.383,3.076 20.707,3.293 20.924,3.617 21,4 21,7 20.924,7.383 20.707,7.707 20.383,7.924 20,8 15,8 14.617,7.924 14.293,7.707 14.076,7.383 14,7 14,4 14.076,3.617 14.293,3.293 14.617,3.076 15,3" style="animation-delay:0.06s"/>
+  <polygon class="a" pathLength="1" points="20,12 20.383,12.076 20.707,12.293 20.924,12.617 21,13 21,20 20.924,20.383 20.707,20.707 20.383,20.924 20,21 15,21 14.617,20.924 14.293,20.707 14.076,20.383 14,20 14,13 14.076,12.617 14.293,12.293 14.617,12.076 15,12" style="animation-delay:0.12s"/>
+  <polygon class="a" pathLength="1" points="9,16 9.383,16.076 9.707,16.293 9.924,16.617 10,17 10,20 9.924,20.383 9.707,20.707 9.383,20.924 9,21 4,21 3.617,20.924 3.293,20.707 3.076,20.383 3,20 3,17 3.076,16.617 3.293,16.293 3.617,16.076 4,16" style="animation-delay:0.18s"/>
+</svg>

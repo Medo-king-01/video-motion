@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="96" height="96" role="img" aria-label="Magnifier Icon — بحث" data-icon="magnifier-icon">
+  <title>Magnifier Icon — بحث</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="m21.393,18.565l7.021,7.021c.781.781.781,2.047,0,2.828h0c-.781.781-2.047.781-2.828,0l-7.021-7.021" style="animation-delay:0.0s"/>
+  <polygon class="a" pathLength="1" points="23,13 22.937,14.12 22.749,15.225 22.439,16.303 22.01,17.339 21.467,18.32 20.818,19.235 20.071,20.071 19.235,20.818 18.32,21.467 17.339,22.01 16.303,22.439 15.225,22.749 14.12,22.937 13,23 11.88,22.937 10.775,22.749 9.697,22.439 8.661,22.01 7.68,21.467 6.765,20.818 5.929,20.071 5.182,19.235 4.533,18.32 3.99,17.339 3.561,16.303 3.251,15.225 3.063,14.12 3,13 3.063,11.88 3.251,10.775 3.561,9.697 3.99,8.661 4.533,7.68 5.182,6.765 5.929,5.929 6.765,5.182 7.68,4.533 8.661,3.99 9.697,3.561 10.775,3.251 11.88,3.063 13,3 14.12,3.063 15.225,3.251 16.303,3.561 17.339,3.99 18.32,4.533 19.235,5.182 20.071,5.929 20.818,6.765 21.467,7.68 22.01,8.661 22.439,9.697 22.749,10.775 22.937,11.88" style="animation-delay:0.06s"/>
+</svg>

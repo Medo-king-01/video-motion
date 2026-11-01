@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="RAM — الرامات" data-icon="ram">
+  <title>RAM — الرامات</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.71s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="19.4,7 20.012,7.122 20.531,7.469 20.878,7.988 21,8.6 21,15.4 20.878,16.012 20.531,16.531 20.012,16.878 19.4,17 4.6,17 3.988,16.878 3.469,16.531 3.122,16.012 3,15.4 3,8.6 3.122,7.988 3.469,7.469 3.988,7.122 4.6,7" style="animation-delay:0.0s"/>
+  <polyline class="a" pathLength="1" points="7,10 7,14" style="animation-delay:0.06s"/>
+  <polyline class="a" pathLength="1" points="12,10 12,14" style="animation-delay:0.12s"/>
+  <polyline class="a" pathLength="1" points="17,10 17,14" style="animation-delay:0.18s"/>
+  <polyline class="a" pathLength="1" points="6,17 6,20" style="animation-delay:0.24s"/>
+  <polyline class="a" pathLength="1" points="10,17 10,20" style="animation-delay:0.3s"/>
+  <polyline class="a" pathLength="1" points="14,17 14,20" style="animation-delay:0.36s"/>
+  <polyline class="a" pathLength="1" points="18,17 18,20" style="animation-delay:0.42s"/>
+  <circle class="d" cx="12" cy="12" r="1.4" style="animation-delay:0.48s,0.83s"/>
+</svg>

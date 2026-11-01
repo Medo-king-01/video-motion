@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion Studio — استوديو الحركة</title>
+<style>
+  :root{
+    --ink:#473938; --ink-soft:#8B6765; --paper:#F3F2F1; --gray1:#D8D7D5; --gray2:#C9C5C2;
+    --gray3:#BFBAB7; --gray4:#A3A2A0; --red:#CB271B; --deep:#9F0803; --salmon:#D97F68; --blush:#D5AEA6; --shadow:#2E2423;
+  }
+  @font-face{font-family:"Cairo";src:url("/assets/fonts/Cairo/Cairo_800ExtraBold.ttf") format("truetype");font-weight:800;font-display:swap}
+  @font-face{font-family:"Cairo";src:url("/assets/fonts/Cairo/Cairo_400Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+  @font-face{font-family:"Cairo";src:url("/assets/fonts/Cairo/Cairo_700Bold.ttf") format("truetype");font-weight:700;font-display:swap}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--shadow);color:var(--paper);font:15px/1.5 system-ui,"Segoe UI",sans-serif}
+  header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #453736;flex-wrap:wrap}
+  header h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px}
+  header .hint{color:var(--gray4);font-size:13px}
+  .spacer{flex:1}
+  button{background:var(--ink);color:var(--paper);border:1px solid #5b4a49;border-radius:9px;padding:8px 14px;font:inherit;cursor:pointer}
+  button:hover{border-color:var(--red)}
+  button.primary{background:var(--red);border-color:var(--red)}
+  main{display:grid;grid-template-columns:minmax(300px,460px) 1fr;gap:18px;padding:18px;align-items:start}
+  #stageWrap{background:#000;border-radius:14px;overflow:hidden;border:1px solid #4a3c3b}
+  canvas{display:block;width:100%;height:auto}
+  .panel{background:#3a2f2e;border:1px solid #4a3c3b;border-radius:14px;padding:14px}
+  .panel h2{font-size:13px;margin:0 0 10px;color:var(--gray3);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+  textarea{width:100%;height:260px;background:#241d1c;color:var(--paper);border:1px solid #4a3c3b;border-radius:10px;
+           padding:12px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;direction:ltr;resize:vertical}
+  .row{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+  input[type=range]{flex:1;accent-color:var(--red)}
+  .time{font:13px ui-monospace,monospace;color:var(--gray3);min-width:110px;text-align:center}
+  .values{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px}
+  .val{background:#241d1c;border:1px solid #4a3c3b;border-radius:9px;padding:6px 10px;font:12px ui-monospace,monospace;color:var(--gray3)}
+  .val b{color:var(--paper);font-weight:600}
+  .err{color:#ff9a8c;font-size:13px;min-height:18px;direction:ltr;text-align:left}
+  .swatches{display:flex;gap:6px;margin-top:10px}
+  .sw{width:22px;height:22px;border-radius:6px;border:1px solid #00000055}
+  footer{padding:10px 18px 26px;color:var(--gray4);font-size:12px}
+  code{background:#241d1c;padding:1px 6px;border-radius:6px;color:var(--blush)}
+  @media (max-width:860px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Motion Studio · استوديو الحركة</h1>
+  <span class="hint">keyframes + springs → نفس الرقم في المحركين</span>
+  <span class="spacer"></span>
+  <button id="play" class="primary">تشغيل ▸</button>
+  <button id="reset">من الأول</button>
+  <button id="example">المثال</button>
+  <button id="download">تنزيل JSON</button>
+  <button id="copy">نسخ</button>
+</header>
+
+<main>
+  <div>
+    <div id="stageWrap"><canvas id="stage" width="1080" height="1920"></canvas></div>
+    <div class="swatches">
+      <span class="sw" style="background:#CB271B" title="red"></span>
+      <span class="sw" style="background:#9F0803" title="red_deep"></span>
+      <span class="sw" style="background:#473938" title="ink"></span>
+      <span class="sw" style="background:#8B6765" title="ink_soft"></span>
+      <span class="sw" style="background:#D97F68" title="salmon"></span>
+      <span class="sw" style="background:#D5AEA6" title="blush"></span>
+      <span class="sw" style="background:#F3F2F1" title="paper"></span>
+      <span class="sw" style="background:#C9C5C2" title="gray_2"></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>التايملاين · timeline JSON</h2>
+    <textarea id="json" spellcheck="false"></textarea>
+    <div class="err" id="err"></div>
+    <div class="row">
+      <input id="scrub" type="range" min="0" max="2.6" step="0.0083" value="0">
+      <span class="time" id="clock">0.00s / 2.60s</span>
+    </div>
+    <div class="values" id="values"></div>
+    <p class="hint" style="color:var(--gray4);font-size:12px;margin:14px 0 0">
+      الحركة كلها دالة في الزمن: نفس الـJSON بيتقرأ بـ<code>timeline(spec).at(t)</code> في
+      <code>lib/motion.js</code> و<code>motion.py</code>. عدّل الأرقام هنا، وبعدين
+      <code>python tools/theatre_import.py</code> لو حابب تألّف بـTheatre.js Studio.
+    </p>
+  </div>
+</main>
+
+<footer>
+  المعاينة على 1080×1920 مصغّرة · الألوان من بالِت البراند بس ·
+  <code>ease</code> و<code>spring</code> من مفردات motion.dev
+</footer>
+
+<script type="module">
+import { timeline, ease, progress } from '../medo-motion/templates/render/lib/motion.js';
+
+const C = { red:'#CB271B', deep:'#9F0803', ink:'#473938', inkSoft:'#8B6765', paper:'#F3F2F1',
+            gray2:'#C9C5C2', gray4:'#A3A2A0', salmon:'#D97F68', blush:'#D5AEA6', shadow:'#2E2423' };
+
+const EXAMPLE = {
+  duration: 2.6,
+  tracks: {
+    'card.y':       [{ t: 0, v: 300 }, { t: 0.8, v: 0, ease: 'spring' }],
+    'card.scale':   [{ t: 0, v: 0.84 }, { t: 0.7, v: 1, ease: 'backOut' }],
+    'card.opacity': [{ t: 0, v: 0 }, { t: 0.3, v: 1, ease: 'easeOut' }],
+    'card.rotate':  [{ t: 0, v: -5 }, { t: 0.9, v: 0, ease: 'easeInOut' }],
+    'bar.width':    [{ t: 0.4, v: 0 }, { t: 1.4, v: 520, ease: 'circOut' }],
+    'title.opacity':[{ t: 0.55, v: 0 }, { t: 1.0, v: 1, ease: 'easeOut' }],
+  },
+};
+
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const jsonEl = document.getElementById('json');
+const errEl = document.getElementById('err');
+const scrub = document.getElementById('scrub');
+const clock = document.getElementById('clock');
+const valuesEl = document.getElementById('values');
+const playBtn = document.getElementById('play');
+
+let spec = structuredClone(EXAMPLE);
+let tl = timeline(spec);
+let t = 0, playing = false, last = 0;
+
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+}
+
+function draw(time) {
+  const v = tl.at(Math.min(time, tl.duration));
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, C.ink); g.addColorStop(1, C.shadow);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  const circleIn = ease('backOut', progress(time, 0.05, 0.6));
+  ctx.fillStyle = C.red;
+  ctx.beginPath(); ctx.arc(W / 2, 840, 300 * circleIn, 0, Math.PI * 2); ctx.fill();
+
+  ctx.save();
+  ctx.globalAlpha = v['card.opacity'] ?? 1;
+  ctx.translate(W / 2, 840 + (v['card.y'] ?? 0));
+  ctx.rotate(((v['card.rotate'] ?? 0) * Math.PI) / 180);
+  const s = v['card.scale'] ?? 1;
+  ctx.scale(s, s);
+  const cw = 720, ch = 300;
+  ctx.fillStyle = C.ink;
+  ctx.shadowColor = 'rgba(46,36,35,.45)'; ctx.shadowBlur = 48; ctx.shadowOffsetY = 20;
+  roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 28); ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = C.red; ctx.lineWidth = 3;
+  roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 28); ctx.stroke();
+
+  ctx.direction = 'rtl'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.globalAlpha = (v['card.opacity'] ?? 1) * (v['title.opacity'] ?? 1);
+  ctx.fillStyle = C.paper; ctx.font = '800 52px "Cairo", system-ui, sans-serif';
+  ctx.fillText('الحركة بقت أرقام', 0, -46);
+  ctx.globalAlpha = v['card.opacity'] ?? 1;
+  ctx.fillStyle = C.gray4; ctx.font = '400 30px "Cairo", system-ui, sans-serif';
+  ctx.fillText('keyframes + springs · JSON واحد للمحركين', 0, 14);
+  ctx.fillStyle = C.gray2; roundRect(ctx, -210, 78, 420, 10, 5); ctx.fill();
+  ctx.fillStyle = C.red;
+  roundRect(ctx, -210, 78, Math.max(10, ((v['bar.width'] ?? 0) / 520) * 420), 10, 5); ctx.fill();
+  ctx.restore();
+
+  ctx.globalAlpha = 1; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = C.gray4; ctx.font = '400 28px "Cairo", system-ui, sans-serif';
+  ctx.fillText('medo-motion/motion · ease · spring · timeline', W / 2, 1290);
+  ctx.fillStyle = C.gray2; ctx.fillRect(60, 64, W - 120, 6);
+  ctx.fillStyle = C.red; ctx.fillRect(60, 64, (W - 120) * Math.min(1, time / Math.max(0.001, tl.duration)), 6);
+
+  clock.textContent = `${time.toFixed(2)}s / ${tl.duration.toFixed(2)}s`;
+  valuesEl.innerHTML = Object.entries(v)
+    .map(([k, val]) => `<div class="val">${k} <b>${typeof val === 'number' ? val.toFixed(2) : val}</b></div>`)
+    .join('');
+}
+
+function syncScrub() {
+  scrub.max = String(tl.duration);
+  scrub.value = String(t);
+}
+syncScrub();
+
+function parseSpec(text) {
+  try {
+    const next = JSON.parse(text);
+    const nextTl = timeline(next);
+    spec = next; tl = nextTl;
+    errEl.textContent = '';
+    syncScrub();
+    draw(t);
+  } catch (error) {
+    errEl.textContent = String(error.message || error);
+  }
+}
+
+jsonEl.value = JSON.stringify(EXAMPLE, null, 2);
+jsonEl.addEventListener('input', () => parseSpec(jsonEl.value));
+scrub.addEventListener('input', () => { t = Number(scrub.value); playing = false; playBtn.textContent = 'تشغيل ▸'; draw(t); });
+playBtn.addEventListener('click', () => {
+  playing = !playing;
+  playBtn.textContent = playing ? 'إيقاف ❚❚' : 'تشغيل ▸';
+  if (playing) { last = performance.now(); if (t >= tl.duration) t = 0; requestAnimationFrame(loop); }
+});
+document.getElementById('reset').addEventListener('click', () => { t = 0; syncScrub(); draw(t); });
+document.getElementById('example').addEventListener('click', () => {
+  jsonEl.value = JSON.stringify(EXAMPLE, null, 2); t = 0; parseSpec(jsonEl.value);
+});
+document.getElementById('download').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(spec, null, 2) + '\n'], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'timeline.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+document.getElementById('copy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(JSON.stringify(spec, null, 2)); errEl.textContent = 'اتنسخ ✓'; }
+  catch { errEl.textContent = 'النسخ محتاج https أو localhost'; }
+});
+
+function loop(now) {
+  if (!playing) return;
+  t += (now - last) / 1000; last = now;
+  if (t > tl.duration) t = 0;
+  scrub.value = String(t);
+  draw(t);
+  requestAnimationFrame(loop);
+}
+
+draw(0);
+</script>
+</body>
+</html>

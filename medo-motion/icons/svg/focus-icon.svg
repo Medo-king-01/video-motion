@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Focus Icon — تركيز" data-icon="focus-icon">
+  <title>Focus Icon — تركيز</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="15,12 14.981,12.336 14.925,12.668 14.832,12.991 14.703,13.302 14.54,13.596 14.345,13.87 14.121,14.121 13.87,14.345 13.596,14.54 13.302,14.703 12.991,14.832 12.668,14.925 12.336,14.981 12,15 11.664,14.981 11.332,14.925 11.009,14.832 10.698,14.703 10.404,14.54 10.13,14.345 9.879,14.121 9.655,13.87 9.46,13.596 9.297,13.302 9.168,12.991 9.075,12.668 9.019,12.336 9,12 9.019,11.664 9.075,11.332 9.168,11.009 9.297,10.698 9.46,10.404 9.655,10.13 9.879,9.879 10.13,9.655 10.404,9.46 10.698,9.297 11.009,9.168 11.332,9.075 11.664,9.019 12,9 12.336,9.019 12.668,9.075 12.991,9.168 13.302,9.297 13.596,9.46 13.87,9.655 14.121,9.879 14.345,10.13 14.54,10.404 14.703,10.698 14.832,11.009 14.925,11.332 14.981,11.664" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M3 7V5a2 2 0 0 1 2-2h2" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="M17 3h2a2 2 0 0 1 2 2v2" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M21 17v2a2 2 0 0 1-2 2h-2" style="animation-delay:0.18s"/>
+  <path class="a" pathLength="1" d="M7 21H5a2 2 0 0 1-2-2v-2" style="animation-delay:0.24s"/>
+</svg>

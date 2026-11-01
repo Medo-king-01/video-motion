@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Trophy Icon" data-icon="trophy-icon">
+  <title>Trophy Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="M6 9H4.5a1 1 0 0 1 0-5H6" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M18 9h1.5a1 1 0 0 0 0-5H18" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="M4 22h16" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978" style="animation-delay:0.18s"/>
+  <path class="a" pathLength="1" d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978" style="animation-delay:0.24s"/>
+  <path class="a" pathLength="1" d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" style="animation-delay:0.3s"/>
+  <polygon class="f" points="12.5,6 12.691,6.038 12.854,6.146 12.962,6.309 13,6.5 13,7.5 12.962,7.691 12.854,7.854 12.691,7.962 12.5,8 11.5,8 11.309,7.962 11.146,7.854 11.038,7.691 11,7.5 11,6.5 11.038,6.309 11.146,6.146 11.309,6.038 11.5,6" style="animation-delay:0.36s"/>
+  <polygon class="f" points="13.5,5 13.691,5.038 13.854,5.146 13.962,5.309 14,5.5 14,6.5 13.962,6.691 13.854,6.854 13.691,6.962 13.5,7 12.5,7 12.309,6.962 12.146,6.854 12.038,6.691 12,6.5 12,5.5 12.038,5.309 12.146,5.146 12.309,5.038 12.5,5" style="animation-delay:0.42s"/>
+  <polygon class="f" points="14.5,6 14.691,6.038 14.854,6.146 14.962,6.309 15,6.5 15,7.5 14.962,7.691 14.854,7.854 14.691,7.962 14.5,8 13.5,8 13.309,7.962 13.146,7.854 13.038,7.691 13,7.5 13,6.5 13.038,6.309 13.146,6.146 13.309,6.038 13.5,6" style="animation-delay:0.48s"/>
+  <polygon class="f" points="13.5,7 13.691,7.038 13.854,7.146 13.962,7.309 14,7.5 14,8.5 13.962,8.691 13.854,8.854 13.691,8.962 13.5,9 12.5,9 12.309,8.962 12.146,8.854 12.038,8.691 12,8.5 12,7.5 12.038,7.309 12.146,7.146 12.309,7.038 12.5,7" style="animation-delay:0.54s"/>
+</svg>

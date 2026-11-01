@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Wi-Fi — واي فاي" data-icon="wifi">
+  <title>Wi-Fi — واي فاي</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.9s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.67s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polyline class="a" pathLength="1" points="3.843,11.196 4.257,10.412 4.747,9.671 5.307,8.983 5.932,8.353 6.616,7.788 7.353,7.293 8.135,6.872 8.954,6.531 9.803,6.272 10.673,6.098 11.556,6.011 12.444,6.011 13.327,6.098 14.197,6.272 15.046,6.531 15.865,6.872 16.647,7.293 17.384,7.788 18.068,8.353 18.693,8.983 19.253,9.671 19.743,10.412 20.157,11.196" style="animation-delay:0.0s"/>
+  <polyline class="a" pathLength="1" points="6.804,12 7.098,11.54 7.433,11.109 7.806,10.709 8.213,10.346 8.652,10.021 9.119,9.737 9.61,9.497 10.12,9.302 10.646,9.155 11.183,9.056 11.727,9.006 12.273,9.006 12.817,9.056 13.354,9.155 13.88,9.302 14.39,9.497 14.881,9.737 15.348,10.021 15.787,10.346 16.194,10.709 16.567,11.109 16.902,11.54 17.196,12" style="animation-delay:0.12s"/>
+  <polyline class="a" pathLength="1" points="9.543,13.279 9.695,13.08 9.863,12.895 10.046,12.724 10.242,12.569 10.451,12.431 10.671,12.311 10.899,12.209 11.136,12.127 11.378,12.065 11.625,12.023 11.875,12.003 12.125,12.003 12.375,12.023 12.622,12.065 12.864,12.127 13.101,12.209 13.329,12.311 13.549,12.431 13.758,12.569 13.954,12.724 14.137,12.895 14.305,13.08 14.457,13.279" style="animation-delay:0.24s"/>
+  <circle class="d" cx="12" cy="18" r="1.3" style="animation-delay:0.36s,0.71s"/>
+</svg>

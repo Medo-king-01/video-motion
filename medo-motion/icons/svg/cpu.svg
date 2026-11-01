@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="CPU — المعالج" data-icon="cpu">
+  <title>CPU — المعالج</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.9s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.91s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="17.5,4 18.457,4.19 19.268,4.732 19.81,5.543 20,6.5 20,17.5 19.81,18.457 19.268,19.268 18.457,19.81 17.5,20 6.5,20 5.543,19.81 4.732,19.268 4.19,18.457 4,17.5 4,6.5 4.19,5.543 4.732,4.732 5.543,4.19 6.5,4" style="animation-delay:0.0s"/>
+  <polygon class="a" pathLength="1" points="14,9 14.383,9.076 14.707,9.293 14.924,9.617 15,10 15,14 14.924,14.383 14.707,14.707 14.383,14.924 14,15 10,15 9.617,14.924 9.293,14.707 9.076,14.383 9,14 9,10 9.076,9.617 9.293,9.293 9.617,9.076 10,9" style="animation-delay:0.07s"/>
+  <polyline class="a" pathLength="1" points="8,1 8,3.6" style="animation-delay:0.14s"/>
+  <polyline class="a" pathLength="1" points="16,1 16,3.6" style="animation-delay:0.21s"/>
+  <polyline class="a" pathLength="1" points="8,20.4 8,23" style="animation-delay:0.28s"/>
+  <polyline class="a" pathLength="1" points="16,20.4 16,23" style="animation-delay:0.35s"/>
+  <polyline class="a" pathLength="1" points="1,8 3.6,8" style="animation-delay:0.42s"/>
+  <polyline class="a" pathLength="1" points="1,16 3.6,16" style="animation-delay:0.49s"/>
+  <polyline class="a" pathLength="1" points="20.4,8 23,8" style="animation-delay:0.56s"/>
+  <polyline class="a" pathLength="1" points="20.4,16 23,16" style="animation-delay:0.63s"/>
+  <circle class="d" cx="12" cy="12" r="1.5" style="animation-delay:0.7s,1.0499999999999998s"/>
+</svg>

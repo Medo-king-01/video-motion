@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Copyright Icon" data-icon="copyright-icon">
+  <title>Copyright Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="22,12 21.937,13.12 21.749,14.225 21.439,15.303 21.01,16.339 20.467,17.32 19.818,18.235 19.071,19.071 18.235,19.818 17.32,20.467 16.339,21.01 15.303,21.439 14.225,21.749 13.12,21.937 12,22 10.88,21.937 9.775,21.749 8.697,21.439 7.661,21.01 6.68,20.467 5.765,19.818 4.929,19.071 4.182,18.235 3.533,17.32 2.99,16.339 2.561,15.303 2.251,14.225 2.063,13.12 2,12 2.063,10.88 2.251,9.775 2.561,8.697 2.99,7.661 3.533,6.68 4.182,5.765 4.929,4.929 5.765,4.182 6.68,3.533 7.661,2.99 8.697,2.561 9.775,2.251 10.88,2.063 12,2 13.12,2.063 14.225,2.251 15.303,2.561 16.339,2.99 17.32,3.533 18.235,4.182 19.071,4.929 19.818,5.765 20.467,6.68 21.01,7.661 21.439,8.697 21.749,9.775 21.937,10.88" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M14.83 14.83a4 4 0 1 1 0-5.66" style="animation-delay:0.06s"/>
+</svg>

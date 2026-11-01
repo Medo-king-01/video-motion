@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Accessibility Icon" data-icon="accessibility-icon">
+  <title>Accessibility Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="17,4 16.994,4.112 16.975,4.223 16.944,4.33 16.901,4.434 16.847,4.532 16.782,4.623 16.707,4.707 16.623,4.782 16.532,4.847 16.434,4.901 16.33,4.944 16.223,4.975 16.112,4.994 16,5 15.888,4.994 15.777,4.975 15.67,4.944 15.566,4.901 15.468,4.847 15.377,4.782 15.293,4.707 15.218,4.623 15.153,4.532 15.099,4.434 15.056,4.33 15.025,4.223 15.006,4.112 15,4 15.006,3.888 15.025,3.777 15.056,3.67 15.099,3.566 15.153,3.468 15.218,3.377 15.293,3.293 15.377,3.218 15.468,3.153 15.566,3.099 15.67,3.056 15.777,3.025 15.888,3.006 16,3 16.112,3.006 16.223,3.025 16.33,3.056 16.434,3.099 16.532,3.153 16.623,3.218 16.707,3.293 16.782,3.377 16.847,3.468 16.901,3.566 16.944,3.67 16.975,3.777 16.994,3.888" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="m18 19 1-7-6 1" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="m5 8 3-3 5.5 3-2.36 3.5" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M4.24 14.5a5 5 0 0 0 6.88 6" style="animation-delay:0.18s"/>
+  <path class="a" pathLength="1" d="M13.76 17.5a5 5 0 0 0-6.88-6" style="animation-delay:0.24s"/>
+</svg>

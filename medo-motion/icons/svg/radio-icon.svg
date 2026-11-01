@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Radio Icon" data-icon="radio-icon">
+  <title>Radio Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="M16.247 7.761a6 6 0 0 1 0 8.478" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M7.753 16.239a6 6 0 0 1 0-8.478" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="M19.075 4.933a10 10 0 0 1 0 14.134" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M4.925 19.067a10 10 0 0 1 0-14.134" style="animation-delay:0.18s"/>
+  <polygon class="a" pathLength="1" points="14,12 13.987,12.224 13.95,12.445 13.888,12.661 13.802,12.868 13.693,13.064 13.564,13.247 13.414,13.414 13.247,13.564 13.064,13.693 12.868,13.802 12.661,13.888 12.445,13.95 12.224,13.987 12,14 11.776,13.987 11.555,13.95 11.339,13.888 11.132,13.802 10.936,13.693 10.753,13.564 10.586,13.414 10.436,13.247 10.307,13.064 10.198,12.868 10.112,12.661 10.05,12.445 10.013,12.224 10,12 10.013,11.776 10.05,11.555 10.112,11.339 10.198,11.132 10.307,10.936 10.436,10.753 10.586,10.586 10.753,10.436 10.936,10.307 11.132,10.198 11.339,10.112 11.555,10.05 11.776,10.013 12,10 12.224,10.013 12.445,10.05 12.661,10.112 12.868,10.198 13.064,10.307 13.247,10.436 13.414,10.586 13.564,10.753 13.693,10.936 13.802,11.132 13.888,11.339 13.95,11.555 13.987,11.776" style="animation-delay:0.24s"/>
+</svg>

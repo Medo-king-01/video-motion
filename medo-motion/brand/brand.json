@@ -1,0 +1,312 @@
+{
+  "_doc": "Single machine-readable source of truth for Medo's reel studio. Human version: brand/BRAND.md. Palette v2 (2026-11-01, given by Medo) replaces the old red/black/white set. Values under `derived` are computed from palette colours and are declared here on purpose — do not invent any other colour.",
+  "brand": {
+    "name": "Kodo Medo",
+    "name_ar": "كودو ميدو",
+    "name_status": "archived working name — never put any name on screen (studio, not a series)",
+    "on_screen_name": null,
+    "logo": null,
+    "logo_rule": "NONE. This is a reel studio, not a named series: no logo, no series name, no episode number, no descriptive chip, no reserved empty circle. Never ask for these; never invent them. End cards are typographic only."
+  },
+  "palette": {
+    "red": {
+      "hex": "#CB271B",
+      "rgb": [
+        203,
+        39,
+        27
+      ],
+      "role": "primary: the big circle, key words, borders, CTA"
+    },
+    "red_bright": {
+      "hex": "#CB0801",
+      "rgb": [
+        203,
+        8,
+        1
+      ],
+      "role": "strongest red: emphasis, problem state (LIGHT backgrounds only)"
+    },
+    "red_deep": {
+      "hex": "#9F0803",
+      "rgb": [
+        159,
+        8,
+        3
+      ],
+      "role": "deep red: depth, hover/pressed, shadow side of red shapes"
+    },
+    "ink": {
+      "hex": "#473938",
+      "rgb": [
+        71,
+        57,
+        56
+      ],
+      "role": "dark base = text on light, device bodies, caption plate"
+    },
+    "ink_soft": {
+      "hex": "#8B6765",
+      "rgb": [
+        139,
+        103,
+        101
+      ],
+      "role": "muted brown: secondary text (large only), screen bars, dividers"
+    },
+    "paper": {
+      "hex": "#F3F2F1",
+      "rgb": [
+        243,
+        242,
+        241
+      ],
+      "role": "warm white: text on dark, light background top"
+    },
+    "gray_1": {
+      "hex": "#D8D7D5",
+      "rgb": [
+        216,
+        215,
+        213
+      ],
+      "role": "light background bottom, card fills on light"
+    },
+    "gray_2": {
+      "hex": "#C9C5C2",
+      "rgb": [
+        201,
+        197,
+        194
+      ],
+      "role": "inactive fills, progress track"
+    },
+    "gray_3": {
+      "hex": "#BFBAB7",
+      "rgb": [
+        191,
+        186,
+        183
+      ],
+      "role": "subtle text on dark (large), disabled"
+    },
+    "gray_4": {
+      "hex": "#A3A2A0",
+      "rgb": [
+        163,
+        162,
+        160
+      ],
+      "role": "secondary text on dark (large only: 4.31:1)"
+    },
+    "salmon": {
+      "hex": "#D97F68",
+      "rgb": [
+        217,
+        127,
+        104
+      ],
+      "role": "warm accent: numbers/keywords on DARK, glow, warm skin"
+    },
+    "blush": {
+      "hex": "#D5AEA6",
+      "rgb": [
+        213,
+        174,
+        166
+      ],
+      "role": "soft accent: highlight chips, light skin, decorative"
+    }
+  },
+  "backgrounds": {
+    "dark": {
+      "top": [
+        71,
+        57,
+        56
+      ],
+      "bottom": [
+        46,
+        36,
+        35
+      ],
+      "note": "ink -> ink_shadow"
+    },
+    "light": {
+      "top": [
+        243,
+        242,
+        241
+      ],
+      "bottom": [
+        216,
+        215,
+        213
+      ],
+      "note": "paper -> gray_1"
+    },
+    "rule": "alternate light/dark per scene; every scene has a different grid cell size/speed/direction; 30 dust particles"
+  },
+  "contrast_rules": [
+    "Body text >= 4.5:1 against its real background",
+    "Large text / keywords >= 3:1",
+    "Never red text on a dark background (2.0:1) — use salmon there",
+    "Never gray_4 or salmon for body-size text"
+  ],
+  "typography": {
+    "arabic": "Cairo",
+    "arabic_weight": "ExtraBold/Bold",
+    "arabic_fallback": "Tajawal ExtraBold",
+    "english": "Inter (Latin default); IBM Plex Sans for the technical pairs",
+    "temp_fallback": "DejaVu Sans Bold ONLY if declared as temporary in the delivery",
+    "download": "python3 tools/fonts_install.py   # 14 free families (SIL OFL 1.1) -> assets/fonts/",
+    "numerals": "Western 0-9",
+    "rules": "whole words only, RTL, raqm layout (direction='rtl', language='ar'); never arabic_reshaper/python-bidi with Pillow",
+    "type_system": {
+      "manifest": "assets/fonts/fonts.json",
+      "licence": "SIL OFL 1.1 — free for commercial use, no on-screen attribution, redistribution allowed",
+      "default": {
+        "arabic": "Cairo",
+        "latin": "Inter"
+      },
+      "roles": {
+        "brand_body": "Cairo 400/700/800/900 — captions, body, lower thirds",
+        "headline_geometric": "Tajawal 700/800",
+        "headline_heavy": "Alexandria 700/800",
+        "kufic_statement": "Kufam 500/700",
+        "display_warm": "El Messiri 500/700",
+        "technical": "IBM Plex Sans Arabic 400/600 + IBM Plex Sans / IBM Plex Mono",
+        "legible_small": "Almarai 400/700",
+        "editorial_serif": "Amiri 400/700 + Instrument Serif",
+        "latin_display": "Space Grotesk 500/700 · Anton 400"
+      },
+      "rule": "Every family on screen must be in the manifest (free/OFL). Cairo stays the default: a second family is a deliberate role, never decoration, and never more than two families in one scene."
+    }
+  },
+  "canvas": {
+    "w": 1080,
+    "h": 1920,
+    "fps": 30
+  },
+  "safe_zone": {
+    "margin_px": 40,
+    "content_y": [
+      200,
+      1350
+    ],
+    "caption_center_y": 1455,
+    "nothing_important_below_y": 1500,
+    "progress_bar_y": 64,
+    "series_chip_center_y": null,
+    "character_ground_y": [
+      1380,
+      1400
+    ],
+    "max_vertical_gap_px": 300
+  },
+  "caption": {
+    "plate_rgba": [
+      71,
+      57,
+      56,
+      232
+    ],
+    "border": "red 3px",
+    "text": "white 58px",
+    "max_width_px": 970,
+    "max_lines": 2,
+    "word_pop": true,
+    "keyword_colours": {
+      "numbers": "salmon",
+      "problem": "red on light / salmon on dark",
+      "positive": "paper (white) + check glyph — the palette has no green"
+    }
+  },
+  "min_sizes_px": {
+    "card_label": 44,
+    "chip": 40,
+    "icon": 128
+  },
+  "character": {
+    "presenter": "Medo (anime-style, uploaded poses: wave / think / point)",
+    "height_px": [
+      650,
+      1000
+    ],
+    "size_changes": "never random",
+    "head_min_pct_of_height_in_emotion": [
+      15,
+      18
+    ],
+    "background_disc": "red circle 80-95% of canvas width behind hero + ground shadow",
+    "motion": "bob + tilt +/-1.6 deg + sparkles; do not promise hand animation",
+    "logo_persona": "faceless black backlit silhouette: voluminous curly hair, round mirrored glasses (white lenses), dark blazer + collared shirt, light gradient background (LOGO only; presenter on screen is the anime Medo)",
+    "skin": {
+      "warm": "#D97F68",
+      "light": "#D5AEA6",
+      "note": "the two skin tones are part of the palette; do not invent others"
+    },
+    "outline": "#2E2423"
+  },
+  "motion": {
+    "camera_zoom": "1.00 <-> 1.04 alternating per scene + horizontal drift +/-14px",
+    "impact_per_scene_min": 1,
+    "idle_hold_max_s": 2.5,
+    "transition": "red wipe with white edge, 0.4s at scene boundaries"
+  },
+  "audio": {
+    "lufs": -14.5,
+    "lufs_tolerance": 0.3,
+    "true_peak_max_dbtp": -1.5,
+    "sfx_level_vs_vo_peak": 0.4,
+    "music": "Am-F-C-G, 76 BPM, ducked 62% under VO, level ~0.17x",
+    "dialect": "Egyptian Arabic (ar-EG)",
+    "tts_rule": "at least 2 rounds (4 voice profiles), Medo picks; then ONE voice + ONE fixed atempo 1.15-1.22x"
+  },
+  "export": {
+    "codec": "H.264 high, yuv420p, AAC 192-256k, faststart",
+    "master_encode": "-preset medium -crf 13 -tune animation -x264-params aq-mode=3:ref=4:deblock=1,1",
+    "min_mbps": 2.5,
+    "duration": "= VO duration, measured with tools/vo_length.py — no target length exists",
+    "preview_name": "*_preview.mp4 (optional; the 1080x1920 master is 'the video')"
+  },
+  "vibe": {
+    "words": [
+      "calm",
+      "mysterious",
+      "deep",
+      "minimalist",
+      "artistic"
+    ],
+    "priority": "detail quality and strong identity over showiness",
+    "references": [
+      "red-circle black-and-white cutout movie-poster style",
+      "philosopher quote-card series with red geometric shapes",
+      "deep-red circle profile card"
+    ]
+  },
+  "derived": {
+    "ink_shadow": {
+      "hex": "#2E2423",
+      "rgb": [
+        46,
+        36,
+        35
+      ],
+      "role": "computed: ink darkened 35% — outlines, device screens, dark gradient bottom",
+      "from": "ink #473938",
+      "rule": "darken 35% in linear RGB"
+    }
+  },
+  "palette_notes": [
+    "There is no green and no yellow in palette v2. Positive emphasis = paper white + a check glyph.",
+    "If a video needs a colour outside this palette, stop and ask Medo; do not approximate it.",
+    "On DARK backgrounds red carries only ~2.0:1 — use salmon #D97F68 for red-family keywords there."
+  ],
+  "devices": {
+    "screen": "#2E2423",
+    "bars": "#8B6765",
+    "dot": "#CB271B",
+    "note": "replaces the old dark-green screen + teal bars + yellow dot signature"
+  }
+}

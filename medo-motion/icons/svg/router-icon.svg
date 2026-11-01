@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Router Icon — راوتر" data-icon="router-icon">
+  <title>Router Icon — راوتر</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="20,14 20.765,14.152 21.414,14.586 21.848,15.235 22,16 22,20 21.848,20.765 21.414,21.414 20.765,21.848 20,22 4,22 3.235,21.848 2.586,21.414 2.152,20.765 2,20 2,16 2.152,15.235 2.586,14.586 3.235,14.152 4,14" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M6.01 18H6" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="M10.01 18H10" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M15 10v4" style="animation-delay:0.18s"/>
+  <path class="a" pathLength="1" d="M17.84 7.17a4 4 0 0 0-5.66 0" style="animation-delay:0.24s"/>
+  <path class="a" pathLength="1" d="M20.66 4.34a8 8 0 0 0-11.31 0" style="animation-delay:0.3s"/>
+</svg>

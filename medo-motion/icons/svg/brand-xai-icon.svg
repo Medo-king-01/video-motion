@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Brand Xai Icon" data-icon="brand-xai-icon">
+  <title>Brand Xai Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="M6.469 8.776L16.512 23h-4.464L2.005 8.776H6.47z" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M6.465 16.676l2.233 3.164L6.467 23H2l4.465-6.324z" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="M22 1l-9.952 14.095-2.233-3.163L17.533 1H22z" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M22 2.582V23h-3.659V7.764L22 2.582z" style="animation-delay:0.18s"/>
+</svg>

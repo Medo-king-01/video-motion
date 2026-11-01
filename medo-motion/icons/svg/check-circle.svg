@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Done — تم" data-icon="check-circle">
+  <title>Done — تم</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.75s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 1.0s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="21,12 20.943,13.008 20.774,14.003 20.495,14.973 20.109,15.905 19.621,16.788 19.036,17.611 18.364,18.364 17.611,19.036 16.788,19.621 15.905,20.109 14.973,20.495 14.003,20.774 13.008,20.943 12,21 10.992,20.943 9.997,20.774 9.027,20.495 8.095,20.109 7.212,19.621 6.389,19.036 5.636,18.364 4.964,17.611 4.379,16.788 3.891,15.905 3.505,14.973 3.226,14.003 3.057,13.008 3,12 3.057,10.992 3.226,9.997 3.505,9.027 3.891,8.095 4.379,7.212 4.964,6.389 5.636,5.636 6.389,4.964 7.212,4.379 8.095,3.891 9.027,3.505 9.997,3.226 10.992,3.057 12,3 13.008,3.057 14.003,3.226 14.973,3.505 15.905,3.891 16.788,4.379 17.611,4.964 18.364,5.636 19.036,6.389 19.621,7.212 20.109,8.095 20.495,9.027 20.774,9.997 20.943,10.992" style="animation-delay:0.0s"/>
+  <polyline class="a" pathLength="1" points="7.6,12.4 10.6,15.4 16.4,8.6" style="animation-delay:0.16s"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Plug connected — متصل" data-icon="plug-connected">
+  <title>Plug connected — متصل</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.9s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.56s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polyline class="a" pathLength="1" points="9,2 9,6" style="animation-delay:0.0s"/>
+  <polyline class="a" pathLength="1" points="15,2 15,6" style="animation-delay:0.08s"/>
+  <polygon class="a" pathLength="1" points="15.6,6 16.518,6.183 17.297,6.703 17.817,7.482 18,8.4 18,11.6 17.817,12.518 17.297,13.297 16.518,13.817 15.6,14 8.4,14 7.482,13.817 6.703,13.297 6.183,12.518 6,11.6 6,8.4 6.183,7.482 6.703,6.703 7.482,6.183 8.4,6" style="animation-delay:0.16s"/>
+  <polyline class="a" pathLength="1" points="12,14 12,18.4" style="animation-delay:0.24s"/>
+  <circle class="d" cx="12" cy="21" r="1.3" style="animation-delay:0.32s,0.6699999999999999s"/>
+</svg>
