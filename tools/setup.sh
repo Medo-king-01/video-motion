@@ -78,23 +78,15 @@ else
   if [ -d tools/toolkit/node_modules/playwright-core ]; then ok "playwright-core + chromium package installed"; else bad "npm install failed"; fi
 fi
 
-# ---------------------------------------------------------------- fonts (Cairo, OFL)
-say "Fonts (Cairo = brand)"
-mkdir -p assets/fonts/Cairo
-if ls assets/fonts/Cairo/*.ttf >/dev/null 2>&1; then
-  ok "Cairo already in assets/fonts/Cairo"
+# ---------------------------------------------------------------- fonts (14 free families, OFL)
+say "Type system (14 families, SIL OFL 1.1)"
+if [ -f assets/fonts/fonts.json ] && [ "$(ls -1 assets/fonts/*/*.ttf 2>/dev/null | wc -l)" -ge 20 ]; then
+  ok "$(ls -1d assets/fonts/*/ | wc -l) families already in assets/fonts (docs/fonts.md)"
 elif [ "$CHECK_ONLY" = "0" ]; then
-  TMP=$(mktemp -d)
-  if ( cd "$TMP" && npm pack --silent @expo-google-fonts/cairo >/dev/null 2>&1 ) && ls "$TMP"/*.tgz >/dev/null 2>&1; then
-    tar -xzf "$TMP"/*.tgz -C "$TMP"
-    for w in 400Regular 700Bold 800ExtraBold 900Black; do
-      cp "$TMP"/package/${w}/Cairo_${w}.ttf assets/fonts/Cairo/ 2>/dev/null
-    done
-    cp "$TMP"/package/LICENSE_FONT assets/fonts/Cairo/OFL.txt 2>/dev/null || cp "$TMP"/package/LICENSE assets/fonts/Cairo/OFL.txt 2>/dev/null
-    ok "Cairo downloaded from the OFL npm package"
-  else bad "could not fetch Cairo (run: python3 medo-motion/scripts/get_fonts.py \"Cairo\")"; fi
-  rm -rf "$TMP"
-else bad "Cairo missing in assets/fonts/Cairo"; fi
+  if python3 tools/fonts_install.py 2>&1 | tail -1; then
+    ok "type system installed from the OFL npm packages"
+  else bad "could not fetch the fonts (run: python3 tools/fonts_install.py)"; fi
+else bad "fonts missing in assets/fonts (run: make fonts)"; fi
 
 # ---------------------------------------------------------------- verify
 say "Verification"

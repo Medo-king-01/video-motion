@@ -11,6 +11,7 @@ Read-only apart from a Chromium launch and one temporary 64×64 PNG.
 """
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -73,7 +74,17 @@ if backend == "none":
 add("Arabic shaping", "OK" if backend != "none" else "BLOCKED", f"{backend} — {detail}")
 
 # real render check: shape one Arabic word and require ink
-font = next(iter(sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"))), None)
+# the type system: manifest first, then the brand file (Cairo 800 preferred — see docs/fonts.md)
+try:
+    _sys_fams = json.loads((ROOT / "assets" / "fonts" / "fonts.json").read_text(encoding="utf-8"))["families"]
+    add("Type system", "OK" if len(_sys_fams) >= 14 else "DEGRADED",
+        f"{len(_sys_fams)} free families (OFL) in assets/fonts/fonts.json")
+except Exception as e:
+    _sys_fams = {}
+    add("Type system", "DEGRADED", f"no assets/fonts/fonts.json ({e}) — run: make fonts")
+_cairo = sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*800*.ttf")) \
+    or sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"))
+font = next(iter(_cairo), None)
 if font and backend != "none":
     try:
         sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
