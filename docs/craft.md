@@ -74,6 +74,7 @@ Twenty-one rules in four groups. `tools/reel_lint.py <project>` reads `plan/beat
 | `S03` | A scene under 0.27 s is punctuation only; under 0.45 s it can carry no words | warn |
 | `S04` | A scene longer than 2.2 s must declare `events[]` — the picture changes inside the shot | warn |
 | `S05` | Every cut lands within `--tol` (default 120 ms) of the tempo grid | warn |
+| `U01` | A scene flagged `"ui": true` must declare its interaction (`events[]`) and run ≥ 1.2 s | warn |
 
 ### Copy — `plan/copy.json`
 
@@ -112,6 +113,32 @@ Twenty-one rules in four groups. `tools/reel_lint.py <project>` reads `plan/beat
 | `K01` | No `sparkle`, `confetti`, `particle`, `lensflare`, `rgbsplit`, `crossfade`, `shake` in the project's own scene files | warn |
 
 Suppress a single finding with a comment on the same line: `shake_flash(t)  # lint: allow shake`.
+
+## 3b. UI inserts — what we build, and what we refuse to fake
+
+A talking reel still needs screens: a phone in Medo's hand, a list filling up, a number landing.
+That is what the **ui_choreography**, **product_demo**, **data_and_numbers** and
+**micro_interaction** families are for (17 of the 58 moves). They are drawn like any other move,
+and they obey the same bans — so the rules that matter are:
+
+- **The screen is ours.** Built from `kit.phone` / `kit.appWindow` / `kit.card` / `kit.checklist` /
+  `kit.rolling` (K) and `art.laptop` / `art.desktop` / `art.follow_button` / `art.paper_spec` /
+  `library sprites` (P). Never a screenshot, never a stock UI kit, never a framework-blue mock-up —
+  a screen capture is someone else's pixels and someone else's brand.
+- **Every value comes from the script.** A number, a label or a row that is not in Medo's VO or
+  direction is filler, and filler is a ban (`fake-metrics`).
+- **A UI scene is a shot, not a slide.** It needs an interaction (the tap, the insert, the tick) —
+  `U01` warns when a scene is flagged `ui` and nothing changes in it, or when it is too short for the
+  change to read.
+- **Text inside a screen still obeys the copy rules.** ≥ 27 px equivalent (2.5 % of frame height) to
+  be readable at all, ≤ 4 new words per fragment, and no sentence dumped on a mock screen.
+- **One accent, one meaning.** The accent marks the thing that changed; a mock-up that uses the
+  accent on every button and badge means nothing (the palette's 12 colours are the whole budget).
+- **Depth without the banned looks**: dim (35 % ink overlay) and scale (0.92), never
+  glassmorphism, glow or drop shadows above 18 % alpha.
+- **The presenter stays the anchor.** A UI insert is a cut away from Medo, not a floating phone over
+  a talking face: `pd-phone-in-hand` attaches the device to the pose, the other `pd-*` moves cut to a
+  full screen shot and cut back on the beat.
 
 ## 4. The draw
 

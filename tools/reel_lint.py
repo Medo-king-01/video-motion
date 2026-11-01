@@ -46,6 +46,7 @@ GRID_TOL = 0.12                      # a cut further than this from the grid dri
 SHORT_SHOT = 0.45                    # no copy under this
 TINY_SHOT = 0.27
 LONG_SCENE = 2.20                    # past this the picture itself must change
+UI_MIN = 1.20                        # a UI insert needs time for its interaction to read
 FIRST_CHANGE = 0.43
 SIGNATURE_BUDGET = 2
 
@@ -162,6 +163,17 @@ def lint_timeline(rep: Report, plan: dict, bpm: float, tol: float) -> list[tuple
             rep.warn("S04", f"scene {s['index']}: {length:.2f} s with no picture event — "
                             f"change the picture about every second, not just at the cut "
                             f"(add events[] or a fragment mid-scene)")
+    for s in scenes:
+        if not s.get("ui"):
+            continue
+        length = s["end"] - s["start"]
+        if not s.get("events"):
+            rep.warn("U01", f"scene {s['index']}: flagged ui but no interaction — a screen that "
+                            f"never changes is a mock, not a scene (add events[] with the tap)")
+        if length < UI_MIN:
+            rep.warn("U01", f"scene {s['index']}: ui insert of {length:.2f} s — an interface needs "
+                            f"{UI_MIN:.1f} s before the change can be read")
+
     if bpm:
         cuts = sorted({round(s["start"], 3) for s in scenes[1:]})
         for edge in cuts:

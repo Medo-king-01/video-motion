@@ -4,7 +4,7 @@ Adapted from [cinetic](https://github.com/Leonxlnx/cinetic) (MIT) and re-measure
 Draw a plan with `python3 tools/techniques.py --draw --from-plan plan/beats.json`; this page is
 generated from `assets/techniques.json` (`--markdown docs/techniques.md`), so edit the JSON, not this.
 
-**41 techniques** · seconds per pick: calm 3.5s, medium 2.5s, high 2.5s
+**58 techniques** · seconds per pick: calm 3.5s, medium 2.5s, high 2.5s
 
 ## Opening Hook
 
@@ -326,6 +326,206 @@ The camera pushes while the object turns — the one move that makes the 3D laye
 
 **Avoid when:** Yaw beyond ±80° (the cull breaks) or more than one per film.
 
+## Layout
+
+### `lc-negative-space-caption` — Caption in the subject's negative space
+
+*workhorse · calm · layout · evidence 1 · as long as the VO phrase*
+
+The caption lives in the part of the frame the pose leaves empty, so the presenter and the type never fight.
+
+**How:** `presenter.draw(..., x=0.62)` puts the pose right; the caption block sits left of its bounding box at 58 px Cairo, on the 40 px margin. Mirror it (x=0.38) on the next scene to keep the frame from settling into one template.
+
+**Use when:** Every sentence that runs while Medo is on screen.
+
+**Avoid when:** The pose is centred and large — then use `lc-one-centred-subject` instead.
+
+### `lc-one-centred-subject` — One huge centred subject
+
+*workhorse · any · layout · evidence 2 · one scene*
+
+Exactly one thing in the middle of the frame, at 40–70% of its height, with everything else empty paper.
+
+**How:** Choose the object or the pose, place it on the optical centre (y ≈ 0.46 H, not the geometric centre), and delete every other element. The caption, if any, goes above or below on the margin, never both.
+
+**Use when:** The claim, the number, the turn.
+
+**Avoid when:** Two scenes in a row — the film stops moving.
+
+### `lc-gap-open-insert` — Words part for an inserted object
+
+*workhorse · medium · layout · evidence 5 · 12 f open, 14 f insert, 12 f close*
+
+A line of type splits at its centre word, the object rises through the gap, and the line closes again — the insertion is the transition.
+
+**How:** Measure the line, split it into two sprites, offset them apart by `gap = 0.25 * wordWidth * e_io(p)` over 12 f, run the object through on the vertical axis, close over 12 f.
+
+**Use when:** A demonstration that needs to interrupt a sentence.
+
+**Avoid when:** A line wider than the safe area once split.
+
+## Ui Choreography
+
+### `ui-state-change-on-tap` — The state changes on the tap frame
+
+*workhorse · any · layout · evidence 5 · ring 4-6 f, swap instant, settle 8 f*
+
+A screen is only worth its runtime if it changes. The tap lands, the ring blooms for four frames, and the state swaps on that exact frame — never a crossfade between two states.
+
+**How:** K: draw the screen inside `phone(ctx, x, y, w, drawScreen)` or `card(...)`, and switch the branch of `drawScreen` on the tap frame (t >= tap); the touch ring is a `circle_spr`-style disc at the touch point for 4-6 f with the `sfx` hit on that frame. P: `art.follow_button(pressed=True)` then `done=True` — two cached sprites, one swap.
+
+**Use when:** Any beat where Medo says 'and then it…' — the picture finishes his sentence.
+
+**Avoid when:** Two state swaps inside one caption; the eye reads change, not menus.
+
+### `ui-list-row-insert` — A row slides in and the list makes room
+
+*workhorse · medium · layout · evidence 4 · 10-12 f shift, new row lands 2 f later*
+
+Instead of dropping a row on top, the new row arrives from below while the rows under it shift by exactly one pitch — the room-making is the motion.
+
+**How:** Keep the list as data (y, text); on insert animate every y with `e_out` over 10-12 f and give the new row the same `enter()` curve from below. Draw rows with `kit.card` (K) or `fill_rect` + `lib.text_sprite` (P). Never fade the old rows out.
+
+**Use when:** Lists, results, messages, checklists that grow.
+
+**Avoid when:** More than five visible rows on 9:16 — the pitch drops under the 27 px readable floor.
+
+### `ui-checklist-ticks-on-beat` — Checklist ticks on the grid
+
+*workhorse · calm · grid · evidence 4 · 1 item per beat, 8-10 f per tick*
+
+A checklist ticks one item per grid step, each tick drawing itself in eight frames — the tempo does the counting.
+
+**How:** K: `checklist(ctx, items, t, {start, step})` with step = one beat. P: pre-render `paper_spec(checks=n)` variants and paste the one whose n matches the step, plus the `checkmark(s)` sprite for the tick. Take the steps from `beat.grid(bpm)` so a cut never lands mid-tick.
+
+**Use when:** Proving a process while the voice-over counts along.
+
+**Avoid when:** Items that cannot be read in one beat (over five words).
+
+### `ui-sheet-rises-over-screen` — A sheet rises over a dimmed screen
+
+*accent · medium · layout · evidence 3 · 12-14 f up, 6 f settle*
+
+A bottom sheet slides up over the screen and the screen behind drops to 60% — the depth cue is the dim, never a glow or a blur.
+
+**How:** Draw the screen first, then an ink overlay at 0.35 alpha, then `kit.card` from below the frame to its rest position with `e_out` over 12-14 f (`around` handles the translate). Scale the background to 0.92 so the sheet reads as closer.
+
+**Use when:** A detail the wide screen cannot show, or the closing call.
+
+**Avoid when:** A sheet over a sheet; two is a stack nobody reads.
+
+### `ui-focus-ring-travels` — The focus ring travels, and snaps
+
+*accent · medium · grid · evidence 2 · 8 f travel, colour flip at 4 f*
+
+The active outline jumps between options in eight frames and the colour flips at mid-travel instead of tweening — a decision, not a gradient.
+
+**How:** Two fixed ring positions from the layout; interpolate `e_io` over 8 f, and switch the stroke from `gray_1` to `red` at p = 0.5 (`rr()` + strokeStyle in K, `rrect(..., outline=...)` in P). The colour is chosen by p, never interpolated.
+
+**Use when:** Choosing between two or three options on a screen.
+
+**Avoid when:** Long menus or lists — the ring reads as flicker.
+
+## Product Demo
+
+### `pd-phone-in-hand` — Phone in Medo's hand
+
+*signature · calm · layout · evidence 3 · as long as the scene*
+
+The prop is attached to the presenter, not floating: the phone inherits the pose's bob and sway and its screen runs its own animation inside.
+
+**How:** Draw `presenter.draw(fr, 'phone', t)` (or 'seated-talk') and place the device at the pose's hand anchor; apply the same `presenter.bob(t)` and `presenter.sway(t)` offsets to the device, never an independent float. K: `poseFrame(...)` then `phone(ctx, ...)` with those two offsets added.
+
+**Use when:** Any beat where the product lives on a phone — the default for this studio.
+
+**Avoid when:** A full-body pose whose hand is out of frame; check the anchor before committing.
+
+### `pd-cursor-does-the-demo` — The cursor does the demo
+
+*workhorse · medium · layout · evidence 4 · travel 12-20 f, press 3 f*
+
+The viewer watches a hand: the cursor travels at reading speed, presses, and the interface answers. One action per sentence.
+
+**How:** `art.cursor(s)` in P, the same path in K: travel 30-60 px/f, `blur_steps` above 20 px/f, a 3 f press dip, then the state change via `ui-state-change-on-tap`. One cursor only, and it never leaves the 40 px safe margin.
+
+**Use when:** Explaining a flow that lives on a screen.
+
+**Avoid when:** Two cursors, or a cursor moving while the VO talks about something else.
+
+### `pd-app-window-builds` — The window builds itself
+
+*workhorse · medium · layout · evidence 3 · 3 steps x 8-10 f inside one 1.2 s scene*
+
+Frame, then content, then result: the window assembles in three steps on consecutive beats instead of appearing finished.
+
+**How:** K: `appWindow(ctx, x, y, w, h, {title, body})` and reveal the body progressively (rows after 8 f, result after 16 f). P: `art.laptop()` or `art.desktop()` as the frame, with `fill_rect` rows over it. One accent for the result only.
+
+**Use when:** Introducing a tool or a screen for the first time.
+
+**Avoid when:** Rebuilding the same window later in the reel — reuse the render.
+
+### `pd-before-after-hard-swap` — Before and after, cut not faded
+
+*accent · medium · transition · evidence 3 · cut on the grid, no blend*
+
+The same screen in two states, swapped on a hard cut with the layout identical — the eye can compare because nothing else moves.
+
+**How:** Render the same layout twice — the same `card(...)` / `phone(ctx, ...)` body with different data — and cut on the grid, keeping every element's position fixed so only the values change. One element may move: then use `d3-flip-face-swap` instead of a dissolve.
+
+**Use when:** Proving a change with one variable.
+
+**Avoid when:** Both states cluttered — the comparison dies.
+
+## Data And Numbers
+
+### `dn-counter-rolls-on-beat` — The counter rolls and lands on the beat
+
+*workhorse · medium · grid · evidence 5 · 8-14 f roll, lock 2 f before the step*
+
+A number rolls from its old value to its new one and locks two frames before the step — the number is part of the tempo.
+
+**How:** K: `rolling(from, to, p, {digits})` with p from `prog(t, start, start + dur)`. P: draw the digits from the same easing (`e_out`), one sprite per value band. Arabic digits when the VO says the number in Arabic, Latin mono when the voice says it in English.
+
+**Use when:** Every number whose value the voice-over states.
+
+**Avoid when:** Values that are not in the script — a fake metric is filler.
+
+### `dn-bar-grows-to-value` — The bar grows, then the label lands
+
+*workhorse · calm · layout · evidence 4 · 14-18 f bar, label +8 f*
+
+The bar reaches its value first and the number arrives eight frames later — two arrivals read as causality, one arrival reads as a slide.
+
+**How:** `fill_rect` (P) or `rr` + fill (K) from 0 to the value with `e_out` over 14-18 f; the track is `gray_1`, the bar `red`, no gradient; then draw the label with the settle from `oh-word-arrives-with-the-move`.
+
+**Use when:** Comparisons, progress, growth.
+
+**Avoid when:** More than three bars; the frame becomes a chart nobody asked for.
+
+### `dn-one-number-full-bleed` — One number, full bleed
+
+*signature · high · type · evidence 4 · 0.8-1.5 s on screen*
+
+A single number at 30-40% of the frame height with everything else deleted — if the reel has one memorable figure, this is where it is spent.
+
+**How:** One `lib.font(size, 'Anton', 900)` sprite (Cairo 900 for Arabic digits), optical centre at y around 0.46 H, no outline and no glow; the unit is a small `IBM Plex Mono` line eight frames later. Once per reel.
+
+**Use when:** The one figure the film exists to say.
+
+**Avoid when:** A second time, or a decimal nobody needs.
+
+### `dn-unit-arrives-after` — The unit arrives after the digits
+
+*workhorse · calm · type · evidence 2 · 6-8 f after the digits*
+
+EGP, %, /day comes in six to eight frames after the digits settle, at 30% opacity, and tightens into place.
+
+**How:** Separate sprite, `enter()` with from 0.3, rise 8 px, starting 6-8 f after the number settles. In Arabic keep the unit as its own word (RTL) so shaping never crosses the digits.
+
+**Use when:** Every number that needs a unit to mean anything.
+
+**Avoid when:** The unit repeats the number — pick one word.
+
 ## Pacing
 
 ### `ps-beat-quantized-chunks` — Phrase chunks on the grid
@@ -376,44 +576,6 @@ The geometric layer is rigidly quantised; the presenter and the hand-made props 
 
 **Avoid when:** Nothing. Do not quantise the presenter.
 
-## Layout
-
-### `lc-negative-space-caption` — Caption in the subject's negative space
-
-*workhorse · calm · layout · evidence 1 · as long as the VO phrase*
-
-The caption lives in the part of the frame the pose leaves empty, so the presenter and the type never fight.
-
-**How:** `presenter.draw(..., x=0.62)` puts the pose right; the caption block sits left of its bounding box at 58 px Cairo, on the 40 px margin. Mirror it (x=0.38) on the next scene to keep the frame from settling into one template.
-
-**Use when:** Every sentence that runs while Medo is on screen.
-
-**Avoid when:** The pose is centred and large — then use `lc-one-centred-subject` instead.
-
-### `lc-one-centred-subject` — One huge centred subject
-
-*workhorse · any · layout · evidence 2 · one scene*
-
-Exactly one thing in the middle of the frame, at 40–70% of its height, with everything else empty paper.
-
-**How:** Choose the object or the pose, place it on the optical centre (y ≈ 0.46 H, not the geometric centre), and delete every other element. The caption, if any, goes above or below on the margin, never both.
-
-**Use when:** The claim, the number, the turn.
-
-**Avoid when:** Two scenes in a row — the film stops moving.
-
-### `lc-gap-open-insert` — Words part for an inserted object
-
-*workhorse · medium · layout · evidence 5 · 12 f open, 14 f insert, 12 f close*
-
-A line of type splits at its centre word, the object rises through the gap, and the line closes again — the insertion is the transition.
-
-**How:** Measure the line, split it into two sprites, offset them apart by `gap = 0.25 * wordWidth * e_io(p)` over 12 f, run the object through on the vertical axis, close over 12 f.
-
-**Use when:** A demonstration that needs to interrupt a sentence.
-
-**Avoid when:** A line wider than the safe area once split.
-
 ## Depth
 
 ### `d3-extruded-slab-orbit` — Object on a thick extruded slab
@@ -463,6 +625,130 @@ The ground is a pool of light and everything else is darkness; the object sits t
 **Use when:** A quiet beat that still needs weight.
 
 **Avoid when:** Over the light theme — the pool has nothing to contrast against.
+
+## Micro Interaction
+
+### `mi-press-has-depth` — A press has depth, a release has none
+
+*workhorse · calm · layout · evidence 3 · press 4 f, release 6 f*
+
+Pressing scales the control to 0.97 and drops its shadow by 2 px; releasing returns on a straight ease with no overshoot.
+
+**How:** `kit.around(ctx, cx, cy, {s}, ...)` with s = 1 - 0.03 * press; the shadow (`withShadow`, 14 px) drops to 12 px. Release uses `e_out` at the same duration — no spring, because `e_back` here reads as a bounce.
+
+**Use when:** Any tappable thing that is actually tapped on screen.
+
+**Avoid when:** Anything that is not pressed — a bobbing card is decoration.
+
+### `mi-toggle-knob-travels` — The knob travels, the colour flips
+
+*accent · calm · layout · evidence 2 · 10 f, flip at 5 f*
+
+A switch: the knob covers most of the track in ten frames while the track colour swaps at the midpoint.
+
+**How:** Track `gray_1` to `red`, knob `paper` positioned by `e_io(p)`; at p >= 0.5 the track switches instantly (no tween) and the knob takes a 1 px ink hairline. `kit.rr` in K, `lib.rrect` in P.
+
+**Use when:** On/off states the voice-over names.
+
+**Avoid when:** A toggle that toggles nothing on screen afterwards.
+
+### `mi-check-draws-itself` — The check draws itself
+
+*workhorse · calm · finish · evidence 3 · 8-10 f, after the row settles*
+
+The tick is stroked, not popped: two segments, eight to ten frames, after the row it belongs to has landed.
+
+**How:** P: `checkmark(s)` gives the shape; draw it in two passes clipped by p (long stroke, then short). K: stroke a two-segment path the same way. Colour from the palette (`blush` on dark, `red` on light) — the green check is gone.
+
+**Use when:** Completion, validation, done.
+
+**Avoid when:** Twelve ticks at once; pick the three that matter.
+
+### `mi-caret-blinks-when-idle` — Typing, and a caret that only blinks when idle
+
+*accent · medium · type · evidence 4 · cps 22-45, caret 1 s cycle*
+
+Text types at a stated speed and the caret blinks only in the gaps; Arabic is revealed right to left as whole shaped lines.
+
+**How:** K: `typeLines(ctx, lines, t, {cps})` time-boxes the reveal and clips Arabic instead of splitting letters. P: the same with `text_sprite` and a clip that grows by whole words. Caret = 3 px ink bar, 0.5 Hz blink, hidden while the character count is changing.
+
+**Use when:** A prompt, a command, a message being composed.
+
+**Avoid when:** Typing anything longer than about 60 characters; time-box it or cut it.
+
+## Transition
+
+### `tr-velocity-handoff-cut` — Velocity handoff cut
+
+*workhorse · any · transition · evidence 9 · exit accel 10–18 f, decay τ ≈ 12 f*
+
+The outgoing shot accelerates over its last 0.3–0.6 s and the next shot starts at exactly that speed, so the cut is felt as one move.
+
+**How:** Before a bound: ease in to the exit (`x = e_in(p)`), peak 25–45 px/f at 1080-wide, and start the next scene with the same velocity decaying (`*0.92` per frame, τ ≈ 12 f at 30 fps). Keep the camera vector identical across the cut.
+
+**Use when:** The default cut — it is the highest-evidence move in the library.
+
+**Avoid when:** Between two static cards; with no speed to hand over it just looks like a jolt.
+
+### `tr-scale-through-cut` — Scale-through cut
+
+*signature · high · transition · evidence 6 · 14–18 f each way at 30 fps*
+
+A shape (a word, a pill, the pose's silhouette) grows past the frame, and the next shot is revealed inside the same shape at the same scale rate.
+
+**How:** Animate a mask rect/rounded-rect from 0.2× to 3× with `e_in` over 14–18 f, swap the plate at the peak, then continue outward from 3× to rest. `transition.layer()` masks already support this.
+
+**Use when:** Act changes, or when a word becomes a container.
+
+**Avoid when:** Twice in a row — it reads as a template.
+
+### `tr-polarity-flip-cut` — Polarity flip cut
+
+*accent · high · transition · evidence 6 · instant, on the scene bound*
+
+Paper becomes ink (or the reverse) on the frame of the cut, with type and pose re-coloured instantly. No dissolve, no fade.
+
+**How:** Flip the `THEME` flag on the cut frame and swap the two role colours (`paper ↔ ink`, `ink_shadow ↔ gray_1`); the pose sprite is re-tinted by its alpha mask, and the SFX hit lands on the same frame. It is a hard cut that changes world.
+
+**Use when:** Acts that must feel like chapters.
+
+**Avoid when:** More than twice — the film starts to strobe.
+
+### `tr-shape-match-cut` — Shape match cut
+
+*workhorse · medium · transition · evidence 4 · the match holds for 2–4 f around the cut*
+
+Something in shot A (a circle, a bar, the mouth of a cup) is in the same place, size and colour as something in shot B, so the eye carries the object across.
+
+**How:** Choose the match object once per film (the dot, the bar, the ring) and reuse it as the carrier — `lc-one-centred-subject` and `tr-dot-relay` both depend on it. Match centre within 6 px and radius within 4%.
+
+**Use when:** When the film has a story device (it should).
+
+**Avoid when:** Two diagonal compositions — the eye has no anchor to match.
+
+### `tr-dot-relay` — Dot relay into the next scene
+
+*signature · medium · transition · evidence 3 · 10 f collapse, 12–16 f growth*
+
+Everything collapses to one dot, the dot travels, and the next scene grows out of it. The device the film owns is the thing that survives the cut.
+
+**How:** Fade the composition to the accent dot over 8–10 f (`e_in`), carry the dot along a 40–70 px/f path across the cut, then scale the next scene from 0.05× around the dot in 12–16 f.
+
+**Use when:** Mid-film, to link two unrelated pictures.
+
+**Avoid when:** Collapsing to a dot that then means nothing — the relay must be the same object.
+
+### `tr-subtract-reveal` — Reveal by subtraction
+
+*workhorse · medium · transition · evidence 4 · 18–24 f, one direction only*
+
+The frame is over-full, then everything that is not the point is removed in one move, leaving one object, one word, one pose.
+
+**How:** Start with 3–5 layered props (`lc-one-centred-subject` inverse), then run a single scale-and-delete pass over 18–24 f in one direction, keeping the hero element exactly in place.
+
+**Use when:** The moment the film makes its single point.
+
+**Avoid when:** As a habit — it costs a whole scene to earn.
 
 ## Finish
 
@@ -626,80 +912,6 @@ A mono readout resolves from random glyphs, one character at a time. It is a Lat
 
 **Avoid when:** Any Arabic word, any word the viewer must read.
 
-## Transition
-
-### `tr-velocity-handoff-cut` — Velocity handoff cut
-
-*workhorse · any · transition · evidence 9 · exit accel 10–18 f, decay τ ≈ 12 f*
-
-The outgoing shot accelerates over its last 0.3–0.6 s and the next shot starts at exactly that speed, so the cut is felt as one move.
-
-**How:** Before a bound: ease in to the exit (`x = e_in(p)`), peak 25–45 px/f at 1080-wide, and start the next scene with the same velocity decaying (`*0.92` per frame, τ ≈ 12 f at 30 fps). Keep the camera vector identical across the cut.
-
-**Use when:** The default cut — it is the highest-evidence move in the library.
-
-**Avoid when:** Between two static cards; with no speed to hand over it just looks like a jolt.
-
-### `tr-scale-through-cut` — Scale-through cut
-
-*signature · high · transition · evidence 6 · 14–18 f each way at 30 fps*
-
-A shape (a word, a pill, the pose's silhouette) grows past the frame, and the next shot is revealed inside the same shape at the same scale rate.
-
-**How:** Animate a mask rect/rounded-rect from 0.2× to 3× with `e_in` over 14–18 f, swap the plate at the peak, then continue outward from 3× to rest. `transition.layer()` masks already support this.
-
-**Use when:** Act changes, or when a word becomes a container.
-
-**Avoid when:** Twice in a row — it reads as a template.
-
-### `tr-polarity-flip-cut` — Polarity flip cut
-
-*accent · high · transition · evidence 6 · instant, on the scene bound*
-
-Paper becomes ink (or the reverse) on the frame of the cut, with type and pose re-coloured instantly. No dissolve, no fade.
-
-**How:** Flip the `THEME` flag on the cut frame and swap the two role colours (`paper ↔ ink`, `ink_shadow ↔ gray_1`); the pose sprite is re-tinted by its alpha mask, and the SFX hit lands on the same frame. It is a hard cut that changes world.
-
-**Use when:** Acts that must feel like chapters.
-
-**Avoid when:** More than twice — the film starts to strobe.
-
-### `tr-shape-match-cut` — Shape match cut
-
-*workhorse · medium · transition · evidence 4 · the match holds for 2–4 f around the cut*
-
-Something in shot A (a circle, a bar, the mouth of a cup) is in the same place, size and colour as something in shot B, so the eye carries the object across.
-
-**How:** Choose the match object once per film (the dot, the bar, the ring) and reuse it as the carrier — `lc-one-centred-subject` and `tr-dot-relay` both depend on it. Match centre within 6 px and radius within 4%.
-
-**Use when:** When the film has a story device (it should).
-
-**Avoid when:** Two diagonal compositions — the eye has no anchor to match.
-
-### `tr-dot-relay` — Dot relay into the next scene
-
-*signature · medium · transition · evidence 3 · 10 f collapse, 12–16 f growth*
-
-Everything collapses to one dot, the dot travels, and the next scene grows out of it. The device the film owns is the thing that survives the cut.
-
-**How:** Fade the composition to the accent dot over 8–10 f (`e_in`), carry the dot along a 40–70 px/f path across the cut, then scale the next scene from 0.05× around the dot in 12–16 f.
-
-**Use when:** Mid-film, to link two unrelated pictures.
-
-**Avoid when:** Collapsing to a dot that then means nothing — the relay must be the same object.
-
-### `tr-subtract-reveal` — Reveal by subtraction
-
-*workhorse · medium · transition · evidence 4 · 18–24 f, one direction only*
-
-The frame is over-full, then everything that is not the point is removed in one move, leaving one object, one word, one pose.
-
-**How:** Start with 3–5 layered props (`lc-one-centred-subject` inverse), then run a single scale-and-delete pass over 18–24 f in one direction, keeping the hero element exactly in place.
-
-**Use when:** The moment the film makes its single point.
-
-**Avoid when:** As a habit — it costs a whole scene to earn.
-
 ## Camera
 
 ### `cam-living-hold-creep` — Living hold creep
@@ -785,3 +997,65 @@ The camera pushes while the object turns — the one move that makes the 3D laye
 **Use when:** The single 3D hero moment of the reel.
 
 **Avoid when:** Yaw beyond ±80° (the cull breaks) or more than one per film.
+
+## Ui Choreography
+
+### `ui-state-change-on-tap` — The state changes on the tap frame
+
+*workhorse · any · layout · evidence 5 · ring 4-6 f, swap instant, settle 8 f*
+
+A screen is only worth its runtime if it changes. The tap lands, the ring blooms for four frames, and the state swaps on that exact frame — never a crossfade between two states.
+
+**How:** K: draw the screen inside `phone(ctx, x, y, w, drawScreen)` or `card(...)`, and switch the branch of `drawScreen` on the tap frame (t >= tap); the touch ring is a `circle_spr`-style disc at the touch point for 4-6 f with the `sfx` hit on that frame. P: `art.follow_button(pressed=True)` then `done=True` — two cached sprites, one swap.
+
+**Use when:** Any beat where Medo says 'and then it…' — the picture finishes his sentence.
+
+**Avoid when:** Two state swaps inside one caption; the eye reads change, not menus.
+
+### `ui-list-row-insert` — A row slides in and the list makes room
+
+*workhorse · medium · layout · evidence 4 · 10-12 f shift, new row lands 2 f later*
+
+Instead of dropping a row on top, the new row arrives from below while the rows under it shift by exactly one pitch — the room-making is the motion.
+
+**How:** Keep the list as data (y, text); on insert animate every y with `e_out` over 10-12 f and give the new row the same `enter()` curve from below. Draw rows with `kit.card` (K) or `fill_rect` + `lib.text_sprite` (P). Never fade the old rows out.
+
+**Use when:** Lists, results, messages, checklists that grow.
+
+**Avoid when:** More than five visible rows on 9:16 — the pitch drops under the 27 px readable floor.
+
+### `ui-checklist-ticks-on-beat` — Checklist ticks on the grid
+
+*workhorse · calm · grid · evidence 4 · 1 item per beat, 8-10 f per tick*
+
+A checklist ticks one item per grid step, each tick drawing itself in eight frames — the tempo does the counting.
+
+**How:** K: `checklist(ctx, items, t, {start, step})` with step = one beat. P: pre-render `paper_spec(checks=n)` variants and paste the one whose n matches the step, plus the `checkmark(s)` sprite for the tick. Take the steps from `beat.grid(bpm)` so a cut never lands mid-tick.
+
+**Use when:** Proving a process while the voice-over counts along.
+
+**Avoid when:** Items that cannot be read in one beat (over five words).
+
+### `ui-sheet-rises-over-screen` — A sheet rises over a dimmed screen
+
+*accent · medium · layout · evidence 3 · 12-14 f up, 6 f settle*
+
+A bottom sheet slides up over the screen and the screen behind drops to 60% — the depth cue is the dim, never a glow or a blur.
+
+**How:** Draw the screen first, then an ink overlay at 0.35 alpha, then `kit.card` from below the frame to its rest position with `e_out` over 12-14 f (`around` handles the translate). Scale the background to 0.92 so the sheet reads as closer.
+
+**Use when:** A detail the wide screen cannot show, or the closing call.
+
+**Avoid when:** A sheet over a sheet; two is a stack nobody reads.
+
+### `ui-focus-ring-travels` — The focus ring travels, and snaps
+
+*accent · medium · grid · evidence 2 · 8 f travel, colour flip at 4 f*
+
+The active outline jumps between options in eight frames and the colour flips at mid-travel instead of tweening — a decision, not a gradient.
+
+**How:** Two fixed ring positions from the layout; interpolate `e_io` over 8 f, and switch the stroke from `gray_1` to `red` at p = 0.5 (`rr()` + strokeStyle in K, `rrect(..., outline=...)` in P). The colour is chosen by p, never interpolated.
+
+**Use when:** Choosing between two or three options on a screen.
+
+**Avoid when:** Long menus or lists — the ring reads as flicker.

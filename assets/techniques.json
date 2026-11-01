@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "source": "Adapted from cinetic (https://github.com/Leonxlnx/cinetic, MIT, (c) 2026 Leonxlnx) — its measured technique library, rewritten for the medo-motion reel grammar (Pillow/canvas, vertical 1080x1920, Arabic type, no logo). Draw a film's moves with tools/techniques.py instead of reaching for the same four.",
+  "source": "Adapted from cinetic (https://github.com/Leonxlnx/cinetic, MIT, (c) 2026 Leonxlnx) — its measured technique library, rewritten for the medo-motion reel grammar (Pillow/canvas, vertical 1080x1920, Arabic type, no logo). Draw a film's moves with tools/techniques.py instead of reaching for the same four. The UI / product-demo / numbers / micro-interaction families were added for screen-based scenes: the recipes assume Medo's own art layer (`kit.phone`, `appWindow`, `checklist`, `rolling`, `art.laptop`, `follow_button`, `cursor`), not a recorded screen capture.",
   "format": {
     "reel": {
       "what": "A vertical 1080x1920 reel: Medo on paper, Arabic VO as the timing master, typographic end card, no logo and no series name.",
@@ -15,14 +15,19 @@
         "typography",
         "transition",
         "camera",
-        "pacing",
         "layout",
+        "ui_choreography",
+        "product_demo",
+        "data_and_numbers",
+        "pacing",
         "depth",
+        "micro_interaction",
+        "transition",
         "finish",
         "sound",
         "typography",
-        "transition",
-        "camera"
+        "camera",
+        "ui_choreography"
       ]
     }
   },
@@ -675,6 +680,281 @@
         "gradient"
       ],
       "evidence": 3
+    },
+    {
+      "id": "ui-state-change-on-tap",
+      "name": "The state changes on the tap frame",
+      "category": "ui_choreography",
+      "role": "workhorse",
+      "energy": "any",
+      "primitive": "layout",
+      "summary": "A screen is only worth its runtime if it changes. The tap lands, the ring blooms for four frames, and the state swaps on that exact frame — never a crossfade between two states.",
+      "how": "K: draw the screen inside `phone(ctx, x, y, w, drawScreen)` or `card(...)`, and switch the branch of `drawScreen` on the tap frame (t >= tap); the touch ring is a `circle_spr`-style disc at the touch point for 4-6 f with the `sfx` hit on that frame. P: `art.follow_button(pressed=True)` then `done=True` — two cached sprites, one swap.",
+      "timing": "ring 4-6 f, swap instant, settle 8 f",
+      "use_when": "Any beat where Medo says 'and then it…' — the picture finishes his sentence.",
+      "avoid_when": "Two state swaps inside one caption; the eye reads change, not menus.",
+      "bans": [
+        "crossfade"
+      ],
+      "evidence": 5
+    },
+    {
+      "id": "ui-list-row-insert",
+      "name": "A row slides in and the list makes room",
+      "category": "ui_choreography",
+      "role": "workhorse",
+      "energy": "medium",
+      "primitive": "layout",
+      "summary": "Instead of dropping a row on top, the new row arrives from below while the rows under it shift by exactly one pitch — the room-making is the motion.",
+      "how": "Keep the list as data (y, text); on insert animate every y with `e_out` over 10-12 f and give the new row the same `enter()` curve from below. Draw rows with `kit.card` (K) or `fill_rect` + `lib.text_sprite` (P). Never fade the old rows out.",
+      "timing": "10-12 f shift, new row lands 2 f later",
+      "use_when": "Lists, results, messages, checklists that grow.",
+      "avoid_when": "More than five visible rows on 9:16 — the pitch drops under the 27 px readable floor.",
+      "bans": [],
+      "evidence": 4
+    },
+    {
+      "id": "ui-checklist-ticks-on-beat",
+      "name": "Checklist ticks on the grid",
+      "category": "ui_choreography",
+      "role": "workhorse",
+      "energy": "calm",
+      "primitive": "grid",
+      "summary": "A checklist ticks one item per grid step, each tick drawing itself in eight frames — the tempo does the counting.",
+      "how": "K: `checklist(ctx, items, t, {start, step})` with step = one beat. P: pre-render `paper_spec(checks=n)` variants and paste the one whose n matches the step, plus the `checkmark(s)` sprite for the tick. Take the steps from `beat.grid(bpm)` so a cut never lands mid-tick.",
+      "timing": "1 item per beat, 8-10 f per tick",
+      "use_when": "Proving a process while the voice-over counts along.",
+      "avoid_when": "Items that cannot be read in one beat (over five words).",
+      "bans": [],
+      "evidence": 4
+    },
+    {
+      "id": "ui-sheet-rises-over-screen",
+      "name": "A sheet rises over a dimmed screen",
+      "category": "ui_choreography",
+      "role": "accent",
+      "energy": "medium",
+      "primitive": "layout",
+      "summary": "A bottom sheet slides up over the screen and the screen behind drops to 60% — the depth cue is the dim, never a glow or a blur.",
+      "how": "Draw the screen first, then an ink overlay at 0.35 alpha, then `kit.card` from below the frame to its rest position with `e_out` over 12-14 f (`around` handles the translate). Scale the background to 0.92 so the sheet reads as closer.",
+      "timing": "12-14 f up, 6 f settle",
+      "use_when": "A detail the wide screen cannot show, or the closing call.",
+      "avoid_when": "A sheet over a sheet; two is a stack nobody reads.",
+      "bans": [
+        "glassmorphism",
+        "glow"
+      ],
+      "evidence": 3
+    },
+    {
+      "id": "ui-focus-ring-travels",
+      "name": "The focus ring travels, and snaps",
+      "category": "ui_choreography",
+      "role": "accent",
+      "energy": "medium",
+      "primitive": "grid",
+      "summary": "The active outline jumps between options in eight frames and the colour flips at mid-travel instead of tweening — a decision, not a gradient.",
+      "how": "Two fixed ring positions from the layout; interpolate `e_io` over 8 f, and switch the stroke from `gray_1` to `red` at p = 0.5 (`rr()` + strokeStyle in K, `rrect(..., outline=...)` in P). The colour is chosen by p, never interpolated.",
+      "timing": "8 f travel, colour flip at 4 f",
+      "use_when": "Choosing between two or three options on a screen.",
+      "avoid_when": "Long menus or lists — the ring reads as flicker.",
+      "bans": [],
+      "evidence": 2
+    },
+    {
+      "id": "pd-phone-in-hand",
+      "name": "Phone in Medo's hand",
+      "category": "product_demo",
+      "role": "signature",
+      "energy": "calm",
+      "primitive": "layout",
+      "summary": "The prop is attached to the presenter, not floating: the phone inherits the pose's bob and sway and its screen runs its own animation inside.",
+      "how": "Draw `presenter.draw(fr, 'phone', t)` (or 'seated-talk') and place the device at the pose's hand anchor; apply the same `presenter.bob(t)` and `presenter.sway(t)` offsets to the device, never an independent float. K: `poseFrame(...)` then `phone(ctx, ...)` with those two offsets added.",
+      "timing": "as long as the scene",
+      "use_when": "Any beat where the product lives on a phone — the default for this studio.",
+      "avoid_when": "A full-body pose whose hand is out of frame; check the anchor before committing.",
+      "bans": [],
+      "evidence": 3
+    },
+    {
+      "id": "pd-cursor-does-the-demo",
+      "name": "The cursor does the demo",
+      "category": "product_demo",
+      "role": "workhorse",
+      "energy": "medium",
+      "primitive": "layout",
+      "summary": "The viewer watches a hand: the cursor travels at reading speed, presses, and the interface answers. One action per sentence.",
+      "how": "`art.cursor(s)` in P, the same path in K: travel 30-60 px/f, `blur_steps` above 20 px/f, a 3 f press dip, then the state change via `ui-state-change-on-tap`. One cursor only, and it never leaves the 40 px safe margin.",
+      "timing": "travel 12-20 f, press 3 f",
+      "use_when": "Explaining a flow that lives on a screen.",
+      "avoid_when": "Two cursors, or a cursor moving while the VO talks about something else.",
+      "bans": [],
+      "evidence": 4
+    },
+    {
+      "id": "pd-app-window-builds",
+      "name": "The window builds itself",
+      "category": "product_demo",
+      "role": "workhorse",
+      "energy": "medium",
+      "primitive": "layout",
+      "summary": "Frame, then content, then result: the window assembles in three steps on consecutive beats instead of appearing finished.",
+      "how": "K: `appWindow(ctx, x, y, w, h, {title, body})` and reveal the body progressively (rows after 8 f, result after 16 f). P: `art.laptop()` or `art.desktop()` as the frame, with `fill_rect` rows over it. One accent for the result only.",
+      "timing": "3 steps x 8-10 f inside one 1.2 s scene",
+      "use_when": "Introducing a tool or a screen for the first time.",
+      "avoid_when": "Rebuilding the same window later in the reel — reuse the render.",
+      "bans": [],
+      "evidence": 3
+    },
+    {
+      "id": "pd-before-after-hard-swap",
+      "name": "Before and after, cut not faded",
+      "category": "product_demo",
+      "role": "accent",
+      "energy": "medium",
+      "primitive": "transition",
+      "summary": "The same screen in two states, swapped on a hard cut with the layout identical — the eye can compare because nothing else moves.",
+      "how": "Render the same layout twice — the same `card(...)` / `phone(ctx, ...)` body with different data — and cut on the grid, keeping every element's position fixed so only the values change. One element may move: then use `d3-flip-face-swap` instead of a dissolve.",
+      "timing": "cut on the grid, no blend",
+      "use_when": "Proving a change with one variable.",
+      "avoid_when": "Both states cluttered — the comparison dies.",
+      "bans": [
+        "crossfade"
+      ],
+      "evidence": 3
+    },
+    {
+      "id": "dn-counter-rolls-on-beat",
+      "name": "The counter rolls and lands on the beat",
+      "category": "data_and_numbers",
+      "role": "workhorse",
+      "energy": "medium",
+      "primitive": "grid",
+      "summary": "A number rolls from its old value to its new one and locks two frames before the step — the number is part of the tempo.",
+      "how": "K: `rolling(from, to, p, {digits})` with p from `prog(t, start, start + dur)`. P: draw the digits from the same easing (`e_out`), one sprite per value band. Arabic digits when the VO says the number in Arabic, Latin mono when the voice says it in English.",
+      "timing": "8-14 f roll, lock 2 f before the step",
+      "use_when": "Every number whose value the voice-over states.",
+      "avoid_when": "Values that are not in the script — a fake metric is filler.",
+      "bans": [
+        "fake-metrics"
+      ],
+      "evidence": 5
+    },
+    {
+      "id": "dn-bar-grows-to-value",
+      "name": "The bar grows, then the label lands",
+      "category": "data_and_numbers",
+      "role": "workhorse",
+      "energy": "calm",
+      "primitive": "layout",
+      "summary": "The bar reaches its value first and the number arrives eight frames later — two arrivals read as causality, one arrival reads as a slide.",
+      "how": "`fill_rect` (P) or `rr` + fill (K) from 0 to the value with `e_out` over 14-18 f; the track is `gray_1`, the bar `red`, no gradient; then draw the label with the settle from `oh-word-arrives-with-the-move`.",
+      "timing": "14-18 f bar, label +8 f",
+      "use_when": "Comparisons, progress, growth.",
+      "avoid_when": "More than three bars; the frame becomes a chart nobody asked for.",
+      "bans": [
+        "gradient"
+      ],
+      "evidence": 4
+    },
+    {
+      "id": "dn-one-number-full-bleed",
+      "name": "One number, full bleed",
+      "category": "data_and_numbers",
+      "role": "signature",
+      "energy": "high",
+      "primitive": "type",
+      "summary": "A single number at 30-40% of the frame height with everything else deleted — if the reel has one memorable figure, this is where it is spent.",
+      "how": "One `lib.font(size, 'Anton', 900)` sprite (Cairo 900 for Arabic digits), optical centre at y around 0.46 H, no outline and no glow; the unit is a small `IBM Plex Mono` line eight frames later. Once per reel.",
+      "timing": "0.8-1.5 s on screen",
+      "use_when": "The one figure the film exists to say.",
+      "avoid_when": "A second time, or a decimal nobody needs.",
+      "bans": [
+        "glow",
+        "gradient"
+      ],
+      "evidence": 4
+    },
+    {
+      "id": "dn-unit-arrives-after",
+      "name": "The unit arrives after the digits",
+      "category": "data_and_numbers",
+      "role": "workhorse",
+      "energy": "calm",
+      "primitive": "type",
+      "summary": "EGP, %, /day comes in six to eight frames after the digits settle, at 30% opacity, and tightens into place.",
+      "how": "Separate sprite, `enter()` with from 0.3, rise 8 px, starting 6-8 f after the number settles. In Arabic keep the unit as its own word (RTL) so shaping never crosses the digits.",
+      "timing": "6-8 f after the digits",
+      "use_when": "Every number that needs a unit to mean anything.",
+      "avoid_when": "The unit repeats the number — pick one word.",
+      "bans": [],
+      "evidence": 2
+    },
+    {
+      "id": "mi-press-has-depth",
+      "name": "A press has depth, a release has none",
+      "category": "micro_interaction",
+      "role": "workhorse",
+      "energy": "calm",
+      "primitive": "layout",
+      "summary": "Pressing scales the control to 0.97 and drops its shadow by 2 px; releasing returns on a straight ease with no overshoot.",
+      "how": "`kit.around(ctx, cx, cy, {s}, ...)` with s = 1 - 0.03 * press; the shadow (`withShadow`, 14 px) drops to 12 px. Release uses `e_out` at the same duration — no spring, because `e_back` here reads as a bounce.",
+      "timing": "press 4 f, release 6 f",
+      "use_when": "Any tappable thing that is actually tapped on screen.",
+      "avoid_when": "Anything that is not pressed — a bobbing card is decoration.",
+      "bans": [
+        "overshoot"
+      ],
+      "evidence": 3
+    },
+    {
+      "id": "mi-toggle-knob-travels",
+      "name": "The knob travels, the colour flips",
+      "category": "micro_interaction",
+      "role": "accent",
+      "energy": "calm",
+      "primitive": "layout",
+      "summary": "A switch: the knob covers most of the track in ten frames while the track colour swaps at the midpoint.",
+      "how": "Track `gray_1` to `red`, knob `paper` positioned by `e_io(p)`; at p >= 0.5 the track switches instantly (no tween) and the knob takes a 1 px ink hairline. `kit.rr` in K, `lib.rrect` in P.",
+      "timing": "10 f, flip at 5 f",
+      "use_when": "On/off states the voice-over names.",
+      "avoid_when": "A toggle that toggles nothing on screen afterwards.",
+      "bans": [
+        "bounce"
+      ],
+      "evidence": 2
+    },
+    {
+      "id": "mi-check-draws-itself",
+      "name": "The check draws itself",
+      "category": "micro_interaction",
+      "role": "workhorse",
+      "energy": "calm",
+      "primitive": "finish",
+      "summary": "The tick is stroked, not popped: two segments, eight to ten frames, after the row it belongs to has landed.",
+      "how": "P: `checkmark(s)` gives the shape; draw it in two passes clipped by p (long stroke, then short). K: stroke a two-segment path the same way. Colour from the palette (`blush` on dark, `red` on light) — the green check is gone.",
+      "timing": "8-10 f, after the row settles",
+      "use_when": "Completion, validation, done.",
+      "avoid_when": "Twelve ticks at once; pick the three that matter.",
+      "bans": [],
+      "evidence": 3
+    },
+    {
+      "id": "mi-caret-blinks-when-idle",
+      "name": "Typing, and a caret that only blinks when idle",
+      "category": "micro_interaction",
+      "role": "accent",
+      "energy": "medium",
+      "primitive": "type",
+      "summary": "Text types at a stated speed and the caret blinks only in the gaps; Arabic is revealed right to left as whole shaped lines.",
+      "how": "K: `typeLines(ctx, lines, t, {cps})` time-boxes the reveal and clips Arabic instead of splitting letters. P: the same with `text_sprite` and a clip that grows by whole words. Caret = 3 px ink bar, 0.5 Hz blink, hidden while the character count is changing.",
+      "timing": "cps 22-45, caret 1 s cycle",
+      "use_when": "A prompt, a command, a message being composed.",
+      "avoid_when": "Typing anything longer than about 60 characters; time-box it or cut it.",
+      "bans": [
+        "letter-by-letter-arabic"
+      ],
+      "evidence": 4
     }
   ]
 }

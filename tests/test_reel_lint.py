@@ -28,7 +28,7 @@ def codes(result: subprocess.CompletedProcess) -> set[str]:
         if line[:2] not in ("!!", " ?"):
             continue
         parts = line.strip(" ?!").split()
-        if parts and parts[0][0] in "SCMK" and parts[0][1:].isdigit():
+        if parts and parts[0][0] in "SCMKU" and parts[0][1:].isdigit():
             out.add(parts[0])
     return out
 
@@ -111,6 +111,25 @@ def test_copy_stretch_and_grid(tmp_path):
     (proj / "plan" / "copy.json").write_text(json.dumps(copy, ensure_ascii=False), encoding="utf-8")
     dense = run(str(proj))
     assert "C06" in codes(dense), dense.stdout
+
+
+def test_ui_inserts_need_an_interaction(tmp_path):
+    """A screen that never changes is a mock, not a scene — and it needs time to read."""
+    import json as js
+    proj = tmp_path / "ui"
+    (proj / "plan").mkdir(parents=True)
+    beats = {"duration": 12.0, "fps": 30, "scenes": [
+        {"index": 1, "start": 0.0, "end": 5.0, "ui": True, "events": [{"t": 0.6, "what": "tap"}]},
+        {"index": 2, "start": 5.0, "end": 6.0, "ui": True},
+        {"index": 3, "start": 6.0, "end": 12.0, "ui": True, "events": [{"t": 6.5, "what": "tick"}]},
+    ]}
+    (proj / "plan" / "beats.json").write_text(js.dumps(beats), encoding="utf-8")
+    r = run(str(proj))
+    assert "U01" in codes(r), r.stdout
+    messages = [ln for ln in r.stdout.splitlines() if "U01" in ln]
+    assert any("no interaction" in m for m in messages), messages
+    assert any("1.00 s" in m for m in messages), messages     # the 1 s insert is too short
+    assert not any("scene 1" in m for m in messages)          # 5 s with a tap is fine
 
 
 def test_json_report(tmp_path):

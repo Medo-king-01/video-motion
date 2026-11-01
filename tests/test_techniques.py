@@ -162,6 +162,30 @@ def test_cli_list_show_validate():
     assert run("--show", "no-such-id").returncode == 2
 
 
+def test_ui_families_are_in_the_reel_order():
+    """Screens are part of the grammar: the four UI families draw like every other move."""
+    order = DATA["format"]["reel"]["order"]
+    for cat in ("ui_choreography", "product_demo", "data_and_numbers", "micro_interaction"):
+        entries = [e for e in DATA["techniques"] if e["category"] == cat]
+        assert len(entries) >= 4, f"{cat}: {len(entries)} entries"
+        assert cat in order, f"{cat} is never drawn"
+    drawn = {p["id"] for seed in range(40) for p in techniques.draw(DATA, 40, "medium", seed=seed)["picks"]}
+    ui = {e["id"] for e in DATA["techniques"]
+          if e["category"] in ("ui_choreography", "product_demo", "data_and_numbers", "micro_interaction")}
+    assert drawn & ui, "a 40 s reel never draws a UI move"
+
+
+def test_ui_recipes_are_built_not_captured():
+    """A screenshot would be someone else's pixels; every UI recipe names our own art layer."""
+    ui = [e for e in DATA["techniques"] if e["category"] in
+          ("ui_choreography", "product_demo", "data_and_numbers", "micro_interaction")]
+    modules = ("kit.", "art.", "lib.", "presenter.", "beat.")
+    for e in ui:
+        assert any(api in e["how"] for api in API_SURFACE) or any(m in e["how"] for m in modules), \
+            f"{e['id']}: built from what?"
+        assert "screenshot" not in e["how"].lower(), f"{e['id']}: screenshots are not ours to use"
+
+
 def test_docs_are_generated_from_the_library(tmp_path):
     out = tmp_path / "techniques.md"
     assert run("--markdown", str(out)).returncode == 0

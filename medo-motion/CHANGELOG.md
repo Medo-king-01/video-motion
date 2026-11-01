@@ -1,5 +1,25 @@
 # Changelog — Medo Motion (private fork)
 
+## 2.3 — 2026-11-01 — the screen families: UI, product demo, numbers, micro-interaction
+- **Library grew 41 → 58 moves** across 13 families. The four new families cover scenes that show a
+  screen: `ui_choreography` (state change on the tap frame, row insert that makes room, checklist on
+  the grid, sheet over a dimmed screen, focus ring that snaps), `product_demo` (phone in Medo's hand
+  inheriting the pose's bob, cursor-led demo, window that builds itself, before/after cut not faded),
+  `data_and_numbers` (counter rolling onto the beat, bar then label, one number full bleed, unit
+  arriving after the digits) and `micro_interaction` (press depth without overshoot, toggle knob,
+  self-drawing check, caret that only blinks when idle).
+- **Built, never captured**: every recipe names the studio's own art layer — `kit.phone`,
+  `appWindow`, `card`, `checklist`, `rolling`, `typeLines` (K) and `art.laptop`, `desktop`,
+  `follow_button`, `paper_spec`, `cursor`, `lib.text_sprite` (P). `tests/test_techniques.py` fails a
+  UI recipe that does not, and a new test proves a 40 s draw reaches the UI families.
+- **Reel order extended** with the four families (after `layout`, before `pacing`) so an insert is
+  drawn where a film actually cuts to a screen, and the plan can now hold 17 moves.
+- **`U01` lint rule** — a scene flagged `"ui": true` must declare its interaction (`events[]`) and
+  run at least 1.2 s; a screen that never changes is a mock, not a scene.
+- **`docs/craft.md` §3b** — what we build and what we refuse to fake: no screenshots, no UI kits,
+  no fake metrics, one accent with one meaning, dim and scale instead of glass/glow, and the
+  presenter stays the anchor.
+
 ## 2.2 — 2026-11-01 — craft gates: a measured technique library and a pre-render lint
 - **`assets/techniques.json` — 41 moves**, adapted from **cinetic** (MIT, © 2026 Leonxlnx) and
   rewritten against this studio's primitives (`beat`, `space3d`, `blur_steps`/`drawBlurred`,
