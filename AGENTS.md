@@ -223,9 +223,9 @@ AGENTS.md              ← this contract (any agent)
 README.md              ← Arabic overview
 assets/                ← shared inputs: fonts/, poses/, sfx/
 projects/<slug>/       ← one video: BRIEF.md, plan/, assets/, out/, PROGRESS.md
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · ffprobe_shim.py · chromium.mjs
 tests/                 ← pytest: Arabic shaping invariants, brand lock, scaffold, one real frame
-docs/                  ← analysis + conventions (docs/README.md)
+docs/                  ← analysis + conventions + Skillry fit review (docs/README.md)
 medo-motion/           ← the toolkit
   SKILL.md             ← entry point (Claude Code reads this; it defers to AGENTS.md)
   brand/               ← locked identity (human + machine)
@@ -241,4 +241,5 @@ medo-motion/           ← the toolkit
 - Add a second display font, a colour outside the palette, or a random stock clip.
 - Ship a preview with motion but no sound as if it were the deliverable.
 - Claim capabilities you did not verify (`doctor.py` output is your evidence).
+- Install or vendor a third-party Agent Skill before inspecting its complete package, license, commands, network use, dependencies, and provider costs; see `docs/skillry-fit.md`.
 - Promise hand animation of the presenter (poses are static: bob/tilt only).
