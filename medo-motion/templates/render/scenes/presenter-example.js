@@ -8,12 +8,12 @@ import { loadFirstFont } from '../lib/arabic.js';
 const C = BRAND.colors;
 const F = '/assets/fonts/';
 
-// One cue per beat: greet → explain → point
+// One cue per beat: greet → explain → then a camera push-in to the close-up
 const ACT = new PoseTrack([
   { t: 0.0, pose: 'neutral' },
   { t: 0.45, pose: 'welcome' },
   { t: 1.5, pose: 'explain' },
-  { t: 2.45, pose: 'point' },
+  { t: 2.45, pose: 'close-explain' },
 ]);
 
 export async function init() {

@@ -1,5 +1,25 @@
 # Changelog — Medo Motion (private fork)
 
+## 1.8 — 2026-11-01 — pose library batch 2 (24 poses, two framings)
+- **Ten new poses**: `waiting` (hands in pockets), `warm` (hand on chest), `phone`, `unfold`
+  (script/paper), `point-up`, `seated-talk` — all normalised like the first batch (1200 px figure,
+  soles on 1390).
+- **Four close-ups** (`close-neutral`, `close-explain`, `close-point`, `close-thinking`) with a new
+  *framing* concept: `bust` cut-outs are normalised to 1180 px and anchored on the **top guide (190)**
+  instead of the ground line. Cutting from a full shot to a close-up therefore reads as a camera
+  push-in (same hair line, same face position) instead of a jump.
+- `poses.json` now carries `framing` and `place` per pose; `presenter.py` / `lib/presenter.js` honour
+  `place` (`feet` vs `top`) with `ground=1390` and `top=190` overridable.
+- **Bug fixed (engine K)**: `PoseTrack` resolved cue names in its constructor, i.e. before
+  `loadPoses()` had fetched `poses.json`, so any pose outside the embedded fallback silently
+  degraded to `neutral` — a close-up cue rendered as a plain wide shot. Resolution is now deferred
+  to `at()` in **both** engines, and the embedded JS fallback carries all 24 poses with `place`.
+- Tests: framing/anchor invariants, close-ups start at the guide and never touch the caption zone,
+  full shots land on the ground line, and a regression test for deferred cue resolution in K.
+- `presenter-example` now ends on a push-in to `close-explain` (28.2–31.4 s) as the live demo.
+- Verified: `ruff` clean, `pytest` 127 passed, engine-K render of the push-in inspected, sheet
+  rebuilt for 24 poses.
+
 ## 1.7 — 2026-11-01 — Medo's pose library (14 cut-outs, both engines)
 - **`assets/poses/`**: 14 presenter poses delivered as light-background JPEGs, rebuilt into trimmed
   transparent PNGs (figure height normalised to 1200 px, feet on one baseline) + `poses.json`

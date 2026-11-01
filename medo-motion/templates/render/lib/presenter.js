@@ -9,24 +9,35 @@
 // presenter.py, so engine P breathes identically.
 import { clamp } from './motion.js';
 
-export const GROUND = 1390;
+export const GROUND = 1390;      // soles land here for full shots
+export const TOP_GUIDE = 190;    // hair line for close-ups
 
 // Embedded fallback (a project that only received templates/ still works); poses.json wins.
 const DEFAULT_POSES = {
-  neutral: { file: 'neutral.png', scale: 1, feet: 0.9934 },
-  explain: { file: 'explain.png', scale: 1, feet: 0.9934 },
-  point: { file: 'point.png', scale: 1, feet: 0.9934 },
-  welcome: { file: 'welcome.png', scale: 1, feet: 0.9934 },
-  wave: { file: 'wave.png', scale: 1, feet: 0.9934 },
-  clap: { file: 'clap.png', scale: 1, feet: 0.9934 },
-  like: { file: 'like.png', scale: 1, feet: 0.9934 },
-  thinking: { file: 'thinking.png', scale: 1, feet: 0.9934 },
-  'thinking-deep': { file: 'thinking-deep.png', scale: 0.86, feet: 0.9934 },
-  puzzled: { file: 'puzzled.png', scale: 1, feet: 0.9934 },
-  sad: { file: 'sad.png', scale: 1, feet: 0.9934 },
-  shocked: { file: 'shocked.png', scale: 1, feet: 0.9934 },
-  walk: { file: 'walk.png', scale: 0.97, feet: 0.9934 },
-  run: { file: 'run.png', scale: 0.94, feet: 0.9934 },
+  neutral: { file: 'neutral.png', scale: 1.0, place: 'feet' },
+  explain: { file: 'explain.png', scale: 1.0, place: 'feet' },
+  point: { file: 'point.png', scale: 1.0, place: 'feet' },
+  welcome: { file: 'welcome.png', scale: 1.0, place: 'feet' },
+  wave: { file: 'wave.png', scale: 1.0, place: 'feet' },
+  clap: { file: 'clap.png', scale: 1.0, place: 'feet' },
+  like: { file: 'like.png', scale: 1.0, place: 'feet' },
+  thinking: { file: 'thinking.png', scale: 1.0, place: 'feet' },
+  'thinking-deep': { file: 'thinking-deep.png', scale: 0.86, place: 'feet' },
+  puzzled: { file: 'puzzled.png', scale: 1.0, place: 'feet' },
+  sad: { file: 'sad.png', scale: 1.0, place: 'feet' },
+  shocked: { file: 'shocked.png', scale: 1.0, place: 'feet' },
+  walk: { file: 'walk.png', scale: 0.97, place: 'feet' },
+  run: { file: 'run.png', scale: 0.94, place: 'feet' },
+  waiting: { file: 'waiting.png', scale: 1.0, place: 'feet' },
+  warm: { file: 'warm.png', scale: 1.0, place: 'feet' },
+  phone: { file: 'phone.png', scale: 1.0, place: 'feet' },
+  unfold: { file: 'unfold.png', scale: 1.0, place: 'feet' },
+  'point-up': { file: 'point-up.png', scale: 1.0, place: 'feet' },
+  'seated-talk': { file: 'seated-talk.png', scale: 1.0, place: 'feet' },
+  'close-neutral': { file: 'close-neutral.png', scale: 1.0, place: 'top' },
+  'close-explain': { file: 'close-explain.png', scale: 1.0, place: 'top' },
+  'close-point': { file: 'close-point.png', scale: 1.0, place: 'top' },
+  'close-thinking': { file: 'close-thinking.png', scale: 1.0, place: 'top' },
 };
 
 const ALIASES = {
@@ -87,17 +98,20 @@ export function pulse(name, t) {
 }
 
 /** The transform for a pose at time t (exported so QA can compare it with engine P). */
-export function poseFrame(name, t, { height = 0.62, x = 0.5, ground = GROUND, W = 1080, H = 1920, scale } = {}) {
+export function poseFrame(name, t, { height = 0.62, x = 0.5, ground = GROUND, top = TOP_GUIDE,
+  W = 1080, H = 1920, scale } = {}) {
   const slug = resolve(name);
   const meta = POSES[slug] || {};
   const h = Math.max(8, height * H * (scale ?? meta.scale ?? 1));
   const feet = meta.feet ?? 0.9934;
   const img = IMAGES.get(slug);
   const w = img ? (img.naturalWidth / img.naturalHeight) * h : h * 0.45;
+  // full shots are placed by their soles, close-ups by their hair line (a clean push-in cut)
+  const anchorY = meta.place === 'top' ? top + h / 2 : ground - (feet - 0.5) * h;
   return {
     slug, h, w,
     cx: x * W + sway(t),
-    cy: ground - (feet - 0.5) * h - bob(t) - pulse(slug, t),
+    cy: anchorY - bob(t) - pulse(slug, t),
     scale: breathe(t),
     rot: lean(slug, t),
   };
@@ -127,7 +141,9 @@ export function drawPoseBlend(ctx, a, b, p, t, opts = {}) {
 /** Cue list of poses with cross-fades — mirrors presenter.PoseTrack. */
 export class PoseTrack {
   constructor(cues, fade = 0.12) {
-    this.cues = [...cues].map(c => ({ t: Number(c.t ?? 0), pose: resolve(c.pose ?? 'neutral') }))
+    // keep the raw name and resolve at draw time: a track is usually built at module scope, before
+    // loadPoses() has fetched the manifest, and eager resolve would freeze the embedded fallback
+    this.cues = [...cues].map(c => ({ t: Number(c.t ?? 0), pose: c.pose ?? 'neutral' }))
       .sort((a, b) => a.t - b.t);
     this.fade = fade;
   }
@@ -144,7 +160,10 @@ export class PoseTrack {
     }
     const blend = (prev === null || prev === cur) ? 1 : clamp((t - start) / Math.max(1e-6, this.fade));
     const fading = blend < 1 && prev !== null && prev !== cur;
-    return { pose: cur, prev: fading ? prev : null, blend, settle: 1 + 0.02 * (1 - blend) ** 2 };
+    return {
+      pose: resolve(cur), prev: fading ? resolve(prev) : null, blend,
+      settle: 1 + 0.02 * (1 - blend) ** 2,
+    };
   }
 
   draw(ctx, t, opts = {}) {

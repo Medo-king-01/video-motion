@@ -18,7 +18,10 @@ sys.path.insert(0, str(P_DIR))
 sys.path.insert(0, str(ROOT / "tools"))
 
 EXPECTED = {"neutral", "explain", "point", "welcome", "wave", "clap", "like", "thinking",
-            "thinking-deep", "puzzled", "sad", "shocked", "walk", "run"}
+            "thinking-deep", "puzzled", "sad", "shocked", "walk", "run",
+            "waiting", "warm", "phone", "unfold", "point-up", "seated-talk",
+            "close-neutral", "close-explain", "close-point", "close-thinking"}
+BUST = {"close-neutral", "close-explain", "close-point", "close-thinking"}
 
 
 @pytest.fixture(scope="module")
@@ -43,18 +46,47 @@ def test_every_pose_is_present_and_described(manifest):
 def test_cutouts_are_normalised_and_transparent(manifest):
     from PIL import Image  # noqa: PLC0415
 
-    heights = []
+    heights: dict[str, list[int]] = {"full": [], "bust": []}
     for slug, meta in manifest["poses"].items():
         im = Image.open(POSES_DIR / meta["file"]).convert("RGBA")
         a = np.asarray(im)[..., 3].astype(np.float32) / 255
-        heights.append(a.shape[0])
+        framing = meta.get("framing", "full")
+        assert framing == ("bust" if slug in BUST else "full"), slug
+        heights[framing].append(a.shape[0])
         ys, xs = np.where(a > 0.03)
         assert ys.min() <= 12 and ys.max() >= a.shape[0] - 13, f"{slug} is not trimmed to the figure"
         # background gone: the corners must be fully transparent
         assert a[:4, :4].max() < 0.02 and a[-4:, -4:].max() < 0.02, f"{slug} has an opaque corner"
         # and the figure must actually be there
         assert (a > 0.5).mean() > 0.10, f"{slug} lost most of its figure"
-    assert max(heights) - min(heights) <= 8, "poses must share one figure height"
+    for framing, hs in heights.items():
+        assert hs, f"no {framing} poses"
+        assert max(hs) - min(hs) <= 8, f"{framing} poses must share one normalised height"
+
+
+def test_framing_decides_the_anchor(manifest):
+    for slug, meta in manifest["poses"].items():
+        assert meta["place"] in {"feet", "top"}, slug
+        assert meta["place"] == ("top" if slug in BUST else "feet"), slug
+
+
+def test_close_ups_sit_on_the_top_guide():
+    import presenter  # noqa: PLC0415
+
+    fr = np.zeros((1920, 1080, 3), np.uint8)
+    presenter.draw(fr, "close-neutral", 1.0, height=0.62, idle=False)
+    rows = np.where(fr.any(axis=(1, 2)))[0]
+    assert 185 <= rows.min() <= 215, f"hair should start at the top guide, got {rows.min()}"
+    assert rows.max() <= 1390, "a close-up must not spill onto the caption zone"
+
+
+def test_full_shots_stand_on_the_ground_line():
+    import presenter  # noqa: PLC0415
+
+    fr = np.zeros((1920, 1080, 3), np.uint8)
+    presenter.draw(fr, "neutral", 1.0, height=0.62, idle=False)
+    rows = np.where(fr.any(axis=(1, 2)))[0]
+    assert abs(int(rows.max()) - 1390) <= 8, f"soles should land on 1390, got {rows.max()}"
 
 
 def test_no_white_fringe_on_the_brand_background(manifest):
@@ -159,6 +191,37 @@ def test_engine_k_and_p_place_the_pose_identically(manifest):
             assert ref["cx"] == pytest.approx(0.48 * 1080 + presenter.sway(t), abs=0.2), f"{name} cx @ {t}"
             assert ref["rot"] == pytest.approx(presenter.lean(name, t), abs=1e-6)
             assert ref["scale"] == pytest.approx(presenter.breathe(t), abs=1e-9)
+
+
+def test_pose_track_resolves_lazily_against_the_loaded_manifest():
+    """A track is usually built at module scope, before `loadPoses()` runs — the cue must not freeze
+    whatever the embedded fallback knew at that moment (this was a real bug: a close-up cue
+    silently degraded to `neutral` in engine K)."""
+    if shutil.which("node") is None:
+        pytest.skip("node is not installed")
+    module = json.dumps(str(SKILL / "templates" / "render" / "lib" / "presenter.js"))
+    script = (
+        "globalThis.Image = class { constructor(){ this.naturalWidth = 800; this.naturalHeight = 1200; }"
+        " set src(v){} async decode(){} };\n"
+        "globalThis.fetch = async () => ({ ok: true, json: async () => ({ poses: {"
+        " 'close-explain': { file: 'close-explain.png', place: 'top' },"
+        " 'cameo': { file: 'neutral.png' } } }) });\n"
+        f"const p = await import({module});\n"
+        "const track = new p.PoseTrack([{ t: 0, pose: 'cameo' }]);\n"
+        "const before = track.at(0).pose;\n"
+        "await p.loadPoses('/assets/poses/');\n"
+        "const after = track.at(0).pose;\n"
+        "const frame = p.poseFrame('close-explain', 1, { height: .62 });\n"
+        f"console.log(JSON.stringify({{ before, after, cy: frame.cy, names: p.poseNames().length }}));\n"
+    )
+    r = subprocess.run(["node", "--input-type=module", "-e", script], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    out = json.loads(r.stdout)
+    assert out["before"] == "neutral", "an unknown cue should fall back while the manifest is missing"
+    assert out["after"] == "cameo", "the cue must resolve once the manifest is loaded"
+    # a close-up is placed by its hair line (top guide 190), not by its soles
+    assert out["cy"] == pytest.approx(190 + 0.62 * 1920 / 2 - 0.0, abs=8)
+    assert out["names"] >= 24
 
 
 def test_scenes_and_project_template_are_wired():

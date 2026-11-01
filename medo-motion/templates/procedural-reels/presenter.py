@@ -26,7 +26,8 @@ from functools import lru_cache
 import numpy as np
 
 W, H = 1080, 1920
-GROUND = 1390
+GROUND = 1390      # soles land here for full shots
+TOP_GUIDE = 190    # hair line for close-ups (the brand's content starts at 200)
 
 # Embedded fallback so a project that only received the template still works; the manifest wins.
 DEFAULT_POSES = {
@@ -168,9 +169,13 @@ def pulse(name: str, t: float) -> float:
 
 
 def draw(fr: np.ndarray, name: str, t: float, x: float = 0.5, height: float = 0.62,
-         ground: int = GROUND, alpha: float = 1.0, flip: bool = False,
+         ground: int = GROUND, top: int = TOP_GUIDE, alpha: float = 1.0, flip: bool = False,
          idle: bool = True, scale: float | None = None) -> None:
-    """Composite a pose onto an RGB frame. `x` is the horizontal centre (0..1 of the width)."""
+    """Composite a pose onto an RGB frame. `x` is the horizontal centre (0..1 of the width).
+
+    Full shots are placed by their soles (`ground`); close-ups by their hair line (`top`), so a cut
+    from a wide shot to a close-up is a clean camera push-in.
+    """
     slug = resolve(name)
     meta = poses().get(slug, {})
     h = max(8, int(height * H * float(scale if scale is not None else meta.get("scale", 1.0))))
@@ -179,7 +184,10 @@ def draw(fr: np.ndarray, name: str, t: float, x: float = 0.5, height: float = 0.
     from lib import paste  # noqa: PLC0415  (same folder; avoids a circular import at module load)
 
     cx = x * W
-    cy = ground - (feet - 0.5) * h          # feet fraction → put the soles on the ground line
+    if meta.get("place") == "top":
+        cy = top + h / 2.0                  # close-up: the hair sits on the top guide
+    else:
+        cy = ground - (feet - 0.5) * h      # feet fraction → put the soles on the ground line
     if idle:
         cy -= bob(t) + pulse(slug, t)
         cx += sway(t)
@@ -196,7 +204,8 @@ class PoseTrack:
     """
 
     def __init__(self, cues: list[dict], fade: float = 0.12):
-        self.cues = sorted(({"t": float(c.get("t", 0.0)), "pose": resolve(c.get("pose", "neutral"))}
+        # keep the raw name and resolve at draw time (the manifest may not be loaded yet)
+        self.cues = sorted(({"t": float(c.get("t", 0.0)), "pose": c.get("pose", "neutral")}
                             for c in cues), key=lambda c: c["t"])
         self.fade = fade
 
@@ -215,7 +224,8 @@ class PoseTrack:
         blend = 1.0 if prev is None or prev == cur else min(1.0, max(0.0, (t - start) / max(1e-6, self.fade)))
         settle = 1.0 + 0.02 * (1.0 - blend) ** 2      # a 2% dip while the pose changes
         fading = blend < 1.0 and prev is not None and prev != cur
-        return {"pose": cur, "prev": prev if fading else None, "blend": blend, "settle": settle}
+        return {"pose": resolve(cur), "prev": resolve(prev) if fading else None,
+                "blend": blend, "settle": settle}
 
     def draw(self, fr: np.ndarray, t: float, **kw) -> dict:
         state = self.at(t)

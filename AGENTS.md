@@ -51,7 +51,10 @@ finished video on guessed timing without saying so.
    `tools/theatre_import.py` converts a Theatre.js state export.
 8. **Medo is a pose library, not a PNG per scene**: use `presenter.py` (P) / `lib/presenter.js` (K)
    with the slugs from `assets/poses/poses.json` (`neutral`, `explain`, `point`, `welcome`, `wave`,
-   `clap`, `like`, `thinking`, `thinking-deep`, `puzzled`, `sad`, `shocked`, `walk`, `run`). Never edit
+   `clap`, `like`, `thinking`, `thinking-deep`, `puzzled`, `sad`, `shocked`, `walk`, `run`, `waiting`,
+   `warm`, `phone`, `unfold`, `point-up`, `seated-talk`, plus the close-ups `close-neutral`,
+   `close-explain`, `close-point`, `close-thinking` — full shots anchor on the ground line, close-ups
+   on the top guide, so a cut between them is a camera push-in). Never edit
    the cut-out PNGs by hand — rebuild with `make poses`. `docs/presenter.md`.
 9. **Cuts and sound are catalogue-driven**: scene changes use `transition.py` / `lib/transition.js`
    (`medo-motion/motion/transitions.json`) and every hit comes from `sfx.py` (`BANK` + `CATALOG`) via a
