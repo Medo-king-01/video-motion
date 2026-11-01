@@ -51,12 +51,12 @@ Ask **once** for whatever is missing, then decide and state the decision.
 
 ## 3. Workflow
 
-New project: `python3 tools/new_project.py <slug> [--engine p|k|r]` (repo root), then fill
+New project: `python3 tools/new_project.py <slug> [--engine p|k|r|hybrid]` (repo root), then fill
 `BRIEF.md`. Full contract in `../AGENTS.md` §5. In short:
 intake → analyse the VO (`silencedetect`) → lock `plan/beats.json` → draw the moves
 (`tools/techniques.py --draw --from-plan plan/beats.json`) → write `plan/copy.json` → **lint**
 (`tools/reel_lint.py <project> --scan-code`) → scene prototype (3 stills)
-→ contact sheet → assets → chunked render → mix (−14.5 LUFS) → master (CRF 13 ≥2.5 Mbps)
+→ contact sheet → assets → engine render (or sequential hybrid render) → mix (−14.5 LUFS) → master (CRF 13 ≥2.5 Mbps)
 → ≥3 visual QC rounds → deliver with an 8–10 line Arabic message.
 
 Optional user gates (only if Medo asks to review the plan/storyboard first): one-message plan,
@@ -69,8 +69,9 @@ one storyboard sheet, then the complete preview with sound.
 | Explainer/tool reel with Medo's character, cards, devices, captions | **P** — `templates/procedural-reels` (Pillow + OpenCV + FFmpeg chunks) |
 | Kinetic Arabic typography, lists, UI, 3D-ish scenes, fast timeline previews | **K** — `templates/render` (Canvas + Playwright) |
 | Reusable React/TypeScript scenes, data-driven graphics, Remotion Studio review | **R** — `templates/remotion` (Remotion + React) |
+| A reel whose different sections genuinely need P, K, and/or R | **Hybrid** — sequential full-frame segments via `tools/render_hybrid.py`; no simultaneous engine layers |
 
-One engine per video. Same palette from `brand/brand.json` (K: `lib/brand.js`, R: `src/brand.ts`, P: constants in
+For hybrid, each segment uses exactly one renderer; P/K features do not become R features without a deliberate, tested port. See `templates/HYBRID.md` and `docs/hybrid.md`. Same palette from `brand/brand.json` (K: `lib/brand.js`, R: `src/brand.ts`, P: constants in
 `lib.py`; drift is checked by `scripts/brand_check.py --project`). Engine P needs Arabic
 shaping: Pillow with libraqm, or the bundled `arabic_shape.py` (HarfBuzz + FreeType) when the
 Pillow wheel has no libraqm. `lib.py` picks automatically; never letter-by-letter.
@@ -99,6 +100,7 @@ opt-in only, and always asks for approval before a paid request.
 | `reference/voiceover.md` | narration rules when Medo asks for TTS |
 | `reference/visual-design.md`, `recipes.md`, `inspiration.md` | design craft and motion recipes |
 | `reference/planning-and-tracking.md` | project structure, TASTE memory, gates |
+| `../docs/skillry-fit.md` | public Skillry review, relevant workflow patterns, adoption decision and third-party Skill safety checks |
 | `reference/reference-and-delivery.md` | reference breakdown + final QA |
 | `reference/asset-hunting.md`, `fonts.md`, `arabic-fonts.md` | sourcing and licences |
 | `reference/free-sfx-openverse.md`, `local-sound-workflow.md`, `elevenlabs-sfx.md` | sound sourcing and mixing |

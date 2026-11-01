@@ -59,6 +59,7 @@ python3 tools/selftest.py --hybrid   # رندر فعلي لمقاطع P + K + R 
 python3 tools/new_project.py اسم-المشروع --engine p   # محرك الشخصية/الشرح (الأنسب للريلز اللي فيها كلام)
 python3 tools/new_project.py اسم-المشروع --engine k   # محرك كانفس/تايبوغرافي
 python3 tools/new_project.py اسم-المشروع --engine r   # محرك Remotion (React/TypeScript)
+python3 tools/new_project.py اسم-المشروع --engine hybrid # P/K/R في مقاطع متتابعة
 cd projects/اسم-المشروع && npm install && npm run studio
 ```
 
@@ -72,10 +73,10 @@ cd projects/اسم-المشروع && npm install && npm run studio
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
 assets/                ← مدخلات مشتركة: fonts/Cairo · poses/ · sfx/
 projects/<slug>/       ← كل فيديو: BRIEF.md · STYLE.md · plan/ · assets/refs/ · out/ · PROGRESS.md
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · vo_length.py · analyze_ref.py (تحليل المرجع) · techniques.py · reel_lint.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · ffprobe_shim.py · chromium.mjs
                          · icons_sheet.py (مراجعة الأيقونات) · icons_preview.mjs
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
-docs/                  ← التحليل + قواعد الاتساق
+docs/                  ← التحليل + قواعد الاتساق + مراجعة Skillry
 medo-motion/           ← الحزمة (النسخة الخاصة من «موشن خام» v1.4.1)
   SKILL.md             ← نقطة دخول كلود كود (بتحوّل لـ AGENTS.md)
   brand/               ← الهوية: BRAND.md للبني آدم + brand.json للكود
@@ -97,8 +98,8 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | **K** | تايبوغرافي حركي، قوائم، واجهات، معاينات سريعة | Canvas في Chromium (Playwright) |
 | **R** | مشاهد React قابلة لإعادة الاستخدام، رسوم بيانات وواجهات مركّبة، ومعاينة Remotion Studio | Remotion + React/TypeScript داخل Chromium |
 
-محرك واحد للفيديو الواحد، ونفس البالِت من `brand/brand.json`.
-R مش أسرع تلقائيًا من K؛ اختاره لما إعادة استخدام مكونات React أو Studio تفرق فعلًا.
+اختار محرك واحد للفيديو، أو `hybrid` لما أجزاء مختلفة تحتاج P/K/R: كل مقطع كامل الإطار يترندر بمحرك واحد، بالتتابع، ومش طبقات متزامنة. التفاصيل في `docs/hybrid.md`.
+نفس البالِت من `brand/brand.json`. R مش أسرع تلقائيًا من K؛ اختاره لما إعادة استخدام مكونات React أو Studio تفرق فعلًا.
 الأيقونات المتحركة مدمجة حاليًا في K وP: `medo-motion/icons/` → `lib/icons.js` (K) + `icons.py` (P) + `svg/` (ويب).
 مكتبة **itshover** (٢٦٣ أيقونة، Apache-2.0) مولّدة للمحركين دول — الشرح في `docs/icons.md`.
 
