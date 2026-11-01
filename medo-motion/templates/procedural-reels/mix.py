@@ -87,9 +87,34 @@ mix=np.stack([vo,vo],1)+sf+mus
 mix=np.clip(mix/ max(1.0,np.max(np.abs(mix))*1.02),-1,1)
 wavfile.write('out/mix_raw.wav',SR,(mix*32767).astype(np.int16))
 # ---- two-pass loudnorm ----
-p1=subprocess.run([FF,'-hide_banner','-i','out/mix_raw.wav','-af','loudnorm=I=-14.5:TP=-1.5:LRA=11:print_format=json','-f','null','-'],capture_output=True,text=True).stderr
+# Brand: -14.5 +/-0.3 LUFS and true peak <= -1.5 dBTP. loudnorm overshoots its own TP
+# target by ~0.2-0.4 dB in linear mode (measured here: -1.3 dBTP with TP=-1.5), so we
+# aim at -2.0 and keep a limiter as the hard ceiling. Never ship a hotter master.
+LUFS, TP_TARGET, TP_CEIL = -14.5, -2.0, -1.5
+p1=subprocess.run([FF,'-hide_banner','-i','out/mix_raw.wav','-af',f'loudnorm=I={LUFS}:TP={TP_TARGET}:LRA=11:print_format=json','-f','null','-'],capture_output=True,text=True).stderr
 j=json.loads(p1[p1.rindex('{'):p1.rindex('}')+1]); print({k:j[k] for k in ('input_i','input_tp','input_lra','input_thresh','target_offset')})
-af=f"loudnorm=I=-14.5:TP=-1.5:LRA=11:measured_I={j['input_i']}:measured_TP={j['input_tp']}:measured_LRA={j['input_lra']}:measured_thresh={j['input_thresh']}:offset={j['target_offset']}:linear=true"
+af=f"loudnorm=I={LUFS}:TP={TP_TARGET}:LRA=11:measured_I={j['input_i']}:measured_TP={j['input_tp']}:measured_LRA={j['input_lra']}:measured_thresh={j['input_thresh']}:offset={j['target_offset']}:linear=true"
 subprocess.run([FF,'-y','-loglevel','error','-i','out/mix_raw.wav','-af',af,'-ar','44100','out/final_audio.wav'],check=True)
 p3=subprocess.run([FF,'-hide_banner','-i','out/final_audio.wav','-af','loudnorm=I=-14.5:TP=-1.5:print_format=summary','-f','null','-'],capture_output=True,text=True).stderr
+m=re.search(r'Input True Peak:\s*(-?\d+(?:\.\d+)?)',p3)
+tp=float(m.group(1)) if m else None
+if tp is not None and tp>TP_CEIL:
+    lin=10**((TP_CEIL-0.1)/20)
+    subprocess.run([FF,'-y','-loglevel','error','-i','out/final_audio.wav','-af',
+                    f'alimiter=limit={lin:.4f}:attack=5:release=50:level=disabled','-ar','44100','out/final_audio_lim.wav'],check=True)
+    os.replace('out/final_audio_lim.wav','out/final_audio.wav')
+    p3=subprocess.run([FF,'-hide_banner','-i','out/final_audio.wav','-af','loudnorm=I=-14.5:TP=-1.5:print_format=summary','-f','null','-'],capture_output=True,text=True).stderr
+    print('limiter applied (true peak was',tp,'dBTP)')
+mi=re.search(r'Input Integrated:\s*(-?\d+(?:\.\d+)?)',p3)
+lv=float(mi.group(1)) if mi else None
+# Final deterministic trim: land inside -14.5 +/-0.3 without breaking the peak ceiling.
+if lv is not None and tp is not None:
+    gain=max(-6.0,min(6.0,LUFS-lv))
+    if gain>0 and tp+gain>TP_CEIL-0.05: gain=TP_CEIL-0.05-tp      # loudness yields to the ceiling
+    if abs(gain)>0.1:
+        subprocess.run([FF,'-y','-loglevel','error','-i','out/final_audio.wav','-af',f'volume={gain:.2f}dB','-ar','44100','out/final_audio_trim.wav'],check=True)
+        os.replace('out/final_audio_trim.wav','out/final_audio.wav')
+        p3=subprocess.run([FF,'-hide_banner','-i','out/final_audio.wav','-af','loudnorm=I=-14.5:TP=-1.5:print_format=summary','-f','null','-'],capture_output=True,text=True).stderr
+        print(f'trim {gain:+.2f} dB')
+print([l.strip() for l in p3.splitlines() if 'Input Integrated' in l or 'Input True Peak' in l])
 print([l for l in p3.splitlines() if 'Input Integrated' in l or 'Input True Peak' in l])

@@ -77,6 +77,21 @@ is the portable inventory it extends. Do not install anything else "just in case
 
 1. **Intake** — fill `projects/<slug>/BRIEF.md` from the four inputs; copy the VO into
    `assets/vo/`, the poses into `assets/poses/`, the script into `plan/script.md`.
+   Then prepare the two files the engines expect:
+
+   ```bash
+   # VO master: 24 kHz mono PCM16 (mix.py reads out/vo24.wav)
+   ffmpeg -y -i assets/vo/<voice>.mp3 -ac 1 -ar 24000 -c:a pcm_s16le out/vo24.wav
+   ffprobe -v error -show_entries format=duration -of json out/vo24.wav   # duration = video duration
+
+   # Poses -> cutouts named exactly medo_wave / medo_think / medo_point
+   UPLOADS=assets/poses python cutout.py white <wave.png> medo_wave
+   UPLOADS=assets/poses python cutout.py green <think.png> medo_think
+   UPLOADS=assets/poses python cutout.py white <point.png> medo_point
+   ```
+
+   Until the poses exist, engine P draws a silhouette marked `PLACEHOLDER` — that is
+   allowed for a prototype, but declare it in the delivery.
 2. **Timing** — analyse the VO (`silencedetect`), align beats to the real audio, write
    `plan/beats.json`. Scene boundaries = midpoint of silences; duration = VO duration.
 3. **Engine choice** — see §6. One engine per video.
@@ -118,6 +133,7 @@ or a series title** — there is none.
 
 ## 9. Environment notes (this sandbox)
 
+- If `ffmpeg` is not on PATH, the engines honour `FFMPEG_BIN=/path/to/ffmpeg`.
 - `ffmpeg` = static build from `imageio-ffmpeg`; there is no `ffprobe` binary, so
   `tools/ffprobe_shim.py` is installed as `ffprobe` (ffprobe-compatible JSON subset).
 - Chromium for engine K comes from `@sparticuz/chromium` (npm) because the Playwright

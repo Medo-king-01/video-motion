@@ -23,8 +23,15 @@
 - `preflight.py`: the `medo` block no longer collapses to an error when Pillow is
   missing; it reports `arabic_shaping: raqm | harfbuzz-fallback | NONE`.
 - `render.js`: accepts `playwright-core` (works with the bundled Chromium).
-- Verified here: engine P 8-frame chunk + 8-frame contact sheet with correct Arabic
-  captions; engine K 12 frames through Chromium 153; `brand_check` PASS.
+- **Loudness hardened** (`mix.py`): loudnorm aims at TP −2.0 (it overshoots its own
+  target by ~0.2–0.4 dB), a limiter acts as the hard ceiling, and a final deterministic
+  trim lands inside −14.5 ±0.3 LUFS while never exceeding −1.5 dBTP. Measured on a test
+  mix: was −1.3 dBTP → now −14.7 LUFS / −1.5 dBTP.
+- Engines honour `FFMPEG_BIN` when ffmpeg is not on PATH.
+- Verified here: engine P 8-frame chunk + contact sheet with correct Arabic captions and
+  a 90-frame master (1080×1920, H.264+AAC, 4.5 Mbps, faststart); engine K 12 frames
+  through Chromium 153; mix + two-pass loudnorm; `brand_check` PASS; `doctor.py` READY
+  except the optional drawtext filter.
 
 ## 1.0 — 2026-11-01 — fork of Khaam Motion 1.4.1
 - Added `brand/` (BRAND.md + brand.json), `styles/medo-red-circle.md`, `reference/medo-playbook.md`, `scripts/brand_check.py`, `templates/render/lib/brand.js`; `templates/TASTE.md` pre-filled with locked brand values.
