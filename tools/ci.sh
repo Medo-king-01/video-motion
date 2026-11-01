@@ -12,7 +12,10 @@ $PY -m ruff check . 2>/dev/null || ruff check .
 echo "== pytest =="
 $PY -m pytest -q
 
+echo "== icons =="
+$PY medo-motion/icons/build.py --check
+
 echo "== brand audit =="
-$PY medo-motion/scripts/brand_check.py
+$PY medo-motion/scripts/brand_check.py --project medo-motion/templates
 
 echo "CI OK"

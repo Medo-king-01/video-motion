@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "_doc": "Template for a React project that wants the itshover components as real .tsx files. Copy it to the React app root as components.json, then: npx shadcn@latest add https://itshover.com/r/plug-connected-icon.json (or npx shadcn@latest add @itshover/plug-connected-icon once the registry alias resolves). Requires internet — it cannot run inside this sandbox, so the SVG + canvas + Pillow icons in this folder are the offline path.",
+  "$schema_note": "shadcn CLI reads the fields below; the underscore keys are ignored.",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@itshover": "https://itshover.com/r/{name}.json"
+  }
+}

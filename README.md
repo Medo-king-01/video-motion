@@ -1,7 +1,7 @@
 # video-motion — استوديو ريلز ميدو 🎬
 
 مستودع واحد فيه كل حاجة لصناعة **ريلز عمودي 1080×1920** من أوله لآخره:
-الهوية مقفولة (أحمر/أسود/أبيض + Cairo)، ومحركين رندر، وأدوات صوت، وقواعد عربي سليم،
+الهوية مقفولة (بالِت ١٢ لون + Cairo)، ومحركين رندر، وطبقة أيقونات متحركة، وأدوات صوت، وقواعد عربي سليم،
 وكل ده شغال مع **أي وكيل برمجي** — مش كلود بس.
 
 ---
@@ -52,12 +52,14 @@ AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه ا�
 assets/                ← مدخلات مشتركة: fonts/Cairo · poses/ · sfx/
 projects/<slug>/       ← كل فيديو: BRIEF.md · plan/ · assets/ · out/ · PROGRESS.md
 tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · ffprobe_shim.py · chromium.mjs
+                         · icons_sheet.py (مراجعة الأيقونات) · icons_preview.mjs
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
 docs/                  ← التحليل + قواعد الاتساق
 medo-motion/           ← الحزمة (النسخة الخاصة من «موشن خام» v1.4.1)
   SKILL.md             ← نقطة دخول كلود كود (بتحوّل لـ AGENTS.md)
   brand/               ← الهوية: BRAND.md للبني آدم + brand.json للكود
   reference/           ← أدلة تُقرأ عند الحاجة (العربي إلزامي قبل أي نص على الشاشة)
+  icons/              ← طبقة الأيقونات المتحركة: registry.json → SVG + محرك K + محرك P
   styles/               ← ٩ ستايلات إلهام، والافتراضي medo-red-circle
   templates/           ← محرك P (Pillow/OpenCV/FFmpeg) + محرك K (Canvas/Playwright)
   scripts/             ← preflight · brand_check · get_fonts · SFX · TTS · preview
@@ -73,6 +75,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | **K** | تايبوغرافي حركي، قوائم، واجهات، مشاهد تقيلة | Canvas في Chromium (Playwright) |
 
 محرك واحد للفيديو الواحد، ونفس البالِت من `brand/brand.json`.
+الأيقونات مشتركة بينهم: `medo-motion/icons/registry.json` → `lib/icons.js` (K) + `icons.py` (P) + `svg/` (ويب).
 
 ---
 
@@ -86,7 +89,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
 | محركي الرندر P و K | ✅ اتجربوا ورندروا فريمات عربية صح |
-| الاختبارات (`make test` · `make selftest`) | ✅ ٢٦ اختبار + رندر من المحركين |
+| الاختبارات (`make test` · `make selftest`) | ✅ ٥٣ اختبار + رندر من المحركين |
 | مفتاح ElevenLabs | ❌ اختياري — الصوت بييجي منك |
 
 شغّل `python3 tools/doctor.py` في أي وقت للتأكد.

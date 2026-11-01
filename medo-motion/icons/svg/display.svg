@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Display — الشاشة" data-icon="display">
+  <title>Display — الشاشة</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.9s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:var(--icon-accent,currentColor);stroke:none;animation:fadeIn .5s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.5}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="19,4 19.765,4.152 20.414,4.586 20.848,5.235 21,6 21,14 20.848,14.765 20.414,15.414 19.765,15.848 19,16 5,16 4.235,15.848 3.586,15.414 3.152,14.765 3,14 3,6 3.152,5.235 3.586,4.586 4.235,4.152 5,4" style="animation-delay:0.0s"/>
+  <polyline class="a" pathLength="1" points="12,16 12,20" style="animation-delay:0.07s"/>
+  <polyline class="a" pathLength="1" points="8,20 16,20" style="animation-delay:0.14s"/>
+  <polyline class="a" pathLength="1" points="6.5,13 10,8.5 12.6,11 15,9 18,13" style="animation-delay:0.21s"/>
+  <circle class="d" cx="7" cy="6.6" r="1" style="animation-delay:0.28s,0.63s"/>
+</svg>

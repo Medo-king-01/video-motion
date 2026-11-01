@@ -4,6 +4,7 @@ export const scenes = [
   { id: 'example', start: 0, end: 2 },
   { id: 'arabic-example', start: 2, end: 7 },
   { id: 'explainer-example', start: 7, end: 18.5 },   // explainer-reel kit demo (lib/kit.js)
+  { id: 'icons-example', start: 18.5, end: 22 },       // animated icon layer demo (lib/icons.js)
 ];
 export const DURATION = scenes.at(-1).end;
 // Arabic display font = brand lock (Cairo). Put it in the project:

@@ -26,9 +26,13 @@ new:             ## scaffold a project: make new SLUG=my-reel ENGINE=p
 brand:           ## audit brand tokens of a project: make brand P=projects/x
 	$(PY) medo-motion/scripts/brand_check.py --project $(or $(P),.)
 
+icons:           ## rebuild the animated icon layer + a QA sheet
+	$(PY) medo-motion/icons/build.py
+	$(PY) tools/icons_sheet.py --out cache/icons-sheet.png
+
 clean:           ## remove caches and render output (keeps sources)
 	find . -name __pycache__ -type d -not -path "*/node_modules/*" -exec rm -rf {} + 2>/dev/null || true
 	rm -rf .pytest_cache .ruff_cache
-	rm -rf projects/*/out projects/*/cache
+	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup doctor test ci selftest new brand clean
+.PHONY: help setup doctor test ci selftest new brand icons clean

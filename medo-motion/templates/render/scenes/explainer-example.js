@@ -17,7 +17,7 @@ export async function init() {
 
 // NOTE: this demo keeps an editorial palette to show the kit's range.
 // For a brand reel, copy the tokens from ../lib/brand.js instead.
-const INK = '#141414', RED = '#E5262B', PAPER = '#F2EFE8', BLUE = '#2F5BFF', SKY = '#D5E0FF', YELLOW = '#FFD43B';
+const INK = '#473938', RED = '#CB271B', PAPER = '#F3F2F1', BLUE = '#8B6765', SKY = '#D5AEA6', YELLOW = '#D97F68';
 
 function sectionOne(ctx, t, W, H) {
   K.drawPaper(ctx, W, H, paper, PAPER);
@@ -29,14 +29,14 @@ function sectionOne(ctx, t, W, H) {
 
   const ph = K.enter(t, 0.15, { rise: 80 });
   K.phone(ctx, 120, 600 + ph.dy, 400, (sx, sy, sw, sh) => {
-    ctx.fillStyle = '#F7F4EE'; ctx.fillRect(sx, sy, sw, sh);
+    ctx.fillStyle = '#F3F2F1'; ctx.fillRect(sx, sy, sw, sh);
     ctx.fillStyle = INK; ctx.font = K.font(700, 34, K.FONTS.text); ctx.direction = 'rtl'; ctx.textAlign = 'center';
     ctx.fillText('نصيحة اليوم', sx + sw / 2, sy + 190);
     ctx.fillStyle = RED; ctx.font = K.font(700, 44, K.FONTS.accent, K.FONTS.text); ctx.fillText('اختصر وقتك', sx + sw / 2, sy + 255);
     const r = K.rng(5);
     for (let i = 0; i < 26; i++) {                                   // waveform reacting to time
       const h = (12 + r() * 60) * (0.55 + 0.45 * Math.sin(t * 9 + i * 0.7));
-      ctx.fillStyle = i < 26 * K.seg(t, 0.4, 2.4) ? RED : 'rgba(0,0,0,.18)';
+      ctx.fillStyle = i < 26 * K.seg(t, 0.4, 2.4) ? RED : 'rgba(46,36,35,.18)';
       ctx.fillRect(sx + 40 + i * ((sw - 80) / 26), sy + sh - 170 - h / 2, 6, h);
     }
   }, { s: ph.s, alpha: ph.alpha, rot: -2 });
@@ -55,7 +55,7 @@ function sectionOne(ctx, t, W, H) {
 
 function sectionTwo(ctx, t, W, H) {
   ctx.fillStyle = SKY; ctx.fillRect(0, 0, W, H);
-  K.dotGrid(ctx, W, H, { gap: 40, r: 2.4, color: 'rgba(47,91,255,.25)' });
+  K.dotGrid(ctx, W, H, { gap: 40, r: 2.4, color: 'rgba(139,103,101,.25)' });
   ctx.fillStyle = BLUE; ctx.fillRect(0, 1330, W, H - 1330);                 // "desk" band of the colour world
   K.sectionLabel(ctx, '02 · الأدوات', { x: W - 72, y: 172, style: 'tape' });
   K.slotStrip(ctx, t, { x: 70, y: 120, w: 470, total: 4, plugTimes: [4.3, 5.3, 6.3], labels: ['الصوت', 'الخطوط', 'الستايل', '؟'] });
@@ -63,7 +63,7 @@ function sectionTwo(ctx, t, W, H) {
   const c = K.enter(t, 3.95, { rise: 60 });
   K.card(ctx, 100, 470 + c.dy, W - 200, 290, { r: 30, s: c.s, alpha: c.alpha, rot: -1 }, (x, y, w) => {
     ctx.fillStyle = INK; ctx.font = K.font(700, 46, K.FONTS.mono); ctx.direction = 'ltr'; ctx.textAlign = 'left'; ctx.fillText('khaam-motion', x + 44, y + 92);
-    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.font = K.font(500, 32, K.FONTS.text); ctx.direction = 'rtl'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(46,36,35,.55)'; ctx.font = K.font(500, 32, K.FONTS.text); ctx.direction = 'rtl'; ctx.textAlign = 'right';
     ctx.fillText('مهارة موشن عربية لـ Claude', x + w - 44, y + 170);
     ctx.fillStyle = INK; ctx.font = K.font(800, 54, K.FONTS.mono); ctx.direction = 'ltr'; ctx.textAlign = 'left';
     ctx.fillText('★ ' + K.rolling(0, 4210, K.seg(t, 4.3, 1.2)), x + 44, y + 245);
@@ -74,7 +74,7 @@ function sectionTwo(ctx, t, W, H) {
   K.appWindow(ctx, 100, 820 + w2.dy, W - 200, 400, {
     title: 'claude — ~/my-video', s: w2.s, alpha: w2.alpha, rot: 1,
     body: (bx, by, bw) => K.typeLines(ctx, [
-      { text: '> /khaam-motion', color: '#FF8A5B' },
+      { text: '> /khaam-motion', color: '#D97F68' },
       '✓ fonts: Cairo',
       '✓ sfx: openverse (CC0)',
       { text: 'جاري تحريك المشاهد…', color: YELLOW },
@@ -105,5 +105,5 @@ export function draw(ctx, t, { W, H }) {
   else if (t < 7.7) sectionTwo(ctx, t, W, H);
   else sectionThree(ctx, t, W, H);
   K.halftoneWipe(ctx, W, H, K.seg(t, 3.4, 0.8), { origin: [W * 0.8, H * 0.3] });   // chapter 1 → 2
-  if (t >= 7.7 && t < 7.8) { ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillRect(0, 0, W, H); }   // 3-frame flash cut into the CTA
+  if (t >= 7.7 && t < 7.8) { ctx.fillStyle = 'rgba(243,242,241,.85)'; ctx.fillRect(0, 0, W, H); }   // 3-frame flash cut into the CTA
 }

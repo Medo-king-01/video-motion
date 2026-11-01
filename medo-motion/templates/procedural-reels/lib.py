@@ -56,8 +56,9 @@ def font(size):
         f.set_variation_by_axes(vals)
     except Exception: pass
     return f
-BLACK=(10,10,12); INK=(24,22,26); RED=(229,38,43); DRED=(150,20,26); WHITE=(246,243,237)
-EMER=(20,184,138); TEAL=(31,138,138); YEL=(244,196,48); GRAY=(120,120,128); LGRAY=(205,205,212)
+BLACK=(46,36,35); INK=(71,57,56); RED=(203,39,27); DRED=(159,8,3); WHITE=(243,242,241)
+# palette v2 aliases (see brand/brand.json): positive=blush, device bars=mauve, numbers/keywords=salmon
+EMER=(213,174,166); TEAL=(139,103,101); YEL=(217,127,104); GRAY=(163,162,160); LGRAY=(201,197,194)
 SS=3
 # ---------- easing ----------
 def clamp(x,a=0,b=1): return max(a,min(b,x))
@@ -72,7 +73,7 @@ def e_elastic(x):
 def lerp(a,b,x): return a+(b-a)*x
 # ---------- text ----------
 @functools.lru_cache(maxsize=2000)
-def text_sprite(txt,size,color=(255,255,255),rtl=True,stroke=0,scolor=(0,0,0)):
+def text_sprite(txt,size,color=(243,242,241),rtl=True,stroke=0,scolor=(46,36,35)):
     if not HAS_RAQM:
         return _shaper().text_sprite(FONT,txt,size,color,rtl,stroke,scolor)
     f=font(size)
@@ -115,14 +116,14 @@ def placeholder_medo(height):
     """Brand-silhouette stand-in (curly hair, round mirrored glasses, dark blazer) when the real Medo pose PNG is missing.
     ALWAYS declare it in the delivery message: the real anime-style Medo poses are the intended presenter."""
     w=int(height*0.62); d=D(w,height); cx=w/2; r=w*0.2; cy=height*0.2
-    for a in range(180,361,20): d.circ(cx+(r+4)*math.cos(math.radians(a)),cy+(r+4)*math.sin(math.radians(a)),r*0.42,fill=(18,16,20))
-    d.circ(cx,cy,r,fill=(24,22,26))
-    for sx in (-1,1): d.circ(cx+sx*r*0.42,cy+r*0.05,r*0.3,fill=(246,243,237),outline=(18,16,20),width=3)
-    d.line([(cx-r*0.12,cy+r*0.05),(cx+r*0.12,cy+r*0.05)],(246,243,237),3)
-    d.rrect((cx-w*0.38,cy+r*1.2,cx+w*0.38,height*0.78),w*0.12,fill=(30,28,34))
-    d.poly([(cx-w*0.07,cy+r*1.25),(cx+w*0.07,cy+r*1.25),(cx,cy+r*2.1)],fill=(246,243,237))
-    d.rrect((cx-w*0.3,height*0.78-2,cx-w*0.04,height-4),10,fill=(24,22,26)); d.rrect((cx+w*0.04,height*0.78-2,cx+w*0.3,height-4),10,fill=(24,22,26))
-    d.text((cx,height*0.5),'PLACEHOLDER',max(14,int(w*0.09)),(229,38,43),anchor='mm')
+    for a in range(180,361,20): d.circ(cx+(r+4)*math.cos(math.radians(a)),cy+(r+4)*math.sin(math.radians(a)),r*0.42,fill=(46,36,35))
+    d.circ(cx,cy,r,fill=(71,57,56))
+    for sx in (-1,1): d.circ(cx+sx*r*0.42,cy+r*0.05,r*0.3,fill=(243,242,241),outline=(46,36,35),width=3)
+    d.line([(cx-r*0.12,cy+r*0.05),(cx+r*0.12,cy+r*0.05)],(243,242,241),3)
+    d.rrect((cx-w*0.38,cy+r*1.2,cx+w*0.38,height*0.78),w*0.12,fill=(46,36,35))
+    d.poly([(cx-w*0.07,cy+r*1.25),(cx+w*0.07,cy+r*1.25),(cx,cy+r*2.1)],fill=(243,242,241))
+    d.rrect((cx-w*0.3,height*0.78-2,cx-w*0.04,height-4),10,fill=(71,57,56)); d.rrect((cx+w*0.04,height*0.78-2,cx+w*0.3,height-4),10,fill=(71,57,56))
+    d.text((cx,height*0.5),'PLACEHOLDER',max(14,int(w*0.09)),(217,127,104),anchor='mm')
     return d.done()
 def load_png(name,height):
     p=f'assets/{name}.png'
@@ -166,7 +167,7 @@ def circle_spr(r,color,glow=0):
         g=g.filter(__import__('PIL.ImageFilter',fromlist=['x']).GaussianBlur(glow*SS*0.8)); d.im.alpha_composite(g)
     d.circ(pad+r,pad+r,r,fill=color); return d.done()
 @functools.lru_cache(maxsize=None)
-def sparkle(r,color=(255,255,255)):
+def sparkle(r,color=(243,242,241)):
     d=D(r*2+4,r*2+4); c=r+2
     pts=[(c,c-r),(c+r*0.18,c-r*0.18),(c+r,c),(c+r*0.18,c+r*0.18),(c,c+r),(c-r*0.18,c+r*0.18),(c-r,c),(c-r*0.18,c-r*0.18)]
     d.poly(pts,fill=color); return d.done()
@@ -176,20 +177,20 @@ def pill(w,h,color,alpha=255,r=None):
 @functools.lru_cache(maxsize=None)
 def bill(w=150):
     h=int(w*0.55); d=D(w,h)
-    d.rrect((0,0,w,h),10,fill=(60,170,110),outline=(30,100,64),width=4)
-    d.circ(w/2,h/2,h*0.3,fill=(110,205,150),outline=(30,100,64),width=3); d.text((w/2,h/2),'EGP',int(h*0.26),(30,100,64))
-    d.rrect((10,10,34,22),4,fill=(110,205,150)); d.rrect((w-34,h-22,w-10,h-10),4,fill=(110,205,150)); return d.done()
+    d.rrect((0,0,w,h),10,fill=(213,174,166),outline=(139,103,101),width=4)
+    d.circ(w/2,h/2,h*0.3,fill=(243,242,241),outline=(139,103,101),width=3); d.text((w/2,h/2),'EGP',int(h*0.26),(139,103,101))
+    d.rrect((10,10,34,22),4,fill=(139,103,101)); d.rrect((w-34,h-22,w-10,h-10),4,fill=(139,103,101)); return d.done()
 @functools.lru_cache(maxsize=None)
 def checkmark(s,color=EMER,bg=True):
     d=D(s,s)
     if bg: d.circ(s/2,s/2,s/2-2,fill=color)
-    d.line([(s*.27,s*.52),(s*.44,s*.69),(s*.74,s*.34)],(255,255,255) if bg else color,s*.11); return d.done()
+    d.line([(s*.27,s*.52),(s*.44,s*.69),(s*.74,s*.34)],(243,242,241) if bg else color,s*.11); return d.done()
 @functools.lru_cache(maxsize=None)
 def crossmark(s,color=RED):
     d=D(s,s); d.circ(s/2,s/2,s/2-2,fill=color)
-    d.line([(s*.3,s*.3),(s*.7,s*.7)],(255,255,255),s*.11); d.line([(s*.7,s*.3),(s*.3,s*.7)],(255,255,255),s*.11); return d.done()
+    d.line([(s*.3,s*.3),(s*.7,s*.7)],(243,242,241),s*.11); d.line([(s*.7,s*.3),(s*.3,s*.7)],(243,242,241),s*.11); return d.done()
 @functools.lru_cache(maxsize=None)
-def bubble(w,h,color=(255,255,255),tail='bl',alpha=255,outline=None):
+def bubble(w,h,color=(243,242,241),tail='bl',alpha=255,outline=None):
     d=D(w+40,h+50); d.rrect((20,10,20+w,10+h),h*0.28 if h<200 else 40,fill=color+(alpha,),outline=outline,width=4 if outline else 0)
     if tail=='bl': d.poly([(60,10+h-4),(40,10+h+34),(110,10+h-4)],fill=color+(alpha,))
     elif tail=='br': d.poly([(w-70,10+h-4),(w-10,10+h+34),(w+0,10+h-4)],fill=color+(alpha,))

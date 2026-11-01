@@ -32,8 +32,9 @@ finished video on guessed timing without saying so.
    Never ask for a logo or a series title, never invent one, never leave a placeholder
    circle "for the logo" on screen. End cards are **typographic only**.
 2. **The brand is locked** (palette, Cairo, safe zones, loudness, Egyptian dialect).
-   `medo-motion/brand/BRAND.md` + `brand/brand.json` are the source of truth. Never
-   re-ask about colours/fonts and never improvise outside the palette.
+   `medo-motion/brand/BRAND.md` + `brand/brand.json` are the source of truth: **exactly 12
+   colours** (palette v2) plus the derived `ink_shadow`. Never re-ask about colours/fonts and
+   never improvise outside the palette — `brand_check.py` fails the build if you do.
 3. **VO is Medo's.** Never generate TTS unless Medo explicitly asks for it. If he does,
    `medo-motion/scripts/gen_tts_elevenlabs.py` is there — and it asks for approval
    before any paid request.
@@ -50,7 +51,8 @@ Medo gives you words, timing, voice and poses. Everything visual and audible is 
 
 | Element | Source order |
 |---|---|
-| Backgrounds, cards, devices, charts, icons, transitions, captions, HUD | **Code** first (this is the default and the cheapest) |
+| Backgrounds, cards, devices, charts, transitions, captions, HUD | **Code** first (this is the default and the cheapest) |
+| Animated icons | **`medo-motion/icons/`** — one registry, already wired into both engines (`drawIcon` / `draw_icon`); never drop in a random icon pack |
 | Hero objects the code can't draw well | **AI image generation**, one session per video, deck-locked prompt in `medo-playbook.md` §4 |
 | Real footage / textures / photos | **Search** CC0/PD/OFL only, download into `projects/<slug>/assets/`, log in `CREDITS.md` |
 | Sound effects | **Procedural** (`sfx.py`) first → Openverse CC0 → ElevenLabs SFX only with approval |

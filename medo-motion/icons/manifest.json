@@ -1,0 +1,103 @@
+{
+  "_doc": "Generated index of the animated icon layer. Rebuild with python medo-motion/icons/build.py",
+  "grid": 24,
+  "stroke": 2,
+  "icons": [
+    {
+      "id": "cpu",
+      "ar": "المعالج",
+      "en": "CPU",
+      "group": "part",
+      "svg": "icons/svg/cpu.svg",
+      "draw_seconds": 0.9
+    },
+    {
+      "id": "ram",
+      "ar": "الرامات",
+      "en": "RAM",
+      "group": "part",
+      "svg": "icons/svg/ram.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "ssd",
+      "ar": "التخزين",
+      "en": "Storage",
+      "group": "part",
+      "svg": "icons/svg/ssd.svg",
+      "draw_seconds": 0.9
+    },
+    {
+      "id": "display",
+      "ar": "الشاشة",
+      "en": "Display",
+      "group": "part",
+      "svg": "icons/svg/display.svg",
+      "draw_seconds": 0.9
+    },
+    {
+      "id": "gpu",
+      "ar": "كارت الشاشة",
+      "en": "GPU",
+      "group": "part",
+      "svg": "icons/svg/gpu.svg",
+      "draw_seconds": 0.9
+    },
+    {
+      "id": "battery",
+      "ar": "البطارية",
+      "en": "Battery",
+      "group": "part",
+      "svg": "icons/svg/battery.svg",
+      "draw_seconds": 0.8
+    },
+    {
+      "id": "plug-connected",
+      "ar": "متصل",
+      "en": "Plug connected",
+      "group": "status",
+      "svg": "icons/svg/plug-connected.svg",
+      "draw_seconds": 0.9
+    },
+    {
+      "id": "wifi",
+      "ar": "واي فاي",
+      "en": "Wi-Fi",
+      "group": "status",
+      "svg": "icons/svg/wifi.svg",
+      "draw_seconds": 0.9
+    },
+    {
+      "id": "check-circle",
+      "ar": "تم",
+      "en": "Done",
+      "group": "status",
+      "svg": "icons/svg/check-circle.svg",
+      "draw_seconds": 0.75
+    },
+    {
+      "id": "alert-triangle",
+      "ar": "تحذير",
+      "en": "Warning",
+      "group": "status",
+      "svg": "icons/svg/alert-triangle.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-right",
+      "ar": "التالي",
+      "en": "Next",
+      "group": "nav",
+      "svg": "icons/svg/arrow-right.svg",
+      "draw_seconds": 0.6
+    },
+    {
+      "id": "sparkle",
+      "ar": "جديد",
+      "en": "Sparkle",
+      "group": "nav",
+      "svg": "icons/svg/sparkle.svg",
+      "draw_seconds": 0.9
+    }
+  ]
+}

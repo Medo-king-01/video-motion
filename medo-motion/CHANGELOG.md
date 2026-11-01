@@ -1,5 +1,25 @@
 # Changelog — Medo Motion (private fork)
 
+## 1.3 — 2026-11-01 — palette v2 + animated icon layer
+- **Palette v2 (from Medo):** the 12 supplied colours replace the old red/black/yellow/teal set;
+  one derived shade `ink_shadow #2E2423` (ink −35%). `brand/brand.json`, `brand/BRAND.md`,
+  `templates/TASTE.md`, `styles/medo-red-circle.md` rewritten; ~150 colour literals remapped in
+  engine P (`lib.py`, `art.py`, `scenes.py`) and engine K (`lib/brand.js`, `lib/kit.js`, scenes).
+  No yellow/green/blue left: positive emphasis is paper white + ✓.
+- **Brand guard rewritten:** contrast pairs now measured on the real surfaces (paper-on-ink 9.83,
+  red-on-paper 4.88, blush-on-ink 5.46) and forbidden pairs asserted low (red-on-ink 2.01).
+  `brand_check.py --project medo-motion/templates` also fails on any off-palette literal in either
+  engine — the check runs in `make ci` and in the tests.
+- **Animated icon layer (`medo-motion/icons/`):** one `registry.json` (12 icons, Arabic labels,
+  primitives on a 24×24 grid) generates animated SVGs, `templates/render/lib/icons.js` (canvas
+  `drawIcon`) and `templates/procedural-reels/icons.py` (Pillow `draw_icon`). Colours are passed at
+  draw time, so icons cannot leave the palette. `examples/PlugConnectedIcon.jsx` + `components.json`
+  document the itshover/`shadcn add` path (itshover.com is unreachable from the sandbox).
+- **QA tooling:** `tools/icons_sheet.py` (engine P sheet), `tools/icons_preview.mjs` (engine K sheet
+  via Chromium), `make icons`, `icons --check` in CI, `tests/test_icons.py`.
+- **Engine K demo:** `scenes/icons-example.js` (18.5–22 s) shows the six laptop-part icons animating.
+- Verified: `ruff check .` clean · `pytest` 60 passed · `tools/selftest.py` all PASS · `make ci` OK.
+
 ## 1.2 — 2026-11-01 — clean-code pass
 - **Tests:** `tests/` with 26 pytest cases — Arabic shaping invariants (joined forms,
   visual run order, number separators, ink-tight sprites, strokes keeping counters,

@@ -1,5 +1,5 @@
 {
-  "_doc": "Single machine-readable source of truth for Medo / Kodo Medo. Human version: brand/BRAND.md. Values marked status:proposed are NOT approved yet.",
+  "_doc": "Single machine-readable source of truth for Medo's reel studio. Human version: brand/BRAND.md. Palette v2 (2026-11-01, given by Medo) replaces the old red/black/white set. Values under `derived` are computed from palette colours and are declared here on purpose — do not invent any other colour.",
   "brand": {
     "name": "Kodo Medo",
     "name_ar": "كودو ميدو",
@@ -10,142 +10,148 @@
   },
   "palette": {
     "red": {
-      "hex": "#E5262B",
+      "hex": "#CB271B",
       "rgb": [
-        229,
-        38,
-        43
+        203,
+        39,
+        27
       ],
-      "role": "primary / accent / warning"
+      "role": "primary: the big circle, key words, borders, CTA"
     },
-    "red_dark": {
-      "hex": "#96141A",
+    "red_bright": {
+      "hex": "#CB0801",
       "rgb": [
-        150,
-        20,
-        26
+        203,
+        8,
+        1
       ],
-      "role": "deep red (negative state, depth)"
+      "role": "strongest red: emphasis, problem state (LIGHT backgrounds only)"
     },
-    "black": {
-      "hex": "#0A0A0C",
+    "red_deep": {
+      "hex": "#9F0803",
       "rgb": [
-        10,
-        10,
-        12
+        159,
+        8,
+        3
       ],
-      "role": "base black"
+      "role": "deep red: depth, hover/pressed, shadow side of red shapes"
     },
     "ink": {
-      "hex": "#18161A",
+      "hex": "#473938",
       "rgb": [
-        24,
-        22,
-        26
+        71,
+        57,
+        56
       ],
-      "role": "outline / device body / text on light"
+      "role": "dark base = text on light, device bodies, caption plate"
     },
-    "ink2": {
-      "hex": "#342A2C",
+    "ink_soft": {
+      "hex": "#8B6765",
       "rgb": [
-        52,
-        42,
-        44
+        139,
+        103,
+        101
       ],
-      "role": "secondary ink, caption plate base"
+      "role": "muted brown: secondary text (large only), screen bars, dividers"
     },
-    "white": {
-      "hex": "#F6F3ED",
+    "paper": {
+      "hex": "#F3F2F1",
       "rgb": [
-        246,
         243,
-        237
+        242,
+        241
       ],
-      "role": "warm white: paper, text on dark"
+      "role": "warm white: text on dark, light background top"
     },
-    "yellow": {
-      "hex": "#F4C430",
+    "gray_1": {
+      "hex": "#D8D7D5",
       "rgb": [
-        244,
-        196,
-        48
+        216,
+        215,
+        213
       ],
-      "role": "secondary: numbers, highlights (DARK backgrounds only)"
+      "role": "light background bottom, card fills on light"
     },
-    "gold": {
-      "hex": "#CD8C0A",
+    "gray_2": {
+      "hex": "#C9C5C2",
       "rgb": [
-        205,
-        140,
-        10
+        201,
+        197,
+        194
       ],
-      "role": "yellow replacement on LIGHT backgrounds: DECORATIVE/large accents only (measured 2.3-2.6:1 on the light bg, below 3:1)"
+      "role": "inactive fills, progress track"
     },
-    "emerald": {
-      "hex": "#14B88A",
+    "gray_3": {
+      "hex": "#BFBAB7",
       "rgb": [
-        20,
-        184,
-        138
+        191,
+        186,
+        183
       ],
-      "role": "secondary: positive / success"
+      "role": "subtle text on dark (large), disabled"
     },
-    "teal": {
-      "hex": "#1F8A8A",
+    "gray_4": {
+      "hex": "#A3A2A0",
       "rgb": [
-        31,
-        138,
-        138
+        163,
+        162,
+        160
       ],
-      "role": "secondary: tertiary / device-screen bars"
+      "role": "secondary text on dark (large only: 4.31:1)"
     },
-    "pistachio": {
-      "hex": null,
-      "rgb": null,
-      "role": "secondary colour named by Medo but NO hex has been approved yet: do not use until a value is approved"
-    },
-    "gold_text_proposed": {
-      "hex": "#AD7608",
+    "salmon": {
+      "hex": "#D97F68",
       "rgb": [
-        173,
-        118,
-        8
+        217,
+        127,
+        104
       ],
-      "role": "PROPOSED (not approved) darker gold for READABLE large text on light: 3.1:1 worst case; #895D07 reaches 4.57:1 for body-size text",
-      "status": "proposed"
+      "role": "warm accent: numbers/keywords on DARK, glow, warm skin"
+    },
+    "blush": {
+      "hex": "#D5AEA6",
+      "rgb": [
+        213,
+        174,
+        166
+      ],
+      "role": "soft accent: highlight chips, light skin, decorative"
     }
   },
   "backgrounds": {
     "dark": {
       "top": [
-        16,
-        15,
-        19
+        71,
+        57,
+        56
       ],
       "bottom": [
-        7,
-        7,
-        9
-      ]
+        46,
+        36,
+        35
+      ],
+      "note": "ink -> ink_shadow"
     },
     "light": {
       "top": [
-        247,
-        245,
-        243
+        243,
+        242,
+        241
       ],
       "bottom": [
-        231,
-        228,
-        226
-      ]
+        216,
+        215,
+        213
+      ],
+      "note": "paper -> gray_1"
     },
     "rule": "alternate light/dark per scene; every scene has a different grid cell size/speed/direction; 30 dust particles"
   },
   "contrast_rules": [
-    "No white or yellow text on a light background (use ink, red, or gold)",
     "Body text >= 4.5:1 against its real background",
-    "Large text/keywords >= 3:1"
+    "Large text / keywords >= 3:1",
+    "Never red text on a dark background (2.0:1) — use salmon there",
+    "Never gray_4 or salmon for body-size text"
   ],
   "typography": {
     "arabic": "Cairo",
@@ -154,7 +160,7 @@
     "english": "Cairo (or a modern minimal pair)",
     "temp_fallback": "DejaVu Sans Bold ONLY if declared as temporary in the delivery",
     "download": "python <skill>/scripts/get_fonts.py \"Cairo\"",
-    "numerals": "Western 0-9 (matches the delivered laptop intro)",
+    "numerals": "Western 0-9",
     "rules": "whole words only, RTL, raqm layout (direction='rtl', language='ar'); never arabic_reshaper/python-bidi with Pillow"
   },
   "canvas": {
@@ -180,9 +186,9 @@
   },
   "caption": {
     "plate_rgba": [
-      48,
-      38,
-      40,
+      71,
+      57,
+      56,
       232
     ],
     "border": "red 3px",
@@ -191,9 +197,9 @@
     "max_lines": 2,
     "word_pop": true,
     "keyword_colours": {
-      "numbers": "yellow",
-      "problem": "red",
-      "positive": "emerald"
+      "numbers": "salmon",
+      "problem": "red on light / salmon on dark",
+      "positive": "paper (white) + check glyph — the palette has no green"
     }
   },
   "min_sizes_px": {
@@ -214,7 +220,13 @@
     ],
     "background_disc": "red circle 80-95% of canvas width behind hero + ground shadow",
     "motion": "bob + tilt +/-1.6 deg + sparkles; do not promise hand animation",
-    "logo_persona": "faceless black backlit silhouette: voluminous curly hair, round mirrored glasses (white lenses), dark blazer + collared shirt, light gradient background (LOGO only; presenter on screen is the anime Medo)"
+    "logo_persona": "faceless black backlit silhouette: voluminous curly hair, round mirrored glasses (white lenses), dark blazer + collared shirt, light gradient background (LOGO only; presenter on screen is the anime Medo)",
+    "skin": {
+      "warm": "#D97F68",
+      "light": "#D5AEA6",
+      "note": "the two skin tones are part of the palette; do not invent others"
+    },
+    "outline": "#2E2423"
   },
   "motion": {
     "camera_zoom": "1.00 <-> 1.04 alternating per scene + horizontal drift +/-14px",
@@ -252,5 +264,29 @@
       "philosopher quote-card series with red geometric shapes",
       "deep-red circle profile card"
     ]
+  },
+  "derived": {
+    "ink_shadow": {
+      "hex": "#2E2423",
+      "rgb": [
+        46,
+        36,
+        35
+      ],
+      "role": "computed: ink darkened 35% — outlines, device screens, dark gradient bottom",
+      "from": "ink #473938",
+      "rule": "darken 35% in linear RGB"
+    }
+  },
+  "palette_notes": [
+    "There is no green and no yellow in palette v2. Positive emphasis = paper white + a check glyph.",
+    "If a video needs a colour outside this palette, stop and ask Medo; do not approximate it.",
+    "On DARK backgrounds red carries only ~2.0:1 — use salmon #D97F68 for red-family keywords there."
+  ],
+  "devices": {
+    "screen": "#2E2423",
+    "bars": "#8B6765",
+    "dot": "#CB271B",
+    "note": "replaces the old dark-green screen + teal bars + yellow dot signature"
   }
 }
