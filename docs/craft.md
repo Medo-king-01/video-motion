@@ -118,7 +118,7 @@ Suppress a single finding with a comment on the same line: `shake_flash(t)  # li
 
 A talking reel still needs screens: a phone in Medo's hand, a list filling up, a number landing.
 That is what the **ui_choreography**, **product_demo**, **data_and_numbers** and
-**micro_interaction** families are for (17 of the 58 moves). They are drawn like any other move,
+**micro_interaction** families are for (17 of the 59 moves). They are drawn like any other move,
 and they obey the same bans — so the rules that matter are:
 
 - **The screen is ours.** Built from `kit.phone` / `kit.appWindow` / `kit.card` / `kit.checklist` /

@@ -192,6 +192,21 @@
       "evidence": 3
     },
     {
+      "id": "ty-pose-occlusion-title-reveal",
+      "name": "Title behind Medo, then reveal",
+      "category": "typography",
+      "role": "accent",
+      "energy": "medium",
+      "primitive": "type",
+      "summary": "A short, oversized Arabic title sits behind Medo’s transparent pose. At a VO-aligned hard cut, omit the pose but keep the same title layer, size and baseline; the cutout has been masking the title, and the cut reveals the full phrase without reflow or a duplicate title.",
+      "how": "P: create one shaped title sprite with `lib.text_sprite`, paste it first, then draw the alpha pose with `presenter.draw(fr, pose, t)` above it. K: draw the full title with `arabic.setArabic` + `fillText` first, then `presenter.drawPresenter(ctx, pose, t)`; at the cut stop drawing the pose and keep the title coordinates/font unchanged. Use existing Medo pose PNG alpha only; keep the phrase short, RTL-shaped and out of the caption-safe band. Check face/text overlap and frames immediately before/on/after the cut. This is a P/K recipe; do not assume an R port.",
+      "timing": "short punch settles before the VO-aligned cut; title holds unchanged for ≥0.5 s after the pose exits",
+      "use_when": "One verified, high-value 1–3-word claim can be set behind a Medo pose and then read clearly on its own.",
+      "avoid_when": "Long copy, dense diagrams, subtitles, or when the title crosses the face/important pose details; skip if the Arabic shaping or final hold is not clean.",
+      "bans": [],
+      "evidence": 0
+    },
+    {
       "id": "ty-scaled-echo-extrusion",
       "name": "Scaled echo extrusion",
       "category": "typography",

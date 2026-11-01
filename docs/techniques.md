@@ -4,7 +4,7 @@ Adapted from [cinetic](https://github.com/Leonxlnx/cinetic) (MIT) and re-measure
 Draw a plan with `python3 tools/techniques.py --draw --from-plan plan/beats.json`; this page is
 generated from `assets/techniques.json` (`--markdown docs/techniques.md`), so edit the JSON, not this.
 
-**58 techniques** · seconds per pick: calm 3.5s, medium 2.5s, high 2.5s
+**59 techniques** · seconds per pick: calm 3.5s, medium 2.5s, high 2.5s
 
 ## Opening Hook
 
@@ -129,6 +129,18 @@ One word at 15–30% of frame height travels in fast with directional blur, then
 **Use when:** A two-word punchline in the middle act.
 
 **Avoid when:** On a word the VO is also saying slowly — the two rhythms fight.
+
+### `ty-pose-occlusion-title-reveal` — Title behind Medo, then reveal
+
+*accent · medium · type · evidence 0 · short punch settles before the VO-aligned cut; title holds unchanged for ≥0.5 s after the pose exits*
+
+A short, oversized Arabic title sits behind Medo’s transparent pose. At a VO-aligned hard cut, omit the pose but keep the same title layer, size and baseline; the cutout has been masking the title, and the cut reveals the full phrase without reflow or a duplicate title.
+
+**How:** P: create one shaped title sprite with `lib.text_sprite`, paste it first, then draw the alpha pose with `presenter.draw(fr, pose, t)` above it. K: draw the full title with `arabic.setArabic` + `fillText` first, then `presenter.drawPresenter(ctx, pose, t)`; at the cut stop drawing the pose and keep the title coordinates/font unchanged. Use existing Medo pose PNG alpha only; keep the phrase short, RTL-shaped and out of the caption-safe band. Check face/text overlap and frames immediately before/on/after the cut. This is a P/K recipe; do not assume an R port.
+
+**Use when:** One verified, high-value 1–3-word claim can be set behind a Medo pose and then read clearly on its own.
+
+**Avoid when:** Long copy, dense diagrams, subtitles, or when the title crosses the face/important pose details; skip if the Arabic shaping or final hold is not clean.
 
 ### `ty-scaled-echo-extrusion` — Scaled echo extrusion
 
@@ -875,6 +887,18 @@ One word at 15–30% of frame height travels in fast with directional blur, then
 **Use when:** A two-word punchline in the middle act.
 
 **Avoid when:** On a word the VO is also saying slowly — the two rhythms fight.
+
+### `ty-pose-occlusion-title-reveal` — Title behind Medo, then reveal
+
+*accent · medium · type · evidence 0 · short punch settles before the VO-aligned cut; title holds unchanged for ≥0.5 s after the pose exits*
+
+A short, oversized Arabic title sits behind Medo’s transparent pose. At a VO-aligned hard cut, omit the pose but keep the same title layer, size and baseline; the cutout has been masking the title, and the cut reveals the full phrase without reflow or a duplicate title.
+
+**How:** P: create one shaped title sprite with `lib.text_sprite`, paste it first, then draw the alpha pose with `presenter.draw(fr, pose, t)` above it. K: draw the full title with `arabic.setArabic` + `fillText` first, then `presenter.drawPresenter(ctx, pose, t)`; at the cut stop drawing the pose and keep the title coordinates/font unchanged. Use existing Medo pose PNG alpha only; keep the phrase short, RTL-shaped and out of the caption-safe band. Check face/text overlap and frames immediately before/on/after the cut. This is a P/K recipe; do not assume an R port.
+
+**Use when:** One verified, high-value 1–3-word claim can be set behind a Medo pose and then read clearly on its own.
+
+**Avoid when:** Long copy, dense diagrams, subtitles, or when the title crosses the face/important pose details; skip if the Arabic shaping or final hold is not clean.
 
 ### `ty-scaled-echo-extrusion` — Scaled echo extrusion
 

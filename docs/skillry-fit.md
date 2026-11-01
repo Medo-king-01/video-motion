@@ -1,6 +1,6 @@
 # Skillry: fit for the Medo Motion studio
 
-**Reviewed:** 2026-11-01 · **Scope:** public Skillry pages/listings only. This is a relevance and workflow review, not a source-code, ZIP, or licence audit of the marketplace Skills.
+**Reviewed:** 2026-11-01 · **Scope:** public Skillry pages/listings. The subsequent review of the eight uploaded ZIPs is documented separately in [`skill-packs-review.md`](skill-packs-review.md); this file remains the public-catalogue review.
 
 ## Recommendation
 
