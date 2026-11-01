@@ -1,7 +1,7 @@
 [project]
 name = "medo-motion-studio"
 version = "0.2.0"
-description = "Arabic vertical-reel studio: locked brand, two render engines, agent-agnostic contract"
+description = "Arabic vertical-reel studio: locked brand, three render engines, agent-agnostic contract"
 requires-python = ">=3.10"
 readme = "README.md"
 
@@ -11,6 +11,8 @@ target-version = "py310"
 line-length = 120
 exclude = [
   "tools/toolkit/node_modules",
+  ".venv",
+  "venv",
   "medo-motion/reference/source",
   ".git",
 ]

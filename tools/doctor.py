@@ -128,16 +128,20 @@ add("playwright-core", "OK" if (toolkit / "playwright-core").exists() else "MISS
 if node and (toolkit / "playwright-core").exists() and not FAST:
     code, out = run([node, str(ROOT / "tools" / "chromium.mjs"), "--check"], 120)
     good = "CHROMIUM_OK" in out
-    add("Chromium (engine K)", "OK" if good else "BLOCKED",
+    add("Chromium (engines K/R)", "OK" if good else "BLOCKED",
         out.strip().splitlines()[-1] if out.strip() else "no output")
 elif FAST:
-    add("Chromium (engine K)", "SKIP", "--fast")
+    add("Chromium (engines K/R)", "SKIP", "--fast")
 
 # ------------------------------------------------------------------ brand + templates
 add("brand lock", "OK" if (SKILL / "brand" / "brand.json").is_file() else "BLOCKED",
     str((SKILL / "brand" / "brand.json").relative_to(ROOT)))
 add("engine P template", "OK" if (SKILL / "templates" / "procedural-reels" / "scenes.py").is_file() else "BLOCKED")
 add("engine K template", "OK" if (SKILL / "templates" / "render" / "render.js").is_file() else "BLOCKED")
+remotion_template = SKILL / "templates" / "remotion"
+remotion_ready = all((remotion_template / f).is_file() for f in ("package.json", "src/index.ts", "src/Root.tsx"))
+add("engine R template", "OK" if remotion_ready else "BLOCKED",
+    "Remotion scaffold; install its pinned npm deps in each R project" if remotion_ready else "template files missing")
 add("Cairo font", "OK" if font else "BLOCKED", str(font.name) if font else "python3 tools/setup.sh")
 
 # ------------------------------------------------------------------ report
@@ -155,7 +159,7 @@ if blocked:
 elif degraded:
     verdict = "DEGRADED — usable, but check: " + ", ".join(r[0] for r in degraded)
 else:
-    verdict = "READY — engine P and engine K can both render a reel"
+    verdict = "READY — P/K templates and the R scaffold are present; install Remotion deps per R project"
 print(verdict)
 print(f"\nArabic backend: {backend} · project scaffold: python3 tools/new_project.py <slug>")
 sys.exit(1 if blocked else 0)

@@ -1,5 +1,14 @@
 # Changelog — Medo Motion (private fork)
 
+## 2.4 — 2026-11-01 — Remotion engine R
+- Added an optional React/TypeScript Remotion renderer as engine R, scaffolded with `--engine r`.
+- The Composition reads the shared VO-derived `plan/beats.json`, loads local Cairo/Inter and Medo pose assets, and keeps frame evaluation deterministic.
+- Added Studio, still-preview, typecheck and render commands; final rendering validates the measured WAV/timeline and reuses the installed Chromium from `tools/setup.sh`.
+- R shares the exact tested easing/timeline module with K. Animated icon and transition/SFX catalogs remain P/K-only until explicitly ported and tested.
+- Remotion packages are pinned with a lockfile; a Zod override addresses the current high-severity npm advisory (see `docs/remotion.md` for the upstream version warning and license caveat).
+- `npm run stills -- 3 7.5` can now render review frames at exact requested seconds.
+- Expanded local reference analysis with timestamped visual samples, motion strips, approximate palette/pace/audio metrics and `report.md`; each project gets `assets/refs/` and a brand-safe `STYLE.md` recipe. This adapts the workflow idea from [motalim-ai/motion-starter-kit](https://github.com/motalim-ai/motion-starter-kit) without importing its styles, assets or renderer.
+
 ## 2.3 — 2026-11-01 — the screen families: UI, product demo, numbers, micro-interaction
 - **Library grew 41 → 58 moves** across 13 families. The four new families cover scenes that show a
   screen: `ui_choreography` (state change on the tap frame, row insert that makes room, checklist on

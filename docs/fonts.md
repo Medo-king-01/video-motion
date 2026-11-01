@@ -4,7 +4,7 @@
 الشاشة. مفيش خط مدفوع ولا خط محتاج ترخيص منفصل — ودي ميزة مش تفصيلة: أي ريل بيطلع من هنا يقدر يتسلّم
 لعميل أو يتنشر مدفوع من غير سؤال.
 
-`assets/fonts/fonts.json` هو المصدر الوحيد للقائمة، والمحركين بيقروا منه:
+`assets/fonts/fonts.json` هو المصدر الوحيد لقائمة الخطوط والأدوار؛ P/K بيقروا منه مباشرة، وR بيستخدم ملفات Cairo/Inter المحلية المسموح بيها من نفس manifest:
 `lib.font(size, family, weight)` في P و`lib/fonts.js` في K.
 
 ## العيلات | The 14 families
@@ -63,6 +63,8 @@ import { useFont, family } from '../lib/fonts.js';
 export async function init() { await useFont('Kufam', 700); }
 ctx.font = `700 120px ${family('Kufam')}`;      // '"Kufam", "Cairo", sans-serif'
 ```
+محرك R بيحمّل Cairo/Inter محليًا من `public/fonts/` وقت إنشاء المشروع، من غير Google Fonts أو اتصال إنترنت أثناء الرندر.
+
 - **الوزن مش العيلة**: قبل ما تغيّر العيلة، جرّب ترفع الوزن أو تقلّله — أغلب المشاكل بتتحل كده.
 - **ممنوع letter-spacing على العربي** (بيقصف الحروف) — `reference/arabic-typography.md`.
 - **ممنوع خط مش في المانيفست** على الشاشة. لو محتاج عيلة جديدة، ضيفها بـ`tools/fonts_install.py`.

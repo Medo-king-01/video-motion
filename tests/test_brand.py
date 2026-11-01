@@ -1,4 +1,4 @@
-"""The brand lock: palette v2 (12 colours), the no-logo rule, and the two engines staying in sync."""
+"""The brand lock: palette v2 (12 colours), the no-logo rule, and all three engines staying in sync."""
 from __future__ import annotations
 
 import json
@@ -100,12 +100,17 @@ def test_brand_js_matches_brand_json():
 def test_engines_hold_no_off_palette_colour():
     """Every colour literal in either engine must be one of the 12 (+ the derived ink shade)."""
     allowed = {"#" + v["hex"].strip("#").upper() for v in PALETTE.values()} | {"#" + _hex(SHADOW)}
-    js_root = SKILL / "templates" / "render"
-    for path in js_root.rglob("*.js"):
-        if "node_modules" in path.parts:
-            continue
-        for found in re.findall(r"#[0-9A-Fa-f]{6}", path.read_text(encoding="utf-8")):
-            assert found.upper() in allowed, f"{path.name}: {found}"
+    for engine_root in (SKILL / "templates" / "render", SKILL / "templates" / "remotion"):
+        for path in engine_root.rglob("*.js"):
+            if "node_modules" in path.parts:
+                continue
+            for found in re.findall(r"#[0-9A-Fa-f]{6}", path.read_text(encoding="utf-8")):
+                assert found.upper() in allowed, f"{path.name}: {found}"
+        for path in engine_root.rglob("*.ts*"):
+            if "node_modules" in path.parts:
+                continue
+            for found in re.findall(r"#[0-9A-Fa-f]{6}", path.read_text(encoding="utf-8")):
+                assert found.upper() in allowed, f"{path.name}: {found}"
 
     # engine P's constants are covered by brand_check.py --project (it ignores coordinates
     # and audio buffers, which share the (r,g,b) shape); here we only pin the named tokens.

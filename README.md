@@ -1,7 +1,7 @@
 # video-motion — استوديو ريلز ميدو 🎬
 
 مستودع واحد فيه كل حاجة لصناعة **ريلز عمودي 1080×1920** من أوله لآخره:
-الهوية مقفولة (بالِت ١٢ لون + Cairo)، ومحركين رندر، وطبقة أيقونات متحركة، وأدوات صوت، وقواعد عربي سليم،
+الهوية مقفولة (بالِت ١٢ لون + Cairo)، وثلاثة محركات رندر، وطبقة أيقونات متحركة، وأدوات صوت، وقواعد عربي سليم،
 وكل ده شغال مع **أي وكيل برمجي** — مش كلود بس.
 
 ---
@@ -30,12 +30,14 @@
 من سرعتها الحقيقية (`docs/rhythm.md`).
 
 **وطول الفيديو = طول تسجيلك بالظبط** — مفيش طول مستهدف ولا تطويل ولا قص لتوصيل رقم:
-`tools/vo_length.py` بيقيس الصوت ويطلّع منه حدود المشاهد، والمحركين بيمشوا عليه (`docs/length.md`).
+`tools/vo_length.py` بيقيس الصوت ويطلّع منه حدود المشاهد، والمحركات التلاتة بتمشي عليه (`docs/length.md`).
 
 **الحرفة بقت مقاسة ومحكومة**: `tools/techniques.py` بيسحب حركات الريل من مكتبة **٥٨ حركة** (فيهم ١٧ لمشاهد الشاشات: UI · منتج · أرقام · تفاعلات صغيرة) مكتوبة
 على أدوات الاستوديو نفسه (`assets/techniques.json`)، و`tools/reel_lint.py` بيفحص الخطة قبل الرندر
 (كلمات الشاشة، مدة القراءة، القطع على الشبكة، المساحات الفاضية، واللوكات الممنوعة) — الشرح والأرقام
 كلها في `docs/craft.md`، والمكتبة المقروءة في `docs/techniques.md`.
+
+**عندك فيديو مرجعي؟** الاستوديو يطلع منه contact sheets، شريط للحركة، وتقديرات للقطع/الألوان/الإيقاع، وبعدها يحفظ الترجمة المتوافقة مع هوية ميدو في `STYLE.md` — من غير نسخ المحتوى أو الشعار. `docs/reference-workflow.md`.
 
 ---
 
@@ -44,7 +46,9 @@
 ```bash
 bash tools/setup.sh        # بينزّل اللي ناقص (python deps · ffmpeg · خطوط · كروميوم)
 python3 tools/doctor.py    # تقرير READY / DEGRADED / BLOCKED لكل قدرة
-python3 tools/selftest.py  # فحص كامل: doctor + اختبارات + رندر حقيقي من المحركين
+python3 tools/selftest.py           # doctor + اختبارات + رندر P/K + فحص قالب R
+python3 tools/selftest.py --remotion # كمان npm ci + typecheck + رندر فعلي من R
+python3 tools/selftest.py --hybrid   # رندر فعلي لمقاطع P + K + R وتجميعها مع مسار صوت
 ```
 
 أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make fonts` · `make length VO=…` · `make techniques PLAN=…` · `make lint P=…`
@@ -54,6 +58,8 @@ python3 tools/selftest.py  # فحص كامل: doctor + اختبارات + رند
 ```bash
 python3 tools/new_project.py اسم-المشروع --engine p   # محرك الشخصية/الشرح (الأنسب للريلز اللي فيها كلام)
 python3 tools/new_project.py اسم-المشروع --engine k   # محرك كانفس/تايبوغرافي
+python3 tools/new_project.py اسم-المشروع --engine r   # محرك Remotion (React/TypeScript)
+cd projects/اسم-المشروع && npm install && npm run studio
 ```
 
 بعدها املأ `projects/<المشروع>/BRIEF.md` بالأربعة، وقول للوكيل: **«اقرأ AGENTS.md وابدأ»**.
@@ -65,8 +71,8 @@ python3 tools/new_project.py اسم-المشروع --engine k   # محرك كا�
 ```
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
 assets/                ← مدخلات مشتركة: fonts/Cairo · poses/ · sfx/
-projects/<slug>/       ← كل فيديو: BRIEF.md · plan/ · assets/ · out/ · PROGRESS.md
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · vo_length.py (طول الـVO) · techniques.py (مكتبة الحركات) · reel_lint.py (بوّابة قبل الرندر) · ffprobe_shim.py · chromium.mjs
+projects/<slug>/       ← كل فيديو: BRIEF.md · STYLE.md · plan/ · assets/refs/ · out/ · PROGRESS.md
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · vo_length.py · analyze_ref.py (تحليل المرجع) · techniques.py · reel_lint.py · ffprobe_shim.py · chromium.mjs
                          · icons_sheet.py (مراجعة الأيقونات) · icons_preview.mjs
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
 docs/                  ← التحليل + قواعد الاتساق
@@ -77,7 +83,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
   icons/              ← ٢٧٥ أيقونة متحركة (١٢ بيت + ٢٦٣ من itshover): registry → SVG + محرك K + محرك P
   motion/             ← لغة الحركة: easings.json (منحنيات motion.dev + معادلات Penner) + تايملاين + transitions.json
   styles/               ← ٩ ستايلات إلهام، والافتراضي medo-red-circle
-  templates/           ← محرك P (Pillow/OpenCV/FFmpeg) + محرك K (Canvas/Playwright)
+  templates/           ← محرك P (Pillow/OpenCV/FFmpeg) + K (Canvas/Playwright) + R (Remotion/React)
   scripts/             ← preflight · brand_check · get_fonts · SFX · TTS · preview
 ```
 
@@ -88,18 +94,20 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | | إمتى تستخدمه | بيشتغل إزاي |
 |---|---|---|
 | **P** | ريلز فيها ميدو + كروت + أجهزة + كابشن | Pillow + OpenCV، رندر بالـchunks (قابل للاستئناف) |
-| **K** | تايبوغرافي حركي، قوائم، واجهات، مشاهد تقيلة | Canvas في Chromium (Playwright) |
+| **K** | تايبوغرافي حركي، قوائم، واجهات، معاينات سريعة | Canvas في Chromium (Playwright) |
+| **R** | مشاهد React قابلة لإعادة الاستخدام، رسوم بيانات وواجهات مركّبة، ومعاينة Remotion Studio | Remotion + React/TypeScript داخل Chromium |
 
 محرك واحد للفيديو الواحد، ونفس البالِت من `brand/brand.json`.
-الأيقونات مشتركة بينهم: `medo-motion/icons/` → `lib/icons.js` (K) + `icons.py` (P) + `svg/` (ويب).
-مكتبة **itshover** كاملة (٢٦٣ أيقونة، Apache-2.0) متاخدة من مستودعهم ومولّد منها نسخة للمحركين — الشرح في `docs/icons.md`.
+R مش أسرع تلقائيًا من K؛ اختاره لما إعادة استخدام مكونات React أو Studio تفرق فعلًا.
+الأيقونات المتحركة مدمجة حاليًا في K وP: `medo-motion/icons/` → `lib/icons.js` (K) + `icons.py` (P) + `svg/` (ويب).
+مكتبة **itshover** (٢٦٣ أيقونة، Apache-2.0) مولّدة للمحركين دول — الشرح في `docs/icons.md`.
 
 والحركة ليها لغة واحدة (`medo-motion/motion/`) بنفس منحنيات **motion.dev** وتايملاين keyframes زي **Theatre.js**:
-نفس الـJSON بيشتغل في المحركين، وفي استوديو أوفلاين بتراجع بيه الحركة قبل الرندر — `docs/motion.md`.
+نفس الـJSON بيتنفّذ في المحركات التلاتة بنفس ملف حساب الحركة، وفي استوديو أوفلاين بتراجع بيه الحركة قبل الرندر — `docs/motion.md`.
 
 **ميدو بقى جوه المشروع:** ٢٤ وضعية (٢٠ كامل + ٤ نصف جسم) (طبيعي، شرح، بيشاور، ترحيب، تلويح، تسقيف، إعجاب، تفكير،
 تفكير عميق، حيرة، حزين، مصدوم، مشي، جري، إيدين في الجيوب، دفء، موبايل، ورقة، إشارة لفوق، قاعد، وأربع لقطات قريبة) مقصوصة بشفافية من الأصل، كلها بنفس الطول ونفس خط الأرض،
-بحركة تنفّس وميلان وقطع مشكّل — المحركين بيرسموها بنفس الأرقام. `docs/presenter.md`.
+بحركة تنفّس وميلان — P وK عندهم أنظمة الوضعيات الكاملة، وR فيه `MedoPresenter` لمواضع وصور الوضعيات. `docs/presenter.md`.
 
 **القطع والمؤثرات كمان بقوا كتالوج:** ١٤ انتقال (`wipe`, `iris`, `checker`, `slide`, `glitch`…) هندستهم
 واحدة في المحركين وكل واحد مربوط بصوته من مكتبة **١٥ مؤثر برمجي** (`whoosh`, `pop`, `impact`, `chime`…) —
@@ -115,9 +123,11 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | FFmpeg 7.0.2 (x264/aac) + بديل `ffprobe` متوافق | ✅ |
 | Arabic shaping: بديل HarfBuzz+FreeType (`arabic_shape.py`) لأن Pillow هنا من غير libraqm | ✅ |
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
+| Remotion 4 (محرك R) | ✅ القالب متكامل؛ كل مشروع Remotion يثبّت تبعياته عبر `npm install` |
 | خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
-| محركي الرندر P و K | ✅ اتجربوا ورندروا فريمات عربية صح |
-| الاختبارات (`make test` · `make selftest`) | ✅ ٢٠٩ اختبار + رندر من المحركين |
+| المحركان P وK | ✅ اتجربوا ورندروا فريمات عربية صح |
+| محرك R | ✅ رندر تجريبي بـRemotion/Chromium؛ `npm run render` يراجع WAV والتوقيت |
+| الاختبارات (`make test` · `make selftest`) | ✅ CI + اختبارات P/K/R؛ `python3 tools/selftest.py --hybrid` يرندر ويجمع محركات P/K/R مع صوت فعليًا |
 | مفتاح ElevenLabs | ❌ اختياري — الصوت بييجي منك |
 
 شغّل `python3 tools/doctor.py` في أي وقت للتأكد.

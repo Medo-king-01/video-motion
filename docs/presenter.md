@@ -64,6 +64,11 @@ from presenter import PoseTrack
 act = PoseTrack([{"t": 0, "pose": "neutral"}, {"t": 1.5, "pose": "explain"}])
 act.draw(fr, t, height=0.62, x=0.5)
 ```
+```tsx
+// engine R — src/lib/Presenter.tsx
+import {MedoPresenter} from './lib/Presenter';
+<MedoPresenter pose="explain" x={0.72} height={0.55} />
+```
 - `height` نسبة من 1920 (0.62 = 1190px). المكان بيتحدد من `place` في المانيفست: `feet` → `ground`
   (1390)، و`top` → `top` (190). تقدر تعدّل الاتنين من باراميترات `draw`.
 - `PoseTrack` بتخلط بين المقاسين عادي — لكن الأفضل: **خليك جوه نفس الـframing في الجملة الواحدة**،
@@ -74,7 +79,7 @@ act.draw(fr, t, height=0.62, x=0.5)
   فالمشاهد القديمة بقت بتستخدم الصور الحقيقية بدل الـplaceholder.
 
 ## الحياة الخفيفة | Idle life
-بدون حركة، الصورة المقطوعة بتبان «ميتة». المحركين بيضيفوا نفس الأرقام (اختبار بيقارنهم):
+بدون حركة، الصورة المقطوعة بتبان «ميتة». P/K بيضيفوا الأرقام نفسها (اختبار بيقارنهم)، وR حاليًا بيستخدم subset للتنفس والطلوع/النزول والميل الخفيف عبر `MedoPresenter`:
 
 | الحركة | المعادلة |
 |---|---|
@@ -85,8 +90,8 @@ act.draw(fr, t, height=0.62, x=0.5)
 | نبض إضافي | `run` 7px @1.6Hz · `walk` 3.5px · `shocked` ضربة واحدة عند كل ثانية |
 
 ## المشروع | New projects
-`python3 tools/new_project.py <slug>` بينسخ `assets/poses/` كامل + `poses.json` جوه المشروع، فالمحركين
-بيلاقوه على `/assets/poses/` بدون أي إعداد.
+`python3 tools/new_project.py <slug>` بينسخ `assets/poses/` + `poses.json` جوه المشروع لمحركَي P/K،
+وبيضيف نسخة `public/assets/poses/` عشان Remotion (`staticFile()`) يقدر يحمل الصور.
 
 ## ملاحظة على المحرك K | Engine-K gotcha
 `PoseTrack` بيحلّ الأسماء وقت الرسم (`at()`)، مش وقت الإنشاء — عشان تقدر تعرّف التراك في أول الملف

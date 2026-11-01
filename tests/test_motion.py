@@ -1,4 +1,4 @@
-"""The motion grammar: one set of curves, two engines, and a bridge from Theatre.js."""
+"""The motion grammar: one set of curves, three renderers, and a bridge from Theatre.js."""
 from __future__ import annotations
 
 import json
@@ -13,9 +13,14 @@ from conftest import ROOT, SKILL
 MOTION = SKILL / "motion"
 EASINGS = json.loads((MOTION / "easings.json").read_text(encoding="utf-8"))
 JS = (SKILL / "templates" / "render" / "lib" / "motion.js").read_text(encoding="utf-8")
+REMOTION_JS = (SKILL / "templates" / "remotion" / "src" / "lib" / "motion.js").read_text(encoding="utf-8")
 EXAMPLE = json.loads((MOTION / "examples" / "card-entrance.json").read_text(encoding="utf-8"))
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
+
+
+def test_remotion_uses_the_same_motion_grammar_as_engine_k():
+    assert REMOTION_JS == JS, "sync engine R from templates/render/lib/motion.js"
 
 
 def test_easing_table_matches_json_in_both_engines():
@@ -90,7 +95,7 @@ def test_timeline_shape_matches_example():
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
 def test_js_and_python_agree_numerically(tmp_path):
-    """The whole point: the same timeline renders the same numbers in both engines."""
+    """The shared math is verified across P and both JS-based renderers."""
     from motion import timeline  # noqa: PLC0415
 
     script = tmp_path / "check.mjs"

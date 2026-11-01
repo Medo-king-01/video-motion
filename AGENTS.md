@@ -49,21 +49,23 @@ finished video on guessed timing without saying so.
    Never letter-by-letter, never `arabic_reshaper`.
 6. **Never print, ask for, or store API keys** in chat or in files.
 7. **Motion comes from the studio grammar**, not ad-hoc maths: easings/springs in
-   `medo-motion/motion/easings.json`, keyframe timelines played by `lib/motion.js` (K) or
-   `motion.py` (P). The same timeline JSON must render identically in both engines —
-   `tests/test_motion.py` enforces it. `docs/motion.md` maps motion.dev recipes onto it and
+   `medo-motion/motion/easings.json`, keyframe timelines played by `lib/motion.js` (K/R) or
+   `motion.py` (P). Remotion receives the same tested `lib/motion.js` source. The same timeline JSON must render identically in all three engines —
+   `tests/test_motion.py` enforces the shared easing/math implementation. `docs/motion.md` maps motion.dev recipes onto it and
    `tools/theatre_import.py` converts a Theatre.js state export.
-8. **Medo is a pose library, not a PNG per scene**: use `presenter.py` (P) / `lib/presenter.js` (K)
+8. **Medo is a pose library, not a PNG per scene**: use `presenter.py` (P) / `lib/presenter.js` (K) / `MedoPresenter` (R)
    with the slugs from `assets/poses/poses.json` (`neutral`, `explain`, `point`, `welcome`, `wave`,
    `clap`, `like`, `thinking`, `thinking-deep`, `puzzled`, `sad`, `shocked`, `walk`, `run`, `waiting`,
    `warm`, `phone`, `unfold`, `point-up`, `seated-talk`, plus the close-ups `close-neutral`,
    `close-explain`, `close-point`, `close-thinking` — full shots anchor on the ground line, close-ups
    on the top guide, so a cut between them is a camera push-in). Never edit
    the cut-out PNGs by hand — rebuild with `make poses`. `docs/presenter.md`.
-9. **Cuts and sound are catalogue-driven**: scene changes use `transition.py` / `lib/transition.js`
+9. **Cuts and sound are catalogue-driven**: P/K transitions use `transition.py` / `lib/transition.js`
    (`medo-motion/motion/transitions.json`) and every hit comes from `sfx.py` (`BANK` + `CATALOG`) via a
-   cue sheet — never a hand-rolled mask or an unlicensed audio file. `docs/transitions.md` and
-   `docs/audio.md` are the references; `make transitions` and `make sfx` produce the QA artefacts.
+   cue sheet — never a hand-rolled mask or an unlicensed audio file. R currently supports hard scene cuts;
+   if the concept needs a catalog transition, choose P/K until that primitive is ported and tested. All
+   engines use the shared SFX/mix pipeline. `docs/transitions.md` and `docs/audio.md` are the references;
+   `make transitions` and `make sfx` produce the QA artefacts.
 10. **Draw the moves; then lint them.** Do not choose transitions/camera moves from memory — that is
    how every reel ends up with the same fade-up and push-in. Draw from the measured library into the
    project: `python3 tools/techniques.py --draw --from-plan plan/beats.json --json plan/techniques.json`
@@ -87,6 +89,7 @@ Medo gives you words, timing, voice and poses. Everything visual and audible is 
 | Sound effects | **Procedural** (`sfx.py`) first → Openverse CC0 → ElevenLabs SFX only with approval |
 | Music bed | Generated Am–F–C–G, 76 BPM, ducked under VO (see brand §8) |
 | Captions, word timings, scene boundaries | Derived from Medo's VO (`silencedetect` + script) |
+| User-provided reference video | **Reference-only**: analyze locally, write `STYLE.md`, do not reuse its content/assets without rights |
 
 ## 4. First run on a machine
 
@@ -127,6 +130,14 @@ is the portable inventory it extends. Do not install anything else "just in case
 
    Until the poses exist, engine P draws a silhouette marked `PLACEHOLDER` — that is
    allowed for a prototype, but declare it in the delivery.
+
+   **Optional reference (only when the user supplies or requests one):** keep it in
+   `assets/refs/` and inspect it before locking the visual direction. From the project root,
+   run `python3 ../../medo-motion/scripts/analyze_ref.py assets/refs/<file> --dur 15 --frames 3 --out cache/reference-analysis`
+   (repeat with a different `--start` for another short window). Review the report, sheets,
+   motion strips and palette; record the *adapted* technique in `STYLE.md`. Treat measurements
+   and sampled colours as clues, not instructions: the Medo brand remains locked. Reference
+   assets stay reference-only unless their use rights are separately documented.
 2. **Timing — there is no target length.** The video is exactly as long as the voice-over, and
    every number derives from it. Measure it, don't guess it:
 
@@ -135,14 +146,15 @@ is the portable inventory it extends. Do not install anything else "just in case
    python3 tools/vo_length.py out/vo24.wav --check projects/<slug>  # must print OK before rendering
    ```
 
-   Scene boundaries = midpoint of silences; `DURATION` (engine K, `src/data.js`) and `B` (engine P,
-   `scenes.py`) end exactly on the VO's duration; the SFX bus and the mix are cut to it.
+   Scene boundaries = midpoint of silences; `DURATION` (K, `src/data.js`), `B` (P, `scenes.py`),
+   and `DURATION_IN_FRAMES` (R, from `plan/beats.json`) end exactly on the VO duration; the SFX bus
+   and mix are cut to it.
    `tests/test_vo_length.py` fails if any doc or template reintroduces a fixed length.
-3. **Engine choice** — see §6. One engine per video.
+3. **Engine choice** — see §6. A reel may use the validated hybrid renderer for sequential full-frame segments; this is not simultaneous layer compositing.
 4. **Scenes** — build one scene, render 3 stills, then a 4–8 frame contact sheet.
    Do not go to "production" from the first attempt.
 5. **Assets** — code → AI → search, respect the ladder and the licence log.
-6. **Render** — chunked (engine P) or Playwright (engine K), then mix, then master.
+6. **Render** — use P, K, or R individually, or render sequential P/K/R segments with `tools/render_hybrid.py`; then mix/master as specified by that workflow.
 7. **QC** — ≥3 visual rounds (contact sheets), probe the MP4, check loudness, check the
    Arabic with your eyes, run `brand_check.py`.
 8. **Deliver** — the master MP4 + an 8–10 line Arabic message (§8).
@@ -153,9 +165,22 @@ is the portable inventory it extends. Do not install anything else "just in case
 |---|---|
 | Explainer/tool/laptop reel with Medo's character, cards, devices, captions | **P** — `medo-motion/templates/procedural-reels` (Pillow + OpenCV + FFmpeg chunks) |
 | Kinetic Arabic typography, lists, UI, 3D-ish, fast timeline previews | **K** — `medo-motion/templates/render` (Canvas + Playwright) |
+| React/TypeScript-driven scenes, reusable UI/data visualisations, rich compositions and interactive Studio review | **R** — `medo-motion/templates/remotion` (Remotion + React + TypeScript) |
 
 Engine P is the default for talking reels because it composites Medo's poses cheaply
-and reliably. Copy the template into the project, never edit the toolkit in place.
+and reliably. Choose R when its React component reuse or Remotion Studio materially helps;
+it is not automatically faster than K. Copy the selected template into the project, never edit
+the toolkit in place. For R, install the scaffolded npm dependencies inside the project and
+render only after `plan/beats.json` has the measured VO timeline. R currently has hard cuts
+and a basic pose component; it does not inherit P/K's animated icon or transition catalogs.
+
+When a concept genuinely needs multiple strengths in one reel, scaffold `--engine hybrid`.
+Its v1 contract is **sequential, full-frame segments** with one engine assigned to each
+half-open frame range; it does not layer engines simultaneously or transfer features between
+them. `HYBRID.md` and `tools/render_hybrid.py` define the frame/audio contract, validation,
+and assembly. The hybrid runner fails closed on gaps, overlaps, dimensions, frame counts,
+frame rate, or duration errors. It adds the single soundtrack after picture assembly and
+introduces no pre-render approval gate.
 
 ## 7. QA gates before delivery
 
@@ -167,7 +192,7 @@ and reliably. Copy the template into the project, never edit the toolkit in plac
 - No text over a face, nothing important outside y 200–1350, captions at y≈1455
 - Every placeholder declared, every external asset in `assets/CREDITS.md`
 - `python3 medo-motion/scripts/brand_check.py --project <project>` is clean
-- `python3 tools/selftest.py` still passes after your changes (it is the regression net)
+- `python3 tools/selftest.py` still passes after your changes (regression net); when changing R, also run `python3 tools/selftest.py --remotion`
 
 ## 8. Delivery message
 
@@ -183,6 +208,8 @@ or a series title** — there is none.
   `tools/ffprobe_shim.py` is installed as `ffprobe` (ffprobe-compatible JSON subset).
 - Chromium for engine K comes from `@sparticuz/chromium` (npm) because the Playwright
   CDN is blocked; `tools/chromium.mjs --env` exports `KHAAM_CHROMIUM` + `LD_LIBRARY_PATH`.
+- Engine R uses the Remotion packages pinned in the project scaffold (`npm install` inside
+  `projects/<slug>/`); it reads the same measured `plan/beats.json` and local Cairo font/pose assets.
 - Pillow here is built **without** libraqm. Engine P detects that and shapes Arabic with
   `arabic_shape.py` (HarfBuzz + FreeType). This is real shaping, not presentation forms.
   `doctor.py` reports which backend is active; both are acceptable.
@@ -204,7 +231,7 @@ medo-motion/           ← the toolkit
   brand/               ← locked identity (human + machine)
   reference/           ← on-demand guides (Arabic typography, hooks, voiceover, …)
   styles/              ← looks; default = medo-red-circle
-  templates/           ← engine P + engine K + TASTE.md
+  templates/           ← engine P + engine K + engine R (Remotion) + TASTE.md
   scripts/             ← fonts, SFX, TTS, preflight, brand guard, preview
 ```
 

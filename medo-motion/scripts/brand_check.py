@@ -99,6 +99,7 @@ JS_NAMES = {'red': 'red', 'redBright': 'red_bright', 'redDeep': 'red_deep', 'ink
             'paper': 'paper', 'gray1': 'gray_1', 'gray2': 'gray_2', 'gray3': 'gray_3', 'gray4': 'gray_4',
             'salmon': 'salmon', 'blush': 'blush', 'inkShadow': 'ink_shadow'}
 BG = dict(P, ink_shadow=SHADOW)
+allowed = {v['hex'].upper() for v in d['palette'].values()} | {d['derived']['ink_shadow']['hex'].upper()}
 
 if a.project:
     root = Path(a.project)
@@ -143,7 +144,6 @@ if a.project:
             if mv and int(mv.group(1)) != d['safe_zone'][bk]:
                 print(f'  DRIFT brand.js {key} {mv.group(1)} != brand {d["safe_zone"][bk]}'); bad += 1; dj += 1
         # any colour literal in the engine must be one of the 12 + derived shade
-        allowed = {v['hex'].upper() for v in d['palette'].values()} | {d['derived']['ink_shadow']['hex'].upper()}
         off = set()
         for f in sorted(root.rglob('*.js')):
             if 'node_modules' in f.parts or f.name.endswith('.min.js'):
@@ -159,6 +159,39 @@ if a.project:
         print('  engine K tokens checked (' + str(js.relative_to(root)) + ')' if not dj else f'  engine K: {dj} drift(s)')
     else:
         print('  engine K: no lib/brand.js found (skipped)')
+
+    # Engine R uses a TypeScript brand mirror so it can bundle locally with Remotion.
+    ts = next((c for c in [root / 'src' / 'brand.ts', root / 'remotion' / 'src' / 'brand.ts'] if c.is_file()), None)
+    if ts is not None:
+        source = ts.read_text(encoding='utf-8')
+        dr = 0
+        for key, bk in JS_NAMES.items():
+            m = re.search(r'\b' + re.escape(key) + r"\s*:\s*'(#[0-9A-Fa-f]{6})'", source)
+            expected = hexof(BG[bk])
+            if m is None:
+                print(f'  DRIFT brand.ts: {key} not found'); bad += 1; dr += 1
+            elif m.group(1).upper() != expected:
+                print(f'  DRIFT brand.ts {key} {m.group(1)} != brand {expected}'); bad += 1; dr += 1
+        for key, side, end in (('bgDarkTop', 'dark', 'top'), ('bgDarkBottom', 'dark', 'bottom'),
+                               ('bgLightTop', 'light', 'top'), ('bgLightBottom', 'light', 'bottom')):
+            m = re.search(r'\b' + key + r"\s*:\s*'(#[0-9A-Fa-f]{6})'", source)
+            expected = hexof(d['backgrounds'][side][end])
+            if m is None:
+                print(f'  DRIFT brand.ts: {key} missing'); bad += 1; dr += 1
+            elif m.group(1).upper() != expected:
+                print(f'  DRIFT brand.ts {key} {m.group(1)} != brand {expected}'); bad += 1; dr += 1
+        mf = re.search(r"font\s*:\s*'([^']+)'", source)
+        if not mf or mf.group(1) != d['typography']['arabic']:
+            print('  DRIFT brand.ts font != brand Arabic font'); bad += 1; dr += 1
+        for f in sorted([*root.rglob('*.ts'), *root.rglob('*.tsx')]):
+            if 'node_modules' in f.parts:
+                continue
+            for h in re.findall(r"#[0-9A-Fa-f]{6}", f.read_text(encoding='utf-8')):
+                if h.upper() not in allowed:
+                    print(f'  OFF-PALETTE {f.name}: {h}'); bad += 1; dr += 1
+        print('  engine R tokens checked (' + str(ts.relative_to(root)) + ')' if not dr else f'  engine R: {dr} drift(s)')
+    else:
+        print('  engine R: no src/brand.ts found (skipped)')
 
     # any colour literal in engine P's python must be palette or derived too
     allowed = {tuple(v['rgb']) for v in d['palette'].values()} | {tuple(SHADOW)}
