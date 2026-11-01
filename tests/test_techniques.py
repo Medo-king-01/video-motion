@@ -190,6 +190,18 @@ def test_docs_are_generated_from_the_library(tmp_path):
     out = tmp_path / "techniques.md"
     assert run("--markdown", str(out)).returncode == 0
     assert "Velocity handoff cut" in out.read_text(encoding="utf-8")
+    assert "ty-pose-occlusion-title-reveal" in out.read_text(encoding="utf-8")
     docs = ROOT / "docs" / "techniques.md"
     assert docs.is_file(), "docs/techniques.md must exist (make techniques-doc)"
     assert run("--markdown", str(docs), "--check").returncode == 0, "docs/techniques.md is stale"
+
+
+def test_pose_occlusion_title_recipe_uses_native_p_k_layers():
+    """The Skillry idea is translated to our transparent pose art and native renderer APIs."""
+    entry = next(e for e in DATA["techniques"] if e["id"] == "ty-pose-occlusion-title-reveal")
+    assert entry["category"] == "typography"
+    assert entry["evidence"] == 0, "new adaptation stays unproven until visually rendered and reviewed"
+    for api in ("lib.text_sprite", "presenter.draw", "arabic.setArabic", "presenter.drawPresenter"):
+        assert api in entry["how"]
+    assert "transparent" in entry["summary"]
+    assert "not assume an R port" in entry["how"]

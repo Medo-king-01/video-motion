@@ -69,7 +69,7 @@ finished video on guessed timing without saying so.
 10. **Draw the moves; then lint them.** Do not choose transitions/camera moves from memory — that is
    how every reel ends up with the same fade-up and push-in. Draw from the measured library into the
    project: `python3 tools/techniques.py --draw --from-plan plan/beats.json --json plan/techniques.json`
-   (`assets/techniques.json`, 58 moves across 13 families — including the UI / product-demo /
+   (`assets/techniques.json`, 59 moves across 13 families — including the UI / product-demo /
    numbers / micro-interaction moves for screen scenes — each written against this studio's primitives). Build what
    the concept can carry, reroll at most twice, never add a move the draw did not give you.
    Before a render, the plan must pass `python3 tools/reel_lint.py projects/<slug> --scan-code`
