@@ -61,7 +61,7 @@ a ban-safe form. Where the two disagree, **this studio wins**, and the reason is
 
 ## 3. The lint rules
 
-`tools/reel_lint.py <project>` reads `plan/beats.json` (from `tools/vo_length.py`),
+Twenty-one rules in four groups. `tools/reel_lint.py <project>` reads `plan/beats.json` (from `tools/vo_length.py`),
 `plan/copy.json` and `plan/techniques.json` (from `tools/techniques.py`). `!!` is an error,
 ` ?` is a warning, and `--strict` makes warnings fail.
 
@@ -93,6 +93,7 @@ a ban-safe form. Where the two disagree, **this studio wins**, and the reason is
 | `C06` | ≥ 1.5 s of text-free picture inside every full 10 s window | warn |
 | `C07` | No banned words (`introducing`, `lorem ipsum`, `نقدم لكم`, `اسم السلسلة`, `لوجو`) | error |
 | `C08` | A sentence never arrives in one block (> 6 words ending in `. ! ؟ ?`) | error |
+| `C09` | A fragment ends after it starts (`end > start`) | error |
 | `C10` | Every fragment points at a scene that exists | error |
 | `C11` | A fragment arrives within 120 ms of the grid | warn |
 

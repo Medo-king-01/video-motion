@@ -12,7 +12,7 @@
   `--show`, `--validate` and `--markdown docs/techniques.md --check`. Weighted by role × evidence ×
   energy fit, filled in the format's order, with a signature budget; a calm reel never draws a slam.
   Seconds come from the VO (`vo_length.py`), never from a target length. `make techniques`.
-- **`tools/reel_lint.py`** — the pre-render gate, 16 rules in four groups: structure (`S01–S05`:
+- **`tools/reel_lint.py`** — the pre-render gate, 21 rules in four groups: structure (`S01–S05`:
   bounds, short scenes, long scenes with no picture event, grid drift), copy (`C00–C11`: words per
   fragment, visible at once, dwell per word, copy rate, coverage, text-free stretch, banned words,
   sentence dumps, scene links, grid arrivals), moves (`M00–M02`: variety, signature budget) and an

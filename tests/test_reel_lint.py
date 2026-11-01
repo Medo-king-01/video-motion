@@ -146,10 +146,12 @@ def test_missing_plan_is_an_input_error(tmp_path):
     assert "vo_length.py" in r.stderr
 
 
-def test_lint_rules_are_documented():
+def test_every_lint_rule_is_documented():
+    """The doc cannot drift from the tool: every code it can emit is in docs/craft.md."""
+    import re
     doc = (ROOT / "docs" / "craft.md").read_text(encoding="utf-8")
     src = TOOL.read_text(encoding="utf-8")
-    for code in ["S01", "S04", "S05", "C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08",
-                 "C10", "C11", "M01", "M02", "K01"]:
-        assert code in doc, f"{code} is not in docs/craft.md"
-        assert code in src
+    codes = sorted(set(re.findall(r'rep\.\w+\("([SCMK]\d{2})"', src)))
+    assert len(codes) >= 18
+    missing = [c for c in codes if c not in doc]
+    assert not missing, f"undocumented lint codes: {missing}"
