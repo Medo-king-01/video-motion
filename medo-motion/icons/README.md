@@ -1,12 +1,15 @@
 # طبقة الأيقونات المتحركة — Animated icon layer
 
-> نفس الأيقونة موجودة بصيغة **SVG متحركة** (للويب)، و**Canvas** (المحرك K)، و**Pillow** (المحرك P)، كلها من ملف واحد: `registry.json`.
-> الألوان مش متخزنة في الأيقونة: بتتمرر وقت الرسم من بالِت البراند (12 لون). يعني مستحيل أيقونة تخرج برة الهوية.
+> **٢٧٥ أيقونة** جاهزة: ١٢ أيقونة بيت مكتوبة هنا بأسماء عربية، + **٢٦٣ أيقونة من itshover** (كل اللي في
+> https://itshover.com/icons) متاخدة من مستودعهم المفتوح (Apache-2.0) ومولّد منها نسخة للمحركين.
+> نفس الأيقونة موجودة بصيغة **SVG متحركة** (للويب)، و**Canvas** (المحرك K)، و**Pillow** (المحرك P).
+> الألوان مش متخزنة في الأيقونة: بتتمرر وقت الرسم من بالِت البراند (12 لون) → مستحيل أيقونة تخرج برة الهوية.
 
 ## الملفات | Files
 | الملف | إيه ده |
 |---|---|
-| `registry.json` | **المصدر الوحيد** — كل أيقونة: id، اسم عربي، group، شكل (primitives على شبكة 24×24)، وتوقيت الأنيميشن |
+| `registry.json` | **مجموعة البيت** (١٢): id، اسم عربي، group، شكل، وتوقيت الأنيميشن — دي اللي بتتعدّل بإيدك |
+| `itshover/` | نسخة itshover كاملة: `tsx/` (المكوّنات الأصلية ٢٦٣) · `LICENSE` (Apache-2.0) · `registry.json` (مولّد) · `upstream-registry.json` |
 | `build.py` | يولّد كل الملفات التانية. `python medo-motion/icons/build.py` · يتحقق: `--check` |
 | `svg/<id>.svg` | أيقونة SVG متحركة (CSS: `draw` + نبض النقطة)، stroke = `currentColor`، النقطة = `var(--icon-accent)` |
 | `icon.css` | كلاسات `.reel-icon` + المقاسات + سطح فاتح/غامق + `prefers-reduced-motion` |
@@ -55,8 +58,21 @@ npx shadcn@latest add https://itshover.com/r/plug-connected-icon.json
 ```
 > الأمر ده محتاج إنترنت، ومش شغال من الساندبوكس (itshover.com مش متاح هنا). لما تشغله على جهازك، المكوّن بيتحط في `@/components/ui`، وبعدها إما تستخدمه زي ما هو، أو تنقل مساراته في `registry.json` وتعمل Rebuild عشان يدخل المحركين كمان.
 
+## كل أيقونات itshover | The whole library
+- **٢٦٣ أيقونة** اتحوّلت تلقائيًا من مكوّنات itshover الأصلية: `python3 tools/itshover_import.py`
+- البحث: `python3 tools/itshover_import.py --list | grep -i plug` — نفس الـid اللي على الموقع (`battery-icon`, `gear-icon` …)
+- ترقية أيقونة لمجموعة البيت (مع اسم عربي وتعديل حرّ):
+  ```bash
+  python3 tools/itshover_import.py --promote battery-icon
+  python3 medo-motion/icons/build.py
+  ```
+- الحركة: itshover بتحرّك كل أيقونة بتسلسل مكتوب بـ`motion` (مش قابل للتشغيل على Canvas/Pillow). عندنا كل الأيقونات
+  بتاخد نفس أنيميشن الظهور (رسم تدريجي + نبضة) عشان الريل يبقى متسق ومحمي بالهوية.
+- **العلامات التجارية:** ٤١ أيقونة براند (Google/Apple/Notion/OpenAI…) معلّمة `group: "brand"` — ممنوع استخدامها
+  كهوية أو من غير موافقة ميدو.
+
 ## إضافة أيقونة | Add an icon
-1. ضيف عنصر في `registry.json` بالـ primitives: `line` · `poly` · `rect` · `circle` · `arc` · `dot` · `fillrect`.
+1. ضيف عنصر في `registry.json` بالـ primitives: `path` (SVG d كامل) · `line` · `poly` · `rect` · `circle` · `ellipse` · `arc` · `dot` · `fillrect` (`fill: true` لأي شكل معبّى).
 2. `python medo-motion/icons/build.py`
 3. شوفها: `python3 tools/icons_sheet.py` (المحرك P) و `node tools/icons_preview.mjs` (المحرك K).
 4. لو لونها/حركتها غلط، عدّل `registry.json` بس — مفيش توليد يدوي.

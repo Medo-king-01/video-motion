@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="96" height="96" role="img" aria-label="Gear Icon — الإعدادات" data-icon="gear-icon">
+  <title>Gear Icon — الإعدادات</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="21,16 20.969,16.56 20.875,17.113 20.719,17.651 20.505,18.169 20.234,18.66 19.909,19.117 19.536,19.536 19.117,19.909 18.66,20.234 18.169,20.505 17.651,20.719 17.113,20.875 16.56,20.969 16,21 15.44,20.969 14.887,20.875 14.349,20.719 13.831,20.505 13.34,20.234 12.883,19.909 12.464,19.536 12.091,19.117 11.766,18.66 11.495,18.169 11.281,17.651 11.125,17.113 11.031,16.56 11,16 11.031,15.44 11.125,14.887 11.281,14.349 11.495,13.831 11.766,13.34 12.091,12.883 12.464,12.464 12.883,12.091 13.34,11.766 13.831,11.495 14.349,11.281 14.887,11.125 15.44,11.031 16,11 16.56,11.031 17.113,11.125 17.651,11.281 18.169,11.495 18.66,11.766 19.117,12.091 19.536,12.464 19.909,12.883 20.234,13.34 20.505,13.831 20.719,14.349 20.875,14.887 20.969,15.44" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="m30,17.5v-3l-3.388-1.355c-.25-.933-.617-1.815-1.089-2.633l1.436-3.351-2.121-2.121-3.351,1.436c-.817-.472-1.7-.838-2.633-1.089l-1.355-3.388h-3l-1.355,3.388c-.933.25-1.815.617-2.633,1.089l-3.351-1.436-2.121,2.121 1.436,3.351c-.472.817-.838,1.7-1.089,2.633l-3.388,1.355v3l3.388,1.355c.25.933.617,1.815,1.089,2.633l-1.436,3.351 2.121,2.121 3.351-1.436c.817.472 1.7.838 2.633,1.089l1.355,3.388h3l1.355-3.388c.933-.25 1.815-.617 2.633-1.089l3.351,1.436 2.121-2.121-1.436-3.351c.472-.817.838-1.7 1.089-2.633l3.388-1.355Z" style="animation-delay:0.06s"/>
+</svg>

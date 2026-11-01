@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Alarm Clock Plus Icon — منبّه" data-icon="alarm-clock-plus-icon">
+  <title>Alarm Clock Plus Icon — منبّه</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="20,13 19.95,13.896 19.799,14.78 19.551,15.642 19.208,16.471 18.774,17.256 18.255,17.988 17.657,18.657 16.988,19.255 16.256,19.774 15.471,20.208 14.642,20.551 13.78,20.799 12.896,20.95 12,21 11.104,20.95 10.22,20.799 9.358,20.551 8.529,20.208 7.744,19.774 7.012,19.255 6.343,18.657 5.745,17.988 5.226,17.256 4.792,16.471 4.449,15.642 4.201,14.78 4.05,13.896 4,13 4.05,12.104 4.201,11.22 4.449,10.358 4.792,9.529 5.226,8.744 5.745,8.012 6.343,7.343 7.012,6.745 7.744,6.226 8.529,5.792 9.358,5.449 10.22,5.201 11.104,5.05 12,5 12.896,5.05 13.78,5.201 14.642,5.449 15.471,5.792 16.256,6.226 16.988,6.745 17.657,7.343 18.255,8.012 18.774,8.744 19.208,9.529 19.551,10.358 19.799,11.22 19.95,12.104" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M5 3 2 6" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="m22 6-3-3" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M6.38 18.7 4 21" style="animation-delay:0.18s"/>
+  <path class="a" pathLength="1" d="M17.64 18.67 20 21" style="animation-delay:0.24s"/>
+  <path class="a" pathLength="1" d="M12 10v6" style="animation-delay:0.3s"/>
+  <path class="a" pathLength="1" d="M9 13h6" style="animation-delay:0.36s"/>
+</svg>

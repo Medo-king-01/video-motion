@@ -59,7 +59,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
   SKILL.md             ← نقطة دخول كلود كود (بتحوّل لـ AGENTS.md)
   brand/               ← الهوية: BRAND.md للبني آدم + brand.json للكود
   reference/           ← أدلة تُقرأ عند الحاجة (العربي إلزامي قبل أي نص على الشاشة)
-  icons/              ← طبقة الأيقونات المتحركة: registry.json → SVG + محرك K + محرك P
+  icons/              ← ٢٧٥ أيقونة متحركة (١٢ بيت + ٢٦٣ من itshover): registry → SVG + محرك K + محرك P
   styles/               ← ٩ ستايلات إلهام، والافتراضي medo-red-circle
   templates/           ← محرك P (Pillow/OpenCV/FFmpeg) + محرك K (Canvas/Playwright)
   scripts/             ← preflight · brand_check · get_fonts · SFX · TTS · preview
@@ -75,7 +75,8 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | **K** | تايبوغرافي حركي، قوائم، واجهات، مشاهد تقيلة | Canvas في Chromium (Playwright) |
 
 محرك واحد للفيديو الواحد، ونفس البالِت من `brand/brand.json`.
-الأيقونات مشتركة بينهم: `medo-motion/icons/registry.json` → `lib/icons.js` (K) + `icons.py` (P) + `svg/` (ويب).
+الأيقونات مشتركة بينهم: `medo-motion/icons/` → `lib/icons.js` (K) + `icons.py` (P) + `svg/` (ويب).
+مكتبة **itshover** كاملة (٢٦٣ أيقونة، Apache-2.0) متاخدة من مستودعهم ومولّد منها نسخة للمحركين — الشرح في `docs/icons.md`.
 
 ---
 
@@ -89,7 +90,7 @@ medo-motion/           ← الحزمة (النسخة الخاصة من «موش
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
 | محركي الرندر P و K | ✅ اتجربوا ورندروا فريمات عربية صح |
-| الاختبارات (`make test` · `make selftest`) | ✅ ٥٣ اختبار + رندر من المحركين |
+| الاختبارات (`make test` · `make selftest`) | ✅ ٧٦ اختبار + رندر من المحركين |
 | مفتاح ElevenLabs | ❌ اختياري — الصوت بييجي منك |
 
 شغّل `python3 tools/doctor.py` في أي وقت للتأكد.

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="96" height="96" role="img" aria-label="Phone Volume — مكالمة" data-icon="phone-volume">
+  <title>Phone Volume — مكالمة</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="m21.3832,18.2745l-3.1744,3.9688c-3.4906-2.0516-6.3996-4.9606-8.4513-8.4513l3.9702-3.1756L9.9013,1.9994l-6.4617,1.6761c-.9444.2466-1.555,1.1606-1.4212,2.1274,1.7626,12.5517,11.6278,22.4169,24.1795,24.1795.9665.1332,1.8799-.4773,2.1264-1.4212l1.6758-6.4603-8.6168-3.8264Z" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="m19,8c2.7614,0,5,2.2386,5,5" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="m19,3c5.5228,0,10,4.4772,10,10" style="animation-delay:0.12s"/>
+</svg>

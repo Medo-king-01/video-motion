@@ -1,13 +1,20 @@
 {
-  "_doc": "Generated index of the animated icon layer. Rebuild with python medo-motion/icons/build.py",
+  "_doc": "Generated index of the animated icon layer. Rebuild: python medo-motion/icons/build.py",
   "grid": 24,
-  "stroke": 2,
+  "counts": {
+    "brand": 41,
+    "itshover": 222,
+    "nav": 2,
+    "part": 6,
+    "status": 4
+  },
   "icons": [
     {
       "id": "cpu",
       "ar": "المعالج",
       "en": "CPU",
       "group": "part",
+      "source": "house",
       "svg": "icons/svg/cpu.svg",
       "draw_seconds": 0.9
     },
@@ -16,6 +23,7 @@
       "ar": "الرامات",
       "en": "RAM",
       "group": "part",
+      "source": "house",
       "svg": "icons/svg/ram.svg",
       "draw_seconds": 0.85
     },
@@ -24,6 +32,7 @@
       "ar": "التخزين",
       "en": "Storage",
       "group": "part",
+      "source": "house",
       "svg": "icons/svg/ssd.svg",
       "draw_seconds": 0.9
     },
@@ -32,6 +41,7 @@
       "ar": "الشاشة",
       "en": "Display",
       "group": "part",
+      "source": "house",
       "svg": "icons/svg/display.svg",
       "draw_seconds": 0.9
     },
@@ -40,6 +50,7 @@
       "ar": "كارت الشاشة",
       "en": "GPU",
       "group": "part",
+      "source": "house",
       "svg": "icons/svg/gpu.svg",
       "draw_seconds": 0.9
     },
@@ -48,6 +59,7 @@
       "ar": "البطارية",
       "en": "Battery",
       "group": "part",
+      "source": "house",
       "svg": "icons/svg/battery.svg",
       "draw_seconds": 0.8
     },
@@ -56,6 +68,7 @@
       "ar": "متصل",
       "en": "Plug connected",
       "group": "status",
+      "source": "house",
       "svg": "icons/svg/plug-connected.svg",
       "draw_seconds": 0.9
     },
@@ -64,6 +77,7 @@
       "ar": "واي فاي",
       "en": "Wi-Fi",
       "group": "status",
+      "source": "house",
       "svg": "icons/svg/wifi.svg",
       "draw_seconds": 0.9
     },
@@ -72,6 +86,7 @@
       "ar": "تم",
       "en": "Done",
       "group": "status",
+      "source": "house",
       "svg": "icons/svg/check-circle.svg",
       "draw_seconds": 0.75
     },
@@ -80,6 +95,7 @@
       "ar": "تحذير",
       "en": "Warning",
       "group": "status",
+      "source": "house",
       "svg": "icons/svg/alert-triangle.svg",
       "draw_seconds": 0.85
     },
@@ -88,6 +104,7 @@
       "ar": "التالي",
       "en": "Next",
       "group": "nav",
+      "source": "house",
       "svg": "icons/svg/arrow-right.svg",
       "draw_seconds": 0.6
     },
@@ -96,8 +113,2376 @@
       "ar": "جديد",
       "en": "Sparkle",
       "group": "nav",
+      "source": "house",
       "svg": "icons/svg/sparkle.svg",
       "draw_seconds": 0.9
+    },
+    {
+      "id": "accessibility-icon",
+      "ar": "",
+      "en": "Accessibility Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/accessibility-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "airplane-icon",
+      "ar": "",
+      "en": "Airplane Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/airplane-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "alarm-clock-plus-icon",
+      "ar": "منبّه",
+      "en": "Alarm Clock Plus Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/alarm-clock-plus-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "align-center-icon",
+      "ar": "",
+      "en": "Align Center Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/align-center-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "align-vertical-space-around-icon",
+      "ar": "",
+      "en": "Align Vertical Space Around Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/align-vertical-space-around-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "ambulance-icon",
+      "ar": "",
+      "en": "Ambulance Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/ambulance-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "ampersand-icon",
+      "ar": "",
+      "en": "Ampersand Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/ampersand-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "angry-icon",
+      "ar": "مشكلة",
+      "en": "Angry Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/angry-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "annoyed-icon",
+      "ar": "",
+      "en": "Annoyed Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/annoyed-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "apple-brand-logo",
+      "ar": "آبل",
+      "en": "Apple Brand Logo",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/apple-brand-logo.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-back-icon",
+      "ar": "رجوع",
+      "en": "Arrow Back Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-back-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-back-up-icon",
+      "ar": "",
+      "en": "Arrow Back Up Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-back-up-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-big-down-dash-icon",
+      "ar": "",
+      "en": "Arrow Big Down Dash Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-big-down-dash-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-big-down-icon",
+      "ar": "",
+      "en": "Arrow Big Down Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-big-down-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-big-left-dash-icon",
+      "ar": "",
+      "en": "Arrow Big Left Dash Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-big-left-dash-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-big-left-icon",
+      "ar": "",
+      "en": "Arrow Big Left Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-big-left-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-big-right-dash-icon",
+      "ar": "",
+      "en": "Arrow Big Right Dash Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-big-right-dash-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-big-right-icon",
+      "ar": "",
+      "en": "Arrow Big Right Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-big-right-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-big-up-dash-icon",
+      "ar": "",
+      "en": "Arrow Big Up Dash Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-big-up-dash-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-big-up-icon",
+      "ar": "",
+      "en": "Arrow Big Up Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-big-up-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-down-0-1-icon",
+      "ar": "",
+      "en": "Arrow Down 0 1 Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-down-0-1-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-down-1-0-icon",
+      "ar": "",
+      "en": "Arrow Down 1 0 Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-down-1-0-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-down-a-z-icon",
+      "ar": "",
+      "en": "Arrow Down A Z Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-down-a-z-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-narrow-down-dashed-icon",
+      "ar": "",
+      "en": "Arrow Narrow Down Dashed Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-narrow-down-dashed-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-narrow-down-icon",
+      "ar": "",
+      "en": "Arrow Narrow Down Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-narrow-down-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-narrow-left-dashed-icon",
+      "ar": "",
+      "en": "Arrow Narrow Left Dashed Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-narrow-left-dashed-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-narrow-left-icon",
+      "ar": "السابق",
+      "en": "Arrow Narrow Left Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-narrow-left-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-narrow-right-dashed-icon",
+      "ar": "",
+      "en": "Arrow Narrow Right Dashed Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-narrow-right-dashed-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-narrow-right-icon",
+      "ar": "التالي",
+      "en": "Arrow Narrow Right Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-narrow-right-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-narrow-up-dashed-icon",
+      "ar": "",
+      "en": "Arrow Narrow Up Dashed Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-narrow-up-dashed-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "arrow-narrow-up-icon",
+      "ar": "",
+      "en": "Arrow Narrow Up Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/arrow-narrow-up-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "at-sign-icon",
+      "ar": "",
+      "en": "At Sign Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/at-sign-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "banana-icon",
+      "ar": "",
+      "en": "Banana Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/banana-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "battery-charging-icon",
+      "ar": "شحن البطارية",
+      "en": "Battery Charging Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/battery-charging-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "battery-icon",
+      "ar": "البطارية",
+      "en": "Battery Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/battery-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "battery-pause-icon",
+      "ar": "",
+      "en": "Battery Pause Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/battery-pause-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "bell-off-icon",
+      "ar": "",
+      "en": "Bell Off Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/bell-off-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "bluetooth-connected-icon",
+      "ar": "",
+      "en": "Bluetooth Connected Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/bluetooth-connected-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "book-icon",
+      "ar": "كتاب",
+      "en": "Book Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/book-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "bookmark-icon",
+      "ar": "محفوظ",
+      "en": "Bookmark Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/bookmark-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brain-circuit-icon",
+      "ar": "",
+      "en": "Brain Circuit Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/brain-circuit-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-aistudio-icon",
+      "ar": "Google AI Studio",
+      "en": "Brand Aistudio Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-aistudio-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-anthropic-icon",
+      "ar": "أنثروبيك",
+      "en": "Brand Anthropic Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-anthropic-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-aws-icon",
+      "ar": "AWS",
+      "en": "Brand Aws Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-aws-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-bags-fm-icon",
+      "ar": "",
+      "en": "Brand Bags Fm Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-bags-fm-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-chrome-icon",
+      "ar": "",
+      "en": "Brand Chrome Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-chrome-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-cursor-icon",
+      "ar": "كيرسر",
+      "en": "Brand Cursor Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-cursor-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-gemini-icon",
+      "ar": "جيميناي",
+      "en": "Brand Gemini Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-gemini-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-google-icon",
+      "ar": "جوجل",
+      "en": "Brand Google Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-google-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-grok-icon",
+      "ar": "جروك",
+      "en": "Brand Grok Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-grok-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-lmstudio-icon",
+      "ar": "LM Studio",
+      "en": "Brand Lmstudio Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-lmstudio-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-midjourney-icon",
+      "ar": "ميدجورني",
+      "en": "Brand Midjourney Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-midjourney-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-nextjs-icon",
+      "ar": "نكست",
+      "en": "Brand Nextjs Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-nextjs-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-notion-icon",
+      "ar": "نوشن",
+      "en": "Brand Notion Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-notion-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-ollama-icon",
+      "ar": "",
+      "en": "Brand Ollama Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-ollama-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-openai-icon",
+      "ar": "أوبن إيه آي",
+      "en": "Brand Openai Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-openai-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-paypal-icon",
+      "ar": "باي بال",
+      "en": "Brand Paypal Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-paypal-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-qwen-icon",
+      "ar": "كوين",
+      "en": "Brand Qwen Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-qwen-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-railway-icon",
+      "ar": "Railway",
+      "en": "Brand Railway Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-railway-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-react-icon",
+      "ar": "رياكت",
+      "en": "Brand React Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-react-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-react-native-icon",
+      "ar": "",
+      "en": "Brand React Native Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-react-native-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-stripe-icon",
+      "ar": "سترايب",
+      "en": "Brand Stripe Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-stripe-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-telegram-icon",
+      "ar": "تليجرام",
+      "en": "Brand Telegram Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-telegram-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-threads-icon",
+      "ar": "ثريدز",
+      "en": "Brand Threads Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-threads-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-twitch-icon",
+      "ar": "",
+      "en": "Brand Twitch Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-twitch-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-vercel-icon",
+      "ar": "فيرسل",
+      "en": "Brand Vercel Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-vercel-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-windows-icon",
+      "ar": "ويندوز",
+      "en": "Brand Windows Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-windows-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-wordpress-icon",
+      "ar": "",
+      "en": "Brand Wordpress Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-wordpress-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-xai-icon",
+      "ar": "",
+      "en": "Brand Xai Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-xai-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brand-zoom-icon",
+      "ar": "زووم",
+      "en": "Brand Zoom Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/brand-zoom-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "brightness-down-icon",
+      "ar": "",
+      "en": "Brightness Down Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/brightness-down-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "bug-icon",
+      "ar": "",
+      "en": "Bug Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/bug-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "bulb-svg",
+      "ar": "فكرة",
+      "en": "Bulb Svg",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/bulb-svg.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "camera-icon",
+      "ar": "",
+      "en": "Camera Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/camera-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "camera-off-icon",
+      "ar": "",
+      "en": "Camera Off Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/camera-off-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "candy-cane-icon",
+      "ar": "",
+      "en": "Candy Cane Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/candy-cane-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "cart-icon",
+      "ar": "سلة",
+      "en": "Cart Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/cart-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "chart-bar-icon",
+      "ar": "",
+      "en": "Chart Bar Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/chart-bar-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "chart-covariate-icon",
+      "ar": "",
+      "en": "Chart Covariate Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/chart-covariate-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "chart-histogram-icon",
+      "ar": "",
+      "en": "Chart Histogram Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/chart-histogram-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "chart-line-icon",
+      "ar": "",
+      "en": "Chart Line Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/chart-line-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "chart-pie-icon",
+      "ar": "",
+      "en": "Chart Pie Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/chart-pie-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "checked-icon",
+      "ar": "تم",
+      "en": "Checked Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/checked-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "clock-icon",
+      "ar": "",
+      "en": "Clock Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/clock-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "cloud-1-icon",
+      "ar": "",
+      "en": "Cloud 1 Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/cloud-1-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "cloud-2-icon",
+      "ar": "",
+      "en": "Cloud 2 Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/cloud-2-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "cloud-3-icon",
+      "ar": "",
+      "en": "Cloud 3 Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/cloud-3-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "code-icon",
+      "ar": "",
+      "en": "Code Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/code-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "code-xml-icon",
+      "ar": "",
+      "en": "Code Xml Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/code-xml-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "coffee-icon",
+      "ar": "",
+      "en": "Coffee Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/coffee-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "coin-bitcoin-icon",
+      "ar": "",
+      "en": "Coin Bitcoin Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/coin-bitcoin-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "copy-icon",
+      "ar": "نسخ",
+      "en": "Copy Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/copy-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "copy-off-icon",
+      "ar": "",
+      "en": "Copy Off Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/copy-off-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "copyright-icon",
+      "ar": "",
+      "en": "Copyright Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/copyright-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "cpu-icon",
+      "ar": "",
+      "en": "Cpu Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/cpu-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "credit-card",
+      "ar": "بطاقة دفع",
+      "en": "Credit Card",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/credit-card.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "currency-bitcoin-icon",
+      "ar": "",
+      "en": "Currency Bitcoin Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/currency-bitcoin-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "currency-dollar-icon",
+      "ar": "",
+      "en": "Currency Dollar Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/currency-dollar-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "currency-ethereum-icon",
+      "ar": "",
+      "en": "Currency Ethereum Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/currency-ethereum-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "currency-euro-icon",
+      "ar": "",
+      "en": "Currency Euro Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/currency-euro-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "currency-rupee-icon",
+      "ar": "",
+      "en": "Currency Rupee Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/currency-rupee-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "device-airpods-icon",
+      "ar": "",
+      "en": "Device Airpods Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/device-airpods-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "dialpad-icon",
+      "ar": "",
+      "en": "Dialpad Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/dialpad-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "dino-icon",
+      "ar": "",
+      "en": "Dino Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/dino-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "discord-icon",
+      "ar": "",
+      "en": "Discord Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/discord-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "docker-icon",
+      "ar": "دوكر",
+      "en": "Docker Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/docker-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "dots-horizontal-icon",
+      "ar": "",
+      "en": "Dots Horizontal Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/dots-horizontal-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "dots-vertical-icon",
+      "ar": "",
+      "en": "Dots Vertical Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/dots-vertical-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "double-check-icon",
+      "ar": "تم التأكيد",
+      "en": "Double Check Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/double-check-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "down-chevron",
+      "ar": "تحت",
+      "en": "Down Chevron",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/down-chevron.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "download-icon",
+      "ar": "",
+      "en": "Download Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/download-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "drum-icon",
+      "ar": "",
+      "en": "Drum Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/drum-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "expand-icon",
+      "ar": "تكبير",
+      "en": "Expand Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/expand-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "external-link-icon",
+      "ar": "",
+      "en": "External Link Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/external-link-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "eye-icon",
+      "ar": "",
+      "en": "Eye Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/eye-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "eye-off-icon",
+      "ar": "",
+      "en": "Eye Off Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/eye-off-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "facebook-icon",
+      "ar": "فيسبوك",
+      "en": "Facebook Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/facebook-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "figma-icon",
+      "ar": "فيجما",
+      "en": "Figma Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/figma-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "file-description-icon",
+      "ar": "",
+      "en": "File Description Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/file-description-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "filled-bell-icon",
+      "ar": "",
+      "en": "Filled Bell Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/filled-bell-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "filled-checked-icon",
+      "ar": "تم",
+      "en": "Filled Checked Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/filled-checked-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "filter-icon",
+      "ar": "",
+      "en": "Filter Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/filter-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "flame-icon",
+      "ar": "",
+      "en": "Flame Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/flame-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "focus-icon",
+      "ar": "تركيز",
+      "en": "Focus Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/focus-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "gamepad-icon",
+      "ar": "",
+      "en": "Gamepad Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/gamepad-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "gauge-icon",
+      "ar": "",
+      "en": "Gauge Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/gauge-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "gear-icon",
+      "ar": "الإعدادات",
+      "en": "Gear Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/gear-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "ghost-icon",
+      "ar": "",
+      "en": "Ghost Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/ghost-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "github-copilot-icon",
+      "ar": "",
+      "en": "Github Copilot Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/github-copilot-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "github-icon",
+      "ar": "جيت هاب",
+      "en": "Github Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/github-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "gitlab-icon",
+      "ar": "",
+      "en": "Gitlab Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/gitlab-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "globe-icon",
+      "ar": "الإنترنت",
+      "en": "Globe Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/globe-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "gmail-icon",
+      "ar": "",
+      "en": "Gmail Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/gmail-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "golang-icon",
+      "ar": "",
+      "en": "Golang Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/golang-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "hand-heart-icon",
+      "ar": "",
+      "en": "Hand Heart Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/hand-heart-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "hashtag-icon",
+      "ar": "",
+      "en": "Hashtag Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/hashtag-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "heart-icon",
+      "ar": "",
+      "en": "Heart Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/heart-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "history-circle-icon",
+      "ar": "",
+      "en": "History Circle Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/history-circle-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "home-icon",
+      "ar": "الرئيسية",
+      "en": "Home Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/home-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "hotel-icon",
+      "ar": "",
+      "en": "Hotel Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/hotel-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "info-circle-icon",
+      "ar": "",
+      "en": "Info Circle Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/info-circle-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "instagram-icon",
+      "ar": "إنستجرام",
+      "en": "Instagram Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/instagram-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "javascript-icon",
+      "ar": "جافاسكريبت",
+      "en": "Javascript Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/javascript-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "keyframes-icon",
+      "ar": "كيفريمز",
+      "en": "Keyframes Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/keyframes-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "layers-icon",
+      "ar": "",
+      "en": "Layers Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/layers-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "layout-bottombar-collapse-icon",
+      "ar": "",
+      "en": "Layout Bottombar Collapse Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/layout-bottombar-collapse-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "layout-dashboard-icon",
+      "ar": "",
+      "en": "Layout Dashboard Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/layout-dashboard-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "layout-sidebar-right-collapse-icon",
+      "ar": "",
+      "en": "Layout Sidebar Right Collapse Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/layout-sidebar-right-collapse-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "layout-sidebar-right-icon",
+      "ar": "",
+      "en": "Layout Sidebar Right Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/layout-sidebar-right-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-a-icon",
+      "ar": "",
+      "en": "Letter A Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-a-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-b-icon",
+      "ar": "",
+      "en": "Letter B Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-b-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-c-icon",
+      "ar": "",
+      "en": "Letter C Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-c-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-d-icon",
+      "ar": "",
+      "en": "Letter D Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-d-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-e-icon",
+      "ar": "",
+      "en": "Letter E Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-e-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-f-icon",
+      "ar": "",
+      "en": "Letter F Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-f-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-g-icon",
+      "ar": "",
+      "en": "Letter G Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-g-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-h-icon",
+      "ar": "",
+      "en": "Letter H Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-h-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-i-icon",
+      "ar": "",
+      "en": "Letter I Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-i-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-j-icon",
+      "ar": "",
+      "en": "Letter J Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-j-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-k-icon",
+      "ar": "",
+      "en": "Letter K Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-k-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-l-icon",
+      "ar": "",
+      "en": "Letter L Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-l-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-m-icon",
+      "ar": "",
+      "en": "Letter M Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-m-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-n-icon",
+      "ar": "",
+      "en": "Letter N Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-n-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-o-icon",
+      "ar": "",
+      "en": "Letter O Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-o-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-p-icon",
+      "ar": "",
+      "en": "Letter P Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-p-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-q-icon",
+      "ar": "",
+      "en": "Letter Q Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-q-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-r-icon",
+      "ar": "",
+      "en": "Letter R Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-r-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-s-icon",
+      "ar": "",
+      "en": "Letter S Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-s-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-t-icon",
+      "ar": "",
+      "en": "Letter T Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-t-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-u-icon",
+      "ar": "",
+      "en": "Letter U Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-u-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-v-icon",
+      "ar": "",
+      "en": "Letter V Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-v-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-w-icon",
+      "ar": "",
+      "en": "Letter W Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-w-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-x-icon",
+      "ar": "",
+      "en": "Letter X Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-x-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-y-icon",
+      "ar": "",
+      "en": "Letter Y Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-y-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "letter-z-icon",
+      "ar": "",
+      "en": "Letter Z Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/letter-z-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "library-icon",
+      "ar": "",
+      "en": "Library Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/library-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "like-icon",
+      "ar": "",
+      "en": "Like Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/like-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "link-icon",
+      "ar": "",
+      "en": "Link Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/link-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "linkedin-icon",
+      "ar": "لينكدإن",
+      "en": "Linkedin Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/linkedin-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "locate-icon",
+      "ar": "",
+      "en": "Locate Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/locate-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "lock-icon",
+      "ar": "",
+      "en": "Lock Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/lock-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "logout-icon",
+      "ar": "خروج",
+      "en": "Logout Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/logout-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "magnifier-icon",
+      "ar": "بحث",
+      "en": "Magnifier Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/magnifier-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "mail-filled-icon",
+      "ar": "",
+      "en": "Mail Filled Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/mail-filled-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "map-pin-icon",
+      "ar": "",
+      "en": "Map Pin Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/map-pin-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "meh-icon",
+      "ar": "مش متأكد",
+      "en": "Meh Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/meh-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "message-circle-icon",
+      "ar": "",
+      "en": "Message Circle Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/message-circle-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "moon-icon",
+      "ar": "الليل",
+      "en": "Moon Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/moon-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "mouse-pointer-2-icon",
+      "ar": "كليك",
+      "en": "Mouse Pointer 2 Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/mouse-pointer-2-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "mysql-icon",
+      "ar": "قاعدة بيانات",
+      "en": "Mysql Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/mysql-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "nodejs-icon",
+      "ar": "",
+      "en": "Nodejs Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/nodejs-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "paint-icon",
+      "ar": "",
+      "en": "Paint Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/paint-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "party-popper-icon",
+      "ar": "",
+      "en": "Party Popper Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/party-popper-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "passport-icon",
+      "ar": "",
+      "en": "Passport Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/passport-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "paw-print-icon",
+      "ar": "",
+      "en": "Paw Print Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/paw-print-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "pen-icon",
+      "ar": "",
+      "en": "Pen Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/pen-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "phone-volume",
+      "ar": "مكالمة",
+      "en": "Phone Volume",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/phone-volume.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "pinterest-icon",
+      "ar": "",
+      "en": "Pinterest Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/pinterest-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "player-icon",
+      "ar": "تشغيل",
+      "en": "Player Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/player-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "plug-connected-icon",
+      "ar": "",
+      "en": "Plug Connected Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/plug-connected-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "plug-connected-x-icon",
+      "ar": "",
+      "en": "Plug Connected X Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/plug-connected-x-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "python-icon",
+      "ar": "بايثون",
+      "en": "Python Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/python-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "qrcode-icon",
+      "ar": "",
+      "en": "Qrcode Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/qrcode-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "question-mark",
+      "ar": "سؤال",
+      "en": "Question Mark",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/question-mark.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "radio-icon",
+      "ar": "",
+      "en": "Radio Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/radio-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "rainbow-icon",
+      "ar": "",
+      "en": "Rainbow Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/rainbow-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "refresh-icon",
+      "ar": "تحديث",
+      "en": "Refresh Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/refresh-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "right-chevron",
+      "ar": "يمين",
+      "en": "Right Chevron",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/right-chevron.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "rocket-icon",
+      "ar": "انطلاق",
+      "en": "Rocket Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/rocket-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "rosette-discount-check-icon",
+      "ar": "",
+      "en": "Rosette Discount Check Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/rosette-discount-check-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "rosette-discount-icon",
+      "ar": "",
+      "en": "Rosette Discount Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/rosette-discount-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "router-icon",
+      "ar": "راوتر",
+      "en": "Router Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/router-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "satellite-dish-icon",
+      "ar": "بثّ",
+      "en": "Satellite Dish Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/satellite-dish-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "save-icon",
+      "ar": "",
+      "en": "Save Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/save-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "scan-barcode-icon",
+      "ar": "",
+      "en": "Scan Barcode Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/scan-barcode-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "scan-heart-icon",
+      "ar": "",
+      "en": "Scan Heart Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/scan-heart-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "send-horizontal-icon",
+      "ar": "إرسال",
+      "en": "Send Horizontal Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/send-horizontal-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "send-icon",
+      "ar": "إرسال",
+      "en": "Send Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/send-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "shield-check",
+      "ar": "حماية",
+      "en": "Shield Check",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/shield-check.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "shopping-cart-icon",
+      "ar": "سلة",
+      "en": "Shopping Cart Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/shopping-cart-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "simple-checked-icon",
+      "ar": "تم",
+      "en": "Simple Checked Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/simple-checked-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "skull-emoji",
+      "ar": "",
+      "en": "Skull Emoji",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/skull-emoji.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "slack-icon",
+      "ar": "",
+      "en": "Slack Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/slack-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "sliders-horizontal-icon",
+      "ar": "",
+      "en": "Sliders Horizontal Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/sliders-horizontal-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "snapchat-icon",
+      "ar": "",
+      "en": "Snapchat Icon",
+      "group": "brand",
+      "source": "itshover",
+      "svg": "icons/svg/snapchat-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "soup-icon",
+      "ar": "",
+      "en": "Soup Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/soup-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "sparkles-icon",
+      "ar": "",
+      "en": "Sparkles Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/sparkles-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "spotify-icon",
+      "ar": "",
+      "en": "Spotify Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/spotify-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "stack-3-icon",
+      "ar": "",
+      "en": "Stack 3 Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/stack-3-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "stack-icon",
+      "ar": "",
+      "en": "Stack Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/stack-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "star-icon",
+      "ar": "",
+      "en": "Star Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/star-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "subscript-icon",
+      "ar": "",
+      "en": "Subscript Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/subscript-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "target-icon",
+      "ar": "",
+      "en": "Target Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/target-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "telephone-icon",
+      "ar": "",
+      "en": "Telephone Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/telephone-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "terminal-icon",
+      "ar": "",
+      "en": "Terminal Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/terminal-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "toggle-icon",
+      "ar": "",
+      "en": "Toggle Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/toggle-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "trash-icon",
+      "ar": "",
+      "en": "Trash Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/trash-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "travel-bag",
+      "ar": "",
+      "en": "Travel Bag",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/travel-bag.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "triangle-alert-icon",
+      "ar": "",
+      "en": "Triangle Alert Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/triangle-alert-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "trophy-icon",
+      "ar": "",
+      "en": "Trophy Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/trophy-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "truck-electric-icon",
+      "ar": "",
+      "en": "Truck Electric Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/truck-electric-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "twitter-icon",
+      "ar": "",
+      "en": "Twitter Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/twitter-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "twitter-x-icon",
+      "ar": "",
+      "en": "Twitter X Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/twitter-x-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "typescript-icon",
+      "ar": "",
+      "en": "Typescript Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/typescript-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "unlink-icon",
+      "ar": "",
+      "en": "Unlink Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/unlink-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "unordered-list-icon",
+      "ar": "",
+      "en": "Unordered List Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/unordered-list-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "upload-icon",
+      "ar": "",
+      "en": "Upload Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/upload-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "user-check-icon",
+      "ar": "",
+      "en": "User Check Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/user-check-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "user-icon",
+      "ar": "",
+      "en": "User Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/user-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "user-plus-icon",
+      "ar": "",
+      "en": "User Plus Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/user-plus-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "users-group-icon",
+      "ar": "",
+      "en": "Users Group Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/users-group-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "users-icon",
+      "ar": "",
+      "en": "Users Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/users-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "vinyl-icon",
+      "ar": "",
+      "en": "Vinyl Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/vinyl-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "volume-2-icon",
+      "ar": "",
+      "en": "Volume 2 Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/volume-2-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "volume-x-icon",
+      "ar": "",
+      "en": "Volume X Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/volume-x-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "wallet-icon",
+      "ar": "",
+      "en": "Wallet Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/wallet-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "washing-machine-icon",
+      "ar": "",
+      "en": "Washing Machine Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/washing-machine-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "whatsapp-icon",
+      "ar": "",
+      "en": "Whatsapp Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/whatsapp-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "wifi-icon",
+      "ar": "",
+      "en": "Wifi Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/wifi-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "wifi-off-icon",
+      "ar": "",
+      "en": "Wifi Off Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/wifi-off-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "world-icon",
+      "ar": "",
+      "en": "World Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/world-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "x-icon",
+      "ar": "",
+      "en": "X Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/x-icon.svg",
+      "draw_seconds": 0.85
+    },
+    {
+      "id": "youtube-icon",
+      "ar": "",
+      "en": "Youtube Icon",
+      "group": "itshover",
+      "source": "itshover",
+      "svg": "icons/svg/youtube-icon.svg",
+      "draw_seconds": 0.85
     }
   ]
 }

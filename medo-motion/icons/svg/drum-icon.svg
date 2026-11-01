@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Drum Icon" data-icon="drum-icon">
+  <title>Drum Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="m2 2 8 8" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="m22 2-8 8" style="animation-delay:0.06s"/>
+  <polygon class="a" pathLength="1" points="22,9 21.937,9.56 21.749,10.113 21.439,10.651 21.01,11.169 20.467,11.66 19.818,12.117 19.071,12.536 18.235,12.909 17.32,13.234 16.339,13.505 15.303,13.719 14.225,13.875 13.12,13.969 12,14 10.88,13.969 9.775,13.875 8.697,13.719 7.661,13.505 6.68,13.234 5.765,12.909 4.929,12.536 4.182,12.117 3.533,11.66 2.99,11.169 2.561,10.651 2.251,10.113 2.063,9.56 2,9 2.063,8.44 2.251,7.887 2.561,7.349 2.99,6.831 3.533,6.34 4.182,5.883 4.929,5.464 5.765,5.091 6.68,4.766 7.661,4.495 8.697,4.281 9.775,4.125 10.88,4.031 12,4 13.12,4.031 14.225,4.125 15.303,4.281 16.339,4.495 17.32,4.766 18.235,5.091 19.071,5.464 19.818,5.883 20.467,6.34 21.01,6.831 21.439,7.349 21.749,7.887 21.937,8.44" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M7 13.4v7.9" style="animation-delay:0.18s"/>
+  <path class="a" pathLength="1" d="M12 14v8" style="animation-delay:0.24s"/>
+  <path class="a" pathLength="1" d="M17 13.4v7.9" style="animation-delay:0.3s"/>
+  <path class="a" pathLength="1" d="M2 9v8a10 5 0 0 0 20 0V9" style="animation-delay:0.36s"/>
+</svg>

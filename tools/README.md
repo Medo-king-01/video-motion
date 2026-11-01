@@ -11,6 +11,9 @@
 | `ffprobe_shim.py` | بديل `ffprobe` متوافق (JSON) مبني على PyAV — لأن FFmpeg الستاتيك بييجي من غير ffprobe | `ffprobe -v error -show_streams -of json in.mp4` |
 | `ci.sh` | نفس اللي الـCI بيعمله: ruff + pytest + تدقيق البراند | `bash tools/ci.sh` |
 | `chromium.mjs` | كروميوم جاهز لمحرك K من غير CDN بتاع Playwright | `eval "$(node tools/chromium.mjs --env)"` |
+| `itshover_import.py` | يستورد مكوّنات itshover المنسوخة (٢٦٣) ويحوّلها geometry للمحركين | `python3 tools/itshover_import.py --list` |
+| `icons_sheet.py` | شيت مراجعة بصري لكل الأيقونات (المحرك P) | `python3 tools/icons_sheet.py --group itshover --limit 24` |
+| `icons_preview.mjs` | نفس الشيت بس من رسّام المحرك K (Canvas/Chromium) | `node tools/icons_preview.mjs --limit 24` |
 | `toolkit/` | اعتماديات Node (`playwright-core`, `@sparticuz/chromium`, خطوط OFL) | `cd tools/toolkit && npm install` |
 | `bin/` | روابط ffmpeg/ffprobe اللي بيعملها `setup.sh` (مش متتبعة في git) | — |
 
@@ -23,6 +26,7 @@ make test       # اختبارات وحدات (~3 ثواني)
 make ci         # lint + tests + تدقيق براند
 make selftest   # فحص كامل + رندر
 make new SLUG=my-reel ENGINE=p
+make icons      # يعيد بناء الأيقونات + شيت مراجعة
 make clean      # مسح الكاش ومخرجات الرندر
 ```
 

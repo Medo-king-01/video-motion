@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Map Pin Icon" data-icon="map-pin-icon">
+  <title>Map Pin Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" style="animation-delay:0.0s"/>
+  <polygon class="a" pathLength="1" points="15,10 14.981,10.336 14.925,10.668 14.832,10.991 14.703,11.302 14.54,11.596 14.345,11.87 14.121,12.121 13.87,12.345 13.596,12.54 13.302,12.703 12.991,12.832 12.668,12.925 12.336,12.981 12,13 11.664,12.981 11.332,12.925 11.009,12.832 10.698,12.703 10.404,12.54 10.13,12.345 9.879,12.121 9.655,11.87 9.46,11.596 9.297,11.302 9.168,10.991 9.075,10.668 9.019,10.336 9,10 9.019,9.664 9.075,9.332 9.168,9.009 9.297,8.698 9.46,8.404 9.655,8.13 9.879,7.879 10.13,7.655 10.404,7.46 10.698,7.297 11.009,7.168 11.332,7.075 11.664,7.019 12,7 12.336,7.019 12.668,7.075 12.991,7.168 13.302,7.297 13.596,7.46 13.87,7.655 14.121,7.879 14.345,8.13 14.54,8.404 14.703,8.698 14.832,9.009 14.925,9.332 14.981,9.664" style="animation-delay:0.06s"/>
+</svg>

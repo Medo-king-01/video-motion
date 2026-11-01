@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Camera Icon" data-icon="camera-icon">
+  <title>Camera Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" style="animation-delay:0.0s"/>
+  <polygon class="a" pathLength="1" points="15,13 14.981,13.336 14.925,13.668 14.832,13.991 14.703,14.302 14.54,14.596 14.345,14.87 14.121,15.121 13.87,15.345 13.596,15.54 13.302,15.703 12.991,15.832 12.668,15.925 12.336,15.981 12,16 11.664,15.981 11.332,15.925 11.009,15.832 10.698,15.703 10.404,15.54 10.13,15.345 9.879,15.121 9.655,14.87 9.46,14.596 9.297,14.302 9.168,13.991 9.075,13.668 9.019,13.336 9,13 9.019,12.664 9.075,12.332 9.168,12.009 9.297,11.698 9.46,11.404 9.655,11.13 9.879,10.879 10.13,10.655 10.404,10.46 10.698,10.297 11.009,10.168 11.332,10.075 11.664,10.019 12,10 12.336,10.019 12.668,10.075 12.991,10.168 13.302,10.297 13.596,10.46 13.87,10.655 14.121,10.879 14.345,11.13 14.54,11.404 14.703,11.698 14.832,12.009 14.925,12.332 14.981,12.664" style="animation-delay:0.06s"/>
+</svg>

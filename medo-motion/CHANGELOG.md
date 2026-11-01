@@ -1,5 +1,24 @@
 # Changelog — Medo Motion (private fork)
 
+## 1.4 — 2026-11-01 — the whole itshover library, inside both engines
+- **Vendored itshover** (Apache-2.0, `itshover/itshover` on GitHub) into `icons/itshover/tsx/`
+  with its LICENSE and upstream registry — 263 components, the complete set behind
+  https://itshover.com/icons. The site itself is blocked from the sandbox, GitHub is not.
+- **Importer** `tools/itshover_import.py`: reads each component's `<svg>` (path / rect / circle /
+  ellipse / line / polyline / polygon, `fill`, `transform`, plus the JSX-array cases) and emits
+  `icons/itshover/registry.json`. `--list` searches it, `--promote <id>` moves one icon into the
+  house registry for Arabic labelling and hand edits.
+- **Full SVG path support in the builder**: an SVG path parser/flattener (M L H V C S Q T A Z, arcs
+  via endpoint→centre, packed arc flags) so curves, rounded rects and ellipses look identical in
+  SVG, Canvas (native `Path2D`) and Pillow (flattened polylines). Filled shapes supported.
+- **275 icons total** (12 house + 263 itshover, 41 of them third-party brand marks flagged
+  `group: "brand"`), all palette-locked at draw time, all in `lib/icons.js`, `icons.py` and `svg/`.
+- Fixed the engine-K painter origin (icons were drawn from the centre instead of centred) and
+  scoped per-part transforms with save/restore.
+- Docs: `docs/icons.md` rewritten (what is identical, what is intentionally different, commands),
+  `assets/CREDITS.md` created with the Apache-2.0 attribution, README/AGENTS/CHANGELOG updated.
+- Verified: `ruff check .` clean · `pytest` 76 passed · `icons --check` in sync.
+
 ## 1.3 — 2026-11-01 — palette v2 + animated icon layer
 - **Palette v2 (from Medo):** the 12 supplied colours replace the old red/black/yellow/teal set;
   one derived shade `ink_shadow #2E2423` (ink −35%). `brand/brand.json`, `brand/BRAND.md`,

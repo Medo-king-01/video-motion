@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Party Popper Icon" data-icon="party-popper-icon">
+  <title>Party Popper Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="M5.8 11.3 2 22l10.7-3.79" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M4 3h.01" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="M22 8h.01" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M15 2h.01" style="animation-delay:0.18s"/>
+  <path class="a" pathLength="1" d="M22 20h.01" style="animation-delay:0.24s"/>
+  <path class="a" pathLength="1" d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10" style="animation-delay:0.3s"/>
+  <path class="a" pathLength="1" d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17" style="animation-delay:0.36s"/>
+  <path class="a" pathLength="1" d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7" style="animation-delay:0.42s"/>
+  <path class="a" pathLength="1" d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z" style="animation-delay:0.48s"/>
+</svg>

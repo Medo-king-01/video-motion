@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Letter O Icon" data-icon="letter-o-icon">
+  <title>Letter O Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="a" pathLength="1" points="20,12 19.95,12.896 19.799,13.78 19.551,14.642 19.208,15.471 18.774,16.256 18.255,16.988 17.657,17.657 16.988,18.255 16.256,18.774 15.471,19.208 14.642,19.551 13.78,19.799 12.896,19.95 12,20 11.104,19.95 10.22,19.799 9.358,19.551 8.529,19.208 7.744,18.774 7.012,18.255 6.343,17.657 5.745,16.988 5.226,16.256 4.792,15.471 4.449,14.642 4.201,13.78 4.05,12.896 4,12 4.05,11.104 4.201,10.22 4.449,9.358 4.792,8.529 5.226,7.744 5.745,7.012 6.343,6.343 7.012,5.745 7.744,5.226 8.529,4.792 9.358,4.449 10.22,4.201 11.104,4.05 12,4 12.896,4.05 13.78,4.201 14.642,4.449 15.471,4.792 16.256,5.226 16.988,5.745 17.657,6.343 18.255,7.012 18.774,7.744 19.208,8.529 19.551,9.358 19.799,10.22 19.95,11.104" style="animation-delay:0.0s"/>
+</svg>

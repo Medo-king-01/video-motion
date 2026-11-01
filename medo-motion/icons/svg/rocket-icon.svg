@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="96" height="96" role="img" aria-label="Rocket Icon — انطلاق" data-icon="rocket-icon">
+  <title>Rocket Icon — انطلاق</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="m13.299,9h-3.891c-.892,0-1.738.397-2.308,1.083l-5.1,6.139,6.31,1.51" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="m23,18.701v3.891c0,.892-.397,1.738-1.083,2.308l-6.139,5.1-1.51-6.31" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="m14.268,23.69c7.986-2.194,14.642-9.015,15.732-21.69-12.675,1.09-19.496,7.746-21.69,15.732l5.958,5.958Z" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="m19,5c4.111,1.389,6.778,4.056,8,8" style="animation-delay:0.18s"/>
+  <polygon class="f" points="21,13 20.987,13.224 20.95,13.445 20.888,13.661 20.802,13.868 20.693,14.064 20.564,14.247 20.414,14.414 20.247,14.564 20.064,14.693 19.868,14.802 19.661,14.888 19.445,14.95 19.224,14.987 19,15 18.776,14.987 18.555,14.95 18.339,14.888 18.132,14.802 17.936,14.693 17.753,14.564 17.586,14.414 17.436,14.247 17.307,14.064 17.198,13.868 17.112,13.661 17.05,13.445 17.013,13.224 17,13 17.013,12.776 17.05,12.555 17.112,12.339 17.198,12.132 17.307,11.936 17.436,11.753 17.586,11.586 17.753,11.436 17.936,11.307 18.132,11.198 18.339,11.112 18.555,11.05 18.776,11.013 19,11 19.224,11.013 19.445,11.05 19.661,11.112 19.868,11.198 20.064,11.307 20.247,11.436 20.414,11.586 20.564,11.753 20.693,11.936 20.802,12.132 20.888,12.339 20.95,12.555 20.987,12.776" style="animation-delay:0.24s"/>
+  <path class="a" pathLength="1" d="m2,30s.707-4.95,2.121-6.364c1.172-1.172,3.071-1.172,4.243,0s1.172,3.071,0,4.243c-1.414,1.414-6.364,2.121-6.364,2.121Z" style="animation-delay:0.3s"/>
+</svg>

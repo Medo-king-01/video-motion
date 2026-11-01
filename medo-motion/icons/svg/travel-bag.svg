@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96" role="img" aria-label="Travel Bag" data-icon="travel-bag">
+  <title>Travel Bag</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <path class="a" pathLength="1" d="M12.75 4.25h-6m6 0c2.828 0 4.243 0 5.121.879.879.878.879 2.293.879 5.121v2.5c0 2.828 0 4.243-.879 5.121-.878.879-2.293.879-5.121.879h-6c-2.828 0-4.243 0-5.121-.879C.75 16.993.75 15.578.75 12.75v-2.5c0-2.828 0-4.243.879-5.121.878-.879 2.293-.879 5.121-.879" style="animation-delay:0.0s"/>
+  <path class="a" pathLength="1" d="M18.75 8.25a4 4 0 0 1-4-4" style="animation-delay:0.06s"/>
+  <path class="a" pathLength="1" d="m7 9.75-.75.75.75.75.75-.75z" style="animation-delay:0.12s"/>
+  <path class="a" pathLength="1" d="M.75 14.75a4 4 0 0 1 4 4m-4-10.5a4 4 0 0 0 4-4m14 10.5a4 4 0 0 0-4 4" style="animation-delay:0.18s"/>
+  <path class="a" pathLength="1" d="m11.75 14.55-1.5-.3 1.2-1.2z" style="animation-delay:0.24s"/>
+  <path class="a" pathLength="1" d="M12.25 8.75v.01" style="animation-delay:0.3s"/>
+  <path class="a" pathLength="1" d="M12.75 4.25h-6v-.5c0-1.414 0-2.121.44-2.56C7.628.75 8.335.75 9.75.75s2.121 0 2.56.44c.44.438.44 1.145.44 2.56zm0 0c2.828 0 4.243 0 5.121.879.879.878.879 2.293.879 5.121v2.5c0 2.828 0 4.243-.879 5.121-.878.879-2.293.879-5.121.879" style="animation-delay:0.36s"/>
+</svg>

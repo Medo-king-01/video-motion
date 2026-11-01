@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="96" height="96" role="img" aria-label="Layers Icon" data-icon="layers-icon">
+  <title>Layers Icon</title>
+<style>
+  .a{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;animation:draw 0.85s cubic-bezier(.25,.9,.25,1) both}
+  .d{fill:var(--icon-accent,currentColor);stroke:none;transform-box:fill-box;transform-origin:center;
+     animation:dotIn .35s ease-out both,dotPulse 0.83s infinite ease-in-out}
+  .f{fill:currentColor;stroke:none;animation:fadeIn .45s ease-out both}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes dotIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+  @keyframes dotPulse{0%,100%{opacity:.55}50%{opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.a{animation:none;stroke-dashoffset:0}.d,.f{animation:none}}
+</style>
+  <polygon class="f" points="90,22 93.827,22.761 97.071,24.929 99.239,28.173 100,32 100,48 99.239,51.827 97.071,55.071 93.827,57.239 90,58 54,58 50.173,57.239 46.929,55.071 44.761,51.827 44,48 44,32 44.761,28.173 46.929,24.929 50.173,22.761 54,22" style="animation-delay:0.0s"/>
+  <polygon class="f" points="72,62 76.592,62.913 80.485,65.515 83.087,69.408 84,74 84,90 83.087,94.592 80.485,98.485 76.592,101.087 72,102 32,102 27.408,101.087 23.515,98.485 20.913,94.592 20,90 20,74 20.913,69.408 23.515,65.515 27.408,62.913 32,62" style="animation-delay:0.06s"/>
+</svg>

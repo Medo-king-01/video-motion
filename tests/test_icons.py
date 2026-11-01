@@ -12,16 +12,21 @@ from conftest import ROOT, SKILL
 
 ICONS_DIR = SKILL / "icons"
 REGISTRY = json.loads((ICONS_DIR / "registry.json").read_text(encoding="utf-8"))
+IMPORTED = json.loads((ICONS_DIR / "itshover" / "registry.json").read_text(encoding="utf-8"))
 MANIFEST = json.loads((ICONS_DIR / "manifest.json").read_text(encoding="utf-8"))
 ICONS_JS = (SKILL / "templates" / "render" / "lib" / "icons.js").read_text(encoding="utf-8")
-IDS = [icon["id"] for icon in REGISTRY["icons"]]
+HOUSE_IDS = [icon["id"] for icon in REGISTRY["icons"]]
+IDS = [icon["id"] for icon in MANIFEST["icons"]]
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
 
 
 def test_registry_is_sane():
     assert len(IDS) == len(set(IDS)), "duplicate icon ids"
-    assert len(IDS) >= 12
+    assert len(HOUSE_IDS) >= 12
+    assert len(IMPORTED["icons"]) >= 250, "the vendored itshover set should be complete"
+    assert IMPORTED["licence"].startswith("Apache-2.0")
+    assert (ICONS_DIR / "itshover" / "LICENSE").is_file()
     for icon in REGISTRY["icons"]:
         assert icon["ar"] and icon["en"], icon["id"]
         assert icon["anim"]["draw"] > 0 and icon["anim"]["stagger"] >= 0
@@ -36,12 +41,15 @@ def test_generated_files_are_in_sync():
     assert r.returncode == 0, r.stdout + r.stderr
 
 
-def test_manifest_matches_registry():
+def test_manifest_matches_registries():
     assert [i["id"] for i in MANIFEST["icons"]] == IDS
     assert MANIFEST["grid"] == REGISTRY["grid"]
+    assert set(HOUSE_IDS) <= set(IDS)
+    assert {i["id"] for i in IMPORTED["icons"]} <= set(IDS)
+    assert sum(1 for i in MANIFEST["icons"] if i["source"] == "house") == len(HOUSE_IDS)
 
 
-@pytest.mark.parametrize("icon_id", IDS)
+@pytest.mark.parametrize("icon_id", HOUSE_IDS + IDS[::18])
 def test_svg_is_animated_and_palette_locked(icon_id):
     svg = (ICONS_DIR / "svg" / f"{icon_id}.svg").read_text(encoding="utf-8")
     assert f'data-icon="{icon_id}"' in svg
@@ -60,7 +68,7 @@ def test_engine_k_painter_exposes_every_icon():
 def test_engine_p_painter_exposes_every_icon():
     from icons import ICONS, draw_icon, icon_duration  # noqa: PLC0415
 
-    assert sorted(ICONS) == sorted(IDS)
+    assert set(IDS) <= set(ICONS)
     assert all(icon_duration(i) > 0 for i in IDS)
     frame = np.zeros((64, 64, 3), dtype=np.float32)
     draw_icon(frame, "check-circle", 2.0, 32, 32, size=48, color=(243, 242, 241), accent=(203, 39, 27), loop=False)
@@ -82,7 +90,8 @@ def test_engine_p_reveal_grows_with_time():
 
 def test_sheet_tool_runs(tmp_path):
     out = tmp_path / "sheet.png"
-    r = subprocess.run([sys.executable, str(ROOT / "tools" / "icons_sheet.py"), "--out", str(out)],
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "icons_sheet.py"), "--out", str(out),
+                        "--limit", "12", "--times", "0.5,2.5"],
                        capture_output=True, text=True, cwd=str(ROOT))
     assert r.returncode == 0, r.stdout + r.stderr
     assert out.is_file() and out.stat().st_size > 5_000

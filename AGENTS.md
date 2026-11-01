@@ -52,7 +52,7 @@ Medo gives you words, timing, voice and poses. Everything visual and audible is 
 | Element | Source order |
 |---|---|
 | Backgrounds, cards, devices, charts, transitions, captions, HUD | **Code** first (this is the default and the cheapest) |
-| Animated icons | **`medo-motion/icons/`** — one registry, already wired into both engines (`drawIcon` / `draw_icon`); never drop in a random icon pack |
+| Animated icons | **`medo-motion/icons/`** — 275 icons (house set + the full itshover library, Apache-2.0) already wired into both engines (`drawIcon` / `draw_icon`, see `docs/icons.md`); never drop in a random icon pack, and never use a `group: "brand"` icon as identity |
 | Hero objects the code can't draw well | **AI image generation**, one session per video, deck-locked prompt in `medo-playbook.md` §4 |
 | Real footage / textures / photos | **Search** CC0/PD/OFL only, download into `projects/<slug>/assets/`, log in `CREDITS.md` |
 | Sound effects | **Procedural** (`sfx.py`) first → Openverse CC0 → ElevenLabs SFX only with approval |
