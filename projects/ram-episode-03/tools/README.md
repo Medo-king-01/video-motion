@@ -1,8 +1,9 @@
 # Arabic audio transcription and word alignment
 
 This tool uses [WhisperX](https://github.com/m-bain/whisperX) for Arabic ASR and
-wav2vec2 forced alignment. It emits measured word-level start/end times in a
-JSON format intended for the episode caption renderer.
+wav2vec2 forced alignment. The Arabic aligner is explicitly pinned to
+`jonatasgrosman/wav2vec2-large-xlsr-53-arabic`. It emits measured word-level
+start/end times in a JSON format intended for the episode caption renderer.
 
 ## Local use
 
