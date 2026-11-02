@@ -140,3 +140,44 @@ def test_chunk_validator_rejects_missing_and_empty_files(tmp_path):
     empty = tmp_path / "empty.mp4"
     empty.touch()
     assert not is_valid_chunk(empty, 4, 1080, 1920)
+
+def test_signature_changes_when_presenter_fallback_pose_changes(tmp_path):
+    from chunk_utils import build_signature
+
+    source = tmp_path / "source"
+    project_assets = tmp_path / "project-assets"
+    fallback = tmp_path / "studio-assets" / "poses"
+    source.mkdir()
+    project_assets.mkdir()
+    fallback.mkdir(parents=True)
+    (source / "render.py").write_text("pass\\n", encoding="utf-8")
+    pose = fallback / "neutral.png"
+    pose.write_bytes(b"POSE-A")
+    args = (source, project_assets, 120, 30, [0, 4], 30, 1080, 1920)
+    first = build_signature(*args, fallback_assets_dir=fallback)
+    pose.write_bytes(b"POSE-B")
+    assert build_signature(*args, fallback_assets_dir=fallback) != first
+
+
+def test_chunk_validator_decodes_a_real_mp4_with_pyav(tmp_path):
+    av = pytest.importorskip("av")
+    np = pytest.importorskip("numpy")
+    from chunk_utils import is_valid_chunk
+
+    video = tmp_path / "real.mp4"
+    with av.open(str(video), mode="w") as output:
+        stream = output.add_stream("mpeg4", rate=30)
+        stream.width = 16
+        stream.height = 16
+        stream.pix_fmt = "yuv420p"
+        for _ in range(3):
+            frame = av.VideoFrame.from_ndarray(
+                np.zeros((16, 16, 3), dtype=np.uint8), format="rgb24"
+            )
+            for packet in stream.encode(frame):
+                output.mux(packet)
+        for packet in stream.encode():
+            output.mux(packet)
+
+    assert is_valid_chunk(video, 3, 16, 16)
+    assert not is_valid_chunk(video, 4, 16, 16)
