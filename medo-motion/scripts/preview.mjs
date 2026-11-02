@@ -16,13 +16,18 @@ if (!Number.isFinite(fps) || fps <= 0 || !Number.isFinite(scale) || scale <= 0 |
 const audio = opt('audio');
 if (a.includes('--audio') && (!audio || !existsSync(audio))) { console.error('Audio file not found'); process.exit(1); }
 if (a.includes('--overwrite')) { console.error('Increment --version; preview overwrite is not supported.'); process.exit(1); }
-let cfg = {}, configPath = resolve(process.env.KHAAM_CONFIG || '.khaam/config.json');
-try { if (existsSync(configPath)) cfg = JSON.parse(readFileSync(configPath, 'utf8').replace(/^\uFEFF/, '')); }
+const configCandidates = process.env.MEDO_CONFIG
+  ? [resolve(process.env.MEDO_CONFIG)]
+  : [resolve('.video-motion/config.json'), process.env.KHAAM_CONFIG ? resolve(process.env.KHAAM_CONFIG) : null, resolve('.khaam/config.json')].filter(Boolean);
+const configFile = configCandidates.find(existsSync) || resolve(process.env.MEDO_CONFIG || '.video-motion/config.json');
+let cfg = {};
+try { if (existsSync(configFile)) cfg = JSON.parse(readFileSync(configFile, 'utf8').replace(/^\uFEFF/, '')); }
 catch { console.error('Invalid preview configuration'); process.exit(1); }
+// Config values may use ~ and $VAR / %VAR%, like the Video Motion path helpers.
 // Config values may use ~ and $VAR / %VAR%, like the Python helpers (khaam_paths.py).
 const expand = v => v && String(v).replace(/^~(?=$|[\\/])/, homedir()).replace(/\$\{?(\w+)\}?|%(\w+)%/g, (m, x, y) => process.env[x || y] ?? m);
-const configuredFFmpeg = expand(process.env.KHAAM_FFMPEG || cfg.ffmpeg);
-const ffmpeg = configuredFFmpeg ? (isAbsolute(configuredFFmpeg) ? configuredFFmpeg : (/[\\/]/.test(configuredFFmpeg) ? resolve(dirname(dirname(configPath)), configuredFFmpeg) : configuredFFmpeg)) : 'ffmpeg';
+const configuredFFmpeg = expand(process.env.MEDO_FFMPEG || process.env.KHAAM_FFMPEG || cfg.ffmpeg);
+const ffmpeg = configuredFFmpeg ? (isAbsolute(configuredFFmpeg) ? configuredFFmpeg : (/[\\/]/.test(configuredFFmpeg) ? resolve(dirname(dirname(configFile)), configuredFFmpeg) : configuredFFmpeg)) : 'ffmpeg';
 const render = opt('render', 'src/render.js'), tag = `${from}-${to}`;
 const name = String(opt('name','Video')).trim().replace(/[\\/:*?"<>|]/g,'-'), version = String(opt('version',1));
 if(!name || !/^[1-9][0-9]*$/.test(version)){console.error('Use a descriptive --name and positive integer --version');process.exit(1);}

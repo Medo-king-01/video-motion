@@ -208,7 +208,7 @@ def step_hybrid() -> bool:
         if browser_info.returncode:
             return record("hybrid P/K/R render", 1, browser_info.stdout + browser_info.stderr)
         browser = json.loads(browser_info.stdout)
-        env = {**os.environ, "KHAAM_TOOLKIT": str(TOOLKIT), "KHAAM_CHROMIUM": browser["executablePath"],
+        env = {**os.environ, "MEDO_TOOLKIT": str(TOOLKIT), "MEDO_CHROMIUM": browser["executablePath"],
                "FFMPEG_BIN": ff, "FFPROBE_BIN": ffprobe, "PYTHONUNBUFFERED": "1"}
         if browser.get("libraryPath"):
             env["LD_LIBRARY_PATH"] = browser["libraryPath"] + ":" + env.get("LD_LIBRARY_PATH", "")
@@ -243,7 +243,7 @@ def step_hybrid() -> bool:
 
 
 def main() -> int:
-    print("medo-motion self test\n")
+    print("Video Motion self-test\n")
     step_doctor()
     step_tests()
     if FAST:

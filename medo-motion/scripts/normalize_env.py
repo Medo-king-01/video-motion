@@ -44,7 +44,7 @@ def main():
  for pattern in ('.env','*.env','/'+dst.name):
   if pattern not in ignores: ignores.append(pattern)
  gi.write_text('\n'.join(ignores)+'\n',encoding='utf-8')
- fd,tmp=tempfile.mkstemp(prefix='.khaam-secret-',dir=dst.parent)
+ fd,tmp=tempfile.mkstemp(prefix='.video-motion-secret-',dir=dst.parent)
  try:
   with os.fdopen(fd,'w',encoding='utf-8',newline='\n') as f: f.write('\n'.join(lines)+'\n')
   if os.name!='nt': os.chmod(tmp,0o600)

@@ -39,7 +39,7 @@ def _request(url):
     host = urllib.parse.urlparse(url).hostname
     if host not in ALLOWED_HOSTS:
         raise ValueError(f'refusing non-GitHub host: {host}')
-    req = urllib.request.Request(url, headers={'User-Agent': 'khaam-motion-fonts', 'Accept': 'application/vnd.github+json'})
+    req = urllib.request.Request(url, headers={'User-Agent': 'video-motion-fonts', 'Accept': 'application/vnd.github+json'})
     token = os.environ.get('GITHUB_TOKEN')
     if token and host == 'api.github.com':
         req.add_header('Authorization', 'Bearer ' + token)

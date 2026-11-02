@@ -20,7 +20,7 @@ SAFE = {'cc0', 'pdm', 'by'}
 MAX_BYTES = 50 * 1024 * 1024
 
 def fetch_json(url):
-    req = urllib.request.Request(url, headers={'User-Agent': 'khaam-motion-sfx'})
+    req = urllib.request.Request(url, headers={'User-Agent': 'video-motion-sfx'})
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.load(r)
@@ -95,7 +95,7 @@ def get(a):
     target = dest / f'{name}.{ext}'
     if target.exists():
         sys.exit(f'{target.as_posix()} already exists; choose another --name.')
-    req = urllib.request.Request(url, headers={'User-Agent': 'khaam-motion-sfx'})
+    req = urllib.request.Request(url, headers={'User-Agent': 'video-motion-sfx'})
     with urllib.request.urlopen(req, timeout=60) as resp:
         ctype = resp.headers.get('Content-Type', '')
         if ctype and not (ctype.startswith('audio/') or ctype == 'application/octet-stream'):

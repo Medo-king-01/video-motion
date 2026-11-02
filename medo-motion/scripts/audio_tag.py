@@ -10,7 +10,7 @@ Writes JSON next to the console output with --json out.json. Short clips are loo
 import os, sys, glob, json, argparse
 os.environ["HF_HUB_OFFLINE"]="1"
 os.environ["TRANSFORMERS_OFFLINE"]="1"
-from khaam_paths import models_dir
+from video_motion_paths import models_dir
 from safe_audio import verify_panns, restricted_torch
 import numpy as np
 a = argparse.ArgumentParser(); a.add_argument('files', nargs='*'); a.add_argument('--models-dir', default=str(models_dir()))

@@ -1,6 +1,6 @@
-"""Shared helpers for the khaam-motion scripts (Windows, macOS, Linux; Python >= 3.9, stdlib only)."""
+"""Shared helpers for the Video Motion scripts (Windows, macOS, Linux; Python >= 3.9, stdlib only)."""
 import os, shutil, subprocess, sys
-from khaam_paths import executable
+from video_motion_paths import executable
 for _s in (sys.stdout, sys.stderr):  # Windows consoles (cp1252) can't print ✅/❌ -> force UTF-8
     try: _s.reconfigure(encoding='utf-8', errors='replace')
     except Exception: pass

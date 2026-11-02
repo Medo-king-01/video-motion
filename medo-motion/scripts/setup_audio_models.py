@@ -3,7 +3,7 @@
 No arguments prints an offline plan. Other optional models require documented manual setup.
 """
 import argparse,hashlib,json,pathlib,os,urllib.request
-from khaam_paths import models_dir
+from video_motion_paths import models_dir
 URL='https://zenodo.org/records/3987831/files/Cnn14_mAP%3D0.431.pth?download=1'
 SIZE=327428481
 MD5='541141fa2ee191a88f24a3219fff024e'
