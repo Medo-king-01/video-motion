@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import os
-import subprocess
 from pathlib import Path
 
 _ASSET_SUFFIXES = {".png", ".ttf", ".otf", ".json"}
@@ -24,13 +22,13 @@ def expected_chunks(total_frames: int, chunk_frames: int) -> list[tuple[int, int
 
 def _hash_file(hasher, path: Path, relative_name: str) -> None:
     hasher.update(relative_name.replace(os.sep, "/").encode("utf-8"))
-    hasher.update(b"\0")
+    hasher.update(b"\\0")
     hasher.update(str(path.stat().st_size).encode("ascii"))
-    hasher.update(b"\0")
+    hasher.update(b"\\0")
     with path.open("rb") as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             hasher.update(block)
-    hasher.update(b"\0")
+    hasher.update(b"\\0")
 
 
 def build_signature(
@@ -48,11 +46,11 @@ def build_signature(
     source_root = Path(source_dir)
     assets_root = Path(assets_dir)
     hasher = hashlib.sha256()
-    hasher.update(b"engine-p-cache-v2\0")
+    hasher.update(b"engine-p-cache-v2\\0")
     hasher.update(
         repr((total_frames, chunk_frames, tuple(scene_bounds), fps, width, height)).encode("utf-8")
     )
-    hasher.update(b"\0")
+    hasher.update(b"\\0")
 
     source_files = sorted(
         (path for path in source_root.iterdir() if path.is_file() and path.suffix.lower() == ".py"),
@@ -73,15 +71,15 @@ def build_signature(
             _hash_file(hasher, path, f"assets/{path.relative_to(assets_root).as_posix()}")
 
     override = (font_override or "").strip()
-    hasher.update(b"REEL_FONT\0")
+    hasher.update(b"REEL_FONT\\0")
     hasher.update(override.encode("utf-8"))
-    hasher.update(b"\0")
+    hasher.update(b"\\0")
     if override:
         font_path = Path(override).expanduser()
         if font_path.is_file():
             _hash_file(hasher, font_path, "external-font")
         else:
-            hasher.update(b"missing-external-font\0")
+            hasher.update(b"missing-external-font\\0")
 
     return hasher.hexdigest()
 
@@ -91,37 +89,28 @@ def is_valid_chunk(
     expected_frames: int,
     width: int,
     height: int,
-    ffprobe: str = "ffprobe",
 ) -> bool:
-    """Accept only a non-empty video that ffprobe can fully decode and count."""
+    """Accept only a video that PyAV can fully decode at the expected size and frame count."""
     chunk_path = Path(path)
     try:
         if expected_frames <= 0 or not chunk_path.is_file() or chunk_path.stat().st_size <= 0:
             return False
-        result = subprocess.run(
-            [
-                ffprobe,
-                "-v", "error",
-                "-select_streams", "v:0",
-                "-count_frames",
-                "-show_entries", "stream=width,height,nb_read_frames",
-                "-of", "json",
-                str(chunk_path),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if result.returncode != 0:
-            return False
-        streams = json.loads(result.stdout).get("streams", [])
-        if len(streams) != 1:
-            return False
-        stream = streams[0]
-        return (
-            int(stream.get("width", 0)) == width
-            and int(stream.get("height", 0)) == height
-            and int(stream.get("nb_read_frames", -1)) == expected_frames
-        )
-    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        import av  # noqa: PLC0415 - required by the studio setup and ffprobe shim
+
+        with av.open(str(chunk_path)) as container:
+            streams = [stream for stream in container.streams if stream.type == "video"]
+            if len(streams) != 1:
+                return False
+            stream = streams[0]
+            if stream.codec_context.width != width or stream.codec_context.height != height:
+                return False
+            decoded_frames = 0
+            for frame in container.decode(stream):
+                if frame.width != width or frame.height != height:
+                    return False
+                decoded_frames += 1
+                if decoded_frames > expected_frames:
+                    return False
+            return decoded_frames == expected_frames
+    except Exception:
         return False
