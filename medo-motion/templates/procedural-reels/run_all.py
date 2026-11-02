@@ -1,53 +1,131 @@
-"""Chunked, restartable render (works on Windows/macOS/Linux). Re-run it if it stops: finished chunks are skipped.
-Each chunk is a NEW process (lesson learned: one long render silently died mid-way)."""
-import os,sys,subprocess,glob,shutil,json
-FF=os.environ.get('FFMPEG_BIN') or shutil.which('ffmpeg') or 'ffmpeg'
-HERE=os.path.dirname(os.path.abspath(__file__)); os.chdir(os.environ.get('REEL_DIR',HERE)); sys.path.insert(0,HERE)
-FPS=30; CH=int(os.environ.get('REEL_CHUNK','276'))
+"""Chunked, restartable render with content-addressed cache and verified chunks."""
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+FF = os.environ.get("FFMPEG_BIN") or shutil.which("ffmpeg") or "ffmpeg"
+FFPROBE = os.environ.get("FFPROBE_BIN") or shutil.which("ffprobe") or "ffprobe"
+HERE = Path(__file__).resolve().parent
+PROJECT = Path(os.environ.get("REEL_DIR") or HERE).resolve()
+os.chdir(PROJECT)
+sys.path.insert(0, str(HERE))
+
+FPS = 30
+CH = int(os.environ.get("REEL_CHUNK", "276"))
+if CH <= 0:
+    raise SystemExit("REEL_CHUNK must be a positive integer")
+
 from scenes import B
+from lib import W, H
+from chunk_utils import build_signature, expected_chunks, is_valid_chunk
+
 
 def _vo_seconds(path):
-    # The reel is exactly as long as the VO; fall back to scenes.B only when the VO isn't there yet.
+    """The reel follows the VO duration; scenes.B is the fallback."""
     try:
-        r=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration','-of','json',path],
-                         capture_output=True,text=True)
-        if r.returncode!=0: return None
-        return float(json.loads(r.stdout)['format']['duration'])   # -of json works with the shim too
-    except Exception:
+        result = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "json", path],
+            capture_output=True, text=True, check=False,
+        )
+        if result.returncode != 0:
+            return None
+        duration = float(json.loads(result.stdout)["format"]["duration"])
+        return duration if duration > 0 else None
+    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
         return None
 
-TOTAL=_vo_seconds(os.path.join('out','vo24.wav'))
-if TOTAL is None:
-    TOTAL=B[-1]; print(f'note: no out/vo24.wav -> using scenes.B ({TOTAL:.2f}s)')
-elif abs(B[-1]-TOTAL)>0.05:
-    print(f'note: scenes.B ends at {B[-1]:.2f}s but the VO is {TOTAL:.2f}s -> rendering the VO length')
-    print('      rebuild the bounds: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json')
-N=round(TOTAL*FPS)
-if os.environ.get('REEL_MAXFRAMES'): N=min(N,int(os.environ['REEL_MAXFRAMES']))  # smoke test only
-os.makedirs('out',exist_ok=True)
-import hashlib
-def _signature():
-    h=hashlib.sha1()
-    for fn in ('scenes.py','art.py','lib.py'): h.update(open(os.path.join(HERE,fn),'rb').read())
-    for p in sorted(glob.glob('assets/*.png')): h.update(p.encode()); h.update(str(os.path.getsize(p)).encode())
-    h.update(repr((N,CH,B)).encode()); return h.hexdigest()
-sig=_signature(); sigf='out/chunks.sig'
-if os.path.exists(sigf) and open(sigf).read()!=sig:   # code/assets/timing changed -> old chunks are stale
-    for p in glob.glob('out/c_*.mp4*'): os.remove(p)
-    print('source changed: old chunks removed')
-open(sigf,'w').write(sig)
-log=open('out_log.txt','a',encoding='utf-8')
-for a in range(0,N,CH):
-    b=min(a+CH,N)
-    r=subprocess.run([sys.executable,os.path.join(HERE,'chunk.py'),str(a),str(b)],stdout=log,stderr=log)
-    if r.returncode: print('chunk failed',a,b,'- see out_log.txt; re-run to resume'); sys.exit(1)
-parts=sorted(p for p in glob.glob('out/c_*.mp4') if '.tmp' not in p)
-with open('out/list.txt','w',encoding='utf-8') as f:
-    for p in parts: f.write("file '%s'\n"%os.path.abspath(p).replace('\\','/'))
-r=subprocess.run([FF,'-y','-loglevel','error','-f','concat','-safe','0','-i','out/list.txt','-c','copy','out/video_only.mp4'],stdout=log,stderr=log)
-merged=os.path.isfile('out/video_only.mp4') and os.path.getsize('out/video_only.mp4')>0
-log.write('VIDEODONE\n' if r.returncode==0 and merged else 'CONCAT_FAILED\n'); log.close()
-if r.returncode!=0 or not merged:
-    if os.path.exists('out/video_only.mp4'): os.remove('out/video_only.mp4')
-    print('CONCAT_FAILED', len(parts),'chunks, N =',N,'- see out_log.txt'); sys.exit(1)
-print('VIDEODONE', len(parts),'chunks, N =',N)
+
+total = _vo_seconds(str(PROJECT / "out" / "vo24.wav"))
+if total is None:
+    total = B[-1]
+    print(f"note: no out/vo24.wav -> using scenes.B ({total:.2f}s)")
+elif abs(B[-1] - total) > 0.05:
+    print(f"note: scenes.B ends at {B[-1]:.2f}s but the VO is {total:.2f}s -> rendering the VO length")
+    print("      rebuild the bounds: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json")
+
+N = round(total * FPS)
+if os.environ.get("REEL_MAXFRAMES"):
+    N = min(N, int(os.environ["REEL_MAXFRAMES"]))  # smoke test only
+if N <= 0:
+    raise SystemExit("render frame count must be positive")
+
+OUT = PROJECT / "out"
+OUT.mkdir(parents=True, exist_ok=True)
+ranges = expected_chunks(N, CH)
+signature = build_signature(
+    HERE, PROJECT / "assets", N, CH, B, FPS, W, H, os.environ.get("REEL_FONT")
+)
+signature_file = OUT / "chunks.sig"
+previous_signature = None
+try:
+    previous_signature = signature_file.read_text(encoding="ascii").strip()
+except OSError:
+    pass
+
+# Missing signatures are treated as cache misses, never as permission to reuse old chunks.
+if previous_signature != signature:
+    for stale in OUT.glob("c_*.mp4*"):
+        if stale.is_file():
+            stale.unlink()
+    for stale_output in (OUT / "video_only.mp4", OUT / "list.txt"):
+        if stale_output.exists():
+            stale_output.unlink()
+    print("source/cache signature changed or missing: old chunks invalidated")
+
+# Commit the signature atomically so an interrupted write cannot look valid.
+signature_tmp = signature_file.with_suffix(".sig.tmp")
+signature_tmp.write_text(signature + "\n", encoding="ascii")
+os.replace(signature_tmp, signature_file)
+
+log_path = PROJECT / "out_log.txt"
+with log_path.open("a", encoding="utf-8") as log:
+    expected_parts = []
+    for start, end in ranges:
+        part = OUT / f"c_{start:05d}_{end:05d}.mp4"
+        expected_parts.append(part)
+        result = subprocess.run(
+            [sys.executable, str(HERE / "chunk.py"), str(start), str(end)],
+            stdout=log, stderr=log, check=False,
+        )
+        if result.returncode != 0:
+            print(f"chunk failed {start}:{end} - see out_log.txt; re-run to resume")
+            raise SystemExit(1)
+        if not is_valid_chunk(part, end - start, W, H, FFPROBE):
+            print(f"chunk invalid after render: {part.name} - see out_log.txt")
+            raise SystemExit(1)
+
+    # Only the exact ranges from this run may be concatenated; never glob the cache.
+    list_file = OUT / "list.txt"
+    with list_file.open("w", encoding="utf-8", newline="\n") as stream:
+        for part in expected_parts:
+            escaped = str(part.resolve()).replace("\\", "/").replace("'", "'\\''")
+            stream.write(f"file '{escaped}'\n")
+
+    final_tmp = OUT / "video_only.tmp.mp4"
+    if final_tmp.exists():
+        final_tmp.unlink()
+    result = subprocess.run(
+        [FF, "-y", "-loglevel", "error", "-f", "concat", "-safe", "0",
+         "-i", str(list_file), "-c", "copy", str(final_tmp)],
+        stdout=log, stderr=log, check=False,
+    )
+    merged = result.returncode == 0 and final_tmp.is_file() and final_tmp.stat().st_size > 0
+    if merged:
+        merged = is_valid_chunk(final_tmp, N, W, H, FFPROBE)
+    if merged:
+        os.replace(final_tmp, OUT / "video_only.mp4")
+        log.write("VIDEODONE\n")
+    else:
+        if final_tmp.exists():
+            final_tmp.unlink()
+        old_final = OUT / "video_only.mp4"
+        if old_final.exists():
+            old_final.unlink()
+        log.write("CONCAT_FAILED\n")
+        print(f"CONCAT_FAILED {len(expected_parts)} expected chunks, N={N} - see out_log.txt")
+        raise SystemExit(1)
+
+print(f"VIDEODONE {len(ranges)} chunks, N={N}")
