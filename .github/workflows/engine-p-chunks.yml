@@ -43,6 +43,11 @@ jobs:
       - name: Run Engine P chunk integrity tests
         run: python -m pytest -q tests/test_engine_p_chunks.py
 
+      - name: Install FFmpeg tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Verify FFmpeg tools
         run: |
           ffmpeg -version
