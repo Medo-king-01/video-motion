@@ -150,7 +150,7 @@ def test_signature_changes_when_presenter_fallback_pose_changes(tmp_path):
     source.mkdir()
     project_assets.mkdir()
     fallback.mkdir(parents=True)
-    (source / "render.py").write_text("pass\\n", encoding="utf-8")
+    (source / "render.py").write_text("pass\n", encoding="utf-8")
     pose = fallback / "neutral.png"
     pose.write_bytes(b"POSE-A")
     args = (source, project_assets, 120, 30, [0, 4], 30, 1080, 1920)
