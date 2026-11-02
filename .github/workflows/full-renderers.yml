@@ -53,15 +53,19 @@ jobs:
           python -m pip install -r tools/requirements.txt pytest ruff
           npm ci --prefix tools/toolkit
 
+      - name: Prepare validation logs
+        run: mkdir -p "$RUNNER_TEMP/video-motion-ci"
+
       - name: Run static checks, unit tests, lint fixtures, and brand audits
-        run: bash tools/ci.sh
+        run: |
+          set -o pipefail
+          bash tools/ci.sh 2>&1 | tee "$RUNNER_TEMP/video-motion-ci/quality.log"
 
       - name: Run real renders for P, K, R, and Hybrid
         env:
           PYTHONUNBUFFERED: "1"
           CI: "true"
         run: |
-          mkdir -p "$RUNNER_TEMP/video-motion-ci"
           set -o pipefail
           python tools/selftest.py --remotion --hybrid 2>&1 | tee "$RUNNER_TEMP/video-motion-ci/all-renderers.log"
 
@@ -70,6 +74,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: full-renderers-validation-log
-          path: ${{ runner.temp }}/video-motion-ci/all-renderers.log
+          path: ${{ runner.temp }}/video-motion-ci/
           if-no-files-found: ignore
           retention-days: 14
