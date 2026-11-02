@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 FF = os.environ.get("FFMPEG_BIN") or shutil.which("ffmpeg") or "ffmpeg"
-FFPROBE = os.environ.get("FFPROBE_BIN") or shutil.which("ffprobe") or "ffprobe"
 HERE = Path(__file__).resolve().parent
 PROJECT = Path(os.environ.get("REEL_DIR") or HERE).resolve()
 os.chdir(PROJECT)
@@ -27,7 +26,7 @@ out = out_dir / f"c_{a:05d}_{b:05d}.mp4"
 tmp = out.with_name(out.stem + ".tmp.mp4")
 
 # A cached file is reusable only after a full decode/count/dimension check.
-if is_valid_chunk(out, b - a, W, H, FFPROBE):
+if is_valid_chunk(out, b - a, W, H):
     print(f"chunk cached and verified {a}:{b}", flush=True)
     raise SystemExit(0)
 if out.exists():
@@ -65,7 +64,7 @@ except BaseException:
         tmp.unlink()
     raise
 
-if return_code != 0 or not is_valid_chunk(tmp, b - a, W, H, FFPROBE):
+if return_code != 0 or not is_valid_chunk(tmp, b - a, W, H):
     if tmp.exists():
         tmp.unlink()
     print(f"chunk FAILED {a}:{b}; ffmpeg exit={return_code} or output verification failed", flush=True)
