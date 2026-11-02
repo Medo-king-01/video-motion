@@ -55,8 +55,11 @@ if N <= 0:
 OUT = PROJECT / "out"
 OUT.mkdir(parents=True, exist_ok=True)
 ranges = expected_chunks(N, CH)
+# presenter.py searches the repository-level assets/poses as its secondary source.
+# Include that exact fallback tree in the signature so fallback sprite changes invalidate cache.
+STUDIO_ASSETS = HERE.parents[2] / "assets" / "poses"
 signature = build_signature(
-    HERE, PROJECT / "assets", N, CH, B, FPS, W, H, FONT
+    HERE, PROJECT / "assets", N, CH, B, FPS, W, H, FONT, STUDIO_ASSETS
 )
 signature_file = OUT / "chunks.sig"
 previous_signature = None
