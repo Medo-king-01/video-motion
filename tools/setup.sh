@@ -70,7 +70,7 @@ else bad "ffprobe missing (shim not installed in --check mode)"; fi
 # ---------------------------------------------------------------- node toolkit
 say "Node toolkit + Chromium"
 if ! command -v npm >/dev/null 2>&1; then
-  bad "npm not found (install Node 18+)"
+  bad "npm not found (install Node 20.11+ — tools/toolkit/package-lock.json requires it)"
 elif [ "$CHECK_ONLY" = "1" ]; then
   [ -d tools/toolkit/node_modules/playwright-core ] && ok "toolkit installed" || bad "toolkit not installed"
 else
@@ -83,9 +83,19 @@ say "Type system (14 families, SIL OFL 1.1)"
 if [ -f assets/fonts/fonts.json ] && [ "$(ls -1 assets/fonts/*/*.ttf 2>/dev/null | wc -l)" -ge 20 ]; then
   ok "$(ls -1d assets/fonts/*/ | wc -l) families already in assets/fonts (docs/fonts.md)"
 elif [ "$CHECK_ONLY" = "0" ]; then
-  if python3 tools/fonts_install.py 2>&1 | tail -1; then
-    ok "type system installed from the OFL npm packages"
-  else bad "could not fetch the fonts (run: python3 tools/fonts_install.py)"; fi
+  # Check the installer's OWN exit code — piping through tail without pipefail would
+  # report tail's success even when the install failed.
+  if FONTS_LOG=$(python3 tools/fonts_install.py 2>&1); then
+    printf '%s\n' "$FONTS_LOG" | tail -1
+    if [ -f assets/fonts/fonts.json ]; then
+      ok "type system installed from the OFL npm packages (manifest verified)"
+    else
+      bad "fonts_install.py exited 0 but assets/fonts/fonts.json is missing"
+    fi
+  else
+    printf '%s\n' "$FONTS_LOG" | tail -5
+    bad "could not fetch the fonts (run: python3 tools/fonts_install.py)"
+  fi
 else bad "fonts missing in assets/fonts (run: make fonts)"; fi
 
 # ---------------------------------------------------------------- verify

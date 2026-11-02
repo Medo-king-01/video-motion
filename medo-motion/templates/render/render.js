@@ -24,13 +24,19 @@ if(audio&&!existsSync(path.resolve(audio)))throw Error('Audio file not found');
 // The reel is exactly as long as the VO (no target length): say it out loud when they disagree,
 // because `-af apad` + a fixed frame count would silently cut a longer voice-over.
 async function probeDuration(file){
-  try{
+  // a missing/broken ffprobe emits 'error' on the child process — handle it, never crash
+  return new Promise((resolve)=>{
+    let out='';
     const p=spawn(process.env.KHAAM_FFPROBE||'ffprobe',
       ['-v','error','-show_entries','format=duration','-of','json',path.resolve(file)]);
-    let out='';for await(const c of p.stdout)out+=c;
-    await once(p,'close');
-    const d=Number(JSON.parse(out).format.duration);return Number.isFinite(d)?d:null;
-  }catch{return null;}
+    p.stdout.on('data',c=>out+=c);
+    p.on('error',()=>resolve(null));
+    p.on('close',()=>{
+      try{
+        const d=Number(JSON.parse(out).format.duration);resolve(Number.isFinite(d)?d:null);
+      }catch{resolve(null);}
+    });
+  });
 }
 if(!jpg&&existsSync(dest))throw Error('Output exists; use a new version name');
 await mkdir(out,{recursive:true});

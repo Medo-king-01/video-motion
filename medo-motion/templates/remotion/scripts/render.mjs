@@ -61,6 +61,16 @@ for (const [index, scene] of beats.scenes.entries()) {
   if (Math.abs(Number(scene.start) - cursor) > 0.02) fail(`scene ${index + 1} leaves a gap or overlaps the previous scene`);
   cursor = Number(scene.end);
 }
+// Guard against shipping the template's placeholder copy: STORY must be replaced with the
+// approved per-scene text, one card per scene, before a final render.
+const dataSource = await readFile(path.join(project, 'src', 'data.ts'), 'utf8').catch(() => null);
+if (dataSource !== null) {
+  const placeholders = ['اكتب عنوان المشهد', 'حط هنا الجملة الأساسية', 'الحركة والإيقاع بيساعدوا'];
+  const hit = placeholders.find((ph) => dataSource.includes(ph));
+  if (hit) fail(`src/data.ts still contains placeholder copy (“${hit}”) — replace STORY with the approved per-scene text (one card per scene) before rendering`);
+  const cards = (dataSource.match(/eyebrow\s*:/g) || []).length;
+  if (cards < beats.scenes.length) fail(`STORY has ${cards} card(s) but the timeline has ${beats.scenes.length} scenes — bind one card to each scene in src/data.ts`);
+}
 if (!audioArg && !silent) fail('pass --audio out/vo24.wav, or explicitly use --silent for a visual-only render');
 if (existsSync(output)) fail(`output already exists: ${output}; choose a new --out path/version`);
 
@@ -71,7 +81,14 @@ if (audioArg) {
   if (!audio) fail(`audio file not found: ${audioArg}`);
   const measured = wavDuration(audio);
   if (measured === null) fail('audio must be a PCM WAV (prepare out/vo24.wav as described in AGENTS.md)');
-  if (Math.abs(measured - duration) > 0.15) fail(`audio is ${measured.toFixed(3)}s but the approved timeline is ${duration.toFixed(3)}s`);
+  // One frame (1/fps) is the largest difference the frame grid can even represent; 150 ms would
+  // silently clip the VO or leave a silent tail, so anything larger must be fixed at the source.
+  const frameTol = 1 / fps;
+  if (Math.abs(measured - duration) > frameTol) {
+    fail(`audio is ${measured.toFixed(3)}s but the approved timeline is ${duration.toFixed(3)}s `
+      + `(tolerance one frame = ${frameTol.toFixed(4)}s) — trim/pad the VO to the measured beats: `
+      + `ffmpeg -i <vo> -t ${duration.toFixed(4)} out/vo24.wav`);
+  }
   const publicAudio = path.join(project, 'public', 'vo.wav');
   await mkdir(path.dirname(publicAudio), {recursive: true});
   await copyFile(audioPath, publicAudio);

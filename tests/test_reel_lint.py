@@ -165,6 +165,34 @@ def test_missing_plan_is_an_input_error(tmp_path):
     assert "vo_length.py" in r.stderr
 
 
+def test_timeline_gaps_are_errors(tmp_path):
+    """A gap between scenes must FAIL, not pass silently (overlap and gap are both S02)."""
+    import shutil
+    proj = tmp_path / "gap"
+    shutil.copytree(GOOD, proj)
+    beats = json.loads((proj / "plan" / "beats.json").read_text(encoding="utf-8"))
+    beats["scenes"][1]["start"] += 0.5          # leave a 0.5 s hole after scene 1
+    for s in beats["scenes"][2:]:                # keep the rest contiguous
+        pass
+    (proj / "plan" / "beats.json").write_text(json.dumps(beats), encoding="utf-8")
+    r = run(str(proj))
+    assert r.returncode == 1, r.stdout
+    assert "S02" in codes(r) and "gap" in r.stdout
+
+
+def test_scan_code_covers_tsx(tmp_path):
+    """Remotion templates are .tsx — the banned-look scan must read them too."""
+    proj = tmp_path / "scan-ts"
+    (proj / "plan").mkdir(parents=True)
+    (proj / "plan" / "beats.json").write_text(
+        (GOOD / "plan" / "beats.json").read_text(encoding="utf-8"), encoding="utf-8")
+    (proj / "src").mkdir()
+    (proj / "src" / "Scene.tsx").write_text(
+        "export const S = () => <div>{confetti()}</div>;\n", encoding="utf-8")
+    r = run(str(proj), "--scan-code")
+    assert "K01" in codes(r), r.stdout
+
+
 def test_every_lint_rule_is_documented():
     """The doc cannot drift from the tool: every code it can emit is in docs/craft.md."""
     import re

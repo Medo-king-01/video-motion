@@ -148,18 +148,21 @@ export function compositeTransition(ctx, a, b, name, p, W, H) {
   if (!lay.masked) {
     ctx.globalAlpha = lay.alpha; blit(); ctx.globalAlpha = 1;
   } else if (lay.circles.length) {
-    ctx.save();
-    ctx.beginPath();
-    for (const c of lay.circles) { ctx.moveTo((c.cx + c.r) * W, c.cy * H); ctx.arc(c.cx * W, c.cy * H, c.r * W, 0, Math.PI * 2); }
-    ctx.clip();
-    ctx.globalAlpha = lay.alpha; blit(); ctx.globalAlpha = 1;
-    ctx.restore();
-    if (lay.invert) {  // the mask is the *outside*: redraw A inside the circle
-      ctx.save();
+    const traceCircle = () => {
       ctx.beginPath();
       for (const c of lay.circles) { ctx.moveTo((c.cx + c.r) * W, c.cy * H); ctx.arc(c.cx * W, c.cy * H, c.r * W, 0, Math.PI * 2); }
-      ctx.clip();
+    };
+    if (lay.invert) {
+      // closing iris: the mask is the OUTSIDE of the circle — incoming B fills the outside,
+      // outgoing A stays visible inside (drawing A last would cover B and leave A on screen)
+      ctx.globalAlpha = lay.alpha; blit(); ctx.globalAlpha = 1;
+      ctx.save(); traceCircle(); ctx.clip();
       ctx.drawImage(a, Math.round(lay.aDx * W), Math.round(lay.aDy * H));
+      ctx.restore();
+    } else {
+      // opening iris: A everywhere (drawn above), incoming B only inside the circle
+      ctx.save(); traceCircle(); ctx.clip();
+      ctx.globalAlpha = lay.alpha; blit(); ctx.globalAlpha = 1;
       ctx.restore();
     }
   } else {
