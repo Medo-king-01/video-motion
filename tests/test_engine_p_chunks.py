@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import json
-import subprocess
+import sys
+from types import SimpleNamespace
 
 import pytest
 
-from conftest import ROOT
-
-ENGINE_P = ROOT / "medo-motion" / "templates" / "procedural-reels"
 
 
 def test_expected_chunks_are_exact_ordered_half_open_ranges():
@@ -76,41 +74,65 @@ def test_signature_includes_nested_pose_assets_and_font_manifest(tmp_path):
     assert build_signature(*args) != first
 
 
+def _fake_av_module(width=1080, height=1920, frames=4):
+    class Frame:
+        def __init__(self):
+            self.width = width
+            self.height = height
+
+    class Stream:
+        type = "video"
+        codec_context = SimpleNamespace(width=width, height=height)
+
+    class Container:
+        streams = [Stream()]
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def decode(self, stream):
+            return iter(Frame() for _ in range(frames))
+
+    return SimpleNamespace(open=lambda path: Container())
+
+
 def test_chunk_validator_requires_exact_dimensions_and_decoded_frame_count(tmp_path, monkeypatch):
     from chunk_utils import is_valid_chunk
 
     video = tmp_path / "chunk.mp4"
-    video.write_bytes(b"not actually decoded by the mocked probe")
-
-    class Result:
-        returncode = 0
-        stdout = json.dumps({"streams": [{"width": 1080, "height": 1920, "nb_read_frames": "4"}]})
-
-    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: Result())
-    assert is_valid_chunk(video, 4, 1080, 1920, "ffprobe")
-    assert not is_valid_chunk(video, 5, 1080, 1920, "ffprobe")
-    assert not is_valid_chunk(video, 4, 720, 1280, "ffprobe")
+    video.write_bytes(b"non-empty fixture")
+    monkeypatch.setitem(sys.modules, "av", _fake_av_module())
+    assert is_valid_chunk(video, 4, 1080, 1920)
+    assert not is_valid_chunk(video, 5, 1080, 1920)
+    assert not is_valid_chunk(video, 4, 720, 1280)
 
 
-def test_chunk_validator_rejects_probe_errors_and_malformed_output(tmp_path, monkeypatch):
+def test_chunk_validator_rejects_decode_errors_and_wrong_frame_dimensions(tmp_path, monkeypatch):
     from chunk_utils import is_valid_chunk
 
     video = tmp_path / "chunk.mp4"
-    video.write_bytes(b"video")
+    video.write_bytes(b"non-empty fixture")
 
-    class ProbeError:
-        returncode = 1
-        stdout = "{}"
+    class BrokenContainer:
+        streams = [SimpleNamespace(type="video", codec_context=SimpleNamespace(width=1080, height=1920))]
 
-    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: ProbeError())
-    assert not is_valid_chunk(video, 4, 1080, 1920, "ffprobe")
+        def __enter__(self):
+            return self
 
-    class BadJson:
-        returncode = 0
-        stdout = "not json"
+        def __exit__(self, *args):
+            return False
 
-    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: BadJson())
-    assert not is_valid_chunk(video, 4, 1080, 1920, "ffprobe")
+        def decode(self, stream):
+            raise RuntimeError("decode failed")
+
+    monkeypatch.setitem(sys.modules, "av", SimpleNamespace(open=lambda path: BrokenContainer()))
+    assert not is_valid_chunk(video, 4, 1080, 1920)
+
+    monkeypatch.setitem(sys.modules, "av", _fake_av_module(width=720, height=1280))
+    assert not is_valid_chunk(video, 4, 1080, 1920)
 
 
 def test_chunk_validator_rejects_missing_and_empty_files(tmp_path):
