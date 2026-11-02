@@ -7,6 +7,9 @@
 - Automatic detector output with 1.20 s minimum scene: 19 acoustic segments
 - Approved visual structure: 10 scenes, grouped from selected silence midpoints
 - Word-level alignment has not been performed.
+- Mandatory caption behavior: one Arabic word appears at a time, synchronized to its actual spoken onset and the active visual beat.
+- Caption presentation: unboxed text only; no border, outline box, panel, pill, or framed container.
+- Scene boundaries and silence detection are not substitutes for word-level alignment.
 
 | Scene | Start | End | Duration | Frames |
 |---|---:|---:|---:|---:|
