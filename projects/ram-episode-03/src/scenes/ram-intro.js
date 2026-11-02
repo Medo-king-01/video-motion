@@ -17,8 +17,10 @@ const back = p => { const c1 = 1.70158, c3 = c1 + 1; p = clamp(p); return 1 + c3
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 const DUST = (() => { const r = rng(31); const a = []; for (let i = 0; i < 30; i++) a.push({ x: r() * 1080, y: r() * 1920, z: 0.35 + r() * 0.65, s: 1 + r() * 2.4, ph: r() * Math.PI * 2, sp: 6 + r() * 16 }); return a; })();
 
-const MODS = [ { x: 820, at: 1.2, label: '8GB' }, { x: 540, at: 4.4, label: '16GB' }, { x: 260, at: 7.6, label: '32GB' } ];
-const IMPACT_T = 8.15, SCAN_T = 9.7, SCENE_END = 12.358;
+// Reveal onsets synced to the spoken numbers (aeneas draft alignment, pending validation):
+// "8" ≈ 4.96s · "16" ≈ 7.72s · "32" ≈ 9.64s.
+const MODS = [ { x: 820, at: 4.96, label: '8GB' }, { x: 540, at: 7.72, label: '16GB' }, { x: 260, at: 9.64, label: '32GB' } ];
+const IMPACT_T = 10.3, SCAN_T = 11.0, SCENE_END = 12.358;
 
 function rr(c, x, y, w, h, r) { c.beginPath(); c.roundRect(x, y, w, h, r); }
 function poly(c, p, color) { c.beginPath(); c.moveTo(...p[0]); for (let i = 1; i < p.length; i++) c.lineTo(...p[i]); c.closePath(); c.fillStyle = color; c.fill(); }
