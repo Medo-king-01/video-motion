@@ -52,7 +52,8 @@ def test_required_tokens_exist():
     for key in ("red", "red_bright", "red_deep", "ink", "ink_soft", "paper",
                 "gray_1", "gray_2", "gray_3", "gray_4", "salmon", "blush"):
         assert PALETTE[key]["rgb"], key
-    assert BRAND["typography"]["arabic"] == "Cairo"
+    assert "agent-chosen" in BRAND["typography"]["arabic"]
+    assert BRAND["typography"]["type_system"]["fallback"]["arabic"] == "Cairo"
     assert BRAND["typography"]["numerals"].lower().startswith("western")
     assert BRAND["canvas"] == {"w": 1080, "h": 1920, "fps": 30}
 

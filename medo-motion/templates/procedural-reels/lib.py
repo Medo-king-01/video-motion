@@ -69,7 +69,7 @@ def font_file(family=None, weight=800):
 def font(size, family=None, weight=800):
     """A Pillow font at `size` px: the brand face by default, any manifest family by name.
 
-    `font(58)`            -> Cairo 800 (brand default, unchanged)
+    `font(58)`            -> Cairo 800 (technical fallback only; the agent picks the creative face)
     `font(48,'Kufam')`    -> Kufam at the nearest weight <= 800
     """
     # explicit family > REEL_FONT override > the brand face at its brand weight (Cairo 800)
@@ -106,10 +106,11 @@ def e_elastic(x):
 def lerp(a,b,x): return a+(b-a)*x
 # ---------- text ----------
 @functools.lru_cache(maxsize=2000)
-def text_sprite(txt,size,color=(243,242,241),rtl=True,stroke=0,scolor=(3,3,3)):
+def text_sprite(txt,size,color=(243,242,241),rtl=True,stroke=0,scolor=(3,3,3),family=None,weight=800):
     if not HAS_RAQM:
-        return _shaper().text_sprite(FONT,txt,size,color,rtl,stroke,scolor)
-    f=font(size)
+        path=font_file(family,weight) or FONT
+        return _shaper().text_sprite(path,txt,size,color,rtl,stroke,scolor)
+    f=font(size,family,weight)
     kw=dict(direction='rtl',language='ar') if rtl else dict(direction='ltr')
     d0=ImageDraw.Draw(Image.new('L',(4,4)))
     x0,y0,x1,y1=d0.textbbox((0,0),txt,font=f,stroke_width=stroke,**kw)

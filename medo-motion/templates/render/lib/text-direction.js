@@ -9,10 +9,22 @@ import { SPECIAL_STYLES, STYLE_ALIAS } from './caption-motion.js';
 export const TEXT_ROLES = ['hook', 'title', 'body', 'keyword', 'cta', 'label', 'number', 'ui', 'quote'];
 const KNOWN_STYLES = new Set([...SPECIAL_STYLES, ...Object.keys(STYLE_ALIAS), ...CAPTION_STYLE_IDS]);
 const MIN_REASON = 12;
-export const VERSION = 2;
+export const VERSION = 3;
 
 export function isTextStyle(style) {
   return typeof style === 'string' && (KNOWN_STYLES.has(style) || KNOWN_STYLES.has(STYLE_ALIAS[style]));
+}
+
+export function hasArabic(text) {
+  return typeof text === 'string' && /[\u0600-\u06ff\u0750-\u077f]/.test(text);
+}
+
+function fontEntryOk(entry, fonts) {
+  if (!entry || typeof entry !== 'object' || typeof entry.family !== 'string') return false;
+  if (!Number.isInteger(entry.weight)) return false;
+  if (fonts == null) return true;
+  const meta = fonts[entry.family];
+  return !!meta && (meta.weights || []).some(w => w.weight === entry.weight);
 }
 
 const sceneIndex = (scene, pos) => scene.index ?? pos + 1;
@@ -21,7 +33,7 @@ const longEnough = v => typeof v === 'string' && v.trim().length >= MIN_REASON;
 /** Return { errors, warnings }. Errors block a render/lint.
  * `copy` is plan/copy.json: when supplied, every visible text fragment must
  * resolve to an explicit agent-chosen style, not just captions. */
-export function validateTextDirection(direction, beats = null, copy = null) {
+export function validateTextDirection(direction, beats = null, copy = null, fonts = null) {
   const errors = [], warnings = [];
   if (!direction || typeof direction !== 'object') {
     return { errors: ['plan/text-direction.json must be an object'], warnings };
@@ -67,6 +79,27 @@ export function validateTextDirection(direction, beats = null, copy = null) {
         if (!longEnough(el.why)) errors.push(`scene ${idx}: textElements.${eid}.why must justify this element's motion`);
       }
     }
+    const fs = sc.fontStyles || {};
+    if (typeof fs !== 'object' || Array.isArray(fs)) {
+      errors.push(`scene ${idx}: fontStyles must be an object keyed by text role`);
+    } else {
+      for (const [role, entry] of Object.entries(fs)) {
+        if (!TEXT_ROLES.includes(role)) errors.push(`scene ${idx}: unknown font role '${role}'`);
+        if (!fontEntryOk(entry, fonts)) errors.push(`scene ${idx}: fontStyles.${role} must name an allowed family + available weight`);
+      }
+      if (Object.keys(fs).length && !longEnough(sc.fontWhy)) errors.push(`scene ${idx}: fontWhy must justify the chosen faces`);
+    }
+    const fe = sc.fontElements || {};
+    if (typeof fe !== 'object' || Array.isArray(fe)) {
+      errors.push(`scene ${idx}: fontElements must be an object keyed by element id`);
+    } else {
+      for (const [eid, entry] of Object.entries(fe)) {
+        if (!entry || typeof entry !== 'object') { errors.push(`scene ${idx}: fontElements.${eid} must be an object`); continue; }
+        if (!TEXT_ROLES.includes(entry.role)) errors.push(`scene ${idx}: fontElements.${eid} has an unknown role`);
+        if (!fontEntryOk(entry, fonts)) errors.push(`scene ${idx}: fontElements.${eid} must name an allowed family + available weight`);
+        if (!longEnough(entry.why)) errors.push(`scene ${idx}: fontElements.${eid}.why must justify this element's face`);
+      }
+    }
   }
   if (beats && Array.isArray(beats.scenes)) {
     const wanted = new Set(beats.scenes.map(sceneIndex));
@@ -95,6 +128,16 @@ export function validateTextDirection(direction, beats = null, copy = null) {
         if (!isTextStyle(el.style)) errors.push(`${label}: no explicit style for this text element`);
       } else if (!isTextStyle((sc.textStyles || {})[role])) {
         errors.push(`${label}: scene ${scene} has no textStyles.${role} (or textElements.${eid}) for this text`);
+      }
+      if (fonts != null) {
+        const fe = sc.fontElements || {};
+        let entry = eid ? fe[eid] : null;
+        if (!fontEntryOk(entry, fonts)) entry = (sc.fontStyles || {})[role];
+        if (!fontEntryOk(entry, fonts)) {
+          errors.push(`${label}: scene ${scene} has no explicit font for role '${role}' (fontStyles/fontElements)`);
+        } else if (hasArabic(item.text) && fonts[entry.family].script !== 'arabic') {
+          errors.push(`${label}: Arabic text needs an Arabic-capable family (got ${entry.family})`);
+        }
       }
     });
   }
@@ -142,4 +185,32 @@ export function textStyleFor(direction, scene, role, elementId = null) {
       + (elementId ? ` (element '${elementId}')` : '') + '.');
   }
   return style;
+}
+
+/** Resolve the agent's chosen face for ANY visible text: element override first,
+ * then the scene's role font. Returns { family, weight }. Never falls back to a
+ * default — a missing choice throws.
+ * @param {any} direction
+ * @param {number} scene
+ * @param {string} role
+ * @param {string|null} [elementId]
+ * @returns {{family: string, weight: number}}
+ */
+export function fontFor(direction, scene, role, elementId = null) {
+  const sc = find(direction, scene);
+  if (elementId) {
+    const entry = (sc.fontElements || {})[elementId];
+    if (entry && typeof entry.family === 'string' && Number.isInteger(entry.weight)) {
+      if (entry.role != null && entry.role !== role) {
+        throw new Error(`Scene ${scene} fontElements.${elementId} role does not match '${role}'.`);
+      }
+      return { family: entry.family, weight: entry.weight };
+    }
+  }
+  const entry = (sc.fontStyles || {})[role];
+  if (!entry || typeof entry.family !== 'string' || !Number.isInteger(entry.weight)) {
+    throw new Error(`Scene ${scene} has no explicit font for role '${role}'`
+      + (elementId ? ` (element '${elementId}')` : '') + '.');
+  }
+  return { family: entry.family, weight: entry.weight };
 }

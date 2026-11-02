@@ -8,9 +8,26 @@
 // are intentionally NOT exposed as caption styles.
 import { PALETTE } from './brand.js';
 import { captionTransform, resolveTextStyle, STYLE_ALIAS } from './caption-motion.js';
-import { textStyleFor } from './text-direction.js';
+import { textStyleFor, fontFor } from './text-direction.js';
+import { useFont } from './fonts.js';
 
 export { STYLE_ALIAS, resolveTextStyle };
+
+/** Load every face the agent chose for a scene (call from init()). */
+export async function useDirectedFonts(direction, scene) {
+  const sc = (direction.scenes || []).find(s => s.scene === scene) || {};
+  const entries = [...Object.values(sc.fontStyles || {}), ...Object.values(sc.fontElements || {})];
+  const seen = new Set();
+  const jobs = [];
+  for (const e of entries) {
+    if (!e || typeof e.family !== 'string') continue;
+    const key = `${e.family}@${e.weight}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    jobs.push(useFont(e.family, e.weight));
+  }
+  return Promise.all(jobs);
+}
 
 export function activeWordAt(words, time) {
   if (!Array.isArray(words) || !Number.isFinite(time)) return null;
@@ -127,11 +144,13 @@ export function drawWordCaption(ctx, time, words, {
  */
 export function drawDirectedText(ctx, text, {
   direction, scene, role, elementId = null,
-  time, start, end, x, y, size = 64, family = 'Cairo', weight = 800,
+  time, start, end, x, y, size = 64,
   color = PALETTE.paper, accent = PALETTE.salmon, shadow = 'rgba(0,0,0,.72)',
   theme = 'dark', rtl = true, maxWidth,
 } = {}) {
   const style = textStyleFor(direction, scene, role, elementId);
+  const font = fontFor(direction, scene, role, elementId);
+  const family = font.family, weight = font.weight;
   const lines = Array.isArray(text) ? text : String(text).split('\n');
   const elapsed = Math.max(0, time - start);
   const dur = Math.max(0.05, end - start);

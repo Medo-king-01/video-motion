@@ -60,15 +60,27 @@ python3 tools/text_direction.py projects/<slug> --check  # لازم يعدّي �
 ```
 
 ```json
-{ "version": 2, "status": "directed", "decidedBy": "agent",
+{ "version": 3, "status": "directed", "decidedBy": "agent",
   "concept": "شرح هادي بيعلى طاقته عند لقطات الإثبات",
   "scenes": [
     { "scene": 1, "captionStyle": "karaoke", "captionWhy": "هوك بيأكد على الكلمة المنطوقة",
       "textStyles": { "title": "zoomPunch", "number": "impact", "cta": "underline", "label": "softFade" },
       "textWhy": "العنوان يدخل بقوة الهوك، الرقم بيخبط، والCTA بيتسطّر",
-      "textElements": { "hero-cta": { "role": "cta", "style": "wordPop", "why": "زرّ التعليق لازم يخطف العين في آخر لقطة" } } }
+      "textElements": { "hero-cta": { "role": "cta", "style": "wordPop", "why": "زرّ التعليق لازم يخطف العين في آخر لقطة" } },
+      "fontStyles": { "title": { "family": "Alexandria", "weight": 800 }, "number": { "family": "Tajawal", "weight": 800 },
+                      "cta": { "family": "Kufam", "weight": 700 }, "label": { "family": "Readex Pro", "weight": 600 } },
+      "fontWhy": "عنوان عريض للإمباكت، رقم هندسي واثق، وCTA كوفي مميز",
+      "fontElements": { "hero-cta": { "role": "cta", "family": "Rubik", "weight": 900, "why": "الزرّ بخط مدوّر تقيل يبان سوشيال" } } }
   ] }
 ```
+
+### الخط كمان قرار الوكيل (مفيش Cairo مفروض)
+
+نفس الخطة بتحدد **الخط** لكل نص ظاهر: `fontStyles` لكل دور + `fontElements` لأي عنصر خاص.
+الوكيل بيختار الأكثر جاذبية ومناسبة للريل من `assets/fonts/fonts.json` (٢١ عيلة OFL، عربي وإنجليزي)،
+وبيبرّر اختياره. Cairo/Inter مجرد شبكة أمان لكروم النظام. اللينت **T05** وبوابات الرندر بيرفضوا
+أي نص من غير خط مختار، والنص العربي لازم يكون بخط بيدعم العربي. الـhelpers (`drawDirectedText` /
+`draw_directed_text` / `DirectedText`) بتطبّق الخط والحركة مع بعض من الخطة.
 
 ```js
 // كابشن كلمة-كلمة بتوقيت مقاس

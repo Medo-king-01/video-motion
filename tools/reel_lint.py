@@ -327,12 +327,13 @@ def lint_text_direction(rep: Report, project: Path, beats: dict, copy: dict) -> 
         rep.error("T00", "no plan/text-direction.json — the agent must choose caption/text styles per scene: "
                          "python3 tools/text_direction.py <project> --init")
         return
-    report = td.validate(direction, beats)
+    fonts = td.load_fonts(project)
+    report = td.validate(direction, beats, fonts=fonts or None)
     for e in report["errors"]:
         rep.error("T01", e)
     for w in report["warnings"]:
         rep.warn("T02", w)
-    # EVERY on-screen text fragment (not just captions) must resolve to an explicit choice.
+    # EVERY on-screen text fragment (not just captions) must resolve to an explicit motion + font.
     for c in copy.get("copy") or []:
         label = c.get("id") or f"copy[{c.get('scene')}]"
         role = c.get("role")
@@ -343,6 +344,17 @@ def lint_text_direction(rep: Report, project: Path, beats: dict, copy: dict) -> 
             td.text_style_for(direction, c.get("scene"), role, c.get("id"))
         except ValueError as e:
             rep.error("T03", f"{label}: {e}")
+        if fonts:
+            try:
+                font = td.font_for(direction, c.get("scene"), role, c.get("id"))
+            except ValueError as e:
+                rep.error("T05", f"{label}: {e}")
+                continue
+            meta = fonts.get(font["family"])
+            if not meta or font["weight"] not in {w["weight"] for w in meta.get("weights", [])}:
+                rep.error("T05", f"{label}: font {font['family']} {font['weight']} is not in the manifest")
+            elif td.has_arabic(c.get("text")) and meta.get("script") != "arabic":
+                rep.error("T05", f"{label}: Arabic text needs an Arabic-capable family (got {font['family']})")
     if not report["errors"]:
         rep.ok("T01", f"text direction: {len(direction.get('scenes') or [])} scenes directed by {direction.get('decidedBy')}")
 

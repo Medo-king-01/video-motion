@@ -53,7 +53,7 @@ BRIEF = """# BRIEF — {slug}
 ## قرارات الوكيل — Agent decisions (auto-filled)
 - engine: `—`            <!-- P = Pillow، K = Canvas/Playwright، R = Remotion، Hybrid = مقاطع متتابعة -->
 - text motion: `plan/text-direction.json` — الوكيل بيختار ستايل حركة **كل نص ظاهر** (كابشن، عنوان، رقم، CTA، ليبل، UI) لكل مشهد ويبرّره (مفيش default)
-- font: `Cairo` (locked)
+- font: الوكيل بيختار من `assets/fonts/fonts.json` (٢١ عيلة OFL) لكل مشهد/عنصر — مفيش خط افتراضي مفروض
 - music: `Am–F–C–G · 76 BPM · ducked` (locked) / none
 - sfx source: `procedural` → Openverse → (ElevenLabs with approval)
 - assumptions: `—`
@@ -115,8 +115,8 @@ def main():
     # Text motion is an explicit agent decision per scene — never a default look.
     # After the VO beats exist, run: python3 tools/text_direction.py projects/<slug> --init
     (proj / "plan" / "text-direction.json").write_text(json.dumps({
-        "version": 2, "status": "draft", "decidedBy": None, "concept": None, "scenes": [],
-        "note": "the agent chooses a style for EVERY on-screen text element (captions, titles, numbers, CTAs, labels, UI) and explains why; no default style",
+        "version": 3, "status": "draft", "decidedBy": None, "concept": None, "scenes": [],
+        "note": "the agent chooses a motion style AND a font for EVERY on-screen text element (captions, titles, numbers, CTAs, labels, UI) and explains why; no creative default",
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     # What appears on screen, and the moves drawn for this reel (docs/craft.md §3 and §4).
     (proj / "plan" / "copy.json").write_text(json.dumps({
@@ -157,18 +157,18 @@ def main():
         (proj / "package.json").write_text('{"type":"module","private":true}\n', encoding="utf-8")
     elif a.engine in {"r", "hybrid"}:
         shutil.copytree(SKILL / "templates" / "remotion", proj, dirs_exist_ok=True)
-        # Remotion serves local media from public/. Keep only the locked display faces here;
-        # the full 14-family type system remains in assets/fonts for the other tools.
+        # Remotion serves local media from public/. The agent may choose any manifest
+        # face, so expose the whole free type system (family subfolders + manifest).
         public_fonts = proj / "public" / "fonts"
         public_fonts.mkdir(parents=True, exist_ok=True)
-        for family, names in {
-            "Cairo": ("Cairo_400Regular.ttf", "Cairo_800ExtraBold.ttf", "OFL.txt"),
-            "Inter": ("Inter_400Regular.ttf", "Inter_800ExtraBold.ttf", "OFL.txt"),
-        }.items():
-            for name in names:
-                source = ROOT / "assets" / "fonts" / family / name
-                if source.is_file():
-                    shutil.copy2(source, public_fonts / name)
+        for fam_dir in sorted(p for p in (ROOT / "assets" / "fonts").iterdir() if p.is_dir()):
+            dst = public_fonts / fam_dir.name
+            dst.mkdir(parents=True, exist_ok=True)
+            for f in fam_dir.iterdir():
+                if f.is_file() and (f.suffix == ".ttf" or f.name == "OFL.txt"):
+                    shutil.copy2(f, dst / f.name)
+        if (ROOT / "assets" / "fonts" / "fonts.json").is_file():
+            shutil.copy2(ROOT / "assets" / "fonts" / "fonts.json", public_fonts / "fonts.json")
         # Keep Medo's existing pose library addressable through Remotion's staticFile().
         public_poses = proj / "public" / "assets" / "poses"
         public_poses.mkdir(parents=True, exist_ok=True)

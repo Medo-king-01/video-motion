@@ -80,7 +80,7 @@ def test_no_length_rule_anywhere(tmp_path):
                              "events": [{"t": 0.1, "what": "opening"}]} for i in range(4)]}
         (proj / "plan" / "beats.json").write_text(json.dumps(beats), encoding="utf-8")
         styles = ["karaoke", "softFade", "zoomPunch", "underline"]
-        direction = {"version": 2, "status": "directed", "decidedBy": "agent",
+        direction = {"version": 3, "status": "directed", "decidedBy": "agent",
                      "concept": "text motion follows the spoken emphasis across the reel",
                      "scenes": [{"scene": i + 1, "captionStyle": styles[i], "captionWhy": f"scene {i+1} emphasis",
                                  "textStyles": {}, "textWhy": None} for i in range(4)]}

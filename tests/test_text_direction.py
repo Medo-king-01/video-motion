@@ -17,6 +17,7 @@ import text_direction as td  # noqa: E402
 GOOD_DIR = json.loads((ROOT / "tests" / "fixtures" / "reel" / "good" / "plan" / "text-direction.json").read_text())
 GOOD_BEATS = json.loads((ROOT / "tests" / "fixtures" / "reel" / "good" / "plan" / "beats.json").read_text())
 GOOD_COPY = json.loads((ROOT / "tests" / "fixtures" / "reel" / "good" / "plan" / "copy.json").read_text())
+FONTS = json.loads((ROOT / "assets" / "fonts" / "fonts.json").read_text())["families"]
 
 
 def test_good_direction_validates_clean():
@@ -72,21 +73,41 @@ def test_js_and_python_validate_identically():
         "const beats = JSON.parse(process.argv[2]);\n"
         "const out = {};\n"
         "const copy = JSON.parse(process.argv[3]);\n"
-        "for (const [k, v] of Object.entries(cases)) out[k] = validateTextDirection(v, beats, copy);\n"
+        "const fonts = JSON.parse(process.argv[4]);\n"
+        "for (const [k, v] of Object.entries(cases)) out[k] = validateTextDirection(v, beats, copy, fonts);\n"
         "console.log(JSON.stringify(out));\n"
     )
-    r = subprocess.run(["node", "-e", script, json.dumps(cases), json.dumps(GOOD_BEATS), json.dumps(GOOD_COPY)],
-                       capture_output=True, text=True)
+    r = subprocess.run(["node", "-e", script, json.dumps(cases), json.dumps(GOOD_BEATS),
+                        json.dumps(GOOD_COPY), json.dumps(FONTS)], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     js = json.loads(r.stdout)
     for name, direction in cases.items():
-        py = td.validate(direction, GOOD_BEATS, GOOD_COPY)
+        py = td.validate(direction, GOOD_BEATS, GOOD_COPY, FONTS)
         assert js[name]["errors"] == py["errors"], name
         assert js[name]["warnings"] == py["warnings"], name
 
 
 def test_good_direction_covers_every_text_fragment():
-    assert td.validate(GOOD_DIR, GOOD_BEATS, GOOD_COPY)["errors"] == []
+    assert td.validate(GOOD_DIR, GOOD_BEATS, GOOD_COPY, FONTS)["errors"] == []
+
+
+def test_font_choice_is_required_and_resolves():
+    first = GOOD_COPY["copy"][0]
+    font = td.font_for(GOOD_DIR, first["scene"], "hook", first["id"])
+    assert font == {"family": "Rubik", "weight": 900}
+    # dropping the font for a role is an error when the manifest is enforced
+    d = json.loads(json.dumps(GOOD_DIR))
+    d["scenes"][1]["fontStyles"].pop("title", None)
+    report = td.validate(d, GOOD_BEATS, GOOD_COPY, FONTS)
+    assert any("no explicit font" in e for e in report["errors"])
+
+
+def test_arabic_text_rejects_a_latin_only_face():
+    d = json.loads(json.dumps(GOOD_DIR))
+    d["scenes"][0]["fontStyles"]["hook"] = {"family": "Anton", "weight": 400}
+    d["scenes"][0].get("fontElements", {}).pop(GOOD_COPY["copy"][0]["id"], None)
+    report = td.validate(d, GOOD_BEATS, GOOD_COPY, FONTS)
+    assert any("Arabic-capable" in e for e in report["errors"])
 
 
 def test_undirected_text_fragment_is_an_error():

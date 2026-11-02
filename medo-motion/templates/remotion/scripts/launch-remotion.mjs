@@ -21,7 +21,9 @@ if (existsSync(beatsPath)) {
   const direction = existsSync(dirPath) ? JSON.parse(readFileSync(dirPath, 'utf8')) : {};
   const copyPath = path.join(project, 'plan', 'copy.json');
   const copy = existsSync(copyPath) ? JSON.parse(readFileSync(copyPath, 'utf8')) : null;
-  const {errors} = validateTextDirection(direction, beats, copy);
+  const fontsPath = path.join(project, 'assets', 'fonts', 'fonts.json');
+  const fonts = existsSync(fontsPath) ? (JSON.parse(readFileSync(fontsPath, 'utf8')).families || {}) : null;
+  const {errors} = validateTextDirection(direction, beats, copy, fonts);
   if (errors.length) fail('Text direction incomplete — the agent must choose styles for every text element:\n' + errors.join('\n'));
 }
 

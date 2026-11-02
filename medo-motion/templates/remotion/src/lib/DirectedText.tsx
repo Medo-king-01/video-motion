@@ -1,7 +1,7 @@
 import React from 'react';
 import {PALETTE} from '../brand';
 import {captionTransform} from './caption-motion.js';
-import {textStyleFor} from './text-direction.js';
+import {textStyleFor, fontFor} from './text-direction.js';
 
 export type DirectedTextProps = {
   /** The agent's plan/text-direction.json (imported by the project root). */
@@ -36,6 +36,7 @@ export const DirectedText: React.FC<DirectedTextProps> = ({
   size = 64, color = PALETTE.paper, accent = PALETTE.salmon, theme = 'dark', style,
 }) => {
   const resolved = textStyleFor(direction, scene, role, elementId ?? null);
+  const font = fontFor(direction, scene, role, elementId ?? null);
   const elapsed = Math.max(0, time - start);
   const dur = Math.max(0.05, end - start);
   const m = captionTransform(resolved, elapsed, dur);
@@ -60,6 +61,8 @@ export const DirectedText: React.FC<DirectedTextProps> = ({
         opacity: m.opacity,
         filter: m.blur * size > 0.2 ? `blur(${(m.blur * size).toFixed(2)}px)` : undefined,
         direction: 'rtl',
+        fontFamily: `"${font.family}", sans-serif`,
+        fontWeight: font.weight,
         ...textStyle,
         ...style,
       }}

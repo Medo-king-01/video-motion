@@ -42,7 +42,7 @@ def main() -> int:
         return 0
 
     direction = td.load(a.project)
-    report = td.validate(direction, beats, td.load_copy(a.project))
+    report = td.validate(direction, beats, td.load_copy(a.project), td.load_fonts(a.project) or None)
     if a.json:
         a.json.parent.mkdir(parents=True, exist_ok=True)
         a.json.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

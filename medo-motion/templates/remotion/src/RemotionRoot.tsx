@@ -12,14 +12,30 @@ import {
 import {BRAND, PALETTE} from './brand';
 import {IS_PREVIEW_TIMELINE, STORY, TIMELINE} from './data';
 import DIRECTION from '../plan/text-direction.json';
+import FONTS from '../assets/fonts/fonts.json';
 import {DirectedText} from './lib/DirectedText';
+
+// Every manifest face is available to the agent's direction; @font-face is generated
+// from the same fonts.json the other engines read (no hardcoded creative default).
+const FONT_FACES = Object.entries(FONTS.families as Record<string, any>)
+  .flatMap(([family, meta]) => (meta.weights || []).map((w: any) => ({family, weight: w.weight, file: w.file})));
+const USED_FONTS = (() => {
+  const seen = new Map<string, {family: string; weight: number}>();
+  for (const sc of (DIRECTION as any).scenes || []) {
+    for (const e of [...Object.values(sc.fontStyles || {}), ...Object.values(sc.fontElements || {})]) {
+      const entry = e as any;
+      if (entry && typeof entry.family === 'string') seen.set(`${entry.family}@${entry.weight}`, entry);
+    }
+  }
+  return [...seen.values()];
+})();
 
 export type ReelProps = {audioFile?: string | null; previewOnly?: boolean};
 
 export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly = IS_PREVIEW_TIMELINE}) => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
-  const [fontHandle] = useState(() => delayRender('Loading local Cairo font'));
+  const [fontHandle] = useState(() => delayRender('Loading agent-chosen fonts'));
   const sceneCount = TIMELINE.scenes?.length || 1;
   const sceneIndex = useMemo(() => {
     const seconds = frame / fps;
@@ -40,7 +56,10 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
   const pulse = 1 + Math.sin((localSeconds * Math.PI * 2) / Math.max(duration, 1)) * 0.025;
 
   useEffect(() => {
-    Promise.all([document.fonts.load('800 96px Cairo'), document.fonts.load('400 20px Inter')])
+    const jobs = USED_FONTS.length
+      ? USED_FONTS.map((f) => document.fonts.load(`${f.weight} 32px "${f.family}"`))
+      : [document.fonts.load('800 32px Cairo')];
+    Promise.all(jobs)
       .then(() => continueRender(fontHandle))
       .catch((error) => cancelRender(error));
   }, [fontHandle]);
@@ -54,30 +73,12 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       direction: 'rtl',
     }}>
       <style>{`
-        @font-face {
-          font-family: Cairo;
-          src: url('${staticFile('fonts/Cairo_800ExtraBold.ttf')}') format('truetype');
-          font-weight: 700 900;
+        ${FONT_FACES.map((f) => `@font-face {
+          font-family: "${f.family}";
+          src: url('${staticFile(`fonts/${f.family}/${f.file}`)}') format('truetype');
+          font-weight: ${f.weight};
           font-display: block;
-        }
-        @font-face {
-          font-family: Cairo;
-          src: url('${staticFile('fonts/Cairo_400Regular.ttf')}') format('truetype');
-          font-weight: 400;
-          font-display: block;
-        }
-        @font-face {
-          font-family: Inter;
-          src: url('${staticFile('fonts/Inter_400Regular.ttf')}') format('truetype');
-          font-weight: 400;
-          font-display: block;
-        }
-        @font-face {
-          font-family: Inter;
-          src: url('${staticFile('fonts/Inter_800ExtraBold.ttf')}') format('truetype');
-          font-weight: 800;
-          font-display: block;
-        }
+        }`).join('\n')}
         * { box-sizing: border-box; }
       `}</style>
 

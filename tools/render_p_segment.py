@@ -47,7 +47,7 @@ def main() -> int:
         beats_p = project / "plan" / "beats.json"
         if beats_p.is_file():
             beats = json.loads(beats_p.read_text(encoding="utf-8"))
-            report = td.validate(td.load(project), beats, td.load_copy(project))
+            report = td.validate(td.load(project), beats, td.load_copy(project), td.load_fonts(project) or None)
             if report["errors"]:
                 raise RuntimeError("Text direction incomplete — the agent must choose styles per scene:\n"
                                    + "\n".join(report["errors"]))

@@ -119,6 +119,7 @@ There is no default look and no random picker. Initialise the skeleton after the
 | `T02` | Variety: not one identical caption style across the whole reel unless `motifReason` explains it | warn |
 | `T03` | EVERY on-screen text fragment (title, keyword, number, CTA, label, UI…) has a known role and resolves to an explicit style | error |
 | `T04` | Scene code draws text only through the directed helpers (`drawDirectedText` / `draw_directed_text` / `DirectedText`), never raw `fillText`/`text_sprite`/`txt` | error |
+| `T05` | EVERY on-screen text fragment has an agent-chosen font from the manifest (family + weight), and Arabic text uses an Arabic-capable family | error |
 
 ### Code scan — `--scan-code`
 

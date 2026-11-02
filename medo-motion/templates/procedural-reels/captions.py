@@ -13,7 +13,7 @@ import numpy as np
 
 from caption_motion import caption_transform
 from lib import INK, WHITE, YEL, paste, text_sprite
-from text_direction import text_style_for
+from text_direction import font_for, text_style_for
 
 
 def active_word_at(words, t):
@@ -42,14 +42,14 @@ def validate_word_timeline(words):
 
 
 @functools.lru_cache(maxsize=512)
-def _word_sprite(text, size, color):
-    return text_sprite(text, size, color, True, 6, INK)
+def _word_sprite(text, size, color, family=None, weight=800):
+    return text_sprite(text, size, color, True, 6, INK, family, weight)
 
 
-def _karaoke_sprite(text, size, p, theme):
-    base = _word_sprite(text, size, WHITE if theme == "dark" else INK).copy()
+def _karaoke_sprite(text, size, p, theme, family=None, weight=800):
+    base = _word_sprite(text, size, WHITE if theme == "dark" else INK, family, weight).copy()
     base[..., 3:4] *= 0.38
-    acc = _word_sprite(text, size, YEL if theme == "dark" else (203, 39, 27))
+    acc = _word_sprite(text, size, YEL if theme == "dark" else (203, 39, 27), family, weight)
     h, w = base.shape[:2]
     # RTL sweep: the lit region grows from the right edge toward the left.
     xs = np.linspace(0.0, 1.0, w, dtype=np.float32)[None, :, None]
@@ -98,6 +98,8 @@ def draw_directed_text(fr, text, *, direction, scene, role, element_id=None,
     role raises before anything is drawn.
     """
     style = text_style_for(direction, scene, role, element_id)
+    font = font_for(direction, scene, role, element_id)
+    family, weight = font["family"], font["weight"]
     lines = text.split("\n") if isinstance(text, str) else list(text)
     elapsed = max(0.0, t - start)
     dur = max(0.05, end - start)
@@ -110,9 +112,9 @@ def draw_directed_text(fr, text, *, direction, scene, role, element_id=None,
         y = top + i * line_h + m["y"] * size
         x = cx + m["x"] * size
         if m["karaokeP"] >= 0:
-            spr = _karaoke_sprite(line, size, m["karaokeP"], theme)
+            spr = _karaoke_sprite(line, size, m["karaokeP"], theme, family, weight)
         else:
-            spr = text_sprite(line, size, color, rtl, stroke, INK)
+            spr = text_sprite(line, size, color, rtl, stroke, INK, family, weight)
         if m["blur"] * size > 0.2:
             k = max(1, int(round(m["blur"] * size)) | 1)
             spr = cv2.GaussianBlur(spr, (k, k), 0)
