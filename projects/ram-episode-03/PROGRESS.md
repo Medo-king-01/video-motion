@@ -11,9 +11,9 @@
 | S01 render | ✅ | 0–12.358 s, 30 FPS, 0.5 scale; render step passed in run 41487395114 |
 | S01 contact sheet | ✅ | Generated and uploaded as artifact `ram-episode-03-s01-preview` (artifact 13162427862) |
 | S01 visual review | 🟡 | 8GB → 16GB → 32GB sequence is readable; composition remains sparse and mostly static. Needs visual refinement and Medo's approval |
-| Word-level VO alignment | ⬜ | Required before caption timing; not performed |
-| One-word synchronized captions | ⬜ | Mandatory; Arabic word-by-word reveal, unboxed text, no border or framed container |
-| Technique draw + project-specific lint | ⬜ | Not independently run for this episode project |
+| Word-level VO alignment | ⬜ | Blocked: no speech-alignment runtime/service is available in this execution environment; no estimated timestamps will be committed |
+| Caption renderer | 🟡 | Added reusable one-word renderer, exclusive word timing, overlap/order validation, and S01 integration; actual timeline remains empty pending measured alignment |
+| Caption unit tests | ✅ | Local Node test passed; preview workflow now runs the same test before rendering |\n| Technique draw + project-specific lint | ⬜ | Not independently run for this episode project |
 | S02–S10 | ⬜ | Wait for S01 visual direction approval |
 | Full render / mix / QC | ⬜ | Not started |
 
@@ -25,4 +25,4 @@
 - The source WAV is intentionally not committed. Place it locally at `assets/vo/episode-03-ram.wav`.
 - Scene boundaries remain provisional editorial groupings from silence midpoints, not word-level alignment.
 - A successful render proves technical execution, not final visual approval.
-- Captions must be timed from word-level alignment against the actual WAV; do not estimate word timing from scene boundaries or silence midpoints.
+- Captions must be timed from word-level alignment against the actual WAV; do not estimate word timing from scene boundaries or silence midpoints.\n- S01 now calls the caption renderer, but `captions-s01.js` intentionally contains no words until measured timestamps are available. The source WAV remains local and is not uploaded to GitHub.\n- The caption renderer draws one RTL word directly over the scene with shadow for contrast; it creates no border, panel, pill, or background box.
