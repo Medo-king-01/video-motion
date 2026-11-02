@@ -64,3 +64,62 @@ jobs:
           ffprobe -v error -select_streams v:0 -count_frames \
             -show_entries stream=width,height,nb_read_frames \
             -of csv=p=0 out/video_only.mp4
+
+      - name: Render selected ranges across all six scene transitions
+        env:
+          REEL_DIR: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          import os
+          import shutil
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          project = Path(os.environ["REEL_DIR"]).resolve()
+          engine = project / "medo-motion" / "templates" / "procedural-reels"
+          sys.path.insert(0, str(engine))
+          from scenes import B
+          from lib import W, H
+          from chunk_utils import is_valid_chunk
+
+          ffmpeg = os.environ.get("FFMPEG_BIN") or shutil.which("ffmpeg") or "ffmpeg"
+          out = project / "out"
+          out.mkdir(parents=True, exist_ok=True)
+          parts = []
+          for boundary in B[1:-1]:
+              center = round(boundary * 30)
+              start, end = center - 15, center + 15
+              subprocess.run(
+                  [sys.executable, str(engine / "chunk.py"), str(start), str(end)],
+                  cwd=project,
+                  env=os.environ.copy(),
+                  check=True,
+              )
+              part = out / f"c_{start:05d}_{end:05d}.mp4"
+              if not is_valid_chunk(part, 30, W, H):
+                  raise SystemExit(f"invalid transition chunk: {part.name}")
+              parts.append(part)
+
+          concat_list = out / "scene-smoke-list.txt"
+          with concat_list.open("w", encoding="utf-8", newline="\\n") as stream:
+              for part in parts:
+                  escaped = str(part.resolve()).replace("\\\\", "/").replace("'", "'\\\\''")
+                  stream.write(f"file '{escaped}'\\n")
+
+          final = out / "scene-smoke.mp4"
+          if final.exists():
+              final.unlink()
+          subprocess.run(
+              [ffmpeg, "-y", "-loglevel", "error", "-f", "concat", "-safe", "0",
+               "-i", str(concat_list), "-c", "copy", str(final)],
+              cwd=project,
+              check=True,
+          )
+          if not is_valid_chunk(final, len(parts) * 30, W, H):
+              raise SystemExit("assembled multi-scene smoke video failed PyAV validation")
+          print(f"SCENE_SMOKE_OK: {len(parts)} transitions, {len(parts) * 30} frames, {W}x{H}")
+          PY
+          ffprobe -v error -select_streams v:0 -count_frames \\
+            -show_entries stream=width,height,nb_read_frames \\
+            -of csv=p=0 out/scene-smoke.mp4
