@@ -34,5 +34,5 @@ export function draw(c,t,{W,H}){
  module(c,820,925,t,.55,'8GB');module(c,540,925,t,3.95,'16GB');module(c,260,925,t,7.45,'32GB');
  const p=clamp((t-9.5)/1.2);if(p){const x=-200+1480*out(p),g=c.createLinearGradient(x-90,0,x+90,0);g.addColorStop(0,'rgba(203,39,27,0)');g.addColorStop(.5,'rgba(203,39,27,.65)');g.addColorStop(1,'rgba(203,39,27,0)');c.fillStyle=g;c.fillRect(0,1290,1080,3);}
  c.save();c.textAlign='center';c.textBaseline='middle';c.direction='ltr';c.font=`600 26px ${family('Inter','latin')}`;c.fillStyle=C.gray4;c.globalAlpha=clamp((t-10.1)/.35);c.fillText('8GB     16GB     32GB',W/2,1370);c.restore();
- drawWordCaption(c,t,CAPTIONS_S01,{W,H,family:'Cairo',size:76,y:H*.82,color:C.cream,shadow:'rgba(0,0,0,.8)'});
+ drawWordCaption(c,t,CAPTIONS_S01,{W,H,family:'Cairo',size:76,y:1455,color:C.paper,shadow:'rgba(0,0,0,.8)'});
 }
