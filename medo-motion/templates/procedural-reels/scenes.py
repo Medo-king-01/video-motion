@@ -17,7 +17,7 @@ def over(dst,src,x,y):
 # ---------- background ----------
 def make_bg():
     yy=np.linspace(0,1,H)[:,None,None]
-    base=np.array((71,57,56),np.float32)*(1-yy)+np.array((46,36,35),np.float32)*yy
+    base=np.array((10,10,10),np.float32)*(1-yy)+np.array((3,3,3),np.float32)*yy
     bg=np.repeat(base,W,1)
     for y in range(40,H,64):
         for x in range(40,W,64): bg[y-1:y+2,x-1:x+2]+=9
@@ -25,16 +25,16 @@ def make_bg():
     return np.ascontiguousarray(bg.astype(np.float32))
 def make_bgs():
     yy=np.linspace(0,1,H)[:,None,None]; xx=np.linspace(-1,1,W)[None,:,None]
-    d=np.array((71,57,56),np.float32)*(1-yy)+np.array((46,36,35),np.float32)*yy
+    d=np.array((10,10,10),np.float32)*(1-yy)+np.array((3,3,3),np.float32)*yy
     d=np.repeat(d,W,1)*(1-0.28*(xx**2)*np.ones((H,1,1)))
     l=np.array((243,242,241),np.float32)*(1-yy)+np.array((216,215,213),np.float32)*yy
     l=np.repeat(l,W,1)*(1-0.10*(xx**2)*np.ones((H,1,1)))
     return np.ascontiguousarray(d.astype(np.float32)),np.ascontiguousarray(l.astype(np.float32))
 BGD,BGL=make_bgs()
 T={'dark':True}
-INK2=(46,36,35); GOLD=(213,174,166)
+INK2=(3,3,3); GOLD=(213,174,166)
 THEME=[0,0,1,0,1,0,1]
-GRID=[(46,36,35),(64,-18,10),(159,8,3),(88,0,-22),(46,36,35),(80,-16,0),(46,36,35)]
+GRID=[(3,3,3),(64,-18,10),(159,8,3),(88,0,-22),(3,3,3),(80,-16,0),(3,3,3)]
 def bg_frame(k,t):
     dark=THEME[k]; base=BGD if dark else BGL; cell,vx,vy=GRID[k]
     ys=((np.arange(H)+int(t*vy))%cell)<2; xs=((np.arange(W)+int(t*vx))%cell)<2
@@ -42,7 +42,7 @@ def bg_frame(k,t):
     return base+m*np.float32(8.0 if dark else -9.0)
 _rn=random.Random(5); DUST=[(_rn.uniform(0,W),_rn.uniform(0,H),_rn.uniform(-14,14),_rn.uniform(-30,-9),_rn.randint(2,5),_rn.uniform(0.25,0.6)) for _ in range(30)]
 def dust(fr,t,dark):
-    col=(213,174,166) if dark else (139,103,101)
+    col=(213,174,166) if dark else (113,113,122)
     for x,y,vx,vy,r,a in DUST: paste(fr,circle_spr(r,col,0),(x+vx*t)%W,(y+vy*t)%H,alpha=a*0.8)
 def bl(t,off=0): return ((t+off)%4.3)<0.13
 IMPACTS=[(0.12,10,0.30),(3.10,12,0.30),(B[2]+0.45,7,0.0),(B[3]+4.0,12,0.35),(B[4]+0.35,6,0.0),(B[5]+2.6,8,0.0),(B[6]+0.1,8,0.25),(B[6]+4.85,7,0.0)]
@@ -75,7 +75,7 @@ def ring(fr,cx,cy,r,col,width,alpha=1.0):
     if key not in SK:
         d=D(int(2*r+20),int(2*r+20)); d.circ(r+10,r+10,r,outline=col,width=width); SK[key]=d.done()
     paste(fr,SK[key],cx,cy,alpha=alpha)
-def txt(fr,s,cx,cy,size,color=WHITE,rtl=True,scale=1,alpha=1,stroke=0,scolor=(46,36,35),rot=0):
+def txt(fr,s,cx,cy,size,color=WHITE,rtl=True,scale=1,alpha=1,stroke=0,scolor=(3,3,3),rot=0):
     paste(fr,text_sprite(s,size,color,rtl,stroke,scolor),cx,cy,scale=scale,alpha=alpha,rot=rot)
 # ---------- captions ----------
 def reveal_times(words,t0,t1):
@@ -111,7 +111,7 @@ CAPS=[
 @functools.lru_cache(maxsize=None)
 def cap_layout(i):
     c=CAPS[i]; size=58; sp=20; maxw=970
-    spr=[text_sprite(w,size,col,True,6,(46,36,35)) for w,col in c['words']]
+    spr=[text_sprite(w,size,col,True,6,(3,3,3)) for w,col in c['words']]
     lines=[[]]; lw=[0]
     for k,s in enumerate(spr):
         w=s.shape[1]-12
@@ -150,7 +150,7 @@ def term_spr(term,col=WHITE):
 @functools.lru_cache(maxsize=None)
 def card_spr(label,tag,kind,hot=False):
     w,h=440,190; d=D(w,h)
-    d.rrect((2,2,w-2,h-2),30,fill=(26,26,32,245),outline=(RED if hot else (139,103,101)),width=4 if hot else 3)
+    d.rrect((2,2,w-2,h-2),30,fill=(26,26,32,245),outline=(RED if hot else (113,113,122)),width=4 if hot else 3)
     d.rrect((w-16,40,w-6,h-40),5,fill=RED)
     base=d.done(); ic=icon(kind,128)
     over(base,ic,w-34-128,(h-128)//2)
@@ -184,16 +184,16 @@ def scene1(fr,t):
     if lt>3.1:
         wd=text_sprite("25,000 ج.م",118,col,True,5).shape[1]*0.96*e_out(prog(lt,3.1,3.45))
         fill_rect(fr,540+sh-wd/2,296,540+sh+wd/2,306,INK2,1.0)
-        c=prog(lt,3.15,3.5); paste(fr,pill(400,92,(46,36,35),240),540,430,scale=c,alpha=c)
+        c=prog(lt,3.15,3.5); paste(fr,pill(400,92,(3,3,3),240),540,430,scale=c,alpha=c)
         txt(fr,"بعد 30 يوم",540,430,56,YEL,scale=c,alpha=c)
     # buyer
     bob=-abs(math.sin(lt*9))*20*(1-hot) if lt<3.2 else 0
     gy=1385+bob
     if lt<3.2:
-        sc=1.15*(1+0.025*max(0,math.sin(lt*9))); paste(fr,person((139,103,101),'excited','hold',blink=bl(lt)),540,gy,scale=sc,anchor=(0.5,1.0))
+        sc=1.15*(1+0.025*max(0,math.sin(lt*9))); paste(fr,person((113,113,122),'excited','hold',blink=bl(lt)),540,gy,scale=sc,anchor=(0.5,1.0))
     else:
         x=540+(math.sin(lt*60)*8 if lt<3.8 else 0); k=prog(lt,3.2,3.6)
-        paste(fr,person((139,103,101),'frustrated','hold'),x,1385+14*k,scale=1.15*(1-0.02*k),rot=-2.5*k,anchor=(0.5,1.0))
+        paste(fr,person((113,113,122),'frustrated','hold'),x,1385+14*k,scale=1.15*(1-0.02*k),rot=-2.5*k,anchor=(0.5,1.0))
     # laptop in hands
     lscr='glow' if lt<3.2 else 'bad'
     lx=540+(math.sin(lt*60)*7 if 3.2<lt<3.8 else 0); ly=985+(14 if lt>=3.2 else bob)
@@ -212,7 +212,7 @@ def scene1(fr,t):
     if 3.3<lt<5.0:
         k=prog(lt,3.3,3.7); txt(fr,"- 25,000",770,1140-170*prog(lt,3.3,5.0),64,(243,242,241),rtl=False,alpha=k*(1-prog(lt,4.6,5.0)),stroke=5,scolor=(159,8,3))
 def crowd_person(i):
-    shirts=[(139,103,101),(217,127,104),(139,103,101),(139,103,101),(139,103,101),(203,39,27)]
+    shirts=[(113,113,122),(217,127,104),(113,113,122),(113,113,122),(113,113,122),(203,39,27)]
     skins=[(217,127,104),(217,127,104),(213,174,166),(217,127,104),(217,127,104),(213,174,166)]
     ex=['frustrated','confused']
     return person(shirts[i%6],ex[i%2],'shrug' if i%2 else 'stand',skin=skins[i%6])
@@ -234,7 +234,7 @@ def scene2(fr,t):
     bx=-200+(270+200)*enter
     ex='smile' if t<10.3 else 'confused'; pose='stand' if t<12.95 else 'shrug'
     sway=math.sin(t*4)*1.5 if t>10.3 else 0
-    if enter>0: paste(fr,person((139,103,101),ex,pose,blink=bl(t,1.1)),bx,1380,scale=1.0,rot=sway,anchor=(0.5,1.0))
+    if enter>0: paste(fr,person((113,113,122),ex,pose,blink=bl(t,1.1)),bx,1380,scale=1.0,rot=sway,anchor=(0.5,1.0))
     # seller
     se=e_out(prog(t,8.3,9.1)); sx=1300-(1300-810)*se
     talking=9.65<=t<15.2
@@ -290,7 +290,7 @@ def scene4(fr,t):
     if hl2>0: red_circle(fr,815,560,200,TEAL,0.35*hl2,60)
     paste(fr,laptop(400,'glow'),245,560+math.sin(lt*2)*5,scale=k1,alpha=min(1,k1))
     paste(fr,desktop(300),820,545+math.sin(lt*2+1)*5,scale=k2,alpha=min(1,k2))
-    paste(fr,pill(250,70,EMER),245,745,scale=k1,alpha=min(1,k1)); txt(fr,"لابتوب",245,745,42,(46,36,35),scale=k1)
+    paste(fr,pill(250,70,EMER),245,745,scale=k1,alpha=min(1,k1)); txt(fr,"لابتوب",245,745,42,(3,3,3),scale=k1)
     paste(fr,pill(330,70,TEAL),830,745,scale=k2,alpha=min(1,k2)); txt(fr,"كمبيوتر مكتبي",830,745,42,WHITE,scale=k2)
     speed_lines(fr,535,600,prog(lt,4.0,4.6),RED if not T['dark'] else WHITE)
     if 4.0<lt<4.7: ring(fr,535,600,60+300*prog(lt,4.0,4.7),RED,6,alpha=0.8*(1-prog(lt,4.0,4.7)))
@@ -329,7 +329,7 @@ def scene5(fr,t):
         r=prog(t,b-0.1,b+0.7)
         if 0<r<1: ring(fr,lx,ly,300+260*r,(243,242,241),3,alpha=0.5*(1-r))
     # K chips
-    chips=[(38.4,40.2,"بالبلدي",YEL,BLACK),(40.3,41.6,"يعني إيه؟",RED,WHITE),(41.7,43.4,"بيأثر على استخدامك",EMER,(46,36,35))]
+    chips=[(38.4,40.2,"بالبلدي",YEL,BLACK),(40.3,41.6,"يعني إيه؟",RED,WHITE),(41.7,43.4,"بيأثر على استخدامك",EMER,(3,3,3))]
     for a,b,s,bgc,fc in chips:
         if a<=t<b+0.15:
             k=e_back(prog(t,a,a+0.3))*(1-prog(t,b,b+0.15))
@@ -339,7 +339,7 @@ def scene6(fr,t):
     lt=t-B[5]
     red_circle(fr,420,1100,430,RED,0.92,40)
     for sy in (520,780):
-        fill_rect(fr,70,sy,1010,sy+14,(139,103,101)); fill_rect(fr,70,sy+14,1010,sy+22,(71,57,56))
+        fill_rect(fr,70,sy,1010,sy+14,(113,113,122)); fill_rect(fr,70,sy+14,1010,sy+22,(10,10,10))
     screens=['blank','dark','glow','blank','dark','blank','glow','dark']
     pick=2
     for i in range(8):
@@ -357,7 +357,7 @@ def scene6(fr,t):
     step=abs(math.sin(lt*10))*10*(1-wk) if wk<1 else 0
     nchk=int(clamp((lt-3.0)/0.35,0,5))
     ex='smile' if lt<2.7 else 'confident'
-    paste(fr,person((217,127,104),ex,'paper',skin=(217,127,104),pants=(71,57,56),hair=(46,36,35),blink=bl(t,0.7)),x,1385-step,anchor=(0.5,1.0),scale=0.95,rot=math.sin(lt*3)*1.2)
+    paste(fr,person((217,127,104),ex,'paper',skin=(217,127,104),pants=(10,10,10),hair=(3,3,3),blink=bl(t,0.7)),x,1385-step,anchor=(0.5,1.0),scale=0.95,rot=math.sin(lt*3)*1.2)
     pp=paper_spec(190,nchk); paste(fr,pp,x+176,1385-step-0.95*780+0.95*250,anchor=(0.5,0.9),rot=10)
     # seller far
     sk=e_back(prog(lt,2.9,3.4))
@@ -375,7 +375,7 @@ def scene7(fr,t):
     k=e_elastic(prog(lt,0,0.8)); red_circle(fr,620,1000,500*k,RED,1.0,50)
     ring(fr,620,1000,545*k,WHITE,3,alpha=0.3)
     e=e_elastic(prog(lt,0.5,1.3))
-    paste(fr,circle_spr(100,(46,36,35),30),540,260,scale=e); ring(fr,540,260,100*e,RED,8); ring(fr,540,260,115*e+2*math.sin(lt*4),(243,242,241),2,alpha=0.4)
+    paste(fr,circle_spr(100,(3,3,3),30),540,260,scale=e); ring(fr,540,260,100*e,RED,8); ring(fr,540,260,115*e+2*math.sin(lt*4),(243,242,241),2,alpha=0.4)
     m=Medo('medo_point',1010); en=e_back(prog(lt,0.15,0.75),1.3)
     mx,my=700,1445+(1-en)*700+math.sin(lt*3)*4
     paste(fr,m,mx,my,anchor=(0.5,1.0),rot=math.sin(lt*2)*0.8)
@@ -416,6 +416,6 @@ def render_frame(t):
     if fl>0: fill_rect(fr,0,0,W,H,(243,242,241),fl)
     draw_caption(fr,t)
     if CHIP: paste(fr,chip_spr(CHIP),540,128,alpha=prog(t,0.05,0.4))
-    fill_rect(fr,60,64,W-60,70,(243,242,241) if dark else (71,57,56),0.18); fill_rect(fr,60,64,60+(W-120)*t/B[-1],70,RED,1.0)
+    fill_rect(fr,60,64,W-60,70,(243,242,241) if dark else (10,10,10),0.18); fill_rect(fr,60,64,60+(W-120)*t/B[-1],70,RED,1.0)
     wipe(fr,t)
     return np.clip(fr,0,255).astype(np.uint8)

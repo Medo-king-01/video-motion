@@ -1,4 +1,4 @@
-"""The brand lock: palette v2 (12 colours), the no-logo rule, and all three engines staying in sync."""
+"""The brand lock: palette v2.6 muted (12 colours), the no-logo rule, and all three engines staying in sync."""
 from __future__ import annotations
 
 import json
@@ -15,7 +15,7 @@ PALETTE = BRAND["palette"]
 SHADOW = BRAND["derived"]["ink_shadow"]["rgb"]
 
 # the 12 hex values given by Medo — locked, nothing invented
-LOCKED = ["#8B6765", "#473938", "#CB271B", "#BFBAB7", "#C9C5C2", "#F3F2F1",
+LOCKED = ["#71717A", "#0A0A0A", "#CB271B", "#BFBAB7", "#C9C5C2", "#F3F2F1",
           "#9F0803", "#D8D7D5", "#CB0801", "#A3A2A0", "#D97F68", "#D5AEA6"]
 
 
@@ -42,8 +42,10 @@ def test_palette_is_exactly_the_locked_twelve():
         assert value["role"], key
 
 
-def test_derived_shade_is_ink_darkened():
-    assert all(abs(a - round(b * 0.65)) <= 1 for a, b in zip(SHADOW, PALETTE["ink"]["rgb"], strict=True))
+def test_derived_shade_is_the_locked_v26_value():
+    # palette v2.6 locks ink_shadow at #030303 (ink darkened toward black) — the only derived shade
+    assert SHADOW == [3, 3, 3]
+    assert all(s < i for s, i in zip(SHADOW, PALETTE["ink"]["rgb"], strict=True))
 
 
 def test_required_tokens_exist():
@@ -143,7 +145,7 @@ def test_contrast_rules_hold():
 
 def test_forbidden_pairs_stay_low():
     """Documented limits: red text never goes on dark, salmon/gray_4 never on light."""
-    assert _ratio(PALETTE["red"]["rgb"], PALETTE["ink"]["rgb"]) < 3.0
+    assert _ratio(PALETTE["red"]["rgb"], PALETTE["ink"]["rgb"]) < 4.5  # v2.6: 3.63:1 — still never red on dark
     assert _ratio(PALETTE["salmon"]["rgb"], PALETTE["paper"]["rgb"]) < 4.5
     assert _ratio(PALETTE["gray_4"]["rgb"], PALETTE["paper"]["rgb"]) < 4.5
 

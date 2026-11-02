@@ -6,8 +6,8 @@
 <title>Motion Studio — استوديو الحركة</title>
 <style>
   :root{
-    --ink:#473938; --ink-soft:#8B6765; --paper:#F3F2F1; --gray1:#D8D7D5; --gray2:#C9C5C2;
-    --gray3:#BFBAB7; --gray4:#A3A2A0; --red:#CB271B; --deep:#9F0803; --salmon:#D97F68; --blush:#D5AEA6; --shadow:#2E2423;
+    --ink:#0A0A0A; --ink-soft:#71717A; --paper:#F3F2F1; --gray1:#D8D7D5; --gray2:#C9C5C2;
+    --gray3:#BFBAB7; --gray4:#A3A2A0; --red:#CB271B; --deep:#9F0803; --salmon:#D97F68; --blush:#D5AEA6; --shadow:#030303;
   }
   @font-face{font-family:"Cairo";src:url("/assets/fonts/Cairo/Cairo_800ExtraBold.ttf") format("truetype");font-weight:800;font-display:swap}
   @font-face{font-family:"Cairo";src:url("/assets/fonts/Cairo/Cairo_400Regular.ttf") format("truetype");font-weight:400;font-display:swap}
@@ -60,8 +60,8 @@
     <div class="swatches">
       <span class="sw" style="background:#CB271B" title="red"></span>
       <span class="sw" style="background:#9F0803" title="red_deep"></span>
-      <span class="sw" style="background:#473938" title="ink"></span>
-      <span class="sw" style="background:#8B6765" title="ink_soft"></span>
+      <span class="sw" style="background:#0A0A0A" title="ink"></span>
+      <span class="sw" style="background:#71717A" title="ink_soft"></span>
       <span class="sw" style="background:#D97F68" title="salmon"></span>
       <span class="sw" style="background:#D5AEA6" title="blush"></span>
       <span class="sw" style="background:#F3F2F1" title="paper"></span>
@@ -94,8 +94,8 @@
 <script type="module">
 import { timeline, ease, progress } from '../medo-motion/templates/render/lib/motion.js';
 
-const C = { red:'#CB271B', deep:'#9F0803', ink:'#473938', inkSoft:'#8B6765', paper:'#F3F2F1',
-            gray2:'#C9C5C2', gray4:'#A3A2A0', salmon:'#D97F68', blush:'#D5AEA6', shadow:'#2E2423' };
+const C = { red:'#CB271B', deep:'#9F0803', ink:'#0A0A0A', inkSoft:'#71717A', paper:'#F3F2F1',
+            gray2:'#C9C5C2', gray4:'#A3A2A0', salmon:'#D97F68', blush:'#D5AEA6', shadow:'#030303' };
 
 const EXAMPLE = {
   duration: 2.6,
@@ -151,7 +151,7 @@ function draw(time) {
   ctx.scale(s, s);
   const cw = 720, ch = 300;
   ctx.fillStyle = C.ink;
-  ctx.shadowColor = 'rgba(46,36,35,.45)'; ctx.shadowBlur = 48; ctx.shadowOffsetY = 20;
+  ctx.shadowColor = 'rgba(3,3,3,.45)'; ctx.shadowBlur = 48; ctx.shadowOffsetY = 20;
   roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 28); ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.strokeStyle = C.red; ctx.lineWidth = 3;

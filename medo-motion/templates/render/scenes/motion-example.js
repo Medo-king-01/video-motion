@@ -60,7 +60,7 @@ export function draw(ctx, t, { W, H, dur }) {
   ctx.scale(v['card.scale'], v['card.scale']);
   const cw = 720, ch = 300;
   ctx.fillStyle = C.ink;
-  ctx.shadowColor = 'rgba(46,36,35,0.45)'; ctx.shadowBlur = 48; ctx.shadowOffsetY = 20;
+  ctx.shadowColor = 'rgba(3,3,3,0.45)'; ctx.shadowBlur = 48; ctx.shadowOffsetY = 20;
   roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 28); ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.strokeStyle = C.red; ctx.lineWidth = 3;   // same language as the caption plate

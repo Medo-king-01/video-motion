@@ -77,7 +77,7 @@ for t, b, mn, label in pairs:
     print(f"  {'OK ' if ok else 'LOW'} {r:5.2f}:1 (min {mn}) {label}")
 
 print('Forbidden-pair sanity (these SHOULD stay low):')
-for t, b, mn, label in (('red', 'ink', 3.4, 'red text on dark -> use salmon'),
+for t, b, mn, label in (('red', 'ink', 4.5, 'red text on dark (below body bar; rule: use salmon anyway)'),
                         ('gray_4', 'paper', 4.6, 'gray_4 for body text on light'),
                         ('salmon', 'paper', 4.6, 'salmon for body text on light'),
                         ('gray_3', 'paper', 4.6, 'gray_3 text on light')):
@@ -88,8 +88,8 @@ for t, b, mn, label in (('red', 'ink', 3.4, 'red text on dark -> use salmon'),
     else:
         print(f'  OK  {r:5.2f}:1 {label} (blocked as intended)')
 
-if any(abs(a - round(b * 0.65)) > 1 for a, b in zip(SHADOW, P['ink'])):
-    print('  WARN ink_shadow is not ink darkened by ~35%')
+if list(SHADOW) != [3, 3, 3] or not all(s < i for s, i in zip(SHADOW, P['ink'])):
+    print('  WARN ink_shadow is not the locked v2.6 derived value (#030303, darker than ink)')
     warn += 1
 
 # ---- 3. drift in a real project ---------------------------------------------

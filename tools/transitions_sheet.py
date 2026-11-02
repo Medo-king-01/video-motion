@@ -28,8 +28,8 @@ sys.path.insert(0, str(P_DIR))
 from transition import NAMES, composite, sfx_for  # noqa: E402
 
 W, H = 1080, 1920
-RED, RED_DEEP, INK, INK_SOFT = (203, 39, 27), (159, 8, 3), (71, 57, 56), (139, 103, 101)
-PAPER, GRAY_2, GRAY_4, SHADOW = (243, 242, 241), (201, 197, 194), (163, 162, 160), (46, 36, 35)
+RED, RED_DEEP, INK, INK_SOFT = (203, 39, 27), (159, 8, 3), (10, 10, 10), (113, 113, 122)
+PAPER, GRAY_2, GRAY_4, SHADOW = (243, 242, 241), (201, 197, 194), (163, 162, 160), (3, 3, 3)
 SALMON, BLUSH = (217, 127, 104), (213, 174, 166)
 
 

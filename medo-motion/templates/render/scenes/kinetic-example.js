@@ -50,7 +50,7 @@ export function draw(ctx, t, { W, H, dur }) {
   const beat = grid(t, BPM);
   // flat technical grid, redrawn every frame (no state): it breathes with the beat
   ctx.save();
-  ctx.strokeStyle = 'rgba(139,103,101,0.22)'; ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(113,113,122,0.22)'; ctx.lineWidth = 2;
   for (let x = 90; x < W; x += 90) {
     ctx.beginPath(); ctx.moveTo(x, 260); ctx.lineTo(x, 1340); ctx.stroke();
   }

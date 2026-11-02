@@ -83,19 +83,19 @@ def test_colours_and_shading():
 
 def test_draw_mesh_culls_and_fills():
     W, H = 400, 400
-    img = Image.new("RGB", (W, H), (46, 36, 35))
+    img = Image.new("RGB", (W, H), (3, 3, 3))
     draw = ImageDraw.Draw(img)
     cam = space3d.camera(dist=900, yaw=0.6, pitch=-0.2)
     drawn = space3d.draw_mesh(draw, space3d.box(200), cam, W, H,
-                              {"front": "#CB271B", "side": "#8B6765"}, outline=(46, 36, 35))
+                              {"front": "#CB271B", "side": "#71717A"}, outline=(3, 3, 3))
     assert 2 <= drawn <= 4                                         # never the back faces too
     a = np.asarray(img)
-    assert (a != np.array([46, 36, 35])).any()                     # something was painted
+    assert (a != np.array([3, 3, 3])).any()                     # something was painted
     assert a[..., 0].max() > 120                                   # the red front face landed
     # drawing the same mesh twice on identical canvases is identical: no hidden state
-    img2 = Image.new("RGB", (W, H), (46, 36, 35))
+    img2 = Image.new("RGB", (W, H), (3, 3, 3))
     space3d.draw_mesh(ImageDraw.Draw(img2), space3d.box(200), cam, W, H,
-                      {"front": "#CB271B", "side": "#8B6765"}, outline=(46, 36, 35))
+                      {"front": "#CB271B", "side": "#71717A"}, outline=(3, 3, 3))
     assert np.array_equal(np.asarray(img), np.asarray(img2))
 
 

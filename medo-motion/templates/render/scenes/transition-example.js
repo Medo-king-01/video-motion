@@ -73,7 +73,7 @@ export function draw(ctx, t, { W, H, dur }) {
   ctx.font = '400 28px Cairo';
   const label = `${name} · ${transitionDuration(name)}s`;
   const tw = ctx.measureText(label).width;
-  ctx.fillStyle = 'rgba(71,57,56,0.92)';
+  ctx.fillStyle = 'rgba(10,10,10,0.92)';
   ctx.beginPath(); ctx.roundRect(56, 1452, tw + 44, 62, 14); ctx.fill();
   ctx.strokeStyle = C.red; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.roundRect(56, 1452, tw + 44, 62, 14); ctx.stroke();

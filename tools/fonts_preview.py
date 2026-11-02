@@ -34,8 +34,8 @@ AR_DETAIL = "الأسعار ١٢٤٥ جنيه · 4.2K مشاهدة"
 LAT_SAMPLE = "Sphinx of black quartz, judge my vow"
 LAT_DETAIL = "DEFAULT 4.2K · 1080×1920 · 30 fps"
 
-DARK = (46, 36, 35)
-INK = (71, 57, 56)
+DARK = (3, 3, 3)
+INK = (10, 10, 10)
 PAPER = (243, 242, 241)
 GRAY = (163, 162, 160)
 SALMON = (217, 127, 104)
@@ -82,8 +82,8 @@ def sheet(light: bool = False, width: int = 1400) -> Image.Image:
     pad = 48
     pair_h = 150
     height = head_h * 2 + row_h * (len(arabic) + len(latin)) + 40 + pair_h * len(PAIRS) + 120
-    bg_top, bg_bot = ((243, 242, 241), (216, 215, 213)) if light else ((71, 57, 56), (46, 36, 35))
-    fg, sub, accent = ((71, 57, 56), (139, 103, 101), RED) if light else ((243, 242, 241), GRAY, SALMON)
+    bg_top, bg_bot = ((243, 242, 241), (216, 215, 213)) if light else ((10, 10, 10), (3, 3, 3))
+    fg, sub, accent = ((10, 10, 10), (113, 113, 122), RED) if light else ((243, 242, 241), GRAY, SALMON)
     img = _bg(width, height, bg_top, bg_bot).convert("RGBA")   # arabic_shape.draw composites RGBA
     d = ImageDraw.Draw(img)
     mono = family_file(manifest, "IBM Plex Mono", 600)

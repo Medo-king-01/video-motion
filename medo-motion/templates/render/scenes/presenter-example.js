@@ -41,7 +41,7 @@ export function draw(ctx, t, { W, H, dur }) {
   const label = `pose · ${state.pose}`;
   ctx.font = '400 30px Cairo';
   const tw = ctx.measureText(label).width;
-  ctx.fillStyle = 'rgba(71,57,56,0.92)';
+  ctx.fillStyle = 'rgba(10,10,10,0.92)';
   ctx.beginPath(); ctx.roundRect(W / 2 - tw / 2 - 24, 1452, tw + 48, 64, 14); ctx.fill();
   ctx.strokeStyle = C.red; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.roundRect(W / 2 - tw / 2 - 24, 1452, tw + 48, 64, 14); ctx.stroke();

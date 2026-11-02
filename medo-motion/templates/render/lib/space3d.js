@@ -150,7 +150,7 @@ export function drawMesh(ctx, m, cam, w, h, colors, opts = {}) {
     ctx.moveTo(pts[0][0], pts[0][1]);
     for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
     ctx.closePath();
-    ctx.fillStyle = rgb(shade(colors[role] ?? colors.side ?? [71, 57, 56], n, light, ambient));
+    ctx.fillStyle = rgb(shade(colors[role] ?? colors.side ?? [10, 10, 10], n, light, ambient));
     ctx.fill();
     if (outline) {
       ctx.strokeStyle = rgb(outline);
