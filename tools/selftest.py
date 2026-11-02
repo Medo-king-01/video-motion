@@ -55,6 +55,22 @@ def ffmpeg_bin() -> str | None:
         return None
 
 
+
+def ffprobe_bin() -> str | None:
+    """Resolve the real ffprobe binary or the repository's installed shim."""
+    configured = os.environ.get("FFPROBE_BIN")
+    candidates = [configured, str(ROOT / "tools" / "bin" / "ffprobe"), shutil.which("ffprobe")]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        found = shutil.which(candidate)
+        if found:
+            return found
+        path = Path(candidate)
+        if path.is_file():
+            return str(path.resolve())
+    return None
+
 def step_doctor() -> bool:
     r = run([sys.executable, str(ROOT / "tools" / "doctor.py"), "--fast"], cwd=ROOT)
     verdict = [ln for ln in r.stdout.splitlines() if ln.startswith(("READY", "DEGRADED", "BLOCKED"))]
@@ -169,8 +185,9 @@ def step_hybrid() -> bool:
     npm = shutil.which("npm")
     node = shutil.which("node")
     ff = ffmpeg_bin()
-    if not npm or not node or not ff:
-        return record("hybrid P/K/R render", 2, "npm, Node.js or ffmpeg not found")
+    ffprobe = ffprobe_bin()
+    if not npm or not node or not ff or not ffprobe:
+        return record("hybrid P/K/R render", 2, "npm, Node.js, ffmpeg or ffprobe not found")
     if not (TOOLKIT / "node_modules" / "playwright-core").exists():
         return record("hybrid P/K/R render", 2, "shared K toolkit not installed")
     proj = ROOT / "projects" / f"_selftest-hybrid-{os.getpid()}"
@@ -192,7 +209,7 @@ def step_hybrid() -> bool:
             return record("hybrid P/K/R render", 1, browser_info.stdout + browser_info.stderr)
         browser = json.loads(browser_info.stdout)
         env = {**os.environ, "KHAAM_TOOLKIT": str(TOOLKIT), "KHAAM_CHROMIUM": browser["executablePath"],
-               "FFMPEG_BIN": ff, "PYTHONUNBUFFERED": "1"}
+               "FFMPEG_BIN": ff, "FFPROBE_BIN": ffprobe, "PYTHONUNBUFFERED": "1"}
         if browser.get("libraryPath"):
             env["LD_LIBRARY_PATH"] = browser["libraryPath"] + ":" + env.get("LD_LIBRARY_PATH", "")
         audio_path = proj / "assets" / "vo" / "hybrid-selftest.wav"
@@ -215,7 +232,7 @@ def step_hybrid() -> bool:
         (proj / "plan" / "beats.json").write_text(json.dumps(beats) + chr(10), encoding="utf-8")
         fill_story_cards(proj)
         rendered = run([sys.executable, str(ROOT / "tools" / "render_hybrid.py"), "--project", str(proj),
-                        "--ffmpeg", ff, "--ffprobe", str(ROOT / "tools" / "bin" / "ffprobe")],
+                        "--ffmpeg", ff, "--ffprobe", ffprobe],
                        cwd=proj, env=env, timeout=900)
         output = proj / "out" / "hybrid.mp4"
         ok = rendered.returncode == 0 and output.is_file() and output.stat().st_size > 1000
