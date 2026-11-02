@@ -172,8 +172,6 @@ def test_timeline_gaps_are_errors(tmp_path):
     shutil.copytree(GOOD, proj)
     beats = json.loads((proj / "plan" / "beats.json").read_text(encoding="utf-8"))
     beats["scenes"][1]["start"] += 0.5          # leave a 0.5 s hole after scene 1
-    for s in beats["scenes"][2:]:                # keep the rest contiguous
-        pass
     (proj / "plan" / "beats.json").write_text(json.dumps(beats), encoding="utf-8")
     r = run(str(proj))
     assert r.returncode == 1, r.stdout

@@ -107,6 +107,19 @@ def step_engine_k(work: Path) -> bool:
                   f"{len(frames)} frames via Chromium" if ok else r.stdout + r.stderr)
 
 
+def fill_story_cards(proj: Path) -> None:
+    """render.mjs refuses the template's placeholder copy — give the scenes real cards."""
+    data_ts = proj / "src" / "data.ts"
+    if not data_ts.is_file():
+        return
+    src = data_ts.read_text(encoding="utf-8")
+    for old, new in [("اكتب عنوان المشهد", "عنوان المشهد التجريبي"),
+                     ("حط هنا الجملة الأساسية", "جملة أساسية تجريبية"),
+                     ("الحركة والإيقاع بيساعدوا", "وضوح الفكرة.")]:
+        src = src.replace(old, new)
+    data_ts.write_text(src, encoding="utf-8")
+
+
 def step_engine_r() -> bool:
     npm = shutil.which("npm")
     node = shutil.which("node")
@@ -126,6 +139,15 @@ def step_engine_r() -> bool:
         beats = {"duration": 0.4, "fps": 30, "frames": 12, "bounds": [0, 0.4],
                  "scenes": [{"index": 1, "start": 0, "end": 0.4, "dur": 0.4, "frames": 12}]}
         (proj / "plan" / "beats.json").write_text(json.dumps(beats) + "\n", encoding="utf-8")
+        fill_story_cards(proj)
+        # render.mjs refuses placeholder copy — give the one scene its real card
+        data_ts = proj / "src" / "data.ts"
+        src = data_ts.read_text(encoding="utf-8")
+        for old, new in [("اكتب عنوان المشهد", "عنوان المشهد التجريبي"),
+                         ("حط هنا الجملة الأساسية", "جملة أساسية تجريبية"),
+                         ("الحركة والإيقاع بيساعدوا الفكرة توصل بوضوح.", "وضوح الفكرة.")]:
+            src = src.replace(old, new)
+        data_ts.write_text(src, encoding="utf-8")
         stills = run([npm, "run", "stills", "--", "0", "0.1"], cwd=proj, timeout=300)
         if stills.returncode:
             return record("engine R render", 1, stills.stdout + stills.stderr)
@@ -191,6 +213,7 @@ def step_hybrid() -> bool:
         beats = {"duration": 0.6, "fps": 30, "frames": 18, "bounds": [0, 0.6],
                  "scenes": [{"index": 1, "start": 0, "end": 0.6, "dur": 0.6, "frames": 18}]}
         (proj / "plan" / "beats.json").write_text(json.dumps(beats) + chr(10), encoding="utf-8")
+        fill_story_cards(proj)
         rendered = run([sys.executable, str(ROOT / "tools" / "render_hybrid.py"), "--project", str(proj),
                         "--ffmpeg", ff, "--ffprobe", str(ROOT / "tools" / "bin" / "ffprobe")],
                        cwd=proj, env=env, timeout=900)
