@@ -34,7 +34,9 @@
   - ⇒ WhisperX / faster-whisper / whisper.cpp model weights **cannot be fetched in this sandbox**.
   - Sandbox compute: 2 vCPU, ~3 GB RAM, ~18 GB free disk; gcc 12 + make present; cmake/espeak not installed (installable from PyPI / source).
   - Viable word-alignment paths: **(A, recommended)** Medo runs `tools/align_audio.py` on a machine with Hugging Face access and uploads the aligned JSON + the WAV; **(B, offline fallback to attempt)** build espeak-ng from GitHub source + `aeneas` (PyPI) for DTW forced alignment against the known script — a real measured alignment, but lower accuracy for Egyptian dialect, so it must be validated against the audio before any caption is accepted.
-- Source WAV `assets/vo/episode-03-ram.wav` is still absent from this workspace.
+- **VO received + verified (2026-11-02):** Medo uploaded the recording wrapped as base64 JSON (`audio_data.json`, original `one.wav`). Decoded to `assets/vo/episode-03-ram.wav` — `pcm_s16le`, mono, 24000 Hz, **70.520 s**, an exact match to `plan/beats.json` (2116 frames, 10 scenes). Master `out/vo24.wav` prepared. The WAV itself stays local / git-ignored (not committed), per the privacy rule.
+- **Preview delivery fix:** the review artefacts were git-ignored, so they never reached Medo (only the tracked `PROGRESS.md` did). Force-added + committed `artifacts/s01-contact-sheet.jpg` and `artifacts/s01-preview-silent.mp4` (commit `3479adf`) and pushed the branch so the S01 preview is now deliverable.
+- Offline alignment fallback (`aeneas`) did **not** install cleanly in this sandbox (C-extension build failure); espeak-ng also absent. Word-level alignment still pending — recommended path remains running `tools/align_audio.py` on a machine with Hugging Face access.
 
 ## Validation notes
 
