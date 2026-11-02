@@ -1,30 +1,42 @@
-<!-- Video Motion · font roles, pairings and installation guidance. -->
-# Font research & sourcing (do this before the design file — step 4)
-Never pick fonts from memory or default to Inter/Poppins. **Research first, then download.**
+<!-- Video Motion · font choice & sourcing (manifest-first). -->
+# Font choice & sourcing — the studio manifest comes first
 
-**Arabic text:** start from `reference/arabic-fonts.md` (tested free OFL catalog with roles and pairings) and download with `scripts/get_fonts.py`. The rules below still apply to anything outside that catalog.
+**There is no forced creative default.** The agent chooses the most attractive, reel-fitting
+face (Arabic or Latin) for every on-screen text element and records it in
+`plan/text-direction.json` (`fontStyles` / `fontElements`). The unified reference is
+`DESIGN_SYSTEM.md`; the human-facing catalog is `docs/fonts.md`.
 
-**1. Research what the video needs** (write the result into `TASTE.md` §3):
-- Brand fonts from the user come first — if they gave fonts, use them and only research what's missing.
-- From the brief, references, tone and intensity (§4), define the **type roles**: headline/display, keyword/accent, captions/body, and UI/mono or script only if the plan needs them. Max 2–3 families.
-- For each role write the look in words (e.g. "ultra-bold condensed grotesk, sharp, tech") and the requirements: weights needed (e.g. 200 + 900), variable `wght`/`wdth` axis for kinetic animation, glyphs/languages in the script (numbers, symbols, non-Latin text), readability at caption size.
-- If there are references, identify their fonts first (Firecrawl search "<brand> font", or screenshot a frame and check it on a font identifier with Playwright), then find the closest free match on the sites below.
+## 1) Choose from the manifest
 
-**2. Search these sites** (in this order, with the Playwright MCP to browse and compare specimens visually, or Firecrawl to search/scrape). Most are free or free for personal use — **always read the license.**
-| Site | Use for |
-|---|---|
-| https://freedesignresources.net/category/free-fonts/ (Free Design Resources) | display, condensed, script freebies |
-| https://open-foundry.com/ (Open Foundry) | curated open-source (OFL) typefaces |
-| https://www.fontshare.com/ (Fontshare) | ITF free pro fonts (Satoshi, Clash Display, General Sans, Cabinet Grotesk, Switzer…), free for commercial use |
-| https://www.typedump.com/ (Typedump) | variable, display, pixel, mono free fonts |
-| https://play.typedetail.com/ (Font Playground) | find and test variable fonts, preview the wght/wdth/slnt axes for kinetic type, then download from the font's own page |
-| https://dirtylinestudio.com/freebies/ (Dirtyline Studio) | free display/brand fonts |
-| Google Fonts (fallback only) | OFL staples when nothing above fits: Inter, Anton, Archivo Black, Permanent Marker, Caveat Brush, Space Mono |
+- The only fonts allowed on screen are in `assets/fonts/fonts.json` — 21 SIL OFL 1.1 families
+  (12 Arabic + 9 Latin), free for commercial use and redistribution.
+- Cairo/Inter are a last-resort fallback for system chrome only, not a creative default.
+- Arabic text must use an Arabic-capable family. Keep whole-word shaping, RTL, no letter-spacing.
+- Prefer an Arabic↔Latin pair with the same feel; at most two families per scene unless a
+  deliberate reason is recorded.
+- Show the chosen faces in `plan/design.html` and record the rationale in `TASTE.md` §3.
 
-**3. Shortlist + approve:** 2–3 candidates per role in the `fonts` array of `plan/design.html` (`chosen:false` for candidates; fields family, file, weight, role, license, source) + one line each in TASTE.md on why it fits. The design file renders a specimen of each with the real headline and keywords and flags missing files. Pick the best and show the design file for approval.
+## 2) If the manifest is missing a face
 
-**4. Download** only from the font's official page (never from mirror/"free download" sites): with Playwright click the download button (files land in `cache/browser/`), or Firecrawl-scrape the page for the direct link and `curl -L -o`. Unzip, then move the `.ttf/.otf/.woff2` files to `assets/fonts/<Family>/`. Save the license (the included LICENSE/readme, or the license page saved as `license.md`) in the same folder, and add a `manifest.json` entry for each family.
+Research candidates first, but **do not put an unregistered font on screen**. To add a family:
 
-**5. Use in code:** load the local files with `@font-face`/`FontFace` and **await `document.fonts.ready` before rendering frame 0**. Render a test still to make sure the right font shows (no fallback font, no missing glyphs).
+1. Verify it is SIL OFL 1.1 (or another licence the studio explicitly accepts) and that it
+   actually shapes Arabic correctly if it will carry Arabic text.
+2. Add it to `FAMILIES` in `tools/fonts_install.py` (family, npm package, weights, role, pairs, tags).
+3. Run `python3 tools/fonts_install.py --only "<Family>"` to fetch the TTFs + OFL into
+   `assets/fonts/<Family>/` and rebuild the manifest.
+4. Document it in `docs/fonts.md` and `assets/CREDITS.md`.
+5. Run the font tests (`tests/test_fonts.py`): licence, shaping-overlap gate, and rendering.
+   Families whose static instances collide (e.g. Reem Kufi, Noto Kufi Arabic, Jomhuria) are rejected.
 
-**License rules:** personal-use-only fonts are fine for the user's personal videos, but for client or commercial work you need a commercial license or a different font. If it's unclear, ask the user. Never use a font whose license you couldn't verify, and list every font in the credits.
+External specimen sites (Google Fonts, Open Foundry, Fontshare, etc.) are useful for *researching*
+candidates to add to the manifest. Personal-use-only fonts are not allowed in this studio's
+client/commercial output; when in doubt, pick an OFL family already in the manifest.
+
+## 3) Use in code
+
+- **K:** `useFont` / `useDirectedFonts` from `lib/fonts.js` + `lib/captions.js`, then `ctx.font`.
+- **P:** `lib.font(size, family, weight)` / `text_sprite(..., family, weight)`.
+- **R:** the scaffold copies the manifest to `public/fonts/`; `RemotionRoot` generates
+  `@font-face` from it and `DirectedText` applies the plan's chosen family/weight.
+- Always render a test still and confirm the intended face loaded (no silent fallback, no missing glyphs).

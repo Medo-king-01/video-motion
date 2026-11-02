@@ -8,7 +8,7 @@ motion tracks** in the studio grammar ({t, v, ease}) so the same file plays in
 engine K (lib/motion.js), engine P (motion.py) and engine R (Remotion).
 
 This ships NO third-party code: only the animation *techniques* are re-expressed
-as numeric tracks, re-skinned to the locked brand (semantic color roles, Cairo,
+as numeric tracks, re-skinned to the locked brand (semantic color roles, manifest fonts,
 unboxed captions). CDN styling (Tailwind/Font Awesome/Google Fonts) is dropped.
 
 Outputs:

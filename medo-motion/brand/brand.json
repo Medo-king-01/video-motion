@@ -194,7 +194,7 @@
       "manifest": "assets/fonts/fonts.json",
       "licence": "SIL OFL 1.1 — free for commercial use, no on-screen attribution, redistribution allowed",
       "roles": {
-        "brand_body": "Cairo 400/700/800/900 — captions, body, lower thirds",
+        "brand_body": "Cairo 400/700/800/900 — available option / system-chrome fallback (not a forced creative default)",
         "headline_geometric": "Tajawal 700/800",
         "headline_heavy": "Alexandria 700/800",
         "kufic_statement": "Kufam 500/700",
@@ -206,7 +206,8 @@
         "rounded_social": "Rubik 400-900 + Sora",
         "condensed_impact": "Changa 400-800 + Archivo Black",
         "modern_ui": "Readex Pro 400-700 + Sora",
-        "kufi_poster": "Lalezar 400 + Bebas Neue"
+        "kufi_poster": "Lalezar 400 + Bebas Neue",
+        "latin_fallback": "Inter 400/600/800 — available option / system-chrome fallback"
       },
       "rule": "Every family on screen must be in the manifest (free/OFL). The agent chooses the most attractive, reel-fitting face per scene/element and records it in plan/text-direction.json (fontStyles/fontElements). There is no creative default; Cairo/Inter are only a last-resort fallback for system chrome. Keep whole-word Arabic shaping and at most two families per scene unless a deliberate reason is recorded.",
       "fallback": {
@@ -237,17 +238,19 @@
     "max_vertical_gap_px": 300
   },
   "caption": {
+    "boxed": false,
     "plate_rgba": [
-      10,
-      10,
-      10,
-      232
+      0,
+      0,
+      0,
+      0
     ],
-    "border": "red 3px",
-    "text": "white 58px",
+    "border": "none",
+    "text": "brand colors, >=58px, whole-word Arabic",
     "max_width_px": 970,
     "max_lines": 2,
-    "word_pop": true,
+    "style": "required from plan/text-direction.json (captionStyle); no default",
+    "timing": "measured VO word onsets/offsets",
     "keyword_colours": {
       "numbers": "salmon",
       "problem": "red on light / salmon on dark",

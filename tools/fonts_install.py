@@ -37,8 +37,8 @@ FAMILIES = [
     # ---------------- Arabic ----------------
     {
         "family": "Cairo", "npm": "cairo", "script": "arabic", "weights": [400, 700, 800, 900],
-        "role": "brand default — captions, body, lower thirds (the locked brand face)",
-        "pairs": "Inter", "tags": ["brand", "sans", "neutral", "default"],
+        "role": "available option / system-chrome fallback — captions, body, lower thirds (not a forced creative default)",
+        "pairs": "Inter", "tags": ["brand", "sans", "neutral", "fallback"],
     },
     {
         "family": "Tajawal", "npm": "tajawal", "script": "arabic", "weights": [400, 500, 700, 800],
@@ -99,8 +99,8 @@ FAMILIES = [
     # ---------------- Latin ----------------
     {
         "family": "Inter", "npm": "inter", "script": "latin", "weights": [400, 600, 800],
-        "role": "Latin default — UI, data, mixed Arabic+Latin lines",
-        "pairs": "Cairo", "tags": ["brand", "sans", "ui", "default"],
+        "role": "available option / system-chrome fallback — UI, data, mixed Arabic+Latin lines",
+        "pairs": "Cairo", "tags": ["brand", "sans", "ui", "fallback"],
     },
     {
         "family": "Space Grotesk", "npm": "space-grotesk", "script": "latin", "weights": [500, 700],
