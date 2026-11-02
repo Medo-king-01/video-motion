@@ -41,6 +41,7 @@ def build_signature(
     width: int,
     height: int,
     font_override: str | None = None,
+    fallback_assets_dir: str | os.PathLike | None = None,
 ) -> str:
     """Hash render code, visual assets by content, and all frame/timing settings."""
     source_root = Path(source_dir)
@@ -69,6 +70,26 @@ def build_signature(
                     asset_files.append(path)
         for path in asset_files:
             _hash_file(hasher, path, f"assets/{path.relative_to(assets_root).as_posix()}")
+
+    # presenter.py also searches the studio-level assets/poses directory when a
+    # project does not contain a requested pose. Hash that fallback source too:
+    # otherwise changing a fallback PNG or manifest could leave stale chunks reusable.
+    if fallback_assets_dir is not None:
+        fallback_root = Path(fallback_assets_dir)
+        if fallback_root.is_dir():
+            fallback_files = []
+            for root, dirs, files in os.walk(fallback_root):
+                dirs.sort()
+                for filename in sorted(files):
+                    path = Path(root) / filename
+                    if path.suffix.lower() in _ASSET_SUFFIXES and path.is_file():
+                        fallback_files.append(path)
+            for path in fallback_files:
+                _hash_file(
+                    hasher,
+                    path,
+                    f"fallback-assets/{path.relative_to(fallback_root).as_posix()}",
+                )
 
     override = (font_override or "").strip()
     hasher.update(b"REEL_FONT\\0")
