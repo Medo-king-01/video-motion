@@ -58,7 +58,7 @@ jobs:
 
       - name: Test WhisperX alignment data handling
         working-directory: projects/ram-episode-03
-        run: python -m unittest test/test_align_audio.py
+        run: python test/test_align_audio.py
 
       - name: Render S01 frames
         working-directory: projects/ram-episode-03
@@ -71,7 +71,6 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           from PIL import Image, ImageDraw
-          import math
 
           frames_dir = Path("cache/s01")
           frames = sorted(frames_dir.glob("*.jpg"))
