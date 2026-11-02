@@ -1,5 +1,10 @@
 # Changelog — Video Motion
 
+## 2026-11-02 — documentation correction
+- Replaced obsolete project-origin and licensing statements that had accumulated during iterative AI-assisted editing.
+- Aligned the root guide, toolkit guides, setup instructions and renderer playbook with the current Video Motion repository.
+- Preserved third-party licence files and attribution records; clarified that project materials and third-party components have separate rights.
+
 ## 2.6 — 2026-11-02 — Palette v2.6 Muted
 - Locked palette v2.6 (given by Medo): the brown inks of v2 are replaced by deep black
   `ink #0A0A0A` and sharp neutral gray `ink_soft #71717A`; derived `ink_shadow` locks at `#030303`.

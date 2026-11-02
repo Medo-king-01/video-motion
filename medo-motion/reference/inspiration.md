@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md -->
+<!-- Video Motion · visual reference and inspiration guidance. -->
 # 0e. Inspiration library — who to follow and study (share with the user)
 
 Tell the user to search each name on Instagram / YouTube / Behance / Vimeo and follow the ones that match their taste. Use them yourself as style vocabulary ("Buck-style character animation", "ManvsMachine 3D product").

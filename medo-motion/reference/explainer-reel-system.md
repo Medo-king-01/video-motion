@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md. Directing system for explainer / tool / list reels. -->
+<!-- Video Motion · directing guidance for explainer, tool and list reels. -->
 # Explainer reel system — a director's grammar
 
 Use this for reels that **explain, teach, list or sell an idea**: tools, tips, "4 plugins you need", "how I made this", product demos. It is a **format, not a look**: it works with the user's own style or any example in `styles/`. Code components live in `templates/render/lib/kit.js`.

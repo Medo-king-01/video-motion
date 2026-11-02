@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md. MANDATORY before any Arabic text appears on screen. -->
+<!-- Video Motion · mandatory guidance before rendering Arabic text. -->
 # Arabic typography in motion
 
 Arabic is a joined, right-to-left script whose letters change shape with their neighbours. Most motion techniques from Latin tutorials silently break it. Read this guide whenever a frame contains Arabic, and use `templates/render/lib/arabic.js` in code.

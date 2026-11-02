@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md -->
+<!-- Video Motion · workflow for sourcing and validating external visual assets. -->
 # 16. Visual asset hunting with the Playwright MCP (browse any site, grab assets yourself)
 
 Use this whenever the plan needs an image, texture, photo, footage clip, icon, mockup or style reference that the API MCPs (Pixabay/Unsplash, LottieFiles, Freesound) don't cover well — e.g. Pinterest moodboards, Behance/Dribbble shots, brand sites, product pages, font specimen pages, free texture sites. **Do it yourself; don't ask the user to search.**

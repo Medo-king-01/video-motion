@@ -3,7 +3,7 @@
 ## Framework and dependencies
 Use React Three Fiber + Drei for new code-driven 3D scenes when they fit; Three.js renders, GSAP handles absolute-time choreography and optional postprocessing provides finishing. Preserve working approved native Three.js scenes rather than migrating just to use React. Framework choice alone is not cinematic quality.
 
-Inspect the user's actual Node version, package.json and lock file. Choose compatible stable React/Fiber/Drei peer versions; don't assume another person's installed versions or use alpha APIs as stable. Shared toolkits are optional: resolve `KHAAM_TOOLKIT` / config `toolkit_dir`; if absent, use an authorized project-local renderer stack. Never replace a project's node_modules/junction, silently upgrade shared packages or install competing frameworks without a concrete need.
+Inspect the user's actual Node version, package.json and lock file. Choose compatible stable React/Fiber/Drei peer versions; don't assume another person's installed versions or use alpha APIs as stable. Shared toolkits are optional: resolve `MEDO_TOOLKIT` / config `toolkit_dir`; if absent, use an authorized project-local renderer stack. Never replace a project's node_modules/junction, silently upgrade shared packages or install competing frameworks without a concrete need.
 
 Resolve Chromium through the installed Playwright browser API or a user-configured executable; never hardcode a browser cache/version/OS path. Detect actual GPU/capture support. CPU/software rendering is a fallback, not a claim to have used the user's GPU. Do not assume NVIDIA CUDA on macOS, AMD or Intel hardware.
 

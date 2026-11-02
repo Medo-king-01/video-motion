@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md -->
+<!-- Video Motion · production recipes and reusable scene patterns. -->
 # 14. Reverse-engineered reference recipes (build these without seeing the videos)
 
 ### A · Premium talking-head caption reel (real-estate agent, 9:16, intensity 3–4)
