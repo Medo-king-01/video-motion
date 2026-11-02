@@ -11,6 +11,8 @@ import math
 from pathlib import Path
 from typing import Any
 
+ARABIC_ALIGNMENT_MODEL = "jonatasgrosman/wav2vec2-large-xlsr-53-arabic"
+
 
 def extract_words(aligned: dict[str, Any]) -> list[dict[str, Any]]:
     words: list[dict[str, Any]] = []
@@ -51,7 +53,7 @@ def align_audio(audio_path: Path, model_name: str = "small", batch_size: int = 4
     )
     transcription = model.transcribe(audio, batch_size=batch_size, language="ar")
     align_model, metadata = whisperx.load_align_model(
-        language_code="ar", device=device
+        language_code="ar", device=device, model_name=ARABIC_ALIGNMENT_MODEL
     )
     aligned = whisperx.align(
         transcription["segments"],
@@ -67,8 +69,7 @@ def align_audio(audio_path: Path, model_name: str = "small", batch_size: int = 4
         "language": "ar",
         "engine": "WhisperX",
         "model": model_name,
-        "alignment_model": getattr(metadata, "model_name", None)
-        or "WhisperX Arabic default alignment model",
+        "alignment_model": ARABIC_ALIGNMENT_MODEL,
         "duration": round(duration, 3),
         "words": extract_words(aligned),
     }
