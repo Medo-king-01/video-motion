@@ -136,6 +136,22 @@ def fill_story_cards(proj: Path) -> None:
     data_ts.write_text(src, encoding="utf-8")
 
 
+def fill_text_direction(proj: Path, beats: dict) -> None:
+    """The render gates require an explicit, agent-chosen style per scene."""
+    styles = ["karaoke", "softFade", "zoomPunch", "underline", "fadeTilt", "wordPop"]
+    scenes = []
+    for i, s in enumerate(beats.get("scenes") or []):
+        st = styles[i % len(styles)]
+        scenes.append({"scene": s.get("index", i + 1), "captionStyle": st,
+                       "captionWhy": f"selftest scene {i+1} uses {st}",
+                       "textStyles": {"title": st, "body": "softFade"},
+                       "textWhy": f"selftest scene {i+1} title/body styles"})
+    direction = {"version": 1, "status": "directed", "decidedBy": "agent",
+                 "concept": "selftest text direction exercising the per-scene style gate",
+                 "scenes": scenes}
+    (proj / "plan" / "text-direction.json").write_text(json.dumps(direction) + "\n", encoding="utf-8")
+
+
 def step_engine_r() -> bool:
     npm = shutil.which("npm")
     node = shutil.which("node")
@@ -156,6 +172,7 @@ def step_engine_r() -> bool:
                  "scenes": [{"index": 1, "start": 0, "end": 0.4, "dur": 0.4, "frames": 12}]}
         (proj / "plan" / "beats.json").write_text(json.dumps(beats) + "\n", encoding="utf-8")
         fill_story_cards(proj)
+        fill_text_direction(proj, beats)
         # render.mjs refuses placeholder copy — give the one scene its real card
         data_ts = proj / "src" / "data.ts"
         src = data_ts.read_text(encoding="utf-8")
@@ -231,6 +248,7 @@ def step_hybrid() -> bool:
                  "scenes": [{"index": 1, "start": 0, "end": 0.6, "dur": 0.6, "frames": 18}]}
         (proj / "plan" / "beats.json").write_text(json.dumps(beats) + chr(10), encoding="utf-8")
         fill_story_cards(proj)
+        fill_text_direction(proj, beats)
         rendered = run([sys.executable, str(ROOT / "tools" / "render_hybrid.py"), "--project", str(proj),
                         "--ffmpeg", ff, "--ffprobe", ffprobe],
                        cwd=proj, env=env, timeout=900)

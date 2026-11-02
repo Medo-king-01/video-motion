@@ -31,6 +31,10 @@ import re
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
+import text_direction as td  # noqa: E402
+
 # ---- measured norms (30 fps, 9:16) ------------------------------------------------------------
 WORDS_PER_FRAGMENT = {"calm": 4, "crisp": 5}
 VISIBLE_AT_ONCE = {"calm": 8, "crisp": 10}
@@ -314,6 +318,31 @@ def lint_moves(rep: Report, draw: dict) -> None:
     rep.ok("M01", f"{len(picks)} moves drawn · seed {draw.get('seed', '?')}")
 
 
+# ---- text direction (agent-chosen styles, no default) ---------------------------------------
+def lint_text_direction(rep: Report, project: Path, beats: dict, copy: dict) -> None:
+    direction = td.load(project)
+    if not direction:
+        rep.error("T00", "no plan/text-direction.json — the agent must choose caption/text styles per scene: "
+                         "python3 tools/text_direction.py <project> --init")
+        return
+    report = td.validate(direction, beats)
+    for e in report["errors"]:
+        rep.error("T01", e)
+    for w in report["warnings"]:
+        rep.warn("T02", w)
+    # Every on-screen copy role must have an explicit style in its scene's direction.
+    by_index = {sc.get("scene"): sc for sc in direction.get("scenes") or [] if isinstance(sc, dict)}
+    for c in copy.get("copy") or []:
+        role = c.get("role")
+        if not role:
+            continue
+        sc = by_index.get(c.get("scene"))
+        if not sc or role not in (sc.get("textStyles") or {}):
+            rep.error("T03", f"scene {c.get('scene')} copy role '{role}' has no textStyles.{role} in text-direction")
+    if not report["errors"]:
+        rep.ok("T01", f"text direction: {len(direction.get('scenes') or [])} scenes directed by {direction.get('decidedBy')}")
+
+
 # ---- optional code scan ----------------------------------------------------------------------
 def lint_code(rep: Report, project: Path) -> None:
     files = [p for p in list(project.glob("*.py")) + list(project.glob("*.ts")) + list(project.glob("*.tsx"))
@@ -366,6 +395,8 @@ def main() -> int:
     if dur and scenes:
         lint_copy(rep, copy, dur, pace, bpm, scenes)
     lint_moves(rep, draw)
+    if dur and scenes:
+        lint_text_direction(rep, a.project, plan, copy)
     if a.scan_code:
         lint_code(rep, a.project)
 

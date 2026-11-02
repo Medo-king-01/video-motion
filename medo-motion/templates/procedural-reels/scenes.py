@@ -135,7 +135,8 @@ def draw_caption(fr,t,cy=1455):
         if not (c['t0']<=t<end): continue
         spr,pos,bw,bh=cap_layout(i)
         fade=min(prog(t,c['t0'],c['t0']+0.1),1-prog(t,end-0.1,end))
-        paste(fr,plate(int(bw),int(bh)),540,cy,alpha=fade)
+        # Captions are unboxed (brand rule). Real projects use captions.draw_word_caption
+        # with MEASURED word onsets + an explicit style from plan/text-direction.json.
         for k,s in enumerate(spr):
             tw=c['times'][k]
             if t<tw: continue

@@ -151,10 +151,14 @@ for (const style of styles) {
     if (w) drawn++;
   }
 }
-// default pop must still draw exactly one word and never stroke/gradient
+// explicit pop still draws exactly one word and never stroke/gradient
 calls.fillText = 0; calls.stroke = 0; calls.gradient = 0;
-drawWordCaption(ctx, 1.0, words, { W: 1080, H: 1920 });
-if (calls.fillText !== 1 || calls.stroke !== 0 || calls.gradient !== 0) throw new Error('default pop changed');
+drawWordCaption(ctx, 1.0, words, { W: 1080, H: 1920, style: 'pop' });
+if (calls.fillText !== 1 || calls.stroke !== 0 || calls.gradient !== 0) throw new Error('explicit pop changed');
+// no default: omitting style must fail loudly
+let threw = false;
+try { drawWordCaption(ctx, 1.0, words, { W: 1080, H: 1920 }); } catch { threw = true; }
+if (!threw) throw new Error('missing style should be rejected (no default look)');
 // karaoke uses a gradient sweep; underline strokes
 calls.gradient = 0; drawWordCaption(ctx, 1.0, words, { W: 1080, H: 1920, style: 'karaoke' });
 if (calls.gradient < 1) throw new Error('karaoke should sweep a gradient');
@@ -169,3 +173,57 @@ console.log(JSON.stringify({ styles: styles.length, drawn, ok: true }));
     out = json.loads(r.stdout)
     assert out["ok"] and out["drawn"] > 0
     assert out["styles"] >= 30
+
+
+def test_generated_presets_are_in_sync_across_engines():
+    tai = _importer()
+    js = tai.emit_caption_styles_js(CATALOG)
+    py = tai.emit_caption_styles_py(CATALOG)
+    assert (SKILL / "templates" / "render" / "lib" / "caption-styles.js").read_text(encoding="utf-8") == js
+    assert (SKILL / "templates" / "remotion" / "src" / "lib" / "caption-styles.js").read_text(encoding="utf-8") == js
+    assert (SKILL / "templates" / "procedural-reels" / "caption_styles.py").read_text(encoding="utf-8") == py
+
+
+def test_shared_caption_motion_and_direction_modules_are_identical():
+    for name in ("caption-motion.js", "text-direction.js"):
+        k = (SKILL / "templates" / "render" / "lib" / name).read_text(encoding="utf-8")
+        r = (SKILL / "templates" / "remotion" / "src" / "lib" / name).read_text(encoding="utf-8")
+        assert k == r, name
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
+def test_caption_transform_js_python_parity(tmp_path):
+    from caption_motion import caption_transform  # noqa: PLC0415
+
+    styles = ["pop", "karaoke", "underline", "hormozi", "fadetilt", "zoompunch", "impact", "elastic"]
+    samples = [(0.0, 0.6), (0.05, 0.6), (0.2, 0.6), (0.45, 0.6), (0.6, 0.6)]
+    spec = {"styles": styles, "samples": samples}
+    (tmp_path / "spec.json").write_text(json.dumps(spec), encoding="utf-8")
+    script = tmp_path / "check.mjs"
+    script.write_text(
+        "import { captionTransform } from " + json.dumps(str(SKILL / "templates" / "render" / "lib" / "caption-motion.js")) + ";\n"
+        "import { readFile } from 'node:fs/promises';\n"
+        "const { styles, samples } = JSON.parse(await readFile(process.argv[2], 'utf8'));\n"
+        "const out = styles.map(s => samples.map(([e, d]) => captionTransform(s, e, d)));\n"
+        "console.log(JSON.stringify(out));\n",
+        encoding="utf-8",
+    )
+    r = subprocess.run(["node", str(script), str(tmp_path / "spec.json")], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    js = json.loads(r.stdout)
+    for style, row in zip(styles, js, strict=True):
+        for (e, d), jsv in zip(samples, row, strict=True):
+            pyv = caption_transform(style, e, d)
+            for key in ("opacity", "x", "y", "rotate", "scale", "blur", "underlineP", "karaokeP"):
+                assert pyv[key] == pytest.approx(jsv[key], abs=1e-3), f"{style}.{key} @ {e}"
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
+def test_missing_style_is_rejected_in_js():
+    script = "import { captionTransform } from " + json.dumps(str(SKILL / "templates" / "render" / "lib" / "caption-motion.js")) + ";\n"
+    script += "let threw=false; try{captionTransform(undefined,0,0.5);}catch{threw=true;} if(!threw) throw new Error('no default');\n"
+    script += "let threw2=false; try{captionTransform('not-a-style',0,0.5);}catch{threw2=true;} if(!threw2) throw new Error('unknown accepted');\n"
+    script += "console.log('ok');\n"
+    r = subprocess.run(["node", "-e", script], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.strip() == "ok"

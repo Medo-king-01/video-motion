@@ -34,7 +34,7 @@ Visual version for the user: plan/design.html (same values as §2–§5 — alwa
 
 ## 3. Visual design system
 - **Palette (hex + role, 60-30-10) [LOCKED brand, palette v2 — exactly 12 colours]:** background `#0A0A0A`→`#030303` dark / `#F3F2F1`→`#D8D7D5` light (alternate per scene) · primary `red #CB271B` (+ `red_deep #9F0803`, `red_bright #CB0801` on light only) · ink `#0A0A0A` · secondary `ink_soft #71717A` · soft accents `salmon #D97F68` (numbers/keywords on dark) and `blush #D5AEA6` (highlight chips) · neutrals `gray_1 #D8D7D5` · `gray_2 #C9C5C2` · `gray_3 #BFBAB7` · `gray_4 #A3A2A0` (large text on dark only) · text `paper #F3F2F1` on dark / `ink #0A0A0A` on light. **No yellow, no green, no blue.** Positive emphasis = paper white + ✓ glyph. Never red text on dark (2.01:1) — use salmon. Source: `brand/brand.json`.
-- **Typography [LOCKED brand]:** display Cairo ExtraBold · keyword Cairo ExtraBold · captions Cairo Bold 58px (plate rgba 10,10,10,232 + red 3px border, max width 970, 2 lines) · min sizes: card label 44, chip 40, icon 128 (animated icon layer: `icons/`) · file: assets/fonts/Cairo/… (via `scripts/get_fonts.py "Cairo"`)
+- **Typography [LOCKED brand]:** display Cairo ExtraBold · keyword Cairo ExtraBold · captions Cairo Bold/ExtraBold, **unboxed** (no plate/border/panel), max width 970, whole words only · min sizes: card label 44, chip 40, icon 128 (animated icon layer: `icons/`) · file: assets/fonts/Cairo/… (via `scripts/get_fonts.py "Cairo"`)
 - **Arabic (if any):** display <family + weight + file> · text <family> · numerals Western 0–9 (locked) · language <Egyptian dialect (ar-EG) — LOCKED> · line-height <1.4–1.7> · rules: whole words only, RTL, no tracking (`<skill>/reference/arabic-typography.md`)
 - **Style preset:** <name from <skill>/styles/ or "custom"> · changes from the preset: <…>
 - **Text treatment:** <fill, outline px, offset shadow (x,y,color), glow, backing rule for contrast>
@@ -46,7 +46,7 @@ Visual version for the user: plan/design.html (same values as §2–§5 — alwa
 
 ## 4. Motion language
 - **Easing family:** back/elastic pops, slide+fade cards, stagger 0.14–0.6 s (register A, intensity 4) · register B (intensity 2): slow ≥0.8 s eases, no shake/flash
-- **Text animation:** <per-word pop / blur-in / binary decode → mosaic resolve / slam 2.45→1, stagger 60 ms>
+- **Text animation:** chosen per scene by the agent in `plan/text-direction.json` (captionStyle + textStyles + rationale). No default look; vary with the mood/energy. Whole-word only, measured VO onsets, unboxed, brand colors. Catalog: `docs/text-animations.md`.
 - **Signature devices [LOCKED brand]:** big red circle (80–95 % width) behind the hero + ground shadow · red wipe with white edge 0.4 s between scenes · camera zoom 1.00↔1.04 + drift ±14px · one impact per scene (ring + speed lines + 6–12px shake + 1–2 frame flash) · HUD (progress bar only) drawn AFTER the camera
 - **Transitions:** <hard cut on beat / pixel wipe / zoom-through…>
 - **Camera:** <static / slow push 2 %/s / shake on impact (amp px, duration)>

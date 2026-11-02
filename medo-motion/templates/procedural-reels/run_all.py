@@ -21,6 +21,7 @@ if CH <= 0:
 from scenes import B
 from lib import W, H, FONT
 from chunk_utils import build_signature, expected_chunks, is_valid_chunk
+import text_direction as td
 
 
 def _vo_seconds(path):
@@ -51,6 +52,16 @@ if os.environ.get("REEL_MAXFRAMES"):
     N = min(N, int(os.environ["REEL_MAXFRAMES"]))  # smoke test only
 if N <= 0:
     raise SystemExit("render frame count must be positive")
+
+# Text motion is an explicit agent decision per scene. When a measured timeline exists,
+# refuse to render until plan/text-direction.json is complete (no default style).
+beats_p = PROJECT / "plan" / "beats.json"
+if beats_p.is_file():
+    beats = json.loads(beats_p.read_text(encoding="utf-8"))
+    report = td.validate(td.load(PROJECT), beats)
+    if report["errors"]:
+        raise SystemExit("Text direction incomplete — the agent must choose styles per scene:\n"
+                         + "\n".join(report["errors"]))
 
 OUT = PROJECT / "out"
 OUT.mkdir(parents=True, exist_ok=True)

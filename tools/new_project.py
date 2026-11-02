@@ -52,6 +52,7 @@ BRIEF = """# BRIEF — {slug}
 ---
 ## قرارات الوكيل — Agent decisions (auto-filled)
 - engine: `—`            <!-- P = Pillow، K = Canvas/Playwright، R = Remotion، Hybrid = مقاطع متتابعة -->
+- text motion: `plan/text-direction.json` — الوكيل بيختار ستايل الكابشن والنص لكل مشهد ويبرّره (مفيش default)
 - font: `Cairo` (locked)
 - music: `Am–F–C–G · 76 BPM · ducked` (locked) / none
 - sfx source: `procedural` → Openverse → (ElevenLabs with approval)
@@ -69,6 +70,7 @@ PROGRESS = """# PROGRESS — {slug}
 | reference analysed / STYLE.md | ⬜ | optional — no reference is required |
 | VO analysed / beats locked | ⬜ | |
 | engine chosen | ⬜ | |
+| text direction (per-scene styles) | ⬜ | plan/text-direction.json — agent chooses, no default |
 | scene 1 prototype | ⬜ | |
 | contact sheet (4–8 frames) | ⬜ | |
 | full render (chunks) | ⬜ | |
@@ -110,6 +112,12 @@ def main():
     (proj / "plan" / "beats.json").write_text(json.dumps(
         {"duration": None, "scenes": [], "note": "fill it from the VO: python3 tools/vo_length.py <vo> --json plan/beats.json"}, indent=2), encoding="utf-8")
     (proj / "plan" / "script.md").write_text("# Script\n\n(paste the numbered beats here)\n", encoding="utf-8")
+    # Text motion is an explicit agent decision per scene — never a default look.
+    # After the VO beats exist, run: python3 tools/text_direction.py projects/<slug> --init
+    (proj / "plan" / "text-direction.json").write_text(json.dumps({
+        "version": 1, "status": "draft", "decidedBy": None, "concept": None, "scenes": [],
+        "note": "the agent chooses captionStyle + textStyles per scene and explains why; no default style",
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     # What appears on screen, and the moves drawn for this reel (docs/craft.md §3 and §4).
     (proj / "plan" / "copy.json").write_text(json.dumps({
         "pace": "calm", "bpm": 100, "copy": [],

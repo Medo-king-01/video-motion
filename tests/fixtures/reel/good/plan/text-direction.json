@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "status": "directed",
+  "decidedBy": "agent",
+  "concept": "A calm explainer that lifts energy on proof beats; text motion follows the spoken emphasis.",
+  "scenes": [
+    {
+      "scene": 1,
+      "captionStyle": "karaoke",
+      "captionWhy": "scene 1 mood fits karaoke for the spoken emphasis",
+      "textStyles": {
+        "title": "karaoke"
+      },
+      "textWhy": "scene 1 title uses karaoke to match the caption rhythm"
+    },
+    {
+      "scene": 2,
+      "captionStyle": "softFade",
+      "captionWhy": "scene 2 mood fits softFade for the spoken emphasis",
+      "textStyles": {
+        "title": "softFade"
+      },
+      "textWhy": "scene 2 title uses softFade to match the caption rhythm"
+    },
+    {
+      "scene": 3,
+      "captionStyle": "zoomPunch",
+      "captionWhy": "scene 3 mood fits zoomPunch for the spoken emphasis",
+      "textStyles": {
+        "title": "zoomPunch"
+      },
+      "textWhy": "scene 3 title uses zoomPunch to match the caption rhythm"
+    },
+    {
+      "scene": 4,
+      "captionStyle": "underline",
+      "captionWhy": "scene 4 mood fits underline for the spoken emphasis",
+      "textStyles": {
+        "title": "underline"
+      },
+      "textWhy": "scene 4 title uses underline to match the caption rhythm"
+    },
+    {
+      "scene": 5,
+      "captionStyle": "fadeTilt",
+      "captionWhy": "scene 5 mood fits fadeTilt for the spoken emphasis",
+      "textStyles": {
+        "title": "fadeTilt"
+      },
+      "textWhy": "scene 5 title uses fadeTilt to match the caption rhythm"
+    },
+    {
+      "scene": 6,
+      "captionStyle": "wordPop",
+      "captionWhy": "scene 6 mood fits wordPop for the spoken emphasis",
+      "textStyles": {
+        "title": "wordPop"
+      },
+      "textWhy": "scene 6 title uses wordPop to match the caption rhythm"
+    },
+    {
+      "scene": 7,
+      "captionStyle": "hormozi",
+      "captionWhy": "scene 7 mood fits hormozi for the spoken emphasis",
+      "textStyles": {
+        "title": "hormozi"
+      },
+      "textWhy": "scene 7 title uses hormozi to match the caption rhythm"
+    }
+  ]
+}

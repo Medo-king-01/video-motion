@@ -44,22 +44,43 @@ reels_text_animations.html  ──(text_animations_import.py)──►  motion/t
 المرجع اتحوّل لدور دافئ (salmon/red). الكابشن دايمًا **من غير صندوق** (الحركات الـboxed
 مستبعدة من أنماط الكابشن). الخط Cairo.
 
-## أنماط الكابشن: `drawWordCaption(..., { style })`
+## أنماط الكابشن: `style` مطلوب — قرار الوكيل لكل مشهد
 
-الـrenderer في `templates/render/lib/captions.js` بياخد `style` اختياري. **الافتراضي
-`pop` هو نفس السلوك الأصلي بالظبط** (scale 0.94→1 في 0.09s، من غير صندوق).
+مفيش style افتراضي. الـrenderer في `templates/render/lib/captions.js` (وP في
+`captions.py`، وR في `lib/TextMotion.tsx`) بيرفض يرسم لو `style` مش متحدد. الوكيل
+بيختار لكل مشهد في `plan/text-direction.json` ويبرّر اختياره:
+
+```bash
+python3 tools/text_direction.py projects/<slug> --init   # هيكل من الـbeats
+# الوكيل يملأ captionStyle / textStyles / captionWhy لكل مشهد
+python3 tools/text_direction.py projects/<slug> --check  # لازم يعدّي قبل الرندر
+```
+
+```json
+{ "version": 1, "status": "directed", "decidedBy": "agent",
+  "concept": "شرح هادي بيعلى طاقته عند لقطات الإثبات",
+  "scenes": [
+    { "scene": 1, "captionStyle": "karaoke", "captionWhy": "هوك بيأكد على الكلمة المنطوقة",
+      "textStyles": { "title": "zoomPunch" }, "textWhy": "العنوان يدخل بقوة الهوك" }
+  ] }
+```
 
 ```js
 import { drawWordCaption } from './lib/captions.js';
+import { captionStyleFor } from './lib/text-direction.js';
 // words = [{ text, start, end }] بتوقيتات مقاسة (caption_align)
-drawWordCaption(ctx, t, words, { W, H, style: 'karaoke', theme: 'dark' });
+const style = captionStyleFor(direction, scene.index);
+drawWordCaption(ctx, t, words, { W, H, style, theme: 'dark' });
 ```
+
+`pop` لسه موجود كـ**اختيار صريح** زيّه زي باقي الستايلات (scale 0.94→1 في 0.09s)،
+لكنه مش بيفرض نفسه على أي فيديو.
 
 أنماط جاهزة:
 
 | `style` | الشكل |
 |---|---|
-| `pop` | الافتراضي — نبضة سريعة بسيطة (brand-safe) |
+| `pop` | نبضة سريعة بسيطة (اختيار صريح، مش default) |
 | `fadeTilt` / `fadeDrop` / `softFade` / `fadeTiltScale` | دخول بهدوء + ميل/نزول |
 | `zoomPunch` / `wordPop` / `impact` / `elastic` | نبض/تكبير/اهتزاز/مطاط |
 | `rise` / `drop` / `beat` / `comic` / `hookZoom` | طلوع/سقوط/نبض إيقاعي |
@@ -69,6 +90,19 @@ drawWordCaption(ctx, t, words, { W, H, style: 'karaoke', theme: 'dark' });
 
 أي `id` من الكتالوج الآمن يشتغل مباشرة كـ`style` (مثلًا `fadetiltblur`، `blurfade`…).
 الـaliases موجودة في `STYLE_ALIAS`، والمقدمات المولّدة في `CAPTION_ENTRANCES`.
+
+### دليل الاختيار حسب المود (إرشادي — القرار للوكيل)
+
+| المود / السياق | ستايلات مقترحة |
+|---|---|
+| شرح وهادي / معلومة | `softFade` · `fadeTilt` · `fadeDrop` |
+| هوك وطاقة عالية | `zoomPunch` · `impact` · `wordPop` · `hookZoom` |
+| ترند وتوكيد على كلمة | `karaoke` · `underline` · `hormozi` |
+| إيقاع ومونتاج سريع | `beat` · `elastic` · `comic` |
+| لحظة عاطفية / هدوء | `softFade` · `blurfade` · `rise` |
+
+نوّع بين المشاهد حسب المعنى، مش عشوائي. لو كررت نفس الستايل كـmotif مقصود، اكتب
+`motifReason` في الخطة عشان الـlint ما يحذّرش.
 
 ## التوقيت المقاس (مش ثابت)
 
@@ -81,7 +115,7 @@ drawWordCaption(ctx, t, words, { W, H, style: 'karaoke', theme: 'dark' });
 
 `tracks` بتتقري بنفس الـAPI في K (`lib/motion.js`) وP (`motion.py`) وR (نسخة motion.js
 المتطابقة). الاختبار `tests/test_text_animations.py` بيقارن JS وPython رقميًا على مسارات
-الكتالوج (abs=1e-3)، وبيأكد إن الافتراضي `pop` ما اتغيرش، وإن كل الأنماط بترسم من غير أخطاء.
+الكتالوج (abs=1e-3)، وبيأكد إن كل الأنماط بترسم من غير أخطاء، وإن غياب `style` بيرفض الرسم.
 
 ## إعادة التوليد
 

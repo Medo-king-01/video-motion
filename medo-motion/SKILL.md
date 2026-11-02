@@ -55,8 +55,9 @@ Ask **once** for whatever is missing, then decide and state the decision.
 New project: `python3 tools/new_project.py <slug> [--engine p|k|r|hybrid]` (repo root), then fill
 `BRIEF.md`. Full contract in `../AGENTS.md` §5. In short:
 intake → analyse the VO (`silencedetect`) → lock `plan/beats.json` → draw the moves
-(`tools/techniques.py --draw --from-plan plan/beats.json`) → write `plan/copy.json` → **lint**
-(`tools/reel_lint.py <project> --scan-code`) → scene prototype (3 stills)
+(`tools/techniques.py --draw --from-plan plan/beats.json`) → write `plan/copy.json` → choose the
+text motion per scene (`tools/text_direction.py <project> --init`, then fill `plan/text-direction.json`;
+no default style) → **lint** (`tools/reel_lint.py <project> --scan-code`) → scene prototype (3 stills)
 → contact sheet → assets → engine render (or sequential hybrid render) → mix (−14.5 LUFS) → master (CRF 13 ≥2.5 Mbps)
 → ≥3 visual QC rounds → deliver with an 8–10 line Arabic message.
 

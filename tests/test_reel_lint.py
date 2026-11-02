@@ -28,7 +28,7 @@ def codes(result: subprocess.CompletedProcess) -> set[str]:
         if line[:2] not in ("!!", " ?"):
             continue
         parts = line.strip(" ?!").split()
-        if parts and parts[0][0] in "SCMKU" and parts[0][1:].isdigit():
+        if parts and parts[0][0] in "SCMKUT" and parts[0][1:].isdigit():
             out.add(parts[0])
     return out
 
@@ -79,6 +79,12 @@ def test_no_length_rule_anywhere(tmp_path):
                  "scenes": [{"index": i + 1, "start": seconds * i / 4, "end": seconds * (i + 1) / 4,
                              "events": [{"t": 0.1, "what": "opening"}]} for i in range(4)]}
         (proj / "plan" / "beats.json").write_text(json.dumps(beats), encoding="utf-8")
+        styles = ["karaoke", "softFade", "zoomPunch", "underline"]
+        direction = {"version": 1, "status": "directed", "decidedBy": "agent",
+                     "concept": "text motion follows the spoken emphasis across the reel",
+                     "scenes": [{"scene": i + 1, "captionStyle": styles[i], "captionWhy": f"scene {i+1} emphasis",
+                                 "textStyles": {}, "textWhy": None} for i in range(4)]}
+        (proj / "plan" / "text-direction.json").write_text(json.dumps(direction), encoding="utf-8")
         r = run(str(proj))
         assert r.returncode == 0, r.stdout
         assert f"timeline {seconds:g} s" in r.stdout, r.stdout
@@ -196,7 +202,7 @@ def test_every_lint_rule_is_documented():
     import re
     doc = (ROOT / "docs" / "craft.md").read_text(encoding="utf-8")
     src = TOOL.read_text(encoding="utf-8")
-    codes = sorted(set(re.findall(r'rep\.\w+\("([SCMK]\d{2})"', src)))
+    codes = sorted(set(re.findall(r'rep\.\w+\("([SCMKUT]\d{2})"', src)))
     assert len(codes) >= 18
     missing = [c for c in codes if c not in doc]
     assert not missing, f"undocumented lint codes: {missing}"

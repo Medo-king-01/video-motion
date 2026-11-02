@@ -10,7 +10,7 @@
 | `examples/card-entrance.json` | تايملاين جاهز للتجربة |
 | `../templates/render/lib/motion.js` | المحرك K: `ease` · `spring` · `keyframes` · `timeline` · `stagger` · `reveal` |
 | `../templates/procedural-reels/motion.py` | المحرك P: نفس الـAPI بالحرف |
-| `../templates/render/lib/captions.js` | كابشن كلمة-كلمة بأنماط اختيارية (`style`)، الافتراضي `pop` — بتوقيت مقاس |
+| `../templates/render/lib/captions.js` | كابشن كلمة-كلمة بـ`style` **مطلوب** يختاره الوكيل لكل مشهد (`plan/text-direction.json`) — بتوقيت مقاس، من غير default |
 
 ```js
 import { timeline } from './lib/motion.js';
