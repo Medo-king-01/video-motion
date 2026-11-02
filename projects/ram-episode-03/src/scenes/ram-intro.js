@@ -17,10 +17,10 @@ const back = p => { const c1 = 1.70158, c3 = c1 + 1; p = clamp(p); return 1 + c3
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 const DUST = (() => { const r = rng(31); const a = []; for (let i = 0; i < 30; i++) a.push({ x: r() * 1080, y: r() * 1920, z: 0.35 + r() * 0.65, s: 1 + r() * 2.4, ph: r() * Math.PI * 2, sp: 6 + r() * 16 }); return a; })();
 
-// Reveal onsets synced to the spoken numbers (aeneas draft alignment, pending validation):
-// "8" ≈ 4.96s · "16" ≈ 7.72s · "32" ≈ 9.64s.
-const MODS = [ { x: 820, at: 4.96, label: '8GB' }, { x: 540, at: 7.72, label: '16GB' }, { x: 260, at: 9.64, label: '32GB' } ];
-const IMPACT_T = 10.3, SCAN_T = 11.0, SCENE_END = 12.358;
+// Reveal onsets measured with local faster-whisper (Whisper small CT2 int8) on the VO:
+// "8" ≈ 3.38s · "16" ≈ 5.48s · "32" ≈ 7.10s. See src/captions-s01.js.
+const MODS = [ { x: 820, at: 3.38, label: '8GB' }, { x: 540, at: 5.48, label: '16GB' }, { x: 260, at: 7.10, label: '32GB' } ];
+const IMPACT_T = 7.70, SCAN_T = 8.08, SCENE_END = 8.433;
 
 function rr(c, x, y, w, h, r) { c.beginPath(); c.roundRect(x, y, w, h, r); }
 function poly(c, p, color) { c.beginPath(); c.moveTo(...p[0]); for (let i = 1; i < p.length; i++) c.lineTo(...p[i]); c.closePath(); c.fillStyle = color; c.fill(); }
@@ -96,9 +96,10 @@ function impact(c, W, H, t) {
   const cx = W * 0.5, cy = 900;
   c.save();
   c.globalAlpha = (1 - p) * 0.8; c.strokeStyle = C.paper; c.lineWidth = 6 * (1 - p) + 2;
-  c.beginPath(); c.arc(cx, cy, 450 + 180 * out(p), 0, Math.PI * 2); c.stroke();
+  // Keep the impact ring above the caption safe line (y≈1455): max radius ≈500 from cy=900.
+  c.beginPath(); c.arc(cx, cy, 450 + 50 * out(p), 0, Math.PI * 2); c.stroke();
   c.globalAlpha = (1 - p) * 0.6; c.lineWidth = 3;
-  for (let i = 0; i < 12; i++) { const ang = i / 12 * Math.PI * 2, r0 = 480 + 120 * out(p), r1 = r0 + 40 * (1 - p);
+  for (let i = 0; i < 12; i++) { const ang = i / 12 * Math.PI * 2, r0 = 460 + 30 * out(p), r1 = r0 + 25 * (1 - p);
     c.beginPath(); c.moveTo(cx + Math.cos(ang) * r0, cy + Math.sin(ang) * r0); c.lineTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1); c.stroke(); }
   c.restore();
 }

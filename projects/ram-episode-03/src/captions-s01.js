@@ -1,96 +1,26 @@
-// S01 word-level timeline — measured by offline aeneas+espeak-ng DTW forced alignment
-// against the actual WAV (cache/full-aligned.json). APPROXIMATE for Egyptian dialect;
-// pending Medo's validation in the rendered preview. Times are scene-local seconds; end exclusive.
-export const CAPTIONS_S01_STATUS = 'aeneas-draft-pending-validation';
+// S01 word-level timeline — measured with local faster-whisper (Whisper small CT2 int8)
+// against assets/vo/episode-03-ram.wav. Source: cache/s01-whisper-vad0.json.
+// Onsets that Whisper placed before audible speech were snapped to measured
+// silence-end boundaries from the same WAV (ffmpeg silencedetect -38dB).
+// Times are scene-local seconds; end exclusive. One spoken word at a time.
+export const CAPTIONS_S01_STATUS = 'whisper-small-ct2-int8-measured';
 export const CAPTIONS_S01 = [
-  {
-    "text": "قبل",
-    "start": 0.0,
-    "end": 0.84
-  },
-  {
-    "text": "ما",
-    "start": 0.84,
-    "end": 1.52
-  },
-  {
-    "text": "تشتري",
-    "start": 1.52,
-    "end": 2.28
-  },
-  {
-    "text": "لابتوب",
-    "start": 2.28,
-    "end": 2.68
-  },
-  {
-    "text": "أكيد",
-    "start": 2.68,
-    "end": 3.2
-  },
-  {
-    "text": "شوفت",
-    "start": 3.2,
-    "end": 3.6
-  },
-  {
-    "text": "أجهزة",
-    "start": 3.6,
-    "end": 4.04
-  },
-  {
-    "text": "فيها",
-    "start": 4.04,
-    "end": 4.96
-  },
-  {
-    "text": "8",
-    "start": 4.96,
-    "end": 5.6
-  },
-  {
-    "text": "جيجا",
-    "start": 5.6,
-    "end": 6.08
-  },
-  {
-    "text": "RAM",
-    "start": 6.08,
-    "end": 6.8
-  },
-  {
-    "text": "وأجهزة",
-    "start": 6.8,
-    "end": 7.16
-  },
-  {
-    "text": "فيها",
-    "start": 7.16,
-    "end": 7.72
-  },
-  {
-    "text": "16",
-    "start": 7.72,
-    "end": 8.92
-  },
-  {
-    "text": "وأجهزة",
-    "start": 8.92,
-    "end": 9.32
-  },
-  {
-    "text": "فيها",
-    "start": 9.32,
-    "end": 9.64
-  },
-  {
-    "text": "32",
-    "start": 9.64,
-    "end": 10.88
-  },
-  {
-    "text": "جيجا",
-    "start": 10.88,
-    "end": 11.44
-  }
+  { text: 'قبل', start: 0.865, end: 1.040 },
+  { text: 'ما', start: 1.040, end: 1.160 },
+  { text: 'تشتري', start: 1.160, end: 1.500 },
+  { text: 'لابتوب', start: 1.500, end: 2.292 },
+  { text: 'أكيد', start: 2.292, end: 2.500 },
+  { text: 'شوفت', start: 2.500, end: 2.800 },
+  { text: 'أجهزة', start: 2.800, end: 3.140 },
+  { text: 'فيها', start: 3.140, end: 3.380 },
+  { text: '8', start: 3.380, end: 3.600 },
+  { text: 'جيجا', start: 3.600, end: 4.060 },
+  { text: 'RAM', start: 4.060, end: 4.602 },
+  { text: 'وأجهزة', start: 4.602, end: 5.240 },
+  { text: 'فيها', start: 5.240, end: 5.480 },
+  { text: '16', start: 5.480, end: 6.450 },
+  { text: 'وأجهزة', start: 6.450, end: 6.880 },
+  { text: 'فيها', start: 6.880, end: 7.100 },
+  { text: '32', start: 7.100, end: 7.700 },
+  { text: 'جيجا', start: 7.700, end: 8.080 },
 ];

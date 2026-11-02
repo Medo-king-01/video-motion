@@ -1,9 +1,9 @@
 [
-  {"t": 0.15, "sfx": "sub", "gain": 1.1},
-  {"t": 0.30, "sfx": "whoosh", "gain": 0.9, "pan": [-0.5, 0.5]},
-  {"t": 4.96, "sfx": "pop", "gain": 1.4},
-  {"t": 7.72, "sfx": "pop", "gain": 1.4},
-  {"t": 9.64, "sfx": "pop", "gain": 1.4},
-  {"t": 10.30, "sfx": "impact", "gain": 1.3, "seed": 4},
-  {"t": 11.00, "sfx": "zip", "gain": 1.0, "pan": [-0.6, 0.6]}
+  {"t": 0.15, "sfx": "sub", "gain": 1.0},
+  {"t": 0.30, "sfx": "whoosh", "gain": 0.8, "pan": [-0.5, 0.5]},
+  {"t": 3.38, "sfx": "pop", "gain": 1.25},
+  {"t": 5.48, "sfx": "pop", "gain": 1.25},
+  {"t": 7.10, "sfx": "pop", "gain": 1.25},
+  {"t": 7.70, "sfx": "impact", "gain": 1.15, "seed": 4},
+  {"t": 8.08, "sfx": "zip", "gain": 0.9, "pan": [-0.6, 0.6]}
 ]

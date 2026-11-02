@@ -4,15 +4,15 @@
 |---|---|---|
 | Script + visual direction | ✅ | Approved by Medo |
 | VO measurement | ✅ | 70.520 s, 24 kHz, 2116 frames @ 30 FPS |
-| 10-scene editorial map | 🟡 | Grouped from silence midpoints; not word-level alignment |
+| 10-scene editorial map | 🟡 | S01 end corrected from measured speech/silence; S02–S10 bounds still pending full measured alignment |
 | K engine scaffold | ✅ | Copied from current repository template |
 | S01 prototype code | ✅ | Rendered successfully in GitHub Actions |
 | Repository CI | ✅ | Static checks, unit tests, lint fixtures, brand audits, and P/K/R/Hybrid real renders passed in run 41487395015 |
 | S01 render | ✅ | 0–12.358 s, 30 FPS, 0.5 scale; render step passed in run 41487395114 |
 | S01 contact sheet | ✅ | Generated and uploaded as artifact `ram-episode-03-s01-preview` (artifact 13162427862) |
-| S01 visual review | 🟡 | 8GB → 16GB → 32GB sequence is readable; composition remains sparse and mostly static. Needs visual refinement and Medo's approval |
-| Word-level VO alignment tool | 🟡 | Added an open-source WhisperX Arabic transcription + forced-alignment CLI; actual WAV processing is pending a safe execution/transfer path |
-| Caption renderer | 🟡 | Added reusable one-word renderer, exclusive word timing, overlap/order validation, and S01 integration; actual timeline remains empty pending measured alignment |
+| S01 visual review | 🟡 | Visual style approved by Medo; v3 sync rejected; v6 measured-sync preview pending review |
+| Word-level VO alignment tool | ✅ | Local faster-whisper path built and run on the real WAV using npm-hosted Whisper small CT2 int8 weights; S01 measured |
+| Caption renderer | ✅ | Reusable one-word renderer + validation; S01 populated from measured Whisper word timestamps and checked in rendered frames |
 | Caption unit tests | ✅ | Local Node test passed; preview workflow runs the caption tests and WhisperX output-parser unit tests |
 | Technique draw + project-specific lint | ⬜ | Not independently run for this episode project |
 | S02–S10 | ⬜ | Wait for S01 visual direction approval |
@@ -41,6 +41,19 @@
 - **Alignment quality — honest caveat:** aeneas+espeak-ng DTW produces word timings, and S01–S03 land reasonably, but there is **cumulative drift** over the 70.5 s audio (later scenes compress toward the end; 42/149 words near-zero). It also exposed that `plan/beats.json` silence-midpoint scene bounds are inaccurate. So this is a **draft**, not a validated caption track.
 - **S01 v3 (2026-11-02):** module reveals re-synced to the spoken numbers ("8"≈4.96 s, "16"≈7.72 s, "32"≈9.64 s); `src/captions-s01.js` populated from the aeneas draft (status `aeneas-draft-pending-validation`); rendered `artifacts/s01-v3-synced-preview.mp4` **with the VO + captions** for Medo to judge sync. Caption timeline passes `validateWordTimeline`.
 - **Recommended reliable path remains:** run `tools/align_audio.py` (WhisperX) on a machine with Hugging Face access for accurate word timing; the aeneas draft is a stopgap for visual review only.
+
+## S01 v6 — measured Whisper sync + SFX (2026-11-02)
+
+- **OpenAI Whisper attempt (as requested):** cloned/installed `openai-whisper` from the GitHub project. The Python package imports, but `whisper.load_model('tiny')` fails with `URLError: TLS/SSL connection has been closed (EOF)` because model weights are fetched from `openaipublic.azureedge.net`, which is blocked here. So the official OpenAI model CDN is not usable in this sandbox.
+- **Working local ASR path found:** npm hosts a real CTranslate2 int8 conversion of Whisper small split across four packages: `@skillninja/shortmovie-telop-model-p0` … `p3`. Downloaded all four tarballs from `registry.npmjs.org`, reassembled `model.bin`, and verified SHA-256 `ca732cb1379efc49417d028465f543d83a39de2c61f3027678de103dc404ce73`. Added reproducible fetcher: `tools/fetch_whisper_ct2_npm.py`.
+- **Measured alignment:** installed `faster-whisper==1.2.1` + `ctranslate2`, loaded the local model with `local_files_only=True`, and transcribed the real VO with `word_timestamps=True`. Added `tools/align_whisper_local.py`. S01 was measured separately with the approved S01 text as prompt; the transcript matched the 18 script words.
+- **Aeneas draft rejected:** the previous aeneas/espeak timings were not used. They placed words over silence and were rejected in review.
+- **S01 corrected timing:** spoken numbers are approximately `8` @ 3.38s, `16` @ 5.48s, `32` @ 7.10s. S01 speech ends around 8.08s; scene cut moved from the old 12.358s to 8.433s, inside the measured silence before S02. Module reveals, captions, impact, scan, and SFX cues now use these measured onsets.
+- **Caption safety:** first-word onset snapped to measured silence-end (0.865s) instead of Whisper's early 0.74s. Impact ring radius limited so it does not cross the caption safe line.
+- **SFX:** procedural kit mixed under VO with lighter ducking (`duck=0.30`): sub/whoosh open, pop on each module reveal, impact at 7.70s, zip at 8.08s. Cue sheet: `plan/s01-sfx-cues.json`.
+- **Final S01 preview:** `artifacts/s01-v6-final-preview.mp4` — 1080×1920, 30fps, 253 frames, 8.433s, VO+SFX, burned-in one-word Arabic captions. QC: integrated loudness **-14.51 LUFS**, true peak **-1.53 dBTP**, bitrate **≈4.07 Mbps**. Caption check sheet: `artifacts/s01-v6-caption-check.jpg`. Measured word JSON: `artifacts/s01-v6-measured-words.json`.
+- **Tests:** `node test/captions.test.js`, S01 `validateWordTimeline`, and `python3 test/test_align_audio.py` passed.
+- **Next:** Medo reviews v6 sync. If approved, apply the same measured Whisper path to S02–S10 and re-derive all scene bounds before full render.
 
 ## Validation notes
 
