@@ -19,7 +19,7 @@ if CH <= 0:
     raise SystemExit("REEL_CHUNK must be a positive integer")
 
 from scenes import B
-from lib import W, H
+from lib import W, H, FONT
 from chunk_utils import build_signature, expected_chunks, is_valid_chunk
 
 
@@ -56,7 +56,7 @@ OUT = PROJECT / "out"
 OUT.mkdir(parents=True, exist_ok=True)
 ranges = expected_chunks(N, CH)
 signature = build_signature(
-    HERE, PROJECT / "assets", N, CH, B, FPS, W, H, os.environ.get("REEL_FONT")
+    HERE, PROJECT / "assets", N, CH, B, FPS, W, H, FONT
 )
 signature_file = OUT / "chunks.sig"
 previous_signature = None
