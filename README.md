@@ -1,8 +1,10 @@
 # video-motion — استوديو ريلز ميدو 🎬
 
 مستودع واحد فيه كل حاجة لصناعة **ريلز عمودي 1080×1920** من أوله لآخره:
-الهوية مقفولة (بالِت ١٢ لون + Cairo)، وثلاثة محركات رندر، وطبقة أيقونات متحركة، وأدوات صوت، وقواعد عربي سليم،
+هوية مقفولة (بالِت ١٢ لون)، وخطوط وحركة نص بيختارهم الوكيل لكل مشهد، وثلاثة محركات رندر، وطبقة أيقونات متحركة، وأدوات صوت، وقواعد عربي سليم،
 وكل ده شغال مع **أي وكيل برمجي** — مش كلود بس.
+
+**المرجع الموحّد لنظام التصميم:** [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md).
 
 ---
 
@@ -22,8 +24,9 @@
 
 **مفيش لوجو، مفيش اسم سلسلة، مفيش رقم حلقة.** ده استوديو: إنت بتقول عايز إيه.
 
-**الخطوط مجانية كلها:** ١٤ عيلة (٨ عربي + ٦ إنجليزي) SIL OFL 1.1 — Cairo الافتراضي، وكل عيلة ليها
-دور محدد (هوك، تيليمتري، اقتباس…)، مع أزواج جاهزة عربي×إنجليزي وشيت معاينة (`docs/fonts.md`).
+**الخطوط مجانية كلها:** ٢١ عيلة (١٢ عربي + ٩ إنجليزي) SIL OFL 1.1 — الوكيل بيختار الأنسب والأجذب
+لكل مشهد/عنصر ويسجّل اختياره في `plan/text-direction.json`؛ مفيش خط افتراضي مفروض. Cairo/Inter
+مجرد شبكة أمان لكروم النظام. الأدوار والأزواج وشيت المعاينة في `docs/fonts.md`.
 
 **الحركة على إيقاع:** شبكة BPM واحدة بتحكم القطع والـhits والميكرو-حركة (`beat.py`/`lib/beat.js`)، والعناصر
 بتتحوّل في مساحة 3D (`space3d.py`/`lib/space3d.js`) بدل ما تتقطع، وأي حركة سريعة بتاخد velocity blur
@@ -78,7 +81,7 @@ cd projects/اسم-المشروع && npm install && npm run studio
 
 ```
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
-assets/                ← مدخلات مشتركة: fonts/Cairo · poses/ · sfx/
+assets/                ← مدخلات مشتركة: fonts/ (٢١ عيلة OFL) · poses/ · sfx/
 projects/<slug>/       ← كل فيديو: BRIEF.md · STYLE.md · plan/ · assets/refs/ · out/ · PROGRESS.md
 tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · ffprobe_shim.py · chromium.mjs
                          · icons_sheet.py (مراجعة الأيقونات) · icons_preview.mjs
@@ -90,7 +93,7 @@ medo-motion/           ← حزمة أدوات Video Motion: الهوية، ال
   reference/           ← أدلة تُقرأ عند الحاجة (العربي إلزامي قبل أي نص على الشاشة)
   icons/              ← ٢٧٥ أيقونة متحركة (١٢ بيت + ٢٦٣ من itshover): registry → SVG + محرك K + محرك P
   motion/             ← لغة الحركة: easings.json (منحنيات motion.dev + معادلات Penner) + تايملاين + transitions.json
-  styles/               ← ٩ ستايلات إلهام، والافتراضي medo-red-circle
+  styles/               ← ستايلات إلهام قابلة لإعادة الاستخدام (مش defaults مفروضة)
   templates/           ← محرك P (Pillow/OpenCV/FFmpeg) + K (Canvas/Playwright) + R (Remotion/React)
   scripts/             ← preflight · brand_check · get_fonts · SFX · TTS · preview
 ```
@@ -132,7 +135,7 @@ medo-motion/           ← حزمة أدوات Video Motion: الهوية، ال
 | Arabic shaping: بديل HarfBuzz+FreeType (`arabic_shape.py`) لأن Pillow هنا من غير libraqm | ✅ |
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | Remotion 4 (محرك R) | ✅ القالب متكامل؛ كل مشروع Remotion يثبّت تبعياته عبر `npm install` |
-| خط Cairo (OFL) في `assets/fonts/Cairo` | ✅ |
+| ٢١ عيلة خطوط OFL في `assets/fonts/` | ✅ |
 | المحركان P وK | ✅ اتجربوا ورندروا فريمات عربية صح |
 | محرك R | ✅ رندر تجريبي بـRemotion/Chromium؛ `npm run render` يراجع WAV والتوقيت |
 | الاختبارات (`make test` · `make selftest`) | ✅ CI + اختبارات P/K/R؛ `python3 tools/selftest.py --hybrid` يرندر ويجمع محركات P/K/R مع صوت فعليًا |

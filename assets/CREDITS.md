@@ -4,7 +4,7 @@
 
 | الأصل | المصدر | الترخيص | التاريخ | الاستخدام |
 |---|---|---|---|---|
-| خط Cairo | Google Fonts (OFL) | SIL OFL 1.1 | 2026-10 | كل النصوص العربية على الشاشة |
+| خط Cairo | Google Fonts (OFL) | SIL OFL 1.1 | 2026-10 | اختيار متاح / شبكة أمان لكروم النظام (`docs/fonts.md`) |
 | خط Tajawal | fonts.google.com/specimen/Tajawal · npm `@expo-google-fonts/tajawal` | SIL OFL 1.1 | 2026-11-01 | geometric headlines and numbers (`docs/fonts.md`) |
 | خط IBM Plex Sans Arabic | fonts.google.com/specimen/IBM+Plex+Sans+Arabic · npm `@expo-google-fonts/ibm-plex-sans-arabic` | SIL OFL 1.1 | 2026-11-01 | technical / UI / telemetry (`docs/fonts.md`) |
 | خط Almarai | fonts.google.com/specimen/Almarai · npm `@expo-google-fonts/almarai` | SIL OFL 1.1 | 2026-11-01 | small captions and long body where legibility beats personality (`docs/fonts.md`) |
@@ -12,7 +12,7 @@
 | خط Kufam | fonts.google.com/specimen/Kufam · npm `@expo-google-fonts/kufam` | SIL OFL 1.1 | 2026-11-01 | kufic-geometric statement (`docs/fonts.md`) |
 | خط El Messiri | fonts.google.com/specimen/El+Messiri · npm `@expo-google-fonts/el-messiri` | SIL OFL 1.1 | 2026-11-01 | Egyptian-flavoured modern display (`docs/fonts.md`) |
 | خط Amiri | fonts.google.com/specimen/Amiri · npm `@expo-google-fonts/amiri` | SIL OFL 1.1 | 2026-11-01 | naskh serif (`docs/fonts.md`) |
-| خط Inter | fonts.google.com/specimen/Inter · npm `@expo-google-fonts/inter` | SIL OFL 1.1 | 2026-11-01 | Latin default (`docs/fonts.md`) |
+| خط Inter | fonts.google.com/specimen/Inter · npm `@expo-google-fonts/inter` | SIL OFL 1.1 | 2026-11-01 | available option / system-chrome fallback (`docs/fonts.md`) |
 | خط Space Grotesk | fonts.google.com/specimen/Space+Grotesk · npm `@expo-google-fonts/space-grotesk` | SIL OFL 1.1 | 2026-11-01 | technical display (`docs/fonts.md`) |
 | خط IBM Plex Sans | fonts.google.com/specimen/IBM+Plex+Sans · npm `@expo-google-fonts/ibm-plex-sans` | SIL OFL 1.1 | 2026-11-01 | Latin half of the Plex superfamily (`docs/fonts.md`) |
 | خط IBM Plex Mono | fonts.google.com/specimen/IBM+Plex+Mono · npm `@expo-google-fonts/ibm-plex-mono` | SIL OFL 1.1 | 2026-11-01 | code, specs, numbers that must line up (`docs/fonts.md`) |

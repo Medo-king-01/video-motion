@@ -1,8 +1,10 @@
 <!doctype html>
 <!--
-  DESIGN FILE (visual style board) — Khaam Motion.
+  DESIGN FILE (visual style board) — Video Motion.
   The AI fills ONLY the `DESIGN` object below; the page draws itself. The user double-clicks this file to see it in any browser.
-  Keep it in sync with TASTE.md §1–§5 (same values). Shows: concept, colours, every font written in itself, live motion demos, key frames, sound, do/don't — nothing else. Fonts load from ../assets/fonts/ (relative to plan/).
+  Keep it in sync with TASTE.md §1–§5 and plan/text-direction.json (same values). See DESIGN_SYSTEM.md at the repo root.
+  Shows: concept, brand colours, agent-chosen fonts written in themselves, live motion demos, key frames, sound, do/don't.
+  Fonts load from ../assets/fonts/ (relative to plan/). Palette must use brand.json tokens; fonts must be in assets/fonts/fonts.json.
   Frames: put code-rendered stills in plan/frames/ (e.g. node src/render.js --from 2 --to 2.04 --fps 25 --scale 0.5 --out plan/frames).
   Check it yourself: screenshot with Playwright/Chromium: chromium --headless --screenshot=plan/design.png --window-size=1400,3000 plan/design.html
 -->
@@ -10,29 +12,33 @@
 <script>
 const DESIGN = {
   project: "<Project name>", version: "v1", status: "draft",            // draft | approved
-  updated: "YYYY-MM-DD", format: "9:16 · 1080×1920 · 30 fps · 45 s", pipeline: "A · code-drawn",
+  updated: "YYYY-MM-DD", format: "9:16 · 1080×1920 · 30 fps · duration = VO", pipeline: "code-drawn",
   concept: "<one-line concept>",
-  mood: ["playful", "techy", "retro-arcade"],
+  mood: ["<mood words>"],
   feelsLike: ["<reference file/link — what we take from it>"],
   notLike: ["corporate stock template"],
-  palette: [ // role: bg | primary | secondary | accent | text ; optional use: "hero words only"
-    { name: "Night", hex: "#0E1116", role: "bg" }, { name: "Teal", hex: "#2EE6C5", role: "primary" },
-    { name: "Signal red", hex: "#FF3B3B", role: "accent" }, { name: "Paper", hex: "#F4F1EA", role: "text" }],
-  fonts: [ // file relative to plan/ ; role: display | keyword | caption | mono ; use = what it is for (shown) ; sample = real words from the script
-    { family: "Display", file: "../assets/fonts/Display/Display-Black.ttf", weight: 900, role: "display", use: "Headlines + hero words", sample: "STOP WASTING TIME", license: "OFL", source: "fontshare.com" }],
-  sample: { headline: "STOP WASTING TIME", keyword: "TIME", caption: "most teams lose hours every week", sizes: { filler: 64, keyword: 160, hero: 220 } },
-  textTreatment: { outline: "4px #0E1116", shadow: "8px 8px 0 #0E1116", glow: "", backing: "dark blur 30px 50% when contrast < 4.5" },
-  motion: { // easing: CSS cubic-bezier or keyword; ms
+  palette: [ // brand.json tokens only; role: bg | primary | secondary | accent | text
+    { name: "ink", hex: "#0A0A0A", role: "bg" }, { name: "red", hex: "#CB271B", role: "primary" },
+    { name: "ink_soft", hex: "#71717A", role: "secondary" }, { name: "salmon", hex: "#D97F68", role: "accent", use: "numbers/keywords on dark" },
+    { name: "paper", hex: "#F3F2F1", role: "text" }],
+  fonts: [ // agent-chosen from assets/fonts/fonts.json; file relative to plan/ ; role: display | keyword | caption | mono
+    { family: "Rubik", file: "../assets/fonts/Rubik/Rubik_900Black.ttf", weight: 900, role: "display", use: "Headlines + hero words", sample: "استوديو الموشن", license: "OFL", source: "assets/fonts/fonts.json" },
+    { family: "Tajawal", file: "../assets/fonts/Tajawal/Tajawal_800ExtraBold.ttf", weight: 800, role: "keyword", use: "Keywords + numbers", sample: "موشن", license: "OFL", source: "assets/fonts/fonts.json" },
+    { family: "Readex Pro", file: "../assets/fonts/Readex Pro/ReadexPro_600SemiBold.ttf", weight: 600, role: "caption", use: "Captions + body", sample: "كل نص له حركة وخط", license: "OFL", source: "assets/fonts/fonts.json" }],
+  sample: { headline: "استوديو الموشن", keyword: "موشن", caption: "كل نص ظاهر له حركة وخط مختارين", sizes: { filler: 64, keyword: 160, hero: 220 } },
+  textTreatment: { outline: "", shadow: "soft offset shadow when contrast needs it", glow: "", backing: "none — captions are unboxed" },
+  motion: { // live demos below are examples only; the real per-element choices live in plan/text-direction.json
     entrance: { ease: "cubic-bezier(.16,1,.3,1)", ms: 280 }, exit: { ease: "cubic-bezier(.32,0,.67,0)", ms: 180 },
-    stagger: 60, overshoot: "8 %", textAnim: ["pop", "blur", "decode", "slam"],
-    devices: ["binary decode → mosaic resolve on hero words", "smoke puff + pixel debris on landing", "smear frames 0.15 s"],
-    transitions: ["hard cut on beat", "pixel wipe"], camera: "static, shake 6 px / 120 ms on impacts" },
-  layout: { aspect: [9, 16], safeTop: 220, safeBottom: 420, safeRight: 140, captionY: "64%", maxWords: 4 },
-  textures: ["grain 4 %", "scanlines 6 %", "vignette 20 %"],
+    stagger: 60, overshoot: "8 %", textAnim: ["pop", "blur", "slam"],
+    devices: ["big red circle behind the hero", "red wipe with white edge between scenes", "one impact per scene"],
+    transitions: ["hard cut on beat", "red wipe 0.4 s"], camera: "zoom 1.00↔1.04 + drift ±14px" },
+  layout: { aspect: [9, 16], safeTop: 200, safeBottom: 420, safeRight: 40, captionY: "1455px (~76%)", maxWords: 3 },
+  textures: ["<optional: grain / halftone / none>"],
   frames: [ /* { src: "frames/00000.jpg", t: "0:02.1", note: "hook — hero word lands" } */ ],
   sound: [ { use: "text word", type: "soft dry tick 40–150 ms", level: "−7 dB vs VO" }, { use: "hero word", type: "low thump + click", level: "−5 dB" } ],
   bannedSounds: ["long whooshes", "risers", "thruster swooshes"],
-  do: ["every caption ≥ 4.5:1 contrast"], dont: ["linear easing", "more than 2 font families"],
+  do: ["every text element has an explicit motion + font in plan/text-direction.json", "captions unboxed, whole-word Arabic, measured timing", "every caption ≥ 4.5:1 contrast"],
+  dont: ["forced default font or text motion", "font outside assets/fonts/fonts.json", "raw fillText/text_sprite in scene code", "boxed captions"],
   openQuestions: []
 };
 </script>

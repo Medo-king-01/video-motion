@@ -7,13 +7,13 @@
   "families": {
     "Cairo": {
       "script": "arabic",
-      "role": "brand default — captions, body, lower thirds (the locked brand face)",
+      "role": "available option / system-chrome fallback — captions, body, lower thirds (not a forced creative default)",
       "pairs": "Inter",
       "tags": [
         "brand",
         "sans",
         "neutral",
-        "default"
+        "fallback"
       ],
       "weights": [
         {
@@ -368,13 +368,13 @@
     },
     "Inter": {
       "script": "latin",
-      "role": "Latin default — UI, data, mixed Arabic+Latin lines",
+      "role": "available option / system-chrome fallback — UI, data, mixed Arabic+Latin lines",
       "pairs": "Cairo",
       "tags": [
         "brand",
         "sans",
         "ui",
-        "default"
+        "fallback"
       ],
       "weights": [
         {

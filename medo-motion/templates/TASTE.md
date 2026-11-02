@@ -4,6 +4,8 @@
   PURPOSE: a brand-new chat (any agent, any model) must be able to read ONLY this file
   (+ PROGRESS.md) and continue making scenes that look, move and sound exactly like the
   approved ones — same theme, same concept, same design system, same feel.
+  The studio-wide design system reference is DESIGN_SYSTEM.md at the repo root; this file
+  records the project-specific approved values on top of it.
   RULES FOR THE AI:
    - Fill it as soon as a decision is approved (style board, preview, feedback). Never leave "TBD" for something already decided.
    - Write concrete, buildable values (hex codes, font files, px sizes, ms timings, easing names, dB levels, file paths), not vague words.

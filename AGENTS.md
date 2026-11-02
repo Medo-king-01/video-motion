@@ -1,6 +1,7 @@
 # medo-motion — Reel Studio (works with ANY coding agent)
 
 > **Read this file first, every session.** It is the operating contract.
+> The unified design reference is `DESIGN_SYSTEM.md` (repo root).
 > Tool detail lives in `medo-motion/` (the toolkit: guides, scripts, templates).
 > Human-facing Arabic docs: `README.md`, and `medo-motion/brand/BRAND.md` (locked identity).
 
@@ -234,17 +235,21 @@ or a series title** — there is none.
 - Chromium for engine K comes from `@sparticuz/chromium` (npm) because the Playwright
   CDN is blocked; `tools/chromium.mjs --env` resolves the Chromium executable and prepares the required shared-library environment.
 - Engine R uses the Remotion packages pinned in the project scaffold (`npm install` inside
-  `projects/<slug>/`); it reads the same measured `plan/beats.json` and local Cairo font/pose assets.
+  `projects/<slug>/`); it reads the same measured `plan/beats.json`, the local font manifest,
+  and pose assets.
 - Pillow here is built **without** libraqm. Engine P detects that and shapes Arabic with
   `arabic_shape.py` (HarfBuzz + FreeType). This is real shaping, not presentation forms.
   `doctor.py` reports which backend is active; both are acceptable.
-- Fonts: Cairo lives in `assets/fonts/Cairo/` (OFL). Chromium picks it up from the page
-  (`/assets/fonts/...`), engine P picks it up from the project's `assets/fonts/`.
+- Fonts: the 21-family OFL manifest lives in `assets/fonts/fonts.json`. The agent chooses
+  faces per scene/element in `plan/text-direction.json`; Cairo/Inter are only a system-chrome
+  fallback. Chromium picks fonts from the page (`/assets/fonts/...`), engine P from the
+  project's `assets/fonts/`, and R from `public/fonts/` + generated `@font-face`.
 
 ## 10. Map
 
 ```
 AGENTS.md              ← this contract (any agent)
+DESIGN_SYSTEM.md       ← unified design system reference
 README.md              ← Arabic overview
 assets/                ← shared inputs: fonts/, poses/, sfx/
 projects/<slug>/       ← one video: BRIEF.md, plan/, assets/, out/, PROGRESS.md
@@ -255,7 +260,7 @@ medo-motion/           ← the toolkit
   SKILL.md             ← entry point (Claude Code reads this; it defers to AGENTS.md)
   brand/               ← locked identity (human + machine)
   reference/           ← on-demand guides (Arabic typography, hooks, voiceover, …)
-  styles/              ← looks; default = medo-red-circle
+  styles/              ← reusable style inspiration (no forced default)
   templates/           ← engine P + engine K + engine R (Remotion) + TASTE.md
   scripts/             ← fonts, SFX, TTS, preflight, brand guard, preview
 ```
@@ -263,7 +268,7 @@ medo-motion/           ← the toolkit
 ## 11. Never do this
 
 - Ask for a logo, a series name, an episode number, or "your brand colours".
-- Add a second display font, a colour outside the palette, or a random stock clip.
+- Add a font outside the manifest, a colour outside the palette, or a random stock clip.
 - Ship a preview with motion but no sound as if it were the deliverable.
 - Claim capabilities you did not verify (`doctor.py` output is your evidence).
 - Install or vendor a third-party Agent Skill before inspecting its complete package, license, commands, network use, dependencies, and provider costs; see `docs/skillry-fit.md`.

@@ -18,7 +18,7 @@
 - **Background:** <approved palette token from `brand/brand.json`>
 - **Primary text:** <approved palette token>
 - **Accent:** <approved palette token; explain where it appears>
-- **Typography:** Cairo for Arabic, Inter for Latin; roles/weights from `docs/fonts.md`.
+- **Typography:** agent-chosen per scene/element from `assets/fonts/fonts.json` and recorded in `plan/text-direction.json` (`fontStyles`/`fontElements`); no forced default. Arabic text needs an Arabic-capable family; roles/weights and pairings from `docs/fonts.md`.
 - Reference colors are observations only. Use a brand token instead of copying any sampled hex.
 
 ## Motion and pacing
