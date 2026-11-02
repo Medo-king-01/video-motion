@@ -1,0 +1,43 @@
+name: Engine P chunk integrity tests
+
+on:
+  push:
+    branches:
+      - fix/engine-p-chunk-integrity
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/engine-p-chunks.yml"
+      - "medo-motion/templates/procedural-reels/chunk_utils.py"
+      - "tests/test_engine_p_chunks.py"
+      - "tests/conftest.py"
+      - "pyproject.toml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engine-p-chunks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-engine-p-chunks:
+    name: Test Engine P chunk integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install test dependency
+        run: python -m pip install --upgrade pytest
+
+      - name: Run Engine P chunk integrity tests
+        run: python -m pytest -q tests/test_engine_p_chunks.py
