@@ -26,7 +26,7 @@ jobs:
   test-engine-p-chunks:
     name: Test Engine P chunk integrity
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -129,3 +129,45 @@ jobs:
               raise SystemExit(f"FFprobe mismatch: expected {expected}, got {actual}")
           print(f"FFPROBE_OK: {actual}")
           PY
+
+      - name: Render and verify the complete 55.2-second Engine P episode
+        if: github.event_name == 'push'
+        env:
+          REEL_DIR: ${{ github.workspace }}
+          REEL_CHUNK: "276"
+        run: |
+          python medo-motion/templates/procedural-reels/run_all.py
+          test -s out/video_only.mp4
+          python - <<'PY'
+          import json
+          import subprocess
+
+          result = subprocess.run(
+              ["ffprobe", "-v", "error", "-select_streams", "v:0", "-count_frames",
+               "-show_entries", "format=duration:stream=width,height,nb_read_frames",
+               "-of", "json", "out/video_only.mp4"],
+              capture_output=True, text=True, check=True,
+          )
+          data = json.loads(result.stdout)
+          stream = data["streams"][0]
+          duration = float(data["format"]["duration"])
+          expected = {"width": 1080, "height": 1920, "nb_read_frames": "1656"}
+          actual = {key: stream.get(key) for key in expected}
+          if actual != expected or abs(duration - 55.2) > 0.1:
+              raise SystemExit(
+                  f"full render mismatch: stream={actual}, duration={duration:.3f}s"
+              )
+          print(f"FULL_RENDER_OK: {duration:.3f}s, 1656 frames, 1080x1920")
+          PY
+
+      - name: Upload full-render video and logs
+        if: always() && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-p-full-render
+          path: |
+            out/video_only.mp4
+            out/chunks.sig
+            out_log.txt
+          if-no-files-found: warn
+          retention-days: 3
