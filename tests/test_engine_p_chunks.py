@@ -1,0 +1,122 @@
+from __future__ import annotations
+
+import json
+import subprocess
+
+import pytest
+
+from conftest import ROOT
+
+ENGINE_P = ROOT / "medo-motion" / "templates" / "procedural-reels"
+
+
+def test_expected_chunks_are_exact_ordered_half_open_ranges():
+    from chunk_utils import expected_chunks
+
+    assert expected_chunks(10, 4) == [(0, 4), (4, 8), (8, 10)]
+    assert expected_chunks(0, 4) == []
+
+
+@pytest.mark.parametrize(
+    "total, chunk",
+    [(-1, 4), (10, 0), (10, -2)],
+)
+def test_expected_chunks_reject_invalid_ranges(total, chunk):
+    from chunk_utils import expected_chunks
+
+    with pytest.raises(ValueError):
+        expected_chunks(total, chunk)
+
+
+def test_signature_changes_when_python_renderer_changes(tmp_path):
+    from chunk_utils import build_signature
+
+    source = tmp_path / "source"
+    assets = tmp_path / "assets"
+    source.mkdir()
+    assets.mkdir()
+    code = source / "render.py"
+    code.write_text("VALUE = 1\n", encoding="utf-8")
+    args = (source, assets, 120, 30, [0, 4], 30, 1080, 1920)
+    first = build_signature(*args)
+    code.write_text("VALUE = 2\n", encoding="utf-8")
+    assert build_signature(*args) != first
+
+
+def test_signature_hashes_asset_contents_not_only_file_size(tmp_path):
+    from chunk_utils import build_signature
+
+    source = tmp_path / "source"
+    assets = tmp_path / "assets"
+    source.mkdir()
+    assets.mkdir()
+    (source / "render.py").write_text("pass\n", encoding="utf-8")
+    asset = assets / "same-size.png"
+    asset.write_bytes(b"AAAA")
+    args = (source, assets, 120, 30, [0, 4], 30, 1080, 1920)
+    first = build_signature(*args)
+    asset.write_bytes(b"BBBB")
+    assert asset.stat().st_size == 4
+    assert build_signature(*args) != first
+
+
+def test_signature_includes_nested_pose_assets_and_font_manifest(tmp_path):
+    from chunk_utils import build_signature
+
+    source = tmp_path / "source"
+    assets = tmp_path / "assets"
+    (assets / "poses").mkdir(parents=True)
+    source.mkdir()
+    (source / "render.py").write_text("pass\n", encoding="utf-8")
+    pose = assets / "poses" / "poses.json"
+    pose.write_text('{"pose":"neutral"}', encoding="utf-8")
+    args = (source, assets, 120, 30, [0, 4], 30, 1080, 1920)
+    first = build_signature(*args)
+    pose.write_text('{"pose":"wave"}', encoding="utf-8")
+    assert build_signature(*args) != first
+
+
+def test_chunk_validator_requires_exact_dimensions_and_decoded_frame_count(tmp_path, monkeypatch):
+    from chunk_utils import is_valid_chunk
+
+    video = tmp_path / "chunk.mp4"
+    video.write_bytes(b"not actually decoded by the mocked probe")
+
+    class Result:
+        returncode = 0
+        stdout = json.dumps({"streams": [{"width": 1080, "height": 1920, "nb_read_frames": "4"}]})
+
+    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: Result())
+    assert is_valid_chunk(video, 4, 1080, 1920, "ffprobe")
+    assert not is_valid_chunk(video, 5, 1080, 1920, "ffprobe")
+    assert not is_valid_chunk(video, 4, 720, 1280, "ffprobe")
+
+
+def test_chunk_validator_rejects_probe_errors_and_malformed_output(tmp_path, monkeypatch):
+    from chunk_utils import is_valid_chunk
+
+    video = tmp_path / "chunk.mp4"
+    video.write_bytes(b"video")
+
+    class ProbeError:
+        returncode = 1
+        stdout = "{}"
+
+    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: ProbeError())
+    assert not is_valid_chunk(video, 4, 1080, 1920, "ffprobe")
+
+    class BadJson:
+        returncode = 0
+        stdout = "not json"
+
+    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: BadJson())
+    assert not is_valid_chunk(video, 4, 1080, 1920, "ffprobe")
+
+
+def test_chunk_validator_rejects_missing_and_empty_files(tmp_path):
+    from chunk_utils import is_valid_chunk
+
+    assert not is_valid_chunk(tmp_path / "missing.mp4", 4, 1080, 1920)
+    empty = tmp_path / "empty.mp4"
+    empty.touch()
+    assert not is_valid_chunk(empty, 4, 1080, 1920)
