@@ -56,7 +56,7 @@ try:
     shape_fallback=_ilu.find_spec('uharfbuzz') is not None and _ilu.find_spec('freetype') is not None
 except Exception:
     shape_fallback=False
-r['video_motion']={
+r['medo']={
     'pillow_raqm':raqm,
     'arabic_shaping':('raqm' if raqm is True else ('harfbuzz-fallback' if shape_fallback else 'NONE')),
     'brand_files':(skill_dir/'brand'/'brand.json').is_file(),
