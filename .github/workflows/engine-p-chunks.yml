@@ -102,10 +102,9 @@ jobs:
               parts.append(part)
 
           concat_list = out / "scene-smoke-list.txt"
-          with concat_list.open("w", encoding="utf-8", newline="\\n") as stream:
+          with concat_list.open("w", encoding="utf-8", newline="\n") as stream:
               for part in parts:
-                  escaped = str(part.resolve()).replace("\\\\", "/").replace("'", "'\\\\''")
-                  stream.write(f"file '{escaped}'\\n")
+                  stream.write(f"file '{part.resolve()}'\n")
 
           final = out / "scene-smoke.mp4"
           if final.exists():
