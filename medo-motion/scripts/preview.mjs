@@ -24,7 +24,7 @@ let cfg = {};
 try { if (existsSync(configFile)) cfg = JSON.parse(readFileSync(configFile, 'utf8').replace(/^\uFEFF/, '')); }
 catch { console.error('Invalid preview configuration'); process.exit(1); }
 // Config values may use ~ and $VAR / %VAR%, like the Video Motion path helpers.
-// Config values may use ~ and $VAR / %VAR%, like the Python helpers (khaam_paths.py).
+// Config values may use ~ and $VAR / %VAR%, like the Python helpers (video_motion_paths.py).
 const expand = v => v && String(v).replace(/^~(?=$|[\\/])/, homedir()).replace(/\$\{?(\w+)\}?|%(\w+)%/g, (m, x, y) => process.env[x || y] ?? m);
 const configuredFFmpeg = expand(process.env.MEDO_FFMPEG || process.env.KHAAM_FFMPEG || cfg.ffmpeg);
 const ffmpeg = configuredFFmpeg ? (isAbsolute(configuredFFmpeg) ? configuredFFmpeg : (/[\\/]/.test(configuredFFmpeg) ? resolve(dirname(dirname(configFile)), configuredFFmpeg) : configuredFFmpeg)) : 'ffmpeg';
