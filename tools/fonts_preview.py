@@ -136,7 +136,7 @@ def sheet(light: bool = False, width: int = 1400) -> Image.Image:
                anchor="lm")
         d.text((width - pad, y + 30), "4.2K", font=PILFont.truetype(str(la_path), 34), fill=fg, anchor="ra")
         y += pair_h
-    d.text((pad, height - 54), "Cairo is the brand default for on-screen Arabic; the rest are roles "
+    d.text((pad, height - 54), "The agent picks the face per scene/element — no forced default "
                                "(docs/fonts.md).", font=PILFont.truetype(str(mono), 17), fill=sub)
     return img
 

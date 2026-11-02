@@ -75,7 +75,9 @@ def test_new_project_scaffolds_remotion(tmp_path):
         assert (proj / "src" / "lib" / "Presenter.tsx").is_file()
         assert (proj / "STYLE.md").is_file()
         assert (proj / "assets" / "refs").is_dir()
-        assert (proj / "public" / "fonts" / "Cairo_800ExtraBold.ttf").is_file()
+        assert (proj / "public" / "fonts" / "Cairo" / "Cairo_800ExtraBold.ttf").is_file()
+        assert (proj / "public" / "fonts" / "Rubik" / "Rubik_900Black.ttf").is_file()
+        assert (proj / "public" / "fonts" / "fonts.json").is_file()
         assert (proj / "public" / "assets" / "poses" / "poses.json").is_file()
         beats = json.loads((proj / "plan" / "beats.json").read_text(encoding="utf-8"))
         assert beats["duration"] is None

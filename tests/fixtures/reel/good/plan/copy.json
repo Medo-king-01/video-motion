@@ -7,77 +7,99 @@
       "text": "النهاردة",
       "start": 0.4,
       "end": 1.5,
-      "mode": "build"
+      "mode": "build",
+      "role": "hook",
+      "id": "s1-title-0"
     },
     {
       "scene": 1,
       "text": "سؤال واحد",
       "start": 2.0,
       "end": 3.0,
-      "mode": "build"
+      "mode": "build",
+      "role": "keyword",
+      "id": "s1-keyword-1"
     },
     {
       "scene": 2,
       "text": "ليه بنعمل ده",
       "start": 4.6,
       "end": 6.0,
-      "mode": "build"
+      "mode": "build",
+      "role": "title",
+      "id": "s2-title-2"
     },
     {
       "scene": 3,
       "text": "كل يوم",
       "start": 6.3,
       "end": 7.2,
-      "mode": "build"
+      "mode": "build",
+      "role": "title",
+      "id": "s3-title-3"
     },
     {
       "scene": 3,
       "text": "الرقم بيزيد",
       "start": 8.8,
       "end": 10.1,
-      "mode": "build"
+      "mode": "build",
+      "role": "label",
+      "id": "s3-label-4"
     },
     {
       "scene": 4,
       "text": "بيزيد بسرعة",
       "start": 10.5,
       "end": 11.4,
-      "mode": "build"
+      "mode": "build",
+      "role": "title",
+      "id": "s4-title-5"
     },
     {
       "scene": 5,
       "text": "وعشان كده بنكمل",
       "start": 13.4,
       "end": 14.8,
-      "mode": "build"
+      "mode": "build",
+      "role": "title",
+      "id": "s5-title-6"
     },
     {
       "scene": 5,
       "text": "بجد",
       "start": 15.0,
       "end": 15.9,
-      "mode": "build"
+      "mode": "build",
+      "role": "quote",
+      "id": "s5-quote-7"
     },
     {
       "scene": 6,
       "text": "مش كلام",
       "start": 17.5,
       "end": 18.9,
-      "mode": "build"
+      "mode": "build",
+      "role": "title",
+      "id": "s6-title-8"
     },
     {
       "scene": 6,
       "text": "تجربة حقيقية",
       "start": 18.9,
       "end": 19.8,
-      "mode": "build"
+      "mode": "build",
+      "role": "hook",
+      "id": "s6-hook-9"
     },
     {
       "scene": 7,
       "text": "جرّبها بنفسك الآن",
       "start": 21.4,
       "end": 23.2,
-      "mode": "build"
+      "mode": "build",
+      "role": "title",
+      "id": "s7-title-10"
     }
   ]
 }

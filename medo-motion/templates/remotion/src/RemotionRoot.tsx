@@ -5,23 +5,37 @@ import {
   cancelRender,
   continueRender,
   delayRender,
-  interpolate,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
 import {BRAND, PALETTE} from './brand';
 import {IS_PREVIEW_TIMELINE, STORY, TIMELINE} from './data';
-import {reveal} from './lib/motion.js';
+import DIRECTION from '../plan/text-direction.json';
+import FONTS from '../assets/fonts/fonts.json';
+import {DirectedText} from './lib/DirectedText';
+
+// Every manifest face is available to the agent's direction; @font-face is generated
+// from the same fonts.json the other engines read (no hardcoded creative default).
+const FONT_FACES = Object.entries(FONTS.families as Record<string, any>)
+  .flatMap(([family, meta]) => (meta.weights || []).map((w: any) => ({family, weight: w.weight, file: w.file})));
+const USED_FONTS = (() => {
+  const seen = new Map<string, {family: string; weight: number}>();
+  for (const sc of (DIRECTION as any).scenes || []) {
+    for (const e of [...Object.values(sc.fontStyles || {}), ...Object.values(sc.fontElements || {})]) {
+      const entry = e as any;
+      if (entry && typeof entry.family === 'string') seen.set(`${entry.family}@${entry.weight}`, entry);
+    }
+  }
+  return [...seen.values()];
+})();
 
 export type ReelProps = {audioFile?: string | null; previewOnly?: boolean};
-
-const clamp = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 
 export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly = IS_PREVIEW_TIMELINE}) => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
-  const [fontHandle] = useState(() => delayRender('Loading local Cairo font'));
+  const [fontHandle] = useState(() => delayRender('Loading agent-chosen fonts'));
   const sceneCount = TIMELINE.scenes?.length || 1;
   const sceneIndex = useMemo(() => {
     const seconds = frame / fps;
@@ -38,13 +52,14 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
   const bgBottom = light ? PALETTE.bgLightBottom : PALETTE.bgDarkBottom;
   const primary = light ? PALETTE.ink : PALETTE.paper;
   const accent = light ? PALETTE.red : PALETTE.salmon;
-  const enter = Math.min(1, reveal(localSeconds, 0, Math.min(0.75, duration), 'backOut'));
-  const titleY = interpolate(enter, [0, 1], [56, 0]);
   const progress = frame / Math.max(1, durationInFrames - 1);
   const pulse = 1 + Math.sin((localSeconds * Math.PI * 2) / Math.max(duration, 1)) * 0.025;
 
   useEffect(() => {
-    Promise.all([document.fonts.load('800 96px Cairo'), document.fonts.load('400 20px Inter')])
+    const jobs = USED_FONTS.length
+      ? USED_FONTS.map((f) => document.fonts.load(`${f.weight} 32px "${f.family}"`))
+      : [document.fonts.load('800 32px Cairo')];
+    Promise.all(jobs)
       .then(() => continueRender(fontHandle))
       .catch((error) => cancelRender(error));
   }, [fontHandle]);
@@ -58,30 +73,12 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       direction: 'rtl',
     }}>
       <style>{`
-        @font-face {
-          font-family: Cairo;
-          src: url('${staticFile('fonts/Cairo_800ExtraBold.ttf')}') format('truetype');
-          font-weight: 700 900;
+        ${FONT_FACES.map((f) => `@font-face {
+          font-family: "${f.family}";
+          src: url('${staticFile(`fonts/${f.family}/${f.file}`)}') format('truetype');
+          font-weight: ${f.weight};
           font-display: block;
-        }
-        @font-face {
-          font-family: Cairo;
-          src: url('${staticFile('fonts/Cairo_400Regular.ttf')}') format('truetype');
-          font-weight: 400;
-          font-display: block;
-        }
-        @font-face {
-          font-family: Inter;
-          src: url('${staticFile('fonts/Inter_400Regular.ttf')}') format('truetype');
-          font-weight: 400;
-          font-display: block;
-        }
-        @font-face {
-          font-family: Inter;
-          src: url('${staticFile('fonts/Inter_800ExtraBold.ttf')}') format('truetype');
-          font-weight: 800;
-          font-display: block;
-        }
+        }`).join('\n')}
         * { box-sizing: border-box; }
       `}</style>
 
@@ -99,21 +96,34 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
           transformOrigin: 'right center'}} />
       </div>
 
-      <div style={{position: 'absolute', top: 310, right: 78, left: 78,
-        opacity: enter, transform: `translateY(${titleY}px)`}}>
-        <div style={{fontSize: 40, fontWeight: 800, color: accent, marginBottom: 34}}>{copy.eyebrow}</div>
-        <div style={{fontSize: 104, fontWeight: 800, lineHeight: 1.34, whiteSpace: 'pre-line'}}>{copy.title}</div>
+      <div style={{position: 'absolute', top: 310, right: 78, left: 78}}>
+        <DirectedText direction={DIRECTION} scene={sceneIndex + 1} role="label"
+          time={localSeconds} start={0} end={duration} size={40} color={accent} theme={light ? 'light' : 'dark'}
+          style={{fontSize: 40, fontWeight: 800, marginBottom: 34}}>
+          {copy.eyebrow}
+        </DirectedText>
+        <DirectedText direction={DIRECTION} scene={sceneIndex + 1} role="title"
+          time={localSeconds} start={0} end={duration} size={104} color={primary} theme={light ? 'light' : 'dark'}
+          style={{fontSize: 104, fontWeight: 800, lineHeight: 1.34, whiteSpace: 'pre-line'}}>
+          {copy.title}
+        </DirectedText>
         <div style={{height: 5, width: 166, borderRadius: 8, background: PALETTE.red, marginTop: 42}} />
-        <div style={{fontSize: 48, fontWeight: 400, lineHeight: 1.65, marginTop: 36, opacity: 0.88}}>{copy.body}</div>
+        <DirectedText direction={DIRECTION} scene={sceneIndex + 1} role="body"
+          time={localSeconds} start={0} end={duration} size={48} color={primary} theme={light ? 'light' : 'dark'}
+          style={{fontSize: 48, fontWeight: 400, lineHeight: 1.65, marginTop: 36, opacity: 0.88}}>
+          {copy.body}
+        </DirectedText>
       </div>
 
-      <div style={{position: 'absolute', bottom: 270, right: 78, left: 78,
-        display: 'flex', alignItems: 'center', gap: 16, color: light ? PALETTE.inkSoft : PALETTE.gray3,
-        fontSize: 32, fontWeight: 700}}>
+      <DirectedText direction={DIRECTION} scene={sceneIndex + 1} role="label"
+        time={localSeconds} start={0} end={duration} size={32}
+        color={light ? PALETTE.inkSoft : PALETTE.gray3} theme={light ? 'light' : 'dark'}
+        style={{position: 'absolute', bottom: 270, right: 78, left: 78,
+          display: 'flex', alignItems: 'center', gap: 16, fontSize: 32, fontWeight: 700}}>
         <span>{String(sceneIndex + 1).padStart(2, '0')}</span>
         <div style={{height: 2, flex: 1, background: `${primary}40`}} />
         <span>{String(sceneCount).padStart(2, '0')}</span>
-      </div>
+      </DirectedText>
 
       {previewOnly && (
         <div style={{position: 'absolute', left: 40, bottom: 40, padding: '10px 18px',

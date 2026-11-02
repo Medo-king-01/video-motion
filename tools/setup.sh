@@ -78,7 +78,7 @@ else
   if [ -d tools/toolkit/node_modules/playwright-core ]; then ok "playwright-core + chromium package installed"; else bad "npm install failed"; fi
 fi
 
-# ---------------------------------------------------------------- fonts (14 free families, OFL)
+# ---------------------------------------------------------------- fonts (21 free families, OFL)
 say "Type system (14 families, SIL OFL 1.1)"
 if [ -f assets/fonts/fonts.json ] && [ "$(ls -1 assets/fonts/*/*.ttf 2>/dev/null | wc -l)" -ge 20 ]; then
   ok "$(ls -1d assets/fonts/*/ | wc -l) families already in assets/fonts (docs/fonts.md)"

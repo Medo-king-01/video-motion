@@ -18,11 +18,18 @@
 | خط IBM Plex Mono | fonts.google.com/specimen/IBM+Plex+Mono · npm `@expo-google-fonts/ibm-plex-mono` | SIL OFL 1.1 | 2026-11-01 | code, specs, numbers that must line up (`docs/fonts.md`) |
 | خط Anton | fonts.google.com/specimen/Anton · npm `@expo-google-fonts/anton` | SIL OFL 1.1 | 2026-11-01 | one heavy display weight (`docs/fonts.md`) |
 | خط Instrument Serif | fonts.google.com/specimen/Instrument+Serif · npm `@expo-google-fonts/instrument-serif` | SIL OFL 1.1 | 2026-11-01 | editorial serif (`docs/fonts.md`) |
+| خط Rubik | fonts.google.com/specimen/Rubik · npm `@expo-google-fonts/rubik` | SIL OFL 1.1 | 2026-11-03 | rounded modern Arabic+Latin display (`docs/fonts.md`) |
+| خط Changa | fonts.google.com/specimen/Changa · npm `@expo-google-fonts/changa` | SIL OFL 1.1 | 2026-11-03 | condensed Arabic display (`docs/fonts.md`) |
+| خط Readex Pro | fonts.google.com/specimen/Readex+Pro · npm `@expo-google-fonts/readex-pro` | SIL OFL 1.1 | 2026-11-03 | clean contemporary Arabic+Latin (`docs/fonts.md`) |
+| خط Lalezar | fonts.google.com/specimen/Lalezar · npm `@expo-google-fonts/lalezar` | SIL OFL 1.1 | 2026-11-03 | bold display statement (`docs/fonts.md`) |
+| خط Archivo Black | fonts.google.com/specimen/Archivo+Black · npm `@expo-google-fonts/archivo-black` | SIL OFL 1.1 | 2026-11-03 | heavy grotesque display (`docs/fonts.md`) |
+| خط Bebas Neue | fonts.google.com/specimen/Bebas+Neue · npm `@expo-google-fonts/bebas-neue` | SIL OFL 1.1 | 2026-11-03 | tall condensed caps (`docs/fonts.md`) |
+| خط Sora | fonts.google.com/specimen/Sora · npm `@expo-google-fonts/sora` | SIL OFL 1.1 | 2026-11-03 | geometric modern Latin (`docs/fonts.md`) |
 | أيقونات itshover (263 أيقونة) | https://itshover.com · https://github.com/itshover/itshover | **Apache-2.0** | 2026-11-01 | `medo-motion/icons/itshover/tsx/` — مولّد منها أيقونات المحركين. نص الترخيص في `medo-motion/icons/itshover/LICENSE` |
 
 | منهج الحرفة + مكتبة الحركات (مُعاد كتابتها) | https://github.com/Leonxlnx/cinetic | **MIT** | 2026-11-01 | `assets/techniques.json` + `docs/craft.md`, `docs/techniques.md`: أرقام المونتاج/النص مقاسة من فيلم‑فيلم، ومكتبة ٤١ حركة **اتعادت كتابتها** على primitives الاستوديو (مفيش React/Remotion/GSAP ولا كود منسوخ؛ `tests/test_techniques.py` بيمنع الرجوع ليهم). الأصل MIT © 2026 Leonxlnx |
 
-## Type system — `assets/fonts/` (14 families, SIL OFL 1.1)
+## Type system — `assets/fonts/` (21 families, SIL OFL 1.1)
 كل العيلات من Google Fonts، اتسحبت كـTTF من حزم npm `@expo-google-fonts/*` بـ`tools/fonts_install.py`،
 وكل عيلة معاها `OFL.txt` في فولدرها. الـOFL بيسمح بالاستخدام التجاري وإعادة التوزيع من غير أي حقوق
 على الشاشة؛ لو عدّلت ملف خط لازم تغيّر اسمه. **مفيش خط مدفوع أو محتاج ترخيص منفصل في المشروع.**

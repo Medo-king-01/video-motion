@@ -1,4 +1,5 @@
 """Render and verify one half-open frame range for engine P."""
+import json
 import os
 import shutil
 import subprocess
@@ -13,6 +14,16 @@ sys.path.insert(0, str(HERE))
 
 from scenes import *  # noqa: F403
 from chunk_utils import is_valid_chunk
+import text_direction as td
+
+# Text motion is an explicit agent decision for every visible text element.
+beats_p = PROJECT / "plan" / "beats.json"
+if beats_p.is_file():
+    beats = json.loads(beats_p.read_text(encoding="utf-8"))
+    report = td.validate(td.load(PROJECT), beats, td.load_copy(PROJECT), td.load_fonts(PROJECT) or None)
+    if report["errors"]:
+        raise SystemExit("Text direction incomplete — the agent must choose styles per scene:\n"
+                         + "\n".join(report["errors"]))
 
 if len(sys.argv) != 3:
     raise SystemExit("usage: chunk.py START_FRAME END_FRAME")

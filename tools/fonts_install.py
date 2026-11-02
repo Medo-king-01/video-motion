@@ -76,6 +76,26 @@ FAMILIES = [
         "role": "naskh serif — quotes, citations, a serious editorial beat",
         "pairs": "Instrument Serif", "tags": ["serif", "naskh", "quote"],
     },
+    {
+        "family": "Rubik", "npm": "rubik", "script": "arabic", "weights": [400, 500, 700, 800, 900],
+        "role": "rounded modern Arabic+Latin — friendly hooks, social captions, bold numbers",
+        "pairs": "Sora", "tags": ["display", "rounded", "social", "hook"],
+    },
+    {
+        "family": "Changa", "npm": "changa", "script": "arabic", "weights": [400, 600, 700, 800],
+        "role": "condensed Arabic display — punchy headlines, tight kinetic type, countdowns",
+        "pairs": "Archivo Black", "tags": ["display", "condensed", "impact"],
+    },
+    {
+        "family": "Readex Pro", "npm": "readex-pro", "script": "arabic", "weights": [400, 600, 700],
+        "role": "clean contemporary Arabic+Latin — readable body/UI with a modern edge",
+        "pairs": "Sora", "tags": ["modern", "ui", "body", "legible"],
+    },
+    {
+        "family": "Lalezar", "npm": "lalezar", "script": "arabic", "weights": [400],
+        "role": "bold display statement — poster frames, chapter cards, big Arabic keywords",
+        "pairs": "Bebas Neue", "tags": ["display", "poster", "impact", "heavy"],
+    },
     # ---------------- Latin ----------------
     {
         "family": "Inter", "npm": "inter", "script": "latin", "weights": [400, 600, 800],
@@ -106,6 +126,21 @@ FAMILIES = [
         "family": "Instrument Serif", "npm": "instrument-serif", "script": "latin", "weights": [400],
         "role": "editorial serif — quotes and pull-outs against the sans default",
         "pairs": "Amiri", "tags": ["serif", "editorial", "quote"],
+    },
+    {
+        "family": "Archivo Black", "npm": "archivo-black", "script": "latin", "weights": [400],
+        "role": "heavy grotesque — loud hooks, single big numbers, stamp-like CTAs",
+        "pairs": "Changa", "tags": ["display", "heavy", "hook", "impact"],
+    },
+    {
+        "family": "Bebas Neue", "npm": "bebas-neue", "script": "latin", "weights": [400],
+        "role": "tall condensed caps — trailer-style titles, countdowns, kinetic labels",
+        "pairs": "Noto Kufi Arabic", "tags": ["display", "condensed", "trailer", "caps"],
+    },
+    {
+        "family": "Sora", "npm": "sora", "script": "latin", "weights": [400, 700, 800],
+        "role": "geometric modern Latin — product/UI headers paired with rounded Arabic",
+        "pairs": "Rubik", "tags": ["geometric", "modern", "ui", "display"],
     },
 ]
 
@@ -235,9 +270,10 @@ def build_manifest() -> dict:
             "npm": f"@expo-google-fonts/{spec['npm']}",
         }
     return {
-        "note": "Free type system (SIL OFL 1.1) — the only fonts allowed on screen. Cairo is the "
-                "brand default; every other family has one documented job (docs/fonts.md).",
-        "default": {"arabic": "Cairo", "latin": "Inter"},
+        "note": "Free type system (SIL OFL 1.1) — the only fonts allowed on screen. The agent chooses "
+                "the most fitting face per scene/element (plan/text-direction.json); there is no "
+                "creative default. `fallback` is a last-resort safety net for system chrome only.",
+        "fallback": {"arabic": "Cairo", "latin": "Inter"},
         "families": families,
     }
 

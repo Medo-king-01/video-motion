@@ -14,6 +14,7 @@ import {fileURLToPath} from 'node:url';
 const root=process.cwd(),src=path.dirname(fileURLToPath(import.meta.url)),a=process.argv.slice(2);
 const opt=(k,d)=>{const i=a.indexOf('--'+k);return i<0?d:a[i+1];};
 const {DURATION}=await import('./data.js');
+import {validateTextDirection} from './lib/text-direction.js';
 const from=Number(opt('from',0)),to=Number(opt('to',DURATION)),fps=Number(opt('fps',30)),scale=Number(opt('scale',1));
 const crf=Number(opt('crf',18));
 if(![from,to,fps,scale].every(Number.isFinite)||from<0||to<=from||fps<=0||scale<=0||scale>1)throw Error('Invalid range, fps or scale');
@@ -23,6 +24,20 @@ const name=String(opt('name','Smoke v1'));
 if(!name||/[\\/:*?"<>|]/.test(name))throw Error('Use a plain output name without path separators');
 const dest=path.join(out,name+'.mp4'),audio=opt('audio');
 if(audio&&!existsSync(path.resolve(audio)))throw Error('Audio file not found');
+// Text motion is an explicit agent decision per scene. When a measured timeline exists,
+// refuse to render until plan/text-direction.json is complete (no default style).
+const beatsPath=path.join(root,'plan','beats.json');
+if(existsSync(beatsPath)){
+  const beats=JSON.parse(await readFile(beatsPath,'utf8'));
+  const dirPath=path.join(root,'plan','text-direction.json');
+  const direction=existsSync(dirPath)?JSON.parse(await readFile(dirPath,'utf8')):{};
+  const copyPath=path.join(root,'plan','copy.json');
+  const copy=existsSync(copyPath)?JSON.parse(await readFile(copyPath,'utf8')):null;
+  const fontsPath=path.join(root,'assets','fonts','fonts.json');
+  const fonts=existsSync(fontsPath)?(JSON.parse(await readFile(fontsPath,'utf8')).families||{}):null;
+  const {errors}=validateTextDirection(direction,beats,copy,fonts);
+  if(errors.length)throw Error('Text direction incomplete — the agent must choose styles per scene:\n'+errors.join('\n'));
+}
 // The reel is exactly as long as the VO (no target length): say it out loud when they disagree,
 // because `-af apad` + a fixed frame count would silently cut a longer voice-over.
 async function probeDuration(file){
@@ -68,7 +83,7 @@ if(srcUrl.includes('..'))throw Error('Renderer must live inside the selected pro
 const server=http.createServer(async (request,response)=>{
   try{
     const u=decodeURIComponent(new URL(request.url,'http://localhost').pathname);
-    if(u.split('/').some(s=>s.startsWith('.'))||![srcUrl+'/', '/assets/','/node_modules/'].some(s=>u.startsWith(s)))throw Error('Forbidden');
+    if(u.split('/').some(s=>s.startsWith('.'))||![srcUrl+'/', '/assets/','/node_modules/','/plan/text-direction.json'].some(s=>u.startsWith(s)))throw Error('Forbidden');
     const asset=u.startsWith('/assets/');
     const base=asset?assetsRoot:root;
     const relative=asset?u.slice('/assets'.length):u;

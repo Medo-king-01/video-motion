@@ -4,7 +4,7 @@
 
 | الأداة | بتعمل إيه | مثال |
 |---|---|---|
-| `setup.sh` | بتثبت كل الناقص: python deps (من `requirements.txt`) · ffmpeg · بديل ffprobe · خطوط Cairo · كروميوم | `bash tools/setup.sh` |
+| `setup.sh` | بتثبت كل الناقص: python deps (من `requirements.txt`) · ffmpeg · بديل ffprobe · الخطوط (٢١ عيلة OFL) · كروميوم | `bash tools/setup.sh` |
 | `doctor.py` | تقرير READY / DEGRADED / BLOCKED لكل قدرة، بسبب واضح | `python3 tools/doctor.py` |
 | `selftest.py` | اختبار كامل: doctor + unit tests + رندر P/K؛ `--remotion` يضيف R منفردًا، و`--hybrid` يرندر ويجمع P/K/R + صوت end-to-end | `python3 tools/selftest.py --hybrid` |
 | `render_hybrid.py` | يرندر مخطط `plan/hybrid.json`: يتحقق من مقاطع P/K/R المتتابعة، ثم يوحّد الفيديو ويضيف الصوت مرة واحدة | `python3 ../../tools/render_hybrid.py --project .` من جذر المشروع |
@@ -25,6 +25,7 @@
 | `whisper_align.py` | تفريغ محلي بـfaster-whisper → كلمات بتوقيتات **مقاسة** من الـWAV (JSON) | `python3 tools/whisper_align.py vo.wav --model .cache/whisper-small-ct2-int8 --out cache/words.json --no-vad` |
 | `caption_align.py` | محاذاة الكلمات على السكريبت (DP) + سناب للسكتات + hold لحد الكلمة الجاية + إخراج كابشن و`data.js` | `python3 tools/caption_align.py --scenes plan/script-scenes.json --vo vo.wav --model .cache/whisper-small-ct2-int8 --out-dir src` |
 | `text_animations_import.py` | يستورد ٥١ حركة نص من مرجع ريلز ويحوّلها مسارات حركة رقمية (K/P/R) + مولّد أنماط كابشن، معاد تلوينها للبراند ومن غير صناديق | `python3 tools/text_animations_import.py --html reels_text_animations.html` |
+| `text_direction.py` | يتحقق/يهيّئ خطة حركة **كل نص ظاهر** اللي الوكيل بيختارها لكل مشهد (`plan/text-direction.json` v2 + تغطية `copy.json`) — مفيش style افتراضي | `python3 tools/text_direction.py projects/<slug> --init` ثم `--check` |
 | `medo-motion/scripts/analyze_ref.py` | تحليل مرجع محليًا: شيتات مؤرخة، حركة، palette تقريبية، إيقاع قطع وصوت؛ لا ينقل ألوان المرجع للهوية | `python3 medo-motion/scripts/analyze_ref.py ref.mp4 --dur 15 --out cache/ref` |
 | `transitions_sheet.py` | شيت مراجعة + كليب معاينة لكل انتقال (بصوته) |
 | `toolkit/` | اعتماديات Node (`playwright-core`, `@sparticuz/chromium`, خطوط OFL) | `cd tools/toolkit && npm install` |

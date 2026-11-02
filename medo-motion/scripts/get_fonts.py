@@ -6,7 +6,7 @@ Usage (run from the project folder):
   python <skill>/scripts/get_fonts.py --check "Kufam" "Alexandria" # verify availability, download nothing
   python <skill>/scripts/get_fonts.py "Kufam" "Readex Pro"         # download into assets/fonts/<Family>/
 
-NOTE: the studio's curated 14-family type system lives in `assets/fonts/` and is managed by
+NOTE: the studio's curated 21-family type system lives in `assets/fonts/` and is managed by
 `tools/fonts_install.py` (npm `@expo-google-fonts/*`, TTF + OFL). Use this script only for a family
 outside that curated list — and register it in `assets/fonts/fonts.json` + `docs/fonts.md` afterwards.
 

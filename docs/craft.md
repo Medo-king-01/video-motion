@@ -106,6 +106,21 @@ Twenty-one rules in four groups. `tools/reel_lint.py <project>` reads `plan/beat
 | `M01` | Never three moves in a row from the same category | warn |
 | `M02` | At most two signature moves | warn |
 
+### Text direction — `plan/text-direction.json`
+
+The agent chooses an explicit caption + on-screen text style **per scene** and explains why.
+There is no default look and no random picker. Initialise the skeleton after the beats exist:
+`python3 tools/text_direction.py projects/<slug> --init`, then fill every choice.
+
+| Code | Rule | Level |
+|---|---|---|
+| `T00` | A text direction exists (the agent has decided the styles) | error |
+| `T01` | Every scene has a valid `captionStyle`, a rationale, and valid `textStyles`/`textElements` | error |
+| `T02` | Variety: not one identical caption style across the whole reel unless `motifReason` explains it | warn |
+| `T03` | EVERY on-screen text fragment (title, keyword, number, CTA, label, UI…) has a known role and resolves to an explicit style | error |
+| `T04` | Scene code draws text only through the directed helpers (`drawDirectedText` / `draw_directed_text` / `DirectedText`), never raw `fillText`/`text_sprite`/`txt` | error |
+| `T05` | EVERY on-screen text fragment has an agent-chosen font from the manifest (family + weight), and Arabic text uses an Arabic-capable family | error |
+
 ### Code scan — `--scan-code`
 
 | Code | Rule | Level |
@@ -166,12 +181,14 @@ own primitives, and `tests/test_techniques.py` fails if a recipe drifts back to 
 
 1. VO → `tools/vo_length.py out/vo.wav --json plan/beats.json --bpm 100` (length + cuts).
 2. Draw → `tools/techniques.py --draw --from-plan plan/beats.json --json plan/techniques.json`.
-3. Copy → `plan/copy.json` (fragments, times, mode), following §3.
-4. Lint → `tools/reel_lint.py projects/<slug> --scan-code`; fix errors, read warnings.
-5. Render → `run_all.sh` (P) or `node src/render.js` (K).
-6. Measure the render → loudness, peak, A/V duration (`docs/audio.md`), then `--check` again.
+3. Copy → `plan/copy.json` (fragments, times, mode, role), following §3.
+4. Text direction → `tools/text_direction.py projects/<slug> --init`, then the agent fills
+   `captionStyle` / `textStyles` per scene with a rationale (no default style).
+5. Lint → `tools/reel_lint.py projects/<slug> --scan-code`; fix errors, read warnings.
+6. Render → `run_all.sh` (P) or `node src/render.js` (K).
+7. Measure the render → loudness, peak, A/V duration (`docs/audio.md`), then `--check` again.
 
-Steps 4 and 6 are gates: a reel that has not passed both has not been looked at, only rendered.
+Steps 5 and 7 are gates: a reel that has not passed both has not been looked at, only rendered.
 
 ## Sources
 

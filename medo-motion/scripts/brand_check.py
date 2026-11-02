@@ -136,8 +136,9 @@ if a.project:
             elif m.group(1).upper() != exp:
                 print(f'  DRIFT brand.js {key} {m.group(1)} != brand {exp}'); bad += 1; dj += 1
         mf = re.search(r"font\s*:\s*\{\s*ar\s*:\s*'([^']+)'", j)
-        if mf and mf.group(1) != d['typography']['arabic']:
-            print(f"  DRIFT brand.js font.ar '{mf.group(1)}' != brand '{d['typography']['arabic']}'"); bad += 1; dj += 1
+        fallback_ar = d['typography']['type_system']['fallback']['arabic']
+        if mf and mf.group(1) != fallback_ar:
+            print(f"  DRIFT brand.js font.ar '{mf.group(1)}' != brand fallback '{fallback_ar}'"); bad += 1; dj += 1
         for key, bk in (('captionY', 'caption_center_y'), ('progressY', 'progress_bar_y'), ('margin', 'margin_px'),
                         ('belowIsDead', 'nothing_important_below_y')):
             mv = re.search(key + r'\s*:\s*(\d+)', j)
@@ -181,8 +182,9 @@ if a.project:
             elif m.group(1).upper() != expected:
                 print(f'  DRIFT brand.ts {key} {m.group(1)} != brand {expected}'); bad += 1; dr += 1
         mf = re.search(r"font\s*:\s*'([^']+)'", source)
-        if not mf or mf.group(1) != d['typography']['arabic']:
-            print('  DRIFT brand.ts font != brand Arabic font'); bad += 1; dr += 1
+        fallback_ar = d['typography']['type_system']['fallback']['arabic']
+        if not mf or mf.group(1) != fallback_ar:
+            print('  DRIFT brand.ts font != brand fallback Arabic font'); bad += 1; dr += 1
         for f in sorted([*root.rglob('*.ts'), *root.rglob('*.tsx')]):
             if 'node_modules' in f.parts:
                 continue

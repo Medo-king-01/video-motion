@@ -1,8 +1,8 @@
 // The free type system for engine K — `assets/fonts/fonts.json` (built by tools/fonts_install.py).
 //
-// Cairo is the brand default; every other family has one documented job (docs/fonts.md). Register a
-// family once per scene, then use it in `ctx.font`. Fonts are loaded lazily: a scene that only wants
-// the brand face never downloads the other thirteen.
+// The agent chooses the face per scene/element (plan/text-direction.json); there is no creative
+// default. Cairo/Inter are only a last-resort fallback for system chrome. Register a family once per
+// scene, then use it in `ctx.font`. Fonts are loaded lazily from the manifest (docs/fonts.md).
 //
 //   import { useFont, family } from './fonts.js';
 //   await useFont('Kufam', 700);                      // registers "Kufam"

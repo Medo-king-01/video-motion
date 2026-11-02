@@ -4,6 +4,7 @@ import {existsSync} from 'node:fs';
 import {copyFile, mkdir, readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import {validateTextDirection} from '../src/lib/text-direction.js';
 
 const project = process.cwd();
 const args = process.argv.slice(2);
@@ -61,6 +62,16 @@ for (const [index, scene] of beats.scenes.entries()) {
   if (Math.abs(Number(scene.start) - cursor) > 0.02) fail(`scene ${index + 1} leaves a gap or overlaps the previous scene`);
   cursor = Number(scene.end);
 }
+// Text motion is an explicit agent decision per scene (no default style).
+const dirPath = path.join(project, 'plan', 'text-direction.json');
+const direction = existsSync(dirPath) ? JSON.parse(await readFile(dirPath, 'utf8')) : {};
+const copyPath = path.join(project, 'plan', 'copy.json');
+const copy = existsSync(copyPath) ? JSON.parse(await readFile(copyPath, 'utf8')) : null;
+const fontsPath = path.join(project, 'assets', 'fonts', 'fonts.json');
+const fonts = existsSync(fontsPath) ? (JSON.parse(await readFile(fontsPath, 'utf8')).families || {}) : null;
+const dirReport = validateTextDirection(direction, beats, copy, fonts);
+if (dirReport.errors.length) fail('Text direction incomplete — the agent must choose styles per scene:\n' + dirReport.errors.join('\n'));
+
 // Guard against shipping the template's placeholder copy: STORY must be replaced with the
 // approved per-scene text, one card per scene, before a final render.
 const dataSource = await readFile(path.join(project, 'src', 'data.ts'), 'utf8').catch(() => null);

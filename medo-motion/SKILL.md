@@ -1,6 +1,6 @@
 ---
 name: video-motion
-description: "Medo (Kodo Medo) Arabic reel studio: locked brand (red/black/white, Cairo), Egyptian dialect, code-drawn reels + canvas motion, SFX, mixing, MP4. Works with any coding agent."
+description: "Medo (Kodo Medo) Arabic reel studio: locked brand palette (red/black/white), agent-chosen fonts + text motion, Egyptian dialect, code-drawn reels + canvas motion, SFX, mixing, MP4. Works with any coding agent."
 ---
 
 # Video Motion — استوديو ميدو
@@ -55,8 +55,10 @@ Ask **once** for whatever is missing, then decide and state the decision.
 New project: `python3 tools/new_project.py <slug> [--engine p|k|r|hybrid]` (repo root), then fill
 `BRIEF.md`. Full contract in `../AGENTS.md` §5. In short:
 intake → analyse the VO (`silencedetect`) → lock `plan/beats.json` → draw the moves
-(`tools/techniques.py --draw --from-plan plan/beats.json`) → write `plan/copy.json` → **lint**
-(`tools/reel_lint.py <project> --scan-code`) → scene prototype (3 stills)
+(`tools/techniques.py --draw --from-plan plan/beats.json`) → write `plan/copy.json` → choose the
+text motion for EVERY on-screen text element (`tools/text_direction.py <project> --init`, then fill
+`plan/text-direction.json` + a `role` for every `plan/copy.json` fragment; no default style) →
+**lint** (`tools/reel_lint.py <project> --scan-code`) → scene prototype (3 stills)
 → contact sheet → assets → engine render (or sequential hybrid render) → mix (−14.5 LUFS) → master (CRF 13 ≥2.5 Mbps)
 → ≥3 visual QC rounds → deliver with an 8–10 line Arabic message.
 
@@ -81,7 +83,9 @@ Pillow wheel has no libraqm. `lib.py` picks automatically; never letter-by-lette
 
 `reference/arabic-typography.md` is **mandatory** before any Arabic appears on screen: whole
 words only, RTL, real shaping, no letter-spacing, keep the dots, no word broken across lines.
-Fonts: Cairo (`python scripts/get_fonts.py "Cairo"`, or `tools/setup.sh` from the repo root).
+Fonts: the agent chooses from the 21-family OFL manifest (`assets/fonts/fonts.json`) per scene/element
+and records it in `plan/text-direction.json` — no forced default. Install with `tools/fonts_install.py`
+(or `tools/setup.sh`); preview with `tools/fonts_preview.py`.
 
 ## 6. Ownership, licences and privacy
 

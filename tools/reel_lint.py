@@ -31,6 +31,10 @@ import re
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
+import text_direction as td  # noqa: E402
+
 # ---- measured norms (30 fps, 9:16) ------------------------------------------------------------
 WORDS_PER_FRAGMENT = {"calm": 4, "crisp": 5}
 VISIBLE_AT_ONCE = {"calm": 8, "crisp": 10}
@@ -64,6 +68,8 @@ BANNED_CODE = {
     "shake": "camera shake",
 }
 ALLOW = re.compile(r"#\s*lint:\s*allow\s+([\w, -]+)")
+RAW_TEXT = re.compile(r"\b(?:fillText|strokeText|text_sprite|txt)\s*\(")
+RAW_ALLOW = re.compile(r"(?:#|//)\s*lint:\s*allow\s+([\w, -]+)")
 
 
 class Report:
@@ -314,6 +320,45 @@ def lint_moves(rep: Report, draw: dict) -> None:
     rep.ok("M01", f"{len(picks)} moves drawn · seed {draw.get('seed', '?')}")
 
 
+# ---- text direction (agent-chosen styles, no default) ---------------------------------------
+def lint_text_direction(rep: Report, project: Path, beats: dict, copy: dict) -> None:
+    direction = td.load(project)
+    if not direction:
+        rep.error("T00", "no plan/text-direction.json — the agent must choose caption/text styles per scene: "
+                         "python3 tools/text_direction.py <project> --init")
+        return
+    fonts = td.load_fonts(project)
+    report = td.validate(direction, beats, fonts=fonts or None)
+    for e in report["errors"]:
+        rep.error("T01", e)
+    for w in report["warnings"]:
+        rep.warn("T02", w)
+    # EVERY on-screen text fragment (not just captions) must resolve to an explicit motion + font.
+    for c in copy.get("copy") or []:
+        label = c.get("id") or f"copy[{c.get('scene')}]"
+        role = c.get("role")
+        if role not in td.TEXT_ROLES:
+            rep.error("T03", f"{label}: every on-screen text fragment needs a known role (got {role!r})")
+            continue
+        try:
+            td.text_style_for(direction, c.get("scene"), role, c.get("id"))
+        except ValueError as e:
+            rep.error("T03", f"{label}: {e}")
+        if fonts:
+            try:
+                font = td.font_for(direction, c.get("scene"), role, c.get("id"))
+            except ValueError as e:
+                rep.error("T05", f"{label}: {e}")
+                continue
+            meta = fonts.get(font["family"])
+            if not meta or font["weight"] not in {w["weight"] for w in meta.get("weights", [])}:
+                rep.error("T05", f"{label}: font {font['family']} {font['weight']} is not in the manifest")
+            elif td.has_arabic(c.get("text")) and meta.get("script") != "arabic":
+                rep.error("T05", f"{label}: Arabic text needs an Arabic-capable family (got {font['family']})")
+    if not report["errors"]:
+        rep.ok("T01", f"text direction: {len(direction.get('scenes') or [])} scenes directed by {direction.get('decidedBy')}")
+
+
 # ---- optional code scan ----------------------------------------------------------------------
 def lint_code(rep: Report, project: Path) -> None:
     files = [p for p in list(project.glob("*.py")) + list(project.glob("*.ts")) + list(project.glob("*.tsx"))
@@ -334,6 +379,26 @@ def lint_code(rep: Report, project: Path) -> None:
                     hits += 1
     if not hits:
         rep.ok("K01", f"no banned looks in {len(files)} scene file(s)")
+
+    # Raw text drawing bypasses the agent's direction. Scene code must use the
+    # directed helpers (drawDirectedText / draw_directed_text / DirectedText).
+    scene_files = [p for p in list(project.glob("scenes.py")) + list(project.glob("scene*.py"))
+                   + list(project.glob("src/scenes/**/*.js")) + list(project.glob("src/scenes/**/*.ts"))
+                   + list(project.glob("src/scenes/**/*.tsx")) + list(project.glob("src/**/*.tsx"))
+                   if p.is_file() and "src/lib" not in p.as_posix()]
+    raw_hits = 0
+    for f in scene_files:
+        for n, line in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+            allowed = RAW_ALLOW.search(line)
+            allow = {t.strip().lower() for t in allowed.group(1).split(",")} if allowed else set()
+            if "raw-text" in allow:
+                continue
+            if RAW_TEXT.search(line):
+                rep.error("T04", f"{f.relative_to(project)}:{n}: raw text drawing bypasses plan/text-direction.json — "
+                                 "use drawDirectedText / draw_directed_text / DirectedText (or annotate a deliberate exception)")
+                raw_hits += 1
+    if not raw_hits:
+        rep.ok("T04", f"all scene text goes through the directed helpers ({len(scene_files)} file(s))")
 
 
 # ---- cli -------------------------------------------------------------------------------------
@@ -366,6 +431,8 @@ def main() -> int:
     if dur and scenes:
         lint_copy(rep, copy, dur, pace, bpm, scenes)
     lint_moves(rep, draw)
+    if dur and scenes:
+        lint_text_direction(rep, a.project, plan, copy)
     if a.scan_code:
         lint_code(rep, a.project)
 

@@ -1,0 +1,155 @@
+{
+  "version": 3,
+  "status": "directed",
+  "decidedBy": "agent",
+  "concept": "A calm explainer that lifts energy on proof beats; text motion follows the spoken emphasis.",
+  "scenes": [
+    {
+      "scene": 1,
+      "captionStyle": "karaoke",
+      "captionWhy": "scene 1 mood fits karaoke for the spoken emphasis",
+      "textStyles": {
+        "title": "karaoke",
+        "keyword": "karaoke"
+      },
+      "textWhy": "scene 1 on-screen text follows the spoken emphasis with directed styles",
+      "textElements": {
+        "s1-title-0": {
+          "role": "hook",
+          "style": "wordPop",
+          "why": "the opening hook pops to grab attention before the title"
+        }
+      },
+      "fontStyles": {
+        "hook": {
+          "family": "Rubik",
+          "weight": 800
+        },
+        "keyword": {
+          "family": "Changa",
+          "weight": 700
+        }
+      },
+      "fontWhy": "scene 1 faces chosen for reel impact and Arabic legibility",
+      "fontElements": {
+        "s1-title-0": {
+          "role": "hook",
+          "family": "Rubik",
+          "weight": 900,
+          "why": "the opening hook uses a rounded heavy face to feel social and bold"
+        }
+      }
+    },
+    {
+      "scene": 2,
+      "captionStyle": "softFade",
+      "captionWhy": "scene 2 mood fits softFade for the spoken emphasis",
+      "textStyles": {
+        "title": "softFade"
+      },
+      "textWhy": "scene 2 on-screen text follows the spoken emphasis with directed styles",
+      "fontStyles": {
+        "title": {
+          "family": "Alexandria",
+          "weight": 800
+        }
+      },
+      "fontWhy": "scene 2 faces chosen for reel impact and Arabic legibility"
+    },
+    {
+      "scene": 3,
+      "captionStyle": "zoomPunch",
+      "captionWhy": "scene 3 mood fits zoomPunch for the spoken emphasis",
+      "textStyles": {
+        "title": "zoomPunch",
+        "label": "zoomPunch"
+      },
+      "textWhy": "scene 3 on-screen text follows the spoken emphasis with directed styles",
+      "fontStyles": {
+        "title": {
+          "family": "Alexandria",
+          "weight": 800
+        },
+        "label": {
+          "family": "Readex Pro",
+          "weight": 600
+        }
+      },
+      "fontWhy": "scene 3 faces chosen for reel impact and Arabic legibility"
+    },
+    {
+      "scene": 4,
+      "captionStyle": "underline",
+      "captionWhy": "scene 4 mood fits underline for the spoken emphasis",
+      "textStyles": {
+        "title": "underline"
+      },
+      "textWhy": "scene 4 on-screen text follows the spoken emphasis with directed styles",
+      "fontStyles": {
+        "title": {
+          "family": "Alexandria",
+          "weight": 800
+        }
+      },
+      "fontWhy": "scene 4 faces chosen for reel impact and Arabic legibility"
+    },
+    {
+      "scene": 5,
+      "captionStyle": "fadeTilt",
+      "captionWhy": "scene 5 mood fits fadeTilt for the spoken emphasis",
+      "textStyles": {
+        "title": "fadeTilt",
+        "quote": "fadeTilt"
+      },
+      "textWhy": "scene 5 on-screen text follows the spoken emphasis with directed styles",
+      "fontStyles": {
+        "title": {
+          "family": "Alexandria",
+          "weight": 800
+        },
+        "quote": {
+          "family": "Amiri",
+          "weight": 700
+        }
+      },
+      "fontWhy": "scene 5 faces chosen for reel impact and Arabic legibility"
+    },
+    {
+      "scene": 6,
+      "captionStyle": "wordPop",
+      "captionWhy": "scene 6 mood fits wordPop for the spoken emphasis",
+      "textStyles": {
+        "title": "wordPop",
+        "hook": "wordPop"
+      },
+      "textWhy": "scene 6 on-screen text follows the spoken emphasis with directed styles",
+      "fontStyles": {
+        "title": {
+          "family": "Alexandria",
+          "weight": 800
+        },
+        "hook": {
+          "family": "Rubik",
+          "weight": 800
+        }
+      },
+      "fontWhy": "scene 6 faces chosen for reel impact and Arabic legibility"
+    },
+    {
+      "scene": 7,
+      "captionStyle": "hormozi",
+      "captionWhy": "scene 7 mood fits hormozi for the spoken emphasis",
+      "textStyles": {
+        "title": "hormozi"
+      },
+      "textWhy": "scene 7 on-screen text follows the spoken emphasis with directed styles",
+      "fontStyles": {
+        "title": {
+          "family": "Alexandria",
+          "weight": 800
+        }
+      },
+      "fontWhy": "scene 7 faces chosen for reel impact and Arabic legibility"
+    }
+  ]
+}

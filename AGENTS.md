@@ -31,14 +31,17 @@ finished video on guessed timing without saying so.
    This is a studio, not a named series: Medo tells you what to make and you make it.
    Never ask for a logo or a series title, never invent one, never leave a placeholder
    circle "for the logo" on screen. End cards are **typographic only**.
-2. **The brand is locked** (palette, Cairo, safe zones, loudness, Egyptian dialect).
-   `medo-motion/brand/BRAND.md` + `brand/brand.json` are the source of truth: **exactly 12
-   colours** (palette v2) plus the derived `ink_shadow`. Never re-ask about colours/fonts and
-   never improvise outside the palette — `brand_check.py` fails the build if you do.
-   **Type:** `assets/fonts/fonts.json` is the whole allowed set — 14 families, all SIL OFL 1.1
-   (free, commercial, no on-screen attribution). Cairo stays the default for on-screen Arabic and
-   Inter for Latin; every other family is a *role* (hook, telemetry, quote…) and at most two families
-   share a scene. `docs/fonts.md`; `make fonts` installs, `make fonts-sheet` shows them.
+2. **The brand is locked** (palette, safe zones, loudness, Egyptian dialect) — but **the font is
+   your creative choice**. `medo-motion/brand/BRAND.md` + `brand/brand.json` are the source of truth:
+   **exactly 12 colours** (palette v2) plus the derived `ink_shadow`. Never improvise outside the
+   palette — `brand_check.py` fails the build if you do.
+   **Type:** `assets/fonts/fonts.json` is the whole allowed set — 21 families, all SIL OFL 1.1
+   (free, commercial, no on-screen attribution). **There is no forced default:** you pick the most
+   attractive, reel-fitting face (Arabic or Latin) per scene/element and record it in
+   `plan/text-direction.json` (`fontStyles`/`fontElements`, rule 11). Cairo/Inter are only a
+   last-resort fallback for system chrome. Prefer an Arabic↔Latin pair with the same feel; at most
+   two families per scene unless a reason is recorded. `docs/fonts.md`; `make fonts` installs,
+   `make fonts-sheet` shows them.
 3. **VO is Medo's.** Never generate TTS unless Medo explicitly asks for it. If he does,
    `medo-motion/scripts/gen_tts_elevenlabs.py` is there — and it asks for approval
    before any paid request.
@@ -75,6 +78,20 @@ finished video on guessed timing without saying so.
    Before a render, the plan must pass `python3 tools/reel_lint.py projects/<slug> --scan-code`
    (letters/words on screen, dwell per word, grid-locked cuts, text-free stretch, banned looks).
    Rules, numbers and the conflicts we resolved: `docs/craft.md`. Library: `docs/techniques.md`.
+11. **Text motion is your creative decision for EVERY on-screen text element — never a default.**
+   This is not caption-only: titles, hooks, keywords, numbers/counters, CTAs, labels and text inside
+   cards/UI all get an explicit motion style **and font** in `plan/text-direction.json`
+   (`captionStyle`, `textStyles`/`fontStyles` per role, optional per-element `textElements`/
+   `fontElements` overrides, and a short rationale). You also choose the most attractive,
+   reel-fitting typeface (Arabic or Latin) from the manifest — there is no forced font default. List every
+   visible fragment in `plan/copy.json` with a `role` (and an `id` when it needs its own motion).
+   Initialise with `python3 tools/text_direction.py projects/<slug> --init`, then choose from the
+   caption-safe catalog (`docs/text-animations.md`) to fit the mood/energy of each beat, and vary it
+   across the reel (a repeated motif needs a `motifReason`). Draw text only through the directed
+   helpers (`drawDirectedText` K, `draw_directed_text` P, `DirectedText` R); raw `fillText`/`text_sprite`
+   is lint error T04. There is no fallback look: the render gates and lint fail closed if any text
+   has no chosen style. Timing still comes from the measured VO/scene bounds; the style only shapes
+   how the element moves. Keep it unboxed, whole-word Arabic, brand colors.
 
 ## 3. What YOU produce
 
@@ -156,8 +173,11 @@ is the portable inventory it extends. Do not install anything else "just in case
    and mix are cut to it.
    `tests/test_vo_length.py` fails if any doc or template reintroduces a fixed length.
 3. **Engine choice** — see §6. A reel may use the validated hybrid renderer for sequential full-frame segments; this is not simultaneous layer compositing.
-4. **Scenes** — build one scene, render 3 stills, then a 4–8 frame contact sheet.
-   Do not go to "production" from the first attempt.
+4. **Scenes** — first choose the motion for EVERY on-screen text element:
+   `python3 tools/text_direction.py projects/<slug> --init`, then fill `captionStyle` / `textStyles` /
+   `textElements` per scene with a rationale, and give every `plan/copy.json` fragment a `role`
+   (rule 11). Build one scene, render 3 stills, then a 4–8 frame contact sheet. Do not go to
+   "production" from the first attempt.
 5. **Assets** — code → AI → search, respect the ladder and the licence log.
 6. **Render** — use P, K, or R individually, or render sequential P/K/R segments with `tools/render_hybrid.py`; then mix/master as specified by that workflow.
 7. **QC** — ≥3 visual rounds (contact sheets), probe the MP4, check loudness, check the

@@ -44,22 +44,68 @@ reels_text_animations.html  ──(text_animations_import.py)──►  motion/t
 المرجع اتحوّل لدور دافئ (salmon/red). الكابشن دايمًا **من غير صندوق** (الحركات الـboxed
 مستبعدة من أنماط الكابشن). الخط Cairo.
 
-## أنماط الكابشن: `drawWordCaption(..., { style })`
+## حركة كل نص ظاهر: `style` مطلوب — قرار الوكيل لكل عنصر
 
-الـrenderer في `templates/render/lib/captions.js` بياخد `style` اختياري. **الافتراضي
-`pop` هو نفس السلوك الأصلي بالظبط** (scale 0.94→1 في 0.09s، من غير صندوق).
+القاعدة مش للكابشن بس. أي نص بيظهر على الشاشة — عنوان، هوك، كلمة مفتاحية، رقم/عدّاد،
+CTA، ليبل، أو نص جوه كارت/UI — الوكيل هو اللي بيختار له أفضل ستايل حركة في المشهد.
+مفيش style افتراضي. الـrenderer في `templates/render/lib/captions.js` (وP في
+`captions.py`، وR في `lib/TextMotion.tsx` و`lib/DirectedText.tsx`) بيرفض يرسم لو
+الستايل مش متحدد. الوكيل بيختار لكل مشهد في `plan/text-direction.json` ويبرّر اختياره،
+وبيسجّل كل جزء نص ظاهر في `plan/copy.json` بـ`role` (و`id` لو محتاج حركة خاصة):
+
+```bash
+python3 tools/text_direction.py projects/<slug> --init   # هيكل من الـbeats
+# الوكيل يملأ captionStyle / textStyles / textElements / captionWhy لكل مشهد
+python3 tools/text_direction.py projects/<slug> --check  # لازم يعدّي قبل الرندر
+```
+
+```json
+{ "version": 3, "status": "directed", "decidedBy": "agent",
+  "concept": "شرح هادي بيعلى طاقته عند لقطات الإثبات",
+  "scenes": [
+    { "scene": 1, "captionStyle": "karaoke", "captionWhy": "هوك بيأكد على الكلمة المنطوقة",
+      "textStyles": { "title": "zoomPunch", "number": "impact", "cta": "underline", "label": "softFade" },
+      "textWhy": "العنوان يدخل بقوة الهوك، الرقم بيخبط، والCTA بيتسطّر",
+      "textElements": { "hero-cta": { "role": "cta", "style": "wordPop", "why": "زرّ التعليق لازم يخطف العين في آخر لقطة" } },
+      "fontStyles": { "title": { "family": "Alexandria", "weight": 800 }, "number": { "family": "Tajawal", "weight": 800 },
+                      "cta": { "family": "Kufam", "weight": 700 }, "label": { "family": "Readex Pro", "weight": 600 } },
+      "fontWhy": "عنوان عريض للإمباكت، رقم هندسي واثق، وCTA كوفي مميز",
+      "fontElements": { "hero-cta": { "role": "cta", "family": "Rubik", "weight": 900, "why": "الزرّ بخط مدوّر تقيل يبان سوشيال" } } }
+  ] }
+```
+
+### الخط كمان قرار الوكيل (مفيش Cairo مفروض)
+
+نفس الخطة بتحدد **الخط** لكل نص ظاهر: `fontStyles` لكل دور + `fontElements` لأي عنصر خاص.
+الوكيل بيختار الأكثر جاذبية ومناسبة للريل من `assets/fonts/fonts.json` (٢١ عيلة OFL، عربي وإنجليزي)،
+وبيبرّر اختياره. Cairo/Inter مجرد شبكة أمان لكروم النظام. اللينت **T05** وبوابات الرندر بيرفضوا
+أي نص من غير خط مختار، والنص العربي لازم يكون بخط بيدعم العربي. الـhelpers (`drawDirectedText` /
+`draw_directed_text` / `DirectedText`) بتطبّق الخط والحركة مع بعض من الخطة.
 
 ```js
-import { drawWordCaption } from './lib/captions.js';
-// words = [{ text, start, end }] بتوقيتات مقاسة (caption_align)
-drawWordCaption(ctx, t, words, { W, H, style: 'karaoke', theme: 'dark' });
+// كابشن كلمة-كلمة بتوقيت مقاس
+import { drawWordCaption, drawDirectedText } from './lib/captions.js';
+import { captionStyleFor } from './lib/text-direction.js';
+const style = captionStyleFor(direction, scene.index);
+drawWordCaption(ctx, t, words, { W, H, style, theme: 'dark' });
+
+// أي نص تاني (عنوان/رقم/CTA/ليبل) — الستايل بيتجاب من الخطة، مفيش default
+drawDirectedText(ctx, '٤٢١٠', { direction, scene: 1, role: 'number',
+  time: t, start: 0, end: dur, x: W / 2, y: 500, size: 96 });
 ```
+
+في P استخدم `draw_directed_text(fr, text, direction=..., scene=..., role=..., t=..., start=..., end=..., cx=..., cy=...)`،
+وفي R لفّ أي بلوك نص بـ`<DirectedText direction={DIRECTION} scene={i} role="title" time={t} start={0} end={dur}>…</DirectedText>`.
+الرسم الخام (`fillText`/`text_sprite`/`txt`) في مشاهد المشروع بيترفض بلينت T04.
+
+`pop` لسه موجود كـ**اختيار صريح** زيّه زي باقي الستايلات (scale 0.94→1 في 0.09s)،
+لكنه مش بيفرض نفسه على أي فيديو.
 
 أنماط جاهزة:
 
 | `style` | الشكل |
 |---|---|
-| `pop` | الافتراضي — نبضة سريعة بسيطة (brand-safe) |
+| `pop` | نبضة سريعة بسيطة (اختيار صريح، مش default) |
 | `fadeTilt` / `fadeDrop` / `softFade` / `fadeTiltScale` | دخول بهدوء + ميل/نزول |
 | `zoomPunch` / `wordPop` / `impact` / `elastic` | نبض/تكبير/اهتزاز/مطاط |
 | `rise` / `drop` / `beat` / `comic` / `hookZoom` | طلوع/سقوط/نبض إيقاعي |
@@ -69,6 +115,19 @@ drawWordCaption(ctx, t, words, { W, H, style: 'karaoke', theme: 'dark' });
 
 أي `id` من الكتالوج الآمن يشتغل مباشرة كـ`style` (مثلًا `fadetiltblur`، `blurfade`…).
 الـaliases موجودة في `STYLE_ALIAS`، والمقدمات المولّدة في `CAPTION_ENTRANCES`.
+
+### دليل الاختيار حسب المود (إرشادي — القرار للوكيل)
+
+| المود / السياق | ستايلات مقترحة |
+|---|---|
+| شرح وهادي / معلومة | `softFade` · `fadeTilt` · `fadeDrop` |
+| هوك وطاقة عالية | `zoomPunch` · `impact` · `wordPop` · `hookZoom` |
+| ترند وتوكيد على كلمة | `karaoke` · `underline` · `hormozi` |
+| إيقاع ومونتاج سريع | `beat` · `elastic` · `comic` |
+| لحظة عاطفية / هدوء | `softFade` · `blurfade` · `rise` |
+
+نوّع بين المشاهد حسب المعنى، مش عشوائي. لو كررت نفس الستايل كـmotif مقصود، اكتب
+`motifReason` في الخطة عشان الـlint ما يحذّرش.
 
 ## التوقيت المقاس (مش ثابت)
 
@@ -81,7 +140,7 @@ drawWordCaption(ctx, t, words, { W, H, style: 'karaoke', theme: 'dark' });
 
 `tracks` بتتقري بنفس الـAPI في K (`lib/motion.js`) وP (`motion.py`) وR (نسخة motion.js
 المتطابقة). الاختبار `tests/test_text_animations.py` بيقارن JS وPython رقميًا على مسارات
-الكتالوج (abs=1e-3)، وبيأكد إن الافتراضي `pop` ما اتغيرش، وإن كل الأنماط بترسم من غير أخطاء.
+الكتالوج (abs=1e-3)، وبيأكد إن كل الأنماط بترسم من غير أخطاء، وإن غياب `style` بيرفض الرسم.
 
 ## إعادة التوليد
 

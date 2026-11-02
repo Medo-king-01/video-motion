@@ -1,4 +1,4 @@
-"""The type system: 14 free families, real shaping, and a gate against broken ones.
+"""The type system: 21 free families, real shaping, and a gate against broken ones.
 
 Everything on screen must be free (SIL OFL 1.1) and must actually render Arabic correctly with the
 engine's own stack. The overlap check below is a regression test for a real failure: Reem Kufi's
@@ -31,8 +31,8 @@ def files_of(family: str) -> list[Path]:
 
 
 def test_manifest_and_files_agree():
-    assert len(FAMILIES) >= 14, "the curated set is 14 families (8 Arabic + 6 Latin)"
-    assert len(ARABIC) == 8 and len(LATIN) == 6
+    assert len(FAMILIES) >= 21, "the curated set is 21 families (12 Arabic + 9 Latin)"
+    assert len(ARABIC) == 12 and len(LATIN) == 9
     for family, meta in FAMILIES.items():
         assert (FONTS / family).is_dir(), family
         assert meta["weights"], family
@@ -54,13 +54,16 @@ def test_every_family_carries_its_licence():
         assert "SIL Open Font License" in text or "OFL" in text, family
 
 
-def test_defaults_are_the_brand_face():
-    assert MANIFEST["default"] == {"arabic": "Cairo", "latin": "Inter"}
+def test_fallback_is_available_but_not_a_creative_default():
+    # Cairo/Inter remain a last-resort safety net for system chrome, NOT a mandated
+    # creative face: the agent chooses per scene/element in plan/text-direction.json.
+    assert MANIFEST["fallback"] == {"arabic": "Cairo", "latin": "Inter"}
+    assert "default" not in MANIFEST, "there is no creative default font"
     cairo_weights = {w["weight"] for w in FAMILIES["Cairo"]["weights"]}
-    assert 800 in cairo_weights, "the brand weight (ExtraBold 800) must ship"
+    assert 800 in cairo_weights, "the fallback weight (ExtraBold 800) must ship"
     brand = json.loads((ROOT / "medo-motion" / "brand" / "brand.json").read_text(encoding="utf-8"))
-    assert brand["typography"]["type_system"]["default"] == MANIFEST["default"]
-    assert brand["typography"]["arabic"] == "Cairo"
+    assert brand["typography"]["type_system"]["fallback"] == MANIFEST["fallback"]
+    assert "agent-chosen" in brand["typography"]["arabic"]
 
 
 def _ink_spans(path: Path, text: str = WORD, size: int = 54):
@@ -112,12 +115,15 @@ def test_latin_families_render(family: str):
 
 
 def test_engine_p_font_selector():
-    assert Path(lib.font(60).path).name == "Cairo_800ExtraBold.ttf"       # brand default, brand weight
+    assert Path(lib.font(60).path).name == "Cairo_800ExtraBold.ttf"       # technical fallback only
     assert Path(lib.font(60, "Kufam").path).name == "Kufam_700Bold.ttf"    # nearest weight <= 800
     assert Path(lib.font(60, "IBM Plex Sans Arabic", 600).path).name == "IBMPlexSansArabic_600SemiBold.ttf"
     assert Path(lib.font(60, "IBM Plex Sans Arabic", 400).path).name == "IBMPlexSansArabic_400Regular.ttf"
-    # an unknown family never renders in a random font: it falls back to the brand face
+    # an unknown family never renders in a random font: it falls back to the safety net
     assert Path(lib.font(60, "Comic Sans").path).name == "Cairo_800ExtraBold.ttf"
+    # the agent can pick any manifest family, e.g. the new reel-friendly display faces
+    assert Path(lib.font(60, "Rubik", 900).path).name == "Rubik_900Black.ttf"
+    assert Path(lib.font(60, "Changa", 800).path).name == "Changa_800ExtraBold.ttf"
 
 
 def test_engine_k_loads_from_the_manifest():

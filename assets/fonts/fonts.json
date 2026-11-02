@@ -1,6 +1,6 @@
 {
-  "note": "Free type system (SIL OFL 1.1) — the only fonts allowed on screen. Cairo is the brand default; every other family has one documented job (docs/fonts.md).",
-  "default": {
+  "note": "Free type system (SIL OFL 1.1) — the only fonts allowed on screen. The agent chooses the most fitting face per scene/element (plan/text-direction.json); there is no creative default. `fallback` is a last-resort safety net for system chrome only.",
+  "fallback": {
     "arabic": "Cairo",
     "latin": "Inter"
   },
@@ -234,6 +234,138 @@
       "source": "https://fonts.google.com/specimen/Amiri",
       "npm": "@expo-google-fonts/amiri"
     },
+    "Rubik": {
+      "script": "arabic",
+      "role": "rounded modern Arabic+Latin — friendly hooks, social captions, bold numbers",
+      "pairs": "Sora",
+      "tags": [
+        "display",
+        "rounded",
+        "social",
+        "hook"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Rubik_400Regular.ttf"
+        },
+        {
+          "weight": 500,
+          "style": "normal",
+          "file": "Rubik_500Medium.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Rubik_700Bold.ttf"
+        },
+        {
+          "weight": 800,
+          "style": "normal",
+          "file": "Rubik_800ExtraBold.ttf"
+        },
+        {
+          "weight": 900,
+          "style": "normal",
+          "file": "Rubik_900Black.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Rubik/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Rubik",
+      "npm": "@expo-google-fonts/rubik"
+    },
+    "Changa": {
+      "script": "arabic",
+      "role": "condensed Arabic display — punchy headlines, tight kinetic type, countdowns",
+      "pairs": "Archivo Black",
+      "tags": [
+        "display",
+        "condensed",
+        "impact"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Changa_400Regular.ttf"
+        },
+        {
+          "weight": 600,
+          "style": "normal",
+          "file": "Changa_600SemiBold.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Changa_700Bold.ttf"
+        },
+        {
+          "weight": 800,
+          "style": "normal",
+          "file": "Changa_800ExtraBold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Changa/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Changa",
+      "npm": "@expo-google-fonts/changa"
+    },
+    "Readex Pro": {
+      "script": "arabic",
+      "role": "clean contemporary Arabic+Latin — readable body/UI with a modern edge",
+      "pairs": "Sora",
+      "tags": [
+        "modern",
+        "ui",
+        "body",
+        "legible"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "ReadexPro_400Regular.ttf"
+        },
+        {
+          "weight": 600,
+          "style": "normal",
+          "file": "ReadexPro_600SemiBold.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "ReadexPro_700Bold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Readex Pro/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Readex+Pro",
+      "npm": "@expo-google-fonts/readex-pro"
+    },
+    "Lalezar": {
+      "script": "arabic",
+      "role": "bold display statement — poster frames, chapter cards, big Arabic keywords",
+      "pairs": "Bebas Neue",
+      "tags": [
+        "display",
+        "poster",
+        "impact",
+        "heavy"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Lalezar_400Regular.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Lalezar/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Lalezar",
+      "npm": "@expo-google-fonts/lalezar"
+    },
     "Inter": {
       "script": "latin",
       "role": "Latin default — UI, data, mixed Arabic+Latin lines",
@@ -385,6 +517,82 @@
       "licence_file": "Instrument Serif/OFL.txt",
       "source": "https://fonts.google.com/specimen/Instrument+Serif",
       "npm": "@expo-google-fonts/instrument-serif"
+    },
+    "Archivo Black": {
+      "script": "latin",
+      "role": "heavy grotesque — loud hooks, single big numbers, stamp-like CTAs",
+      "pairs": "Changa",
+      "tags": [
+        "display",
+        "heavy",
+        "hook",
+        "impact"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "ArchivoBlack_400Regular.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Archivo Black/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Archivo+Black",
+      "npm": "@expo-google-fonts/archivo-black"
+    },
+    "Bebas Neue": {
+      "script": "latin",
+      "role": "tall condensed caps — trailer-style titles, countdowns, kinetic labels",
+      "pairs": "Noto Kufi Arabic",
+      "tags": [
+        "display",
+        "condensed",
+        "trailer",
+        "caps"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "BebasNeue_400Regular.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Bebas Neue/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Bebas+Neue",
+      "npm": "@expo-google-fonts/bebas-neue"
+    },
+    "Sora": {
+      "script": "latin",
+      "role": "geometric modern Latin — product/UI headers paired with rounded Arabic",
+      "pairs": "Rubik",
+      "tags": [
+        "geometric",
+        "modern",
+        "ui",
+        "display"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Sora_400Regular.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Sora_700Bold.ttf"
+        },
+        {
+          "weight": 800,
+          "style": "normal",
+          "file": "Sora_800ExtraBold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Sora/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Sora",
+      "npm": "@expo-google-fonts/sora"
     }
   }
 }
