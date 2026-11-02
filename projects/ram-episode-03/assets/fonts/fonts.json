@@ -1,0 +1,390 @@
+{
+  "note": "Free type system (SIL OFL 1.1) — the only fonts allowed on screen. Cairo is the brand default; every other family has one documented job (docs/fonts.md).",
+  "default": {
+    "arabic": "Cairo",
+    "latin": "Inter"
+  },
+  "families": {
+    "Cairo": {
+      "script": "arabic",
+      "role": "brand default — captions, body, lower thirds (the locked brand face)",
+      "pairs": "Inter",
+      "tags": [
+        "brand",
+        "sans",
+        "neutral",
+        "default"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Cairo_400Regular.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Cairo_700Bold.ttf"
+        },
+        {
+          "weight": 800,
+          "style": "normal",
+          "file": "Cairo_800ExtraBold.ttf"
+        },
+        {
+          "weight": 900,
+          "style": "normal",
+          "file": "Cairo_900Black.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Cairo/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Cairo",
+      "npm": "@expo-google-fonts/cairo"
+    },
+    "Tajawal": {
+      "script": "arabic",
+      "role": "geometric headlines and numbers — short, confident lines",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "geometric",
+        "headline"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Tajawal_400Regular.ttf"
+        },
+        {
+          "weight": 500,
+          "style": "normal",
+          "file": "Tajawal_500Medium.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Tajawal_700Bold.ttf"
+        },
+        {
+          "weight": 800,
+          "style": "normal",
+          "file": "Tajawal_800ExtraBold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Tajawal/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Tajawal",
+      "npm": "@expo-google-fonts/tajawal"
+    },
+    "IBM Plex Sans Arabic": {
+      "script": "arabic",
+      "role": "technical / UI / telemetry — label pairs, stat rows, device screens",
+      "pairs": "IBM Plex Mono",
+      "tags": [
+        "technical",
+        "ui",
+        "superfamily"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "IBMPlexSansArabic_400Regular.ttf"
+        },
+        {
+          "weight": 600,
+          "style": "normal",
+          "file": "IBMPlexSansArabic_600SemiBold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "IBM Plex Sans Arabic/OFL.txt",
+      "source": "https://fonts.google.com/specimen/IBM+Plex+Sans+Arabic",
+      "npm": "@expo-google-fonts/ibm-plex-sans-arabic"
+    },
+    "Almarai": {
+      "script": "arabic",
+      "role": "small captions and long body where legibility beats personality",
+      "pairs": "Inter",
+      "tags": [
+        "legible",
+        "caption",
+        "body"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Almarai_400Regular.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Almarai_700Bold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Almarai/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Almarai",
+      "npm": "@expo-google-fonts/almarai"
+    },
+    "Alexandria": {
+      "script": "arabic",
+      "role": "big display Arabic (hook word, key number) — wide, modern, high impact",
+      "pairs": "Space Grotesk",
+      "tags": [
+        "display",
+        "impact",
+        "hook"
+      ],
+      "weights": [
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Alexandria_700Bold.ttf"
+        },
+        {
+          "weight": 800,
+          "style": "normal",
+          "file": "Alexandria_800ExtraBold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Alexandria/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Alexandria",
+      "npm": "@expo-google-fonts/alexandria"
+    },
+    "Kufam": {
+      "script": "arabic",
+      "role": "kufic-geometric statement — chapter cards, poster-like frames, big numbers",
+      "pairs": "Anton",
+      "tags": [
+        "kufic",
+        "display",
+        "poster"
+      ],
+      "weights": [
+        {
+          "weight": 500,
+          "style": "normal",
+          "file": "Kufam_500Medium.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Kufam_700Bold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Kufam/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Kufam",
+      "npm": "@expo-google-fonts/kufam"
+    },
+    "El Messiri": {
+      "script": "arabic",
+      "role": "Egyptian-flavoured modern display — titles with character, warm not corporate",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "egyptian",
+        "warm"
+      ],
+      "weights": [
+        {
+          "weight": 500,
+          "style": "normal",
+          "file": "ElMessiri_500Medium.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "ElMessiri_700Bold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "El Messiri/OFL.txt",
+      "source": "https://fonts.google.com/specimen/El+Messiri",
+      "npm": "@expo-google-fonts/el-messiri"
+    },
+    "Amiri": {
+      "script": "arabic",
+      "role": "naskh serif — quotes, citations, a serious editorial beat",
+      "pairs": "Instrument Serif",
+      "tags": [
+        "serif",
+        "naskh",
+        "quote"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Amiri_400Regular.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "Amiri_700Bold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Amiri/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Amiri",
+      "npm": "@expo-google-fonts/amiri"
+    },
+    "Inter": {
+      "script": "latin",
+      "role": "Latin default — UI, data, mixed Arabic+Latin lines",
+      "pairs": "Cairo",
+      "tags": [
+        "brand",
+        "sans",
+        "ui",
+        "default"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Inter_400Regular.ttf"
+        },
+        {
+          "weight": 600,
+          "style": "normal",
+          "file": "Inter_600SemiBold.ttf"
+        },
+        {
+          "weight": 800,
+          "style": "normal",
+          "file": "Inter_800ExtraBold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Inter/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Inter",
+      "npm": "@expo-google-fonts/inter"
+    },
+    "Space Grotesk": {
+      "script": "latin",
+      "role": "technical display — product names, headers with an engineered edge",
+      "pairs": "Alexandria",
+      "tags": [
+        "display",
+        "technical",
+        "geometric"
+      ],
+      "weights": [
+        {
+          "weight": 500,
+          "style": "normal",
+          "file": "SpaceGrotesk_500Medium.ttf"
+        },
+        {
+          "weight": 700,
+          "style": "normal",
+          "file": "SpaceGrotesk_700Bold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Space Grotesk/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Space+Grotesk",
+      "npm": "@expo-google-fonts/space-grotesk"
+    },
+    "IBM Plex Sans": {
+      "script": "latin",
+      "role": "Latin half of the Plex superfamily — pairs 1:1 with IBM Plex Sans Arabic",
+      "pairs": "IBM Plex Sans Arabic",
+      "tags": [
+        "technical",
+        "superfamily",
+        "ui"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "IBMPlexSans_400Regular.ttf"
+        },
+        {
+          "weight": 600,
+          "style": "normal",
+          "file": "IBMPlexSans_600SemiBold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "IBM Plex Sans/OFL.txt",
+      "source": "https://fonts.google.com/specimen/IBM+Plex+Sans",
+      "npm": "@expo-google-fonts/ibm-plex-sans"
+    },
+    "IBM Plex Mono": {
+      "script": "latin",
+      "role": "code, specs, numbers that must line up — terminal / telemetry looks",
+      "pairs": "IBM Plex Sans Arabic",
+      "tags": [
+        "mono",
+        "code",
+        "telemetry"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "IBMPlexMono_400Regular.ttf"
+        },
+        {
+          "weight": 600,
+          "style": "normal",
+          "file": "IBMPlexMono_600SemiBold.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "IBM Plex Mono/OFL.txt",
+      "source": "https://fonts.google.com/specimen/IBM+Plex+Mono",
+      "npm": "@expo-google-fonts/ibm-plex-mono"
+    },
+    "Anton": {
+      "script": "latin",
+      "role": "one heavy display weight — hooks, single big numbers, CTA",
+      "pairs": "Reem Kufi",
+      "tags": [
+        "display",
+        "heavy",
+        "hook"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "Anton_400Regular.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Anton/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Anton",
+      "npm": "@expo-google-fonts/anton"
+    },
+    "Instrument Serif": {
+      "script": "latin",
+      "role": "editorial serif — quotes and pull-outs against the sans default",
+      "pairs": "Amiri",
+      "tags": [
+        "serif",
+        "editorial",
+        "quote"
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "style": "normal",
+          "file": "InstrumentSerif_400Regular.ttf"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Instrument Serif/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Instrument+Serif",
+      "npm": "@expo-google-fonts/instrument-serif"
+    }
+  }
+}
