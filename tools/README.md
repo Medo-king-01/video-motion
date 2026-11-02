@@ -24,6 +24,7 @@
 | `whisper_fetch.py` | تنزيل موديل Whisper-small CT2 int8 من npm (بديل أوفلاين لـHF/Azure المحجوبين) + تحقق SHA-256 | `python3 tools/whisper_fetch.py --out .cache/whisper-small-ct2-int8` |
 | `whisper_align.py` | تفريغ محلي بـfaster-whisper → كلمات بتوقيتات **مقاسة** من الـWAV (JSON) | `python3 tools/whisper_align.py vo.wav --model .cache/whisper-small-ct2-int8 --out cache/words.json --no-vad` |
 | `caption_align.py` | محاذاة الكلمات على السكريبت (DP) + سناب للسكتات + hold لحد الكلمة الجاية + إخراج كابشن و`data.js` | `python3 tools/caption_align.py --scenes plan/script-scenes.json --vo vo.wav --model .cache/whisper-small-ct2-int8 --out-dir src` |
+| `text_animations_import.py` | يستورد ٥١ حركة نص من مرجع ريلز ويحوّلها مسارات حركة رقمية (K/P/R) + مولّد أنماط كابشن، معاد تلوينها للبراند ومن غير صناديق | `python3 tools/text_animations_import.py --html reels_text_animations.html` |
 | `medo-motion/scripts/analyze_ref.py` | تحليل مرجع محليًا: شيتات مؤرخة، حركة، palette تقريبية، إيقاع قطع وصوت؛ لا ينقل ألوان المرجع للهوية | `python3 medo-motion/scripts/analyze_ref.py ref.mp4 --dur 15 --out cache/ref` |
 | `transitions_sheet.py` | شيت مراجعة + كليب معاينة لكل انتقال (بصوته) |
 | `toolkit/` | اعتماديات Node (`playwright-core`, `@sparticuz/chromium`, خطوط OFL) | `cd tools/toolkit && npm install` |

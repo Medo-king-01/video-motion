@@ -1,0 +1,5972 @@
+{
+  "_doc": "Reels text-animation techniques re-implemented as frame-deterministic studio motion tracks. Source: a user-provided reference gallery (no third-party code shipped). Plays in K/P/R via lib/motion.js / motion.py. Units: x/y/blur in em (px converted at REF_PX=40), rotate deg, scale x, opacity 0..1. colorRole is a semantic brand token resolved by the renderer (never a hex). captionSafe=false means boxed/highlight/gradient — use for cards/CTAs, not unboxed captions.",
+  "refPx": 40.0,
+  "families": [
+    "reels",
+    "trending",
+    "kinetic",
+    "cyber",
+    "cinematic"
+  ],
+  "animations": [
+    {
+      "id": "fadetilt",
+      "name": "Fade Rise Tilt (Word by Word)",
+      "nameAr": "تلاشي صاعد مائل",
+      "family": "reels",
+      "split": "word",
+      "stagger": 0.25,
+      "duration": 3.0,
+      "ease": [
+        0.22,
+        1.0,
+        0.36,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "transform": "translateY(.7em) rotate(6deg)"
+        },
+        "22.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "82.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "transform": "translateY(-.3em) rotate(-2deg)"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.7
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": -0.3,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": 6.0
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": -2.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.66,
+            "v": 1.0
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.7
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.rotate": [
+            {
+              "t": 0.0,
+              "v": 6.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fadetiltalt",
+      "name": "Fade Rise Tilt Alternate",
+      "nameAr": "ميلان متبادل",
+      "family": "reels",
+      "split": "word",
+      "stagger": 0.25,
+      "duration": 3.0,
+      "ease": [
+        0.22,
+        1.0,
+        0.36,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "transform": "translateY(.7em) rotate(6deg)"
+        },
+        "22.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "82.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "transform": "translateY(-.3em) rotate(-2deg)"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.7
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": -0.3,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": 6.0
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": -2.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.66,
+            "v": 1.0
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.7
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.rotate": [
+            {
+              "t": 0.0,
+              "v": 6.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fadetiltblur",
+      "name": "Fade Rise Tilt + Blur",
+      "nameAr": "تلاشي مع بلور",
+      "family": "reels",
+      "split": "word",
+      "stagger": 0.25,
+      "duration": 3.0,
+      "ease": [
+        0.22,
+        1.0,
+        0.36,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "transform": "translateY(.6em) rotate(4deg)",
+          "filter": "blur(8px)"
+        },
+        "22.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)",
+          "filter": "blur(0)"
+        },
+        "82.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)",
+          "filter": "blur(0)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "transform": "translateY(-.3em) rotate(-2deg)",
+          "filter": "blur(6px)"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.6
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": -0.3,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": 4.0
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": -2.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.blur": [
+          {
+            "t": 0.0,
+            "v": 0.2
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 0.15,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.66,
+            "v": 1.0
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.6
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.rotate": [
+            {
+              "t": 0.0,
+              "v": 4.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.blur": [
+            {
+              "t": 0.0,
+              "v": 0.2
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "softfade",
+      "name": "Soft Word Fade",
+      "nameAr": "تلاشي هادي",
+      "family": "reels",
+      "split": "word",
+      "stagger": 0.35,
+      "duration": 3.6,
+      "ease": [
+        0.22,
+        1.0,
+        0.36,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "transform": "translateY(.2em)"
+        },
+        "22.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "82.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "transform": "translateY(-.1em)"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.792,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.952,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.6,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.2
+          },
+          {
+            "t": 0.792,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.952,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.6,
+            "v": -0.1,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.792,
+            "v": 0.0
+          },
+          {
+            "t": 2.952,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.792,
+            "v": 1.0
+          },
+          {
+            "t": 2.952,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.2
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fadedrop",
+      "name": "Fade Drop Tilt (Top Down)",
+      "nameAr": "تلاشي نازل مائل",
+      "family": "reels",
+      "split": "word",
+      "stagger": 0.25,
+      "duration": 3.0,
+      "ease": [
+        0.22,
+        1.0,
+        0.36,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "transform": "translateY(-.7em) rotate(-5deg)"
+        },
+        "22.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "82.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "transform": "translateY(.3em) rotate(2deg)"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": -0.7
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 0.3,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": -5.0
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 2.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.66,
+            "v": 1.0
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": -0.7
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.rotate": [
+            {
+              "t": 0.0,
+              "v": -5.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fadetiltscale",
+      "name": "Fade Tilt + Accent Last Word",
+      "nameAr": "تلاشي مع كلمة مميزة",
+      "family": "reels",
+      "split": "word",
+      "stagger": 0.25,
+      "duration": 3.0,
+      "ease": [
+        0.22,
+        1.0,
+        0.36,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "red",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "transform": "translateY(.7em) rotate(5deg) scale(.85)"
+        },
+        "22.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "82.0": {
+          "opacity": "1",
+          "transform": "translateY(0) rotate(0) scale(1)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "transform": "translateY(-.3em) rotate(-2deg) scale(.9)"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.7
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": -0.3,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": 5.0
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": -2.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.85
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.46,
+            "v": 1.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 3.0,
+            "v": 0.9,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.7
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.rotate": [
+            {
+              "t": 0.0,
+              "v": 5.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ],
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 0.85
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "capstroke",
+      "name": "Pop Caption + Stroke",
+      "nameAr": "ترجمة تيك توك",
+      "family": "reels",
+      "split": "word",
+      "stagger": 0.22,
+      "duration": 2.4,
+      "ease": "backOut",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "salmon",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(.3) translateY(20px)",
+          "opacity": "0"
+        },
+        "10.0": {
+          "transform": "scale(1) translateY(0)",
+          "opacity": "1"
+        },
+        "82.0": {
+          "transform": "scale(1) translateY(0)",
+          "opacity": "1"
+        },
+        "94.0": {
+          "transform": "scale(.9)",
+          "opacity": "0"
+        },
+        "100.0": {
+          "transform": "scale(.9)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.3
+          },
+          {
+            "t": 0.24,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.968,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.256,
+            "v": 0.9,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.4,
+            "v": 0.9,
+            "ease": "backOut"
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.5
+          },
+          {
+            "t": 0.24,
+            "v": 0.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.968,
+            "v": 0.0,
+            "ease": "backOut"
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.24,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.968,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.256,
+            "v": 0.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.4,
+            "v": 0.0,
+            "ease": "backOut"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.24,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 0.3
+            },
+            {
+              "t": 0.24,
+              "v": 1.0,
+              "ease": "backOut"
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.5
+            },
+            {
+              "t": 0.24,
+              "v": 0.0,
+              "ease": "backOut"
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.24,
+              "v": 1.0,
+              "ease": "backOut"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "zoompunch",
+      "name": "Zoom Punch Hook",
+      "nameAr": "هوك أول ثانية",
+      "family": "reels",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.6,
+      "ease": [
+        0.2,
+        0.8,
+        0.2,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(2)",
+          "filter": "blur(12px)",
+          "opacity": "0"
+        },
+        "18.0": {
+          "transform": "scale(1)",
+          "filter": "blur(0)",
+          "opacity": "1"
+        },
+        "24.0": {
+          "transform": "scale(1.06)"
+        },
+        "30.0": {
+          "transform": "scale(1)",
+          "opacity": "1"
+        },
+        "80.0": {
+          "transform": "scale(1)",
+          "opacity": "1"
+        },
+        "100.0": {
+          "transform": "scale(1)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 2.0
+          },
+          {
+            "t": 0.288,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 0.384,
+            "v": 1.06,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 0.48,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 1.28,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 1.6,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          }
+        ],
+        "word.blur": [
+          {
+            "t": 0.0,
+            "v": 0.3
+          },
+          {
+            "t": 0.288,
+            "v": 0.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.288,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 0.48,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 1.28,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 1.6,
+            "v": 0.0,
+            "ease": [
+              0.2,
+              0.8,
+              0.2,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.288,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 2.0
+            },
+            {
+              "t": 0.288,
+              "v": 1.0,
+              "ease": [
+                0.2,
+                0.8,
+                0.2,
+                1.0
+              ]
+            }
+          ],
+          "word.blur": [
+            {
+              "t": 0.0,
+              "v": 0.3
+            },
+            {
+              "t": 0.288,
+              "v": 0.0,
+              "ease": [
+                0.2,
+                0.8,
+                0.2,
+                1.0
+              ]
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.288,
+              "v": 1.0,
+              "ease": [
+                0.2,
+                0.8,
+                0.2,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "impact",
+      "name": "Impact Shake",
+      "nameAr": "تأكيد قوي",
+      "family": "reels",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.6,
+      "ease": "linear",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "red",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(2.5)",
+          "opacity": "0"
+        },
+        "12.0": {
+          "transform": "scale(1)",
+          "opacity": "1"
+        },
+        "15.0": {
+          "transform": "translate(-8px, 4px) rotate(-1deg)"
+        },
+        "18.0": {
+          "transform": "translate(8px, -4px) rotate(1deg)"
+        },
+        "21.0": {
+          "transform": "translate(-5px, 2px)"
+        },
+        "24.0": {
+          "transform": "translate(0)",
+          "opacity": "1"
+        },
+        "80.0": {
+          "transform": "translate(0)",
+          "opacity": "1"
+        },
+        "100.0": {
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 2.5
+          },
+          {
+            "t": 0.192,
+            "v": 1.0,
+            "ease": "linear"
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.192,
+            "v": 1.0,
+            "ease": "linear"
+          },
+          {
+            "t": 0.384,
+            "v": 1.0,
+            "ease": "linear"
+          },
+          {
+            "t": 1.28,
+            "v": 1.0,
+            "ease": "linear"
+          },
+          {
+            "t": 1.6,
+            "v": 0.0,
+            "ease": "linear"
+          }
+        ],
+        "word.x": [
+          {
+            "t": 0.24,
+            "v": -0.2
+          },
+          {
+            "t": 0.288,
+            "v": 0.2,
+            "ease": "linear"
+          },
+          {
+            "t": 0.336,
+            "v": -0.125,
+            "ease": "linear"
+          },
+          {
+            "t": 0.384,
+            "v": 0.0,
+            "ease": "linear"
+          },
+          {
+            "t": 1.28,
+            "v": 0.0,
+            "ease": "linear"
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.24,
+            "v": 0.1
+          },
+          {
+            "t": 0.288,
+            "v": -0.1,
+            "ease": "linear"
+          },
+          {
+            "t": 0.336,
+            "v": 0.05,
+            "ease": "linear"
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.24,
+            "v": -1.0
+          },
+          {
+            "t": 0.288,
+            "v": 1.0,
+            "ease": "linear"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.2,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 2.5
+            },
+            {
+              "t": 0.2,
+              "v": 1.0,
+              "ease": "linear"
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.2,
+              "v": 1.0,
+              "ease": "linear"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ctapill",
+      "name": "Follow CTA Pill",
+      "nameAr": "اطلب متابعة",
+      "family": "reels",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.6,
+      "ease": "ease",
+      "captionSafe": false,
+      "boxed": true,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "red",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(.92)",
+          "box-shadow": "0 0 0 0 rgba(239,68,68,.7)"
+        },
+        "50.0": {
+          "transform": "scale(1.05)",
+          "box-shadow": "0 0 0 18px rgba(239,68,68,0)"
+        },
+        "100.0": {
+          "transform": "scale(.92)",
+          "box-shadow": "0 0 0 0 rgba(239,68,68,0)"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.92
+          },
+          {
+            "t": 0.8,
+            "v": 1.05,
+            "ease": "ease"
+          },
+          {
+            "t": 1.6,
+            "v": 0.92,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [
+        "box-shadow"
+      ]
+    },
+    {
+      "id": "sticker",
+      "name": "Sticker Label",
+      "nameAr": "ملصق مائل",
+      "family": "reels",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.0,
+      "ease": "backOut",
+      "captionSafe": false,
+      "boxed": true,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "ink",
+      "keyframes": {
+        "0.0": {
+          "transform": "rotate(-12deg) scale(0)",
+          "opacity": "0"
+        },
+        "15.0": {
+          "transform": "rotate(-4deg) scale(1.1)",
+          "opacity": "1"
+        },
+        "22.0": {
+          "transform": "rotate(-4deg) scale(1)"
+        },
+        "50.0": {
+          "transform": "rotate(-4deg) scale(1)"
+        },
+        "60.0": {
+          "transform": "rotate(-2deg) scale(1.03)"
+        },
+        "80.0": {
+          "transform": "rotate(-2deg) scale(1.03)"
+        },
+        "92.0": {
+          "transform": "rotate(-4deg) scale(0)",
+          "opacity": "0"
+        },
+        "100.0": {
+          "transform": "rotate(-4deg) scale(0)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": -12.0
+          },
+          {
+            "t": 0.3,
+            "v": -4.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 0.44,
+            "v": -4.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.0,
+            "v": -4.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.2,
+            "v": -2.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.6,
+            "v": -2.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.84,
+            "v": -4.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.0,
+            "v": -4.0,
+            "ease": "backOut"
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.3,
+            "v": 1.1,
+            "ease": "backOut"
+          },
+          {
+            "t": 0.44,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.0,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.2,
+            "v": 1.03,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.6,
+            "v": 1.03,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.84,
+            "v": 0.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.0,
+            "v": 0.0,
+            "ease": "backOut"
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.3,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.84,
+            "v": 0.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.0,
+            "v": 0.0,
+            "ease": "backOut"
+          }
+        ]
+      },
+      "cssOnly": []
+    },
+    {
+      "id": "lowerthird",
+      "name": "Lower Third Bar",
+      "nameAr": "شريط اسمعنوان",
+      "family": "reels",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.4,
+      "ease": [
+        0.77,
+        0.0,
+        0.18,
+        1.0
+      ],
+      "captionSafe": false,
+      "boxed": true,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "red",
+      "keyframes": {
+        "0.0": {
+          "transform": "translateX(120%)",
+          "opacity": "0"
+        },
+        "18.0": {
+          "transform": "translateX(0)",
+          "opacity": "1"
+        },
+        "78.0": {
+          "transform": "translateX(0)",
+          "opacity": "1"
+        },
+        "100.0": {
+          "transform": "translateX(120%)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.x": [
+          {
+            "t": 0.0,
+            "v": 1.2
+          },
+          {
+            "t": 0.432,
+            "v": 0.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.18,
+              1.0
+            ]
+          },
+          {
+            "t": 1.872,
+            "v": 0.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.18,
+              1.0
+            ]
+          },
+          {
+            "t": 2.4,
+            "v": 1.2,
+            "ease": [
+              0.77,
+              0.0,
+              0.18,
+              1.0
+            ]
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.432,
+            "v": 1.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.18,
+              1.0
+            ]
+          },
+          {
+            "t": 1.872,
+            "v": 1.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.18,
+              1.0
+            ]
+          },
+          {
+            "t": 2.4,
+            "v": 0.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.18,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": []
+    },
+    {
+      "id": "riseword",
+      "name": "Word Rise Mask",
+      "nameAr": "صعود كلمة كلمة",
+      "family": "reels",
+      "split": "word",
+      "stagger": 0.15,
+      "duration": 2.4,
+      "ease": [
+        0.22,
+        1.0,
+        0.36,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "translateY(110%)"
+        },
+        "20.0": {
+          "transform": "translateY(0)"
+        },
+        "80.0": {
+          "transform": "translateY(0)"
+        },
+        "100.0": {
+          "transform": "translateY(-110%)"
+        }
+      },
+      "tracks": {
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 1.1
+          },
+          {
+            "t": 0.48,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 1.92,
+            "v": 0.0,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          },
+          {
+            "t": 2.4,
+            "v": -1.1,
+            "ease": [
+              0.22,
+              1.0,
+              0.36,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 1.1
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.22,
+                1.0,
+                0.36,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "hookzoom",
+      "name": "Slow Hook Zoom",
+      "nameAr": "افتتاحية سينمائية",
+      "family": "reels",
+      "split": "word",
+      "stagger": null,
+      "duration": 3.0,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(.85)",
+          "opacity": "0",
+          "filter": "blur(6px)"
+        },
+        "15.0": {
+          "opacity": "1",
+          "filter": "blur(0)"
+        },
+        "85.0": {
+          "transform": "scale(1.12)",
+          "opacity": "1"
+        },
+        "100.0": {
+          "transform": "scale(1.15)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.85
+          },
+          {
+            "t": 2.55,
+            "v": 1.12,
+            "ease": "ease"
+          },
+          {
+            "t": 3.0,
+            "v": 1.15,
+            "ease": "ease"
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.45,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.55,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 3.0,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ],
+        "word.blur": [
+          {
+            "t": 0.0,
+            "v": 0.15
+          },
+          {
+            "t": 0.45,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "ease"
+            }
+          ],
+          "word.blur": [
+            {
+              "t": 0.0,
+              "v": 0.15
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "beatpulse",
+      "name": "Beat Pulse (Music Sync)",
+      "nameAr": "على إيقاع الموسيقى",
+      "family": "reels",
+      "split": "word",
+      "stagger": null,
+      "duration": 0.6,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "salmon",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(1)"
+        },
+        "15.0": {
+          "transform": "scale(1.18)",
+          "color": "#facc15"
+        },
+        "40.0": {
+          "transform": "scale(1)"
+        },
+        "100.0": {
+          "transform": "scale(1)"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.09,
+            "v": 1.18,
+            "ease": "ease"
+          },
+          {
+            "t": 0.24,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 0.6,
+            "v": 1.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [
+        "color"
+      ],
+      "entrance": {
+        "enter": 0.2,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 1.0
+            },
+            {
+              "t": 0.2,
+              "v": 1.18,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ticker",
+      "name": "News Ticker Strip",
+      "nameAr": "شريط أخبار",
+      "family": "reels",
+      "split": "word",
+      "stagger": null,
+      "duration": 6.0,
+      "ease": "linear",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "red",
+      "keyframes": {
+        "100.0": {
+          "transform": "translateX(-100%)"
+        }
+      },
+      "tracks": {
+        "word.x": [
+          {
+            "t": 6.0,
+            "v": -1.0
+          }
+        ]
+      },
+      "cssOnly": []
+    },
+    {
+      "id": "hormozi",
+      "name": "Alex Hormozi Style",
+      "nameAr": "الأكثر تداولاً",
+      "family": "trending",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.2,
+      "ease": [
+        0.175,
+        0.885,
+        0.32,
+        1.275
+      ],
+      "captionSafe": false,
+      "boxed": true,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "salmon",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(0.6) rotate(-4deg)",
+          "opacity": "0"
+        },
+        "20.0": {
+          "transform": "scale(1.05) rotate(2deg)",
+          "opacity": "1"
+        },
+        "30.0": {
+          "transform": "scale(1) rotate(-1deg)"
+        },
+        "75.0": {
+          "transform": "scale(1) rotate(-1deg)"
+        },
+        "80.0": {
+          "transform": "scale(1.05) rotate(2deg)",
+          "opacity": "1"
+        },
+        "95.0": {
+          "transform": "scale(0.7) rotate(5deg)",
+          "opacity": "0"
+        },
+        "100.0": {
+          "transform": "scale(0.7) rotate(5deg)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.6
+          },
+          {
+            "t": 0.24,
+            "v": 1.05,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 0.36,
+            "v": 1.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 0.9,
+            "v": 1.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 0.96,
+            "v": 1.05,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 1.14,
+            "v": 0.7,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 1.2,
+            "v": 0.7,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": -4.0
+          },
+          {
+            "t": 0.24,
+            "v": 2.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 0.36,
+            "v": -1.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 0.9,
+            "v": -1.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 0.96,
+            "v": 2.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 1.14,
+            "v": 5.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 1.2,
+            "v": 5.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.24,
+            "v": 1.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 0.96,
+            "v": 1.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 1.14,
+            "v": 0.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          },
+          {
+            "t": 1.2,
+            "v": 0.0,
+            "ease": [
+              0.175,
+              0.885,
+              0.32,
+              1.275
+            ]
+          }
+        ]
+      },
+      "cssOnly": []
+    },
+    {
+      "id": "karaoke",
+      "name": "Karaoke Word Highlight",
+      "nameAr": "شروحات وفيديوهات",
+      "family": "trending",
+      "split": "word",
+      "stagger": 0.25,
+      "duration": 2.0,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "color": "#64748b",
+          "transform": "scale(1)"
+        },
+        "33.0": {
+          "color": "#38bdf8",
+          "text-shadow": "0 0 12px #38bdf8",
+          "transform": "scale(1.15)"
+        },
+        "66.0": {
+          "color": "#f43f5e",
+          "text-shadow": "0 0 12px #f43f5e",
+          "transform": "scale(1.15)"
+        },
+        "100.0": {
+          "color": "#64748b",
+          "transform": "scale(1)"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.66,
+            "v": 1.15,
+            "ease": "ease"
+          },
+          {
+            "t": 1.32,
+            "v": 1.15,
+            "ease": "ease"
+          },
+          {
+            "t": 2.0,
+            "v": 1.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [
+        "color",
+        "text-shadow"
+      ],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 1.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.15,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "glitch",
+      "name": "Cyberpunk Glitch",
+      "nameAr": "أسلوب تقني",
+      "family": "cyber",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.0,
+      "ease": "linear",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "clip": "rect(20px, 9999px, 15px, 0)"
+        },
+        "40.0": {
+          "clip": "rect(10px, 9999px, 40px, 0)"
+        },
+        "80.0": {
+          "clip": "rect(35px, 9999px, 85px, 0)"
+        },
+        "100.0": {
+          "clip": "rect(60px, 9999px, 25px, 0)"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "clip"
+      ]
+    },
+    {
+      "id": "liquid",
+      "name": "Liquid Wave Fill",
+      "nameAr": "سلس وجذاب",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.5,
+      "ease": "ease",
+      "captionSafe": false,
+      "boxed": false,
+      "gradientText": true,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "background-position": "0% 0%",
+          "filter": "drop-shadow(0 0 2px rgba(56, 189, 248, 0.2))"
+        },
+        "100.0": {
+          "background-position": "0% 100%",
+          "filter": "drop-shadow(0 0 15px rgba(56, 189, 248, 0.8))"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "background-position",
+        "filter"
+      ]
+    },
+    {
+      "id": "elastic",
+      "name": "Elastic Pop & Bounce",
+      "nameAr": "حركي مرتد",
+      "family": "kinetic",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.6,
+      "ease": "backInOut",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(0)",
+          "opacity": "0"
+        },
+        "50.0": {
+          "transform": "scale(1.25)",
+          "opacity": "1"
+        },
+        "70.0": {
+          "transform": "scale(0.95)"
+        },
+        "85.0": {
+          "transform": "scale(1)",
+          "opacity": "1"
+        },
+        "95.0": {
+          "transform": "scale(1)",
+          "opacity": "1"
+        },
+        "100.0": {
+          "transform": "scale(0)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.8,
+            "v": 1.25,
+            "ease": "backInOut"
+          },
+          {
+            "t": 1.12,
+            "v": 0.95,
+            "ease": "backInOut"
+          },
+          {
+            "t": 1.36,
+            "v": 1.0,
+            "ease": "backInOut"
+          },
+          {
+            "t": 1.52,
+            "v": 1.0,
+            "ease": "backInOut"
+          },
+          {
+            "t": 1.6,
+            "v": 0.0,
+            "ease": "backInOut"
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.8,
+            "v": 1.0,
+            "ease": "backInOut"
+          },
+          {
+            "t": 1.36,
+            "v": 1.0,
+            "ease": "backInOut"
+          },
+          {
+            "t": 1.52,
+            "v": 1.0,
+            "ease": "backInOut"
+          },
+          {
+            "t": 1.6,
+            "v": 0.0,
+            "ease": "backInOut"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.25,
+              "ease": "backInOut"
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "backInOut"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "strobe",
+      "name": "Strobe Flash Impact",
+      "nameAr": "إيقاع سريع",
+      "family": "kinetic",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.0,
+      "ease": "linear",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "red",
+      "keyframes": {
+        "0.0": {
+          "opacity": "1",
+          "color": "#ffffff",
+          "text-shadow": "0 0 20px #ffffff"
+        },
+        "50.0": {
+          "opacity": "0.1",
+          "color": "#ef4444",
+          "text-shadow": "none"
+        },
+        "100.0": {
+          "opacity": "1",
+          "color": "#ffffff",
+          "text-shadow": "0 0 20px #ffffff"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.5,
+            "v": 0.1,
+            "ease": "linear"
+          },
+          {
+            "t": 1.0,
+            "v": 1.0,
+            "ease": "linear"
+          }
+        ]
+      },
+      "cssOnly": [
+        "color",
+        "text-shadow"
+      ],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 1.0
+            },
+            {
+              "t": 0.225,
+              "v": 0.1,
+              "ease": "linear"
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "linear"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "neon",
+      "name": "Neon Glow Pulse",
+      "nameAr": "إضاءة نيون",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.5,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "text-shadow": "0 0 5px #fff, 0 0 10px #8b5cf6, 0 0 20px #8b5cf6"
+        },
+        "100.0": {
+          "text-shadow": "0 0 10px #fff, 0 0 20px #ec4899, 0 0 40px #ec4899, 0 0 60px #ec4899"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "text-shadow"
+      ]
+    },
+    {
+      "id": "typewriter",
+      "name": "Typewriter Classic",
+      "nameAr": "كلاسيكي ورائج",
+      "family": "trending",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.5,
+      "ease": "linear",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "width": "0"
+        },
+        "10.0": {
+          "width": "0"
+        },
+        "70.0": {
+          "width": "100%"
+        },
+        "90.0": {
+          "width": "100%"
+        },
+        "100.0": {
+          "width": "0"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "width"
+      ]
+    },
+    {
+      "id": "wavy",
+      "name": "Wavy Bounce",
+      "nameAr": "مرح وحيوي",
+      "family": "kinetic",
+      "split": "char",
+      "stagger": 0.05,
+      "duration": 1.2,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "translateY(0)"
+        },
+        "50.0": {
+          "transform": "translateY(-16px) scale(1.15)",
+          "color": "#38bdf8"
+        },
+        "100.0": {
+          "transform": "translateY(0)"
+        }
+      },
+      "tracks": {
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.6,
+            "v": -0.4,
+            "ease": "ease"
+          },
+          {
+            "t": 1.2,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.6,
+            "v": 1.15
+          }
+        ]
+      },
+      "cssOnly": [
+        "color"
+      ],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": -0.4,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "blurfade",
+      "name": "Cinematic Blur & Fade",
+      "nameAr": "سينمائي فاخر",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.2,
+      "ease": [
+        0.25,
+        1.0,
+        0.5,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "filter": "blur(16px)",
+          "opacity": "0",
+          "transform": "scale(1.3)"
+        },
+        "30.0": {
+          "filter": "blur(0)",
+          "opacity": "1",
+          "transform": "scale(1)"
+        },
+        "80.0": {
+          "filter": "blur(0)",
+          "opacity": "1",
+          "transform": "scale(1)"
+        },
+        "100.0": {
+          "filter": "blur(16px)",
+          "opacity": "0",
+          "transform": "scale(0.85)"
+        }
+      },
+      "tracks": {
+        "word.blur": [
+          {
+            "t": 0.0,
+            "v": 0.4
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 1.76,
+            "v": 0.0,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 2.2,
+            "v": 0.4,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 1.76,
+            "v": 1.0,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 2.2,
+            "v": 0.0,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 1.3
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 1.76,
+            "v": 1.0,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 2.2,
+            "v": 0.85,
+            "ease": [
+              0.25,
+              1.0,
+              0.5,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.blur": [
+            {
+              "t": 0.0,
+              "v": 0.4
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.25,
+                1.0,
+                0.5,
+                1.0
+              ]
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.25,
+                1.0,
+                0.5,
+                1.0
+              ]
+            }
+          ],
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 1.3
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.25,
+                1.0,
+                0.5,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "gradient",
+      "name": "Gradient Motion Shift",
+      "nameAr": "تدرج ملون",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 3.0,
+      "ease": "ease",
+      "captionSafe": false,
+      "boxed": false,
+      "gradientText": true,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "background-position": "0% 50%"
+        },
+        "50.0": {
+          "background-position": "100% 50%"
+        },
+        "100.0": {
+          "background-position": "0% 50%"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "background-position"
+      ]
+    },
+    {
+      "id": "rotate3d",
+      "name": "3D Flip Rotate",
+      "nameAr": "ثلاثي الأبعاد",
+      "family": "trending",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.5,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "transform": "rotateX(-90deg) translateZ(-30px)"
+        },
+        "25.0": {
+          "opacity": "1",
+          "transform": "rotateX(0deg) translateZ(0)"
+        },
+        "75.0": {
+          "opacity": "1",
+          "transform": "rotateX(0deg) translateZ(0)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "transform": "rotateX(90deg) translateZ(-30px)"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.625,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.875,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.5,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "marker",
+      "name": "Marker Highlight Sweep",
+      "nameAr": "تعليمي وشروحات",
+      "family": "trending",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.2,
+      "ease": "ease",
+      "captionSafe": false,
+      "boxed": true,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "salmon",
+      "keyframes": {
+        "0.0": {
+          "width": "0%"
+        },
+        "10.0": {
+          "width": "0%"
+        },
+        "40.0": {
+          "width": "108%"
+        },
+        "80.0": {
+          "width": "108%"
+        },
+        "95.0": {
+          "width": "0%"
+        },
+        "100.0": {
+          "width": "0%"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "width"
+      ]
+    },
+    {
+      "id": "shimmer",
+      "name": "Metallic Gold Shimmer",
+      "nameAr": "فخم ومعدني",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.2,
+      "ease": "linear",
+      "captionSafe": false,
+      "boxed": false,
+      "gradientText": true,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "background-position": "-100% 0"
+        },
+        "100.0": {
+          "background-position": "100% 0"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "background-position"
+      ]
+    },
+    {
+      "id": "slideup",
+      "name": "Slide Up Mask Reveal",
+      "nameAr": "سلس وواضح",
+      "family": "kinetic",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.8,
+      "ease": [
+        0.16,
+        1.0,
+        0.3,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "translateY(100%)",
+          "opacity": "0"
+        },
+        "25.0": {
+          "transform": "translateY(0)",
+          "opacity": "1"
+        },
+        "75.0": {
+          "transform": "translateY(0)",
+          "opacity": "1"
+        },
+        "100.0": {
+          "transform": "translateY(-100%)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.45,
+            "v": 0.0,
+            "ease": [
+              0.16,
+              1.0,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.35,
+            "v": 0.0,
+            "ease": [
+              0.16,
+              1.0,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": -1.0,
+            "ease": [
+              0.16,
+              1.0,
+              0.3,
+              1.0
+            ]
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.45,
+            "v": 1.0,
+            "ease": [
+              0.16,
+              1.0,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.35,
+            "v": 1.0,
+            "ease": [
+              0.16,
+              1.0,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": 0.0,
+            "ease": [
+              0.16,
+              1.0,
+              0.3,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 1.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.16,
+                1.0,
+                0.3,
+                1.0
+              ]
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.16,
+                1.0,
+                0.3,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "rubber",
+      "name": "Rubber Band Stretch",
+      "nameAr": "حركي مطاطي",
+      "family": "kinetic",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.6,
+      "ease": "easeOut",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale3d(1, 1, 1)"
+        },
+        "30.0": {
+          "transform": "scale3d(1.25, 0.75, 1)"
+        },
+        "40.0": {
+          "transform": "scale3d(0.75, 1.25, 1)"
+        },
+        "50.0": {
+          "transform": "scale3d(1.15, 0.85, 1)"
+        },
+        "65.0": {
+          "transform": "scale3d(0.95, 1.05, 1)"
+        },
+        "75.0": {
+          "transform": "scale3d(1.05, 0.95, 1)"
+        },
+        "100.0": {
+          "transform": "scale3d(1, 1, 1)"
+        }
+      },
+      "tracks": {},
+      "cssOnly": []
+    },
+    {
+      "id": "smoke",
+      "name": "Smoke Dissolve",
+      "nameAr": "مؤثر غامض",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.5,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "filter": "blur(20px)",
+          "transform": "translateY(20px) scale(0.8)"
+        },
+        "30.0": {
+          "opacity": "1",
+          "filter": "blur(0)",
+          "transform": "translateY(0) scale(1)"
+        },
+        "70.0": {
+          "opacity": "1",
+          "filter": "blur(0)",
+          "transform": "translateY(0) scale(1)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "filter": "blur(25px)",
+          "transform": "translateY(-30px) scale(1.4)"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.75,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.75,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.5,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ],
+        "word.blur": [
+          {
+            "t": 0.0,
+            "v": 0.5
+          },
+          {
+            "t": 0.75,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.75,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.5,
+            "v": 0.625,
+            "ease": "ease"
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.5
+          },
+          {
+            "t": 0.75,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.75,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.5,
+            "v": -0.75,
+            "ease": "ease"
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.8
+          },
+          {
+            "t": 0.75,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.75,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.5,
+            "v": 1.4,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "ease"
+            }
+          ],
+          "word.blur": [
+            {
+              "t": 0.0,
+              "v": 0.5
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "ease"
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.5
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "ease"
+            }
+          ],
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 0.8
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "spotlight",
+      "name": "Spotlight Sweep",
+      "nameAr": "كشاف سينمائي",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.5,
+      "ease": "ease",
+      "captionSafe": false,
+      "boxed": false,
+      "gradientText": true,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "background": "radial-gradient(circle 50px at 0% 50%, #38bdf8 0%, rgba(255,255,255,0.15) 100%)",
+          "-webkit-background-clip": "text"
+        },
+        "100.0": {
+          "background": "radial-gradient(circle 50px at 100% 50%, #ec4899 0%, rgba(255,255,255,0.15) 100%)",
+          "-webkit-background-clip": "text"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "-webkit-background-clip",
+        "background"
+      ]
+    },
+    {
+      "id": "comic",
+      "name": "Comic Pop & Border",
+      "nameAr": "كرتوني وجريء",
+      "family": "trending",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.3,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(1) rotate(-2deg)",
+          "text-shadow": "4px 4px 0px #000"
+        },
+        "100.0": {
+          "transform": "scale(1.12) rotate(3deg)",
+          "text-shadow": "7px 7px 0px #000, 0 0 15px #38bdf8"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 1.3,
+            "v": 1.12,
+            "ease": "ease"
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": -2.0
+          },
+          {
+            "t": 1.3,
+            "v": 3.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [
+        "text-shadow"
+      ],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 1.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.12,
+              "ease": "ease"
+            }
+          ],
+          "word.rotate": [
+            {
+              "t": 0.0,
+              "v": -2.0
+            },
+            {
+              "t": 0.45,
+              "v": 3.0,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "scatter",
+      "name": "Split Letter Scatter",
+      "nameAr": "تفكيك الأحرف",
+      "family": "cyber",
+      "split": "char",
+      "stagger": 0.04,
+      "duration": 2.2,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "opacity": "0",
+          "transform": "translate(var(--rx, -20px), var(--ry, -30px)) rotate(var(--rr, 45deg))"
+        },
+        "30.0": {
+          "opacity": "1",
+          "transform": "translate(0, 0) rotate(0deg)"
+        },
+        "75.0": {
+          "opacity": "1",
+          "transform": "translate(0, 0) rotate(0deg)"
+        },
+        "100.0": {
+          "opacity": "0",
+          "transform": "translate(var(--rx, 20px), var(--ry, 30px)) rotate(var(--rr, -45deg))"
+        }
+      },
+      "tracks": {
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.65,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.2,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ],
+        "word.x": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.65,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.2,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": -0.5
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.65,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.2,
+            "v": 0.5,
+            "ease": "ease"
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.66,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.65,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.2,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "ease"
+            }
+          ],
+          "word.x": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "ease"
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": -0.5
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "ease"
+            }
+          ],
+          "word.rotate": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "vhs",
+      "name": "VHS Vintage Jitter",
+      "nameAr": "أسلوب ريترو",
+      "family": "cyber",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.8,
+      "ease": "easeOut",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "skew(0deg)"
+        },
+        "20.0": {
+          "transform": "skew(2deg) translateY(1px)",
+          "filter": "hue-rotate(90deg)"
+        },
+        "40.0": {
+          "transform": "skew(-1deg)"
+        },
+        "60.0": {
+          "transform": "skew(3deg) translateX(-1px)",
+          "filter": "hue-rotate(180deg)"
+        },
+        "80.0": {
+          "transform": "skew(0deg)"
+        },
+        "100.0": {
+          "transform": "skew(0deg)"
+        }
+      },
+      "tracks": {
+        "word.y": [
+          {
+            "t": 0.36,
+            "v": 0.025
+          }
+        ],
+        "word.x": [
+          {
+            "t": 1.08,
+            "v": -0.025
+          }
+        ]
+      },
+      "cssOnly": [
+        "filter"
+      ]
+    },
+    {
+      "id": "heartbeat",
+      "name": "Heartbeat Pulse",
+      "nameAr": "عاطفي وتأكيدي",
+      "family": "trending",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.4,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(1)",
+          "filter": "drop-shadow(0 0 2px #f43f5e)"
+        },
+        "14.0": {
+          "transform": "scale(1.2)",
+          "filter": "drop-shadow(0 0 15px #f43f5e)"
+        },
+        "28.0": {
+          "transform": "scale(1)"
+        },
+        "42.0": {
+          "transform": "scale(1.15)",
+          "filter": "drop-shadow(0 0 10px #f43f5e)"
+        },
+        "70.0": {
+          "transform": "scale(1)"
+        },
+        "100.0": {
+          "transform": "scale(1)",
+          "filter": "drop-shadow(0 0 2px #f43f5e)"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.196,
+            "v": 1.2,
+            "ease": "ease"
+          },
+          {
+            "t": 0.392,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 0.588,
+            "v": 1.15,
+            "ease": "ease"
+          },
+          {
+            "t": 0.98,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 1.4,
+            "v": 1.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [
+        "filter"
+      ],
+      "entrance": {
+        "enter": 0.2,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 1.0
+            },
+            {
+              "t": 0.2,
+              "v": 1.2,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3dflip",
+      "name": "3D Perspective Flip",
+      "nameAr": "جديد 3D",
+      "family": "kinetic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.4,
+      "ease": [
+        0.4,
+        0.0,
+        0.2,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "rotateY(-90deg) rotateX(-20deg) scale(0.6)",
+          "opacity": "0",
+          "filter": "blur(6px)"
+        },
+        "30.0": {
+          "transform": "rotateY(0deg) rotateX(0deg) scale(1)",
+          "opacity": "1",
+          "filter": "blur(0)"
+        },
+        "75.0": {
+          "transform": "rotateY(0deg) rotateX(0deg) scale(1)",
+          "opacity": "1",
+          "filter": "blur(0)"
+        },
+        "100.0": {
+          "transform": "rotateY(90deg) rotateX(20deg) scale(0.6)",
+          "opacity": "0",
+          "filter": "blur(6px)"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.6
+          },
+          {
+            "t": 0.72,
+            "v": 1.0,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": 1.0,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 2.4,
+            "v": 0.6,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.72,
+            "v": 1.0,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": 1.0,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 2.4,
+            "v": 0.0,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          }
+        ],
+        "word.blur": [
+          {
+            "t": 0.0,
+            "v": 0.15
+          },
+          {
+            "t": 0.72,
+            "v": 0.0,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": 0.0,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          },
+          {
+            "t": 2.4,
+            "v": 0.15,
+            "ease": [
+              0.4,
+              0.0,
+              0.2,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 0.6
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.4,
+                0.0,
+                0.2,
+                1.0
+              ]
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.4,
+                0.0,
+                0.2,
+                1.0
+              ]
+            }
+          ],
+          "word.blur": [
+            {
+              "t": 0.0,
+              "v": 0.15
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.4,
+                0.0,
+                0.2,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "blurmorph",
+      "name": "Liquid Blur Morph",
+      "nameAr": "سائل وسينمائي",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.6,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "filter": "blur(15px) contrast(200%)",
+          "opacity": "0",
+          "transform": "scale(1.4) skewX(-15deg)"
+        },
+        "40.0": {
+          "filter": "blur(0px) contrast(100%)",
+          "opacity": "1",
+          "transform": "scale(1) skewX(0deg)"
+        },
+        "80.0": {
+          "filter": "blur(0px) contrast(100%)",
+          "opacity": "1",
+          "transform": "scale(1) skewX(0deg)"
+        },
+        "100.0": {
+          "filter": "blur(18px) contrast(250%)",
+          "opacity": "0",
+          "transform": "scale(0.7) skewX(15deg)"
+        }
+      },
+      "tracks": {
+        "word.blur": [
+          {
+            "t": 0.0,
+            "v": 0.375
+          },
+          {
+            "t": 1.04,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.08,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.6,
+            "v": 0.45,
+            "ease": "ease"
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 1.04,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.08,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.6,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 1.4
+          },
+          {
+            "t": 1.04,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.08,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.6,
+            "v": 0.7,
+            "ease": "ease"
+          }
+        ],
+        "word.skewX": [
+          {
+            "t": 0.0,
+            "v": -15.0
+          },
+          {
+            "t": 1.04,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.08,
+            "v": 0.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.6,
+            "v": 15.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.blur": [
+            {
+              "t": 0.0,
+              "v": 0.375
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "ease"
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "ease"
+            }
+          ],
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 1.4
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "ease"
+            }
+          ],
+          "word.skewX": [
+            {
+              "t": 0.0,
+              "v": -15.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "rgbsplit",
+      "name": "RGB Split Distortion",
+      "nameAr": "تشويه RGB",
+      "family": "cyber",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.8,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "translate(0, 0)"
+        },
+        "25.0": {
+          "transform": "translate(-2px, 1px) skewX(-2deg)"
+        },
+        "50.0": {
+          "transform": "translate(2px, -1px)"
+        },
+        "75.0": {
+          "transform": "translate(-1px, -1px) skewX(2deg)"
+        },
+        "100.0": {
+          "transform": "translate(0, 0)"
+        }
+      },
+      "tracks": {
+        "word.x": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.45,
+            "v": -0.05,
+            "ease": "ease"
+          },
+          {
+            "t": 0.9,
+            "v": 0.05,
+            "ease": "ease"
+          },
+          {
+            "t": 1.35,
+            "v": -0.025,
+            "ease": "ease"
+          },
+          {
+            "t": 1.8,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.45,
+            "v": 0.025,
+            "ease": "ease"
+          },
+          {
+            "t": 0.9,
+            "v": -0.025,
+            "ease": "ease"
+          },
+          {
+            "t": 1.35,
+            "v": -0.025,
+            "ease": "ease"
+          },
+          {
+            "t": 1.8,
+            "v": 0.0,
+            "ease": "ease"
+          }
+        ],
+        "word.skewX": [
+          {
+            "t": 0.45,
+            "v": -2.0
+          },
+          {
+            "t": 1.35,
+            "v": 2.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.x": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": -0.05,
+              "ease": "ease"
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.025,
+              "ease": "ease"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "vaporwave",
+      "name": "Retro Vaporwave Glow",
+      "nameAr": "نيون ريترو",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.0,
+      "ease": "ease",
+      "captionSafe": false,
+      "boxed": false,
+      "gradientText": true,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "filter": "drop-shadow(0 0 5px #ff71ce) drop-shadow(0 0 15px #01cdfe)",
+          "transform": "scale(1)"
+        },
+        "100.0": {
+          "filter": "drop-shadow(0 0 15px #05ffa1) drop-shadow(0 0 30px #b967ff)",
+          "transform": "scale(1.06) rotate(-1deg)"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 2.0,
+            "v": 1.06,
+            "ease": "ease"
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 2.0,
+            "v": -1.0
+          }
+        ]
+      },
+      "cssOnly": [
+        "filter"
+      ]
+    },
+    {
+      "id": "kineticstagger",
+      "name": "Kinetic Typography Stagger",
+      "nameAr": "حركي متتابع",
+      "family": "kinetic",
+      "split": "char",
+      "stagger": 0.05,
+      "duration": 1.8,
+      "ease": "backOut",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "translateY(100%) scale(0.5)",
+          "opacity": "0"
+        },
+        "30.0": {
+          "transform": "translateY(0) scale(1)",
+          "opacity": "1"
+        },
+        "80.0": {
+          "transform": "translateY(0) scale(1)",
+          "opacity": "1"
+        },
+        "100.0": {
+          "transform": "translateY(100%) scale(0.5)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.54,
+            "v": 0.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.44,
+            "v": 0.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.8,
+            "v": 1.0,
+            "ease": "backOut"
+          }
+        ],
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.5
+          },
+          {
+            "t": 0.54,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.44,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.8,
+            "v": 0.5,
+            "ease": "backOut"
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.54,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.44,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.8,
+            "v": 0.0,
+            "ease": "backOut"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 1.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": "backOut"
+            }
+          ],
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 0.5
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "backOut"
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": "backOut"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "maskslice",
+      "name": "Mask Reveal Slice",
+      "nameAr": "قناع قطعي",
+      "family": "trending",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.0,
+      "ease": [
+        0.77,
+        0.0,
+        0.175,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "translateY(120%) skewY(10deg)"
+        },
+        "30.0": {
+          "transform": "translateY(0%) skewY(0deg)"
+        },
+        "75.0": {
+          "transform": "translateY(0%) skewY(0deg)"
+        },
+        "100.0": {
+          "transform": "translateY(-120%) skewY(-10deg)"
+        }
+      },
+      "tracks": {
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 1.2
+          },
+          {
+            "t": 0.6,
+            "v": 0.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.175,
+              1.0
+            ]
+          },
+          {
+            "t": 1.5,
+            "v": 0.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.175,
+              1.0
+            ]
+          },
+          {
+            "t": 2.0,
+            "v": -1.2,
+            "ease": [
+              0.77,
+              0.0,
+              0.175,
+              1.0
+            ]
+          }
+        ],
+        "word.skewY": [
+          {
+            "t": 0.0,
+            "v": 10.0
+          },
+          {
+            "t": 0.6,
+            "v": 0.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.175,
+              1.0
+            ]
+          },
+          {
+            "t": 1.5,
+            "v": 0.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.175,
+              1.0
+            ]
+          },
+          {
+            "t": 2.0,
+            "v": -10.0,
+            "ease": [
+              0.77,
+              0.0,
+              0.175,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 1.2
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.77,
+                0.0,
+                0.175,
+                1.0
+              ]
+            }
+          ],
+          "word.skewY": [
+            {
+              "t": 0.0,
+              "v": 10.0
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.77,
+                0.0,
+                0.175,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "spotlightscanner",
+      "name": "Spotlight Scanner",
+      "nameAr": "ماسح ضوئي",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.0,
+      "ease": "linear",
+      "captionSafe": false,
+      "boxed": false,
+      "gradientText": true,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "background-position": "200% 0"
+        },
+        "100.0": {
+          "background-position": "-200% 0"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "background-position"
+      ]
+    },
+    {
+      "id": "wordpop",
+      "name": "Word-by-Word Pop",
+      "nameAr": "كلمة كلمة",
+      "family": "trending",
+      "split": "word",
+      "stagger": 0.2,
+      "duration": 2.4,
+      "ease": "backOut",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(0) translateY(12px)",
+          "opacity": "0"
+        },
+        "12.0": {
+          "transform": "scale(1) translateY(0)",
+          "opacity": "1"
+        },
+        "80.0": {
+          "transform": "scale(1) translateY(0)",
+          "opacity": "1"
+        },
+        "92.0": {
+          "transform": "scale(0.8)",
+          "opacity": "0"
+        },
+        "100.0": {
+          "transform": "scale(0.8)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.288,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.92,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.208,
+            "v": 0.8,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.4,
+            "v": 0.8,
+            "ease": "backOut"
+          }
+        ],
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": 0.3
+          },
+          {
+            "t": 0.288,
+            "v": 0.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.92,
+            "v": 0.0,
+            "ease": "backOut"
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.288,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 1.92,
+            "v": 1.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.208,
+            "v": 0.0,
+            "ease": "backOut"
+          },
+          {
+            "t": 2.4,
+            "v": 0.0,
+            "ease": "backOut"
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.288,
+        "tracks": {
+          "word.scale": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.288,
+              "v": 1.0,
+              "ease": "backOut"
+            }
+          ],
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": 0.3
+            },
+            {
+              "t": 0.288,
+              "v": 0.0,
+              "ease": "backOut"
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.288,
+              "v": 1.0,
+              "ease": "backOut"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "wordbox",
+      "name": "Word Box Highlight",
+      "nameAr": "إبراز كلمة بكلمة",
+      "family": "trending",
+      "split": "word",
+      "stagger": 0.3,
+      "duration": 2.4,
+      "ease": "ease",
+      "captionSafe": false,
+      "boxed": true,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "red",
+      "keyframes": {
+        "0.0": {
+          "background": "transparent",
+          "transform": "scale(1)"
+        },
+        "15.0": {
+          "background": "#ef4444",
+          "color": "#fff",
+          "transform": "scale(1.08)"
+        },
+        "35.0": {
+          "background": "#ef4444",
+          "color": "#fff",
+          "transform": "scale(1.08)"
+        },
+        "50.0": {
+          "background": "transparent",
+          "transform": "scale(1)"
+        },
+        "100.0": {
+          "background": "transparent",
+          "transform": "scale(1)"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.36,
+            "v": 1.08,
+            "ease": "ease"
+          },
+          {
+            "t": 0.84,
+            "v": 1.08,
+            "ease": "ease"
+          },
+          {
+            "t": 1.2,
+            "v": 1.0,
+            "ease": "ease"
+          },
+          {
+            "t": 2.4,
+            "v": 1.0,
+            "ease": "ease"
+          }
+        ]
+      },
+      "cssOnly": [
+        "background",
+        "color"
+      ]
+    },
+    {
+      "id": "stamp",
+      "name": "Stamp Slam",
+      "nameAr": "ختم قوي",
+      "family": "cyber",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.8,
+      "ease": [
+        0.2,
+        0.9,
+        0.3,
+        1.0
+      ],
+      "captionSafe": false,
+      "boxed": true,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "red",
+      "keyframes": {
+        "0.0": {
+          "transform": "scale(3) rotate(-12deg)",
+          "opacity": "0"
+        },
+        "15.0": {
+          "transform": "scale(.92) rotate(-6deg)",
+          "opacity": "1"
+        },
+        "20.0": {
+          "transform": "scale(1.03) rotate(-6deg)"
+        },
+        "25.0": {
+          "transform": "scale(1) rotate(-6deg)",
+          "opacity": "1"
+        },
+        "80.0": {
+          "transform": "scale(1) rotate(-6deg)",
+          "opacity": "1"
+        },
+        "95.0": {
+          "transform": "scale(1) rotate(-6deg)",
+          "opacity": "0"
+        },
+        "100.0": {
+          "transform": "scale(1) rotate(-6deg)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.scale": [
+          {
+            "t": 0.0,
+            "v": 3.0
+          },
+          {
+            "t": 0.27,
+            "v": 0.92,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 0.36,
+            "v": 1.03,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 0.45,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.44,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.71,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          }
+        ],
+        "word.rotate": [
+          {
+            "t": 0.0,
+            "v": -12.0
+          },
+          {
+            "t": 0.27,
+            "v": -6.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 0.36,
+            "v": -6.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 0.45,
+            "v": -6.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.44,
+            "v": -6.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.71,
+            "v": -6.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": -6.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.27,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 0.45,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.44,
+            "v": 1.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.71,
+            "v": 0.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": 0.0,
+            "ease": [
+              0.2,
+              0.9,
+              0.3,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": []
+    },
+    {
+      "id": "underline",
+      "name": "Underline Draw (RTL)",
+      "nameAr": "خط تحت الكلمة",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.0,
+      "ease": "ease",
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": true,
+      "colorRole": "salmon",
+      "keyframes": {
+        "0.0": {
+          "background-size": "0% .18em"
+        },
+        "40.0": {
+          "background-size": "100% .18em"
+        },
+        "80.0": {
+          "background-size": "100% .18em"
+        },
+        "100.0": {
+          "background-size": "0% .18em"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "background-size"
+      ]
+    },
+    {
+      "id": "dropin",
+      "name": "Drop & Bounce",
+      "nameAr": "سقوط وارتداد",
+      "family": "kinetic",
+      "split": "word",
+      "stagger": null,
+      "duration": 1.8,
+      "ease": [
+        0.5,
+        0.0,
+        0.5,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "transform": "translateY(-140%)",
+          "opacity": "0"
+        },
+        "25.0": {
+          "transform": "translateY(0)",
+          "opacity": "1"
+        },
+        "32.0": {
+          "transform": "translateY(-14%)"
+        },
+        "40.0": {
+          "transform": "translateY(0)",
+          "opacity": "1"
+        },
+        "80.0": {
+          "transform": "translateY(0)",
+          "opacity": "1"
+        },
+        "100.0": {
+          "transform": "translateY(0)",
+          "opacity": "0"
+        }
+      },
+      "tracks": {
+        "word.y": [
+          {
+            "t": 0.0,
+            "v": -1.4
+          },
+          {
+            "t": 0.45,
+            "v": 0.0,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 0.576,
+            "v": -0.14,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 0.72,
+            "v": 0.0,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 1.44,
+            "v": 0.0,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": 0.0,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          }
+        ],
+        "word.opacity": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.45,
+            "v": 1.0,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 0.72,
+            "v": 1.0,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 1.44,
+            "v": 1.0,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          },
+          {
+            "t": 1.8,
+            "v": 0.0,
+            "ease": [
+              0.5,
+              0.0,
+              0.5,
+              1.0
+            ]
+          }
+        ]
+      },
+      "cssOnly": [],
+      "entrance": {
+        "enter": 0.45,
+        "tracks": {
+          "word.y": [
+            {
+              "t": 0.0,
+              "v": -1.4
+            },
+            {
+              "t": 0.45,
+              "v": 0.0,
+              "ease": [
+                0.5,
+                0.0,
+                0.5,
+                1.0
+              ]
+            }
+          ],
+          "word.opacity": [
+            {
+              "t": 0.0,
+              "v": 0.0
+            },
+            {
+              "t": 0.45,
+              "v": 1.0,
+              "ease": [
+                0.5,
+                0.0,
+                0.5,
+                1.0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "clipreveal",
+      "name": "Clip Reveal (Right to Left)",
+      "nameAr": "كشف من اليمين",
+      "family": "cinematic",
+      "split": "word",
+      "stagger": null,
+      "duration": 2.0,
+      "ease": [
+        0.77,
+        0.0,
+        0.18,
+        1.0
+      ],
+      "captionSafe": true,
+      "boxed": false,
+      "gradientText": false,
+      "underline": false,
+      "colorRole": "paper",
+      "keyframes": {
+        "0.0": {
+          "clip-path": "inset(0 0 0 100%)"
+        },
+        "35.0": {
+          "clip-path": "inset(0 0 0 0)"
+        },
+        "75.0": {
+          "clip-path": "inset(0 0 0 0)"
+        },
+        "100.0": {
+          "clip-path": "inset(0 100% 0 0)"
+        }
+      },
+      "tracks": {},
+      "cssOnly": [
+        "clip-path"
+      ]
+    }
+  ]
+}
