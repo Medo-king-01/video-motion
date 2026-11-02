@@ -26,7 +26,7 @@ jobs:
   test-engine-p-chunks:
     name: Test Engine P chunk integrity
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -37,8 +37,25 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install test dependency
-        run: python -m pip install --upgrade pytest numpy "av>=12"
+      - name: Install Engine P runtime and test dependencies
+        run: python -m pip install --upgrade -r tools/requirements.txt pytest
 
       - name: Run Engine P chunk integrity tests
         run: python -m pytest -q tests/test_engine_p_chunks.py
+
+      - name: Verify FFmpeg tools
+        run: |
+          ffmpeg -version
+          ffprobe -version
+
+      - name: Render and verify a 3-frame Engine P smoke test
+        env:
+          REEL_DIR: ${{ github.workspace }}
+          REEL_MAXFRAMES: "3"
+          REEL_CHUNK: "3"
+        run: |
+          python medo-motion/templates/procedural-reels/run_all.py
+          test -s out/video_only.mp4
+          ffprobe -v error -select_streams v:0 -count_frames \
+            -show_entries stream=width,height,nb_read_frames \
+            -of csv=p=0 out/video_only.mp4
