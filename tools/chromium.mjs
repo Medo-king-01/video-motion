@@ -9,7 +9,7 @@
 // "libnspr4.so: cannot open shared object file".
 //
 // Usage:
-//   node tools/chromium.mjs --env     # prints `export KHAAM_CHROMIUM=...` lines
+//   node tools/chromium.mjs --env     # prints `export MEDO_CHROMIUM=...` lines
 //   node tools/chromium.mjs --path    # prints the executable path only
 //   node tools/chromium.mjs --json    # machine-readable browser path, libraries and args
 //   node tools/chromium.mjs --check   # launches a page and prints the version
@@ -21,11 +21,11 @@ import os from 'node:os';
 import zlib from 'node:zlib';
 
 const here = path.dirname(new URL(import.meta.url).pathname);
-const toolkit = process.env.MEDO_TOOLKIT || path.join(here, 'toolkit');
+const toolkit = process.env.MEDO_TOOLKIT || process.env.KHAAM_TOOLKIT || path.join(here, 'toolkit');
 const require = createRequire(path.join(toolkit, 'package.json'));
 
 const mode = process.argv[2] || '--path';
-const cache = process.env.MEDO_CHROMIUM_CACHE || path.join(os.homedir(), '.cache', 'medo-motion', 'chromium');
+const cache = process.env.MEDO_CHROMIUM_CACHE || process.env.KHAAM_CHROMIUM_CACHE || path.join(os.homedir(), '.cache', 'video-motion', 'chromium');
 mkdirSync(cache, { recursive: true });
 
 function libsDir(pkg) {
@@ -68,7 +68,7 @@ if (mode === '--path') {
 } else if (mode === '--json') {
   process.stdout.write(JSON.stringify({executablePath: exe, libraryPath: libs, args: chromium.args}));
 } else if (mode === '--env') {
-  console.log(`export KHAAM_CHROMIUM="${exe}"`);
+  console.log(`export MEDO_CHROMIUM="${exe}"`);
   if (libs) console.log(`export LD_LIBRARY_PATH="${libs}\${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"`);
   console.log(`export MEDO_CHROMIUM_ARGS="${chromium.args.join(' ')}"`);
 } else if (mode === '--check') {

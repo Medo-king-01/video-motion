@@ -43,12 +43,12 @@ function sectionOne(ctx, t, W, H) {
 
   const win = K.enter(t, 0.35, { rise: 60 });
   K.appWindow(ctx, 560, 680 + win.dy, 420, 520, {
-    title: 'khaam-motion', s: win.s, alpha: win.alpha, rot: 1.5,
+    title: 'video-motion', s: win.s, alpha: win.alpha, rot: 1.5,
     body: (bx, by, bw) => K.checklist(ctx, [
       { title: 'كتابة الهوك' }, { title: 'تسجيل الصوت' }, { title: 'تحريك المشاهد' }, { title: 'توقيت الكابشن' }, { title: 'الرندر' },
     ], t, { x: bx + 20, y: by + 18, w: bw - 40, rowH: 86, size: 30, start: 0.7, step: 0.42, accent: RED }),
   });
-  K.handleTag(ctx, '@khaam.hq', { x: W - 70, y: 1300 });
+  K.handleTag(ctx, 'Video Motion', { x: W - 70, y: 1300 });
   K.stamp(ctx, 'جاهز', t, { x: W / 2 + 40, y: 1360, start: 2.85, size: 120, color: RED, rot: -8 });
   K.burst(ctx, W / 2 + 40, 1360, t, { start: 2.95, r: 150, n: 10, color: INK });
 }
@@ -62,9 +62,9 @@ function sectionTwo(ctx, t, W, H) {
 
   const c = K.enter(t, 3.95, { rise: 60 });
   K.card(ctx, 100, 470 + c.dy, W - 200, 290, { r: 30, s: c.s, alpha: c.alpha, rot: -1 }, (x, y, w) => {
-    ctx.fillStyle = INK; ctx.font = K.font(700, 46, K.FONTS.mono); ctx.direction = 'ltr'; ctx.textAlign = 'left'; ctx.fillText('khaam-motion', x + 44, y + 92);
+    ctx.fillStyle = INK; ctx.font = K.font(700, 46, K.FONTS.mono); ctx.direction = 'ltr'; ctx.textAlign = 'left'; ctx.fillText('video-motion', x + 44, y + 92);
     ctx.fillStyle = 'rgba(3,3,3,.55)'; ctx.font = K.font(500, 32, K.FONTS.text); ctx.direction = 'rtl'; ctx.textAlign = 'right';
-    ctx.fillText('مهارة موشن عربية لـ Claude', x + w - 44, y + 170);
+    ctx.fillText('استوديو موشن برمجي محلي', x + w - 44, y + 170);
     ctx.fillStyle = INK; ctx.font = K.font(800, 54, K.FONTS.mono); ctx.direction = 'ltr'; ctx.textAlign = 'left';
     ctx.fillText('★ ' + K.rolling(0, 4210, K.seg(t, 4.3, 1.2)), x + 44, y + 245);
   });
@@ -72,9 +72,9 @@ function sectionTwo(ctx, t, W, H) {
 
   const w2 = K.enter(t, 4.6, { rise: 60 });
   K.appWindow(ctx, 100, 820 + w2.dy, W - 200, 400, {
-    title: 'claude — ~/my-video', s: w2.s, alpha: w2.alpha, rot: 1,
+    title: 'agent — ~/my-video', s: w2.s, alpha: w2.alpha, rot: 1,
     body: (bx, by, bw) => K.typeLines(ctx, [
-      { text: '> /khaam-motion', color: '#D97F68' },
+      { text: '> /video-motion', color: '#D97F68' },
       '✓ fonts: Cairo',
       '✓ sfx: openverse (CC0)',
       { text: 'جاري تحريك المشاهد…', color: YELLOW },
@@ -95,9 +95,9 @@ function sectionThree(ctx, t, W, H) {
     { w: 'علّق', s: 7.75 }, { w: '«موشن»', s: 8.0, key: true }, { w: 'وأرسلها', s: 8.35 }, { w: 'لك', s: 8.6 },
   ], t, { x: W - 90, y: 330, maxWidth: W - 180, size: 66 });
   const f = K.enter(t, 7.7, { rise: 60 });
-  K.folder(ctx, W / 2 - 230, 470 + f.dy, 460, { label: 'khaam-motion', tabs: ['SKILL.md', 'styles/', 'fonts/'], p: K.seg(t, 7.9, 0.5), s: f.s, alpha: f.alpha, rot: -2 });
+  K.folder(ctx, W / 2 - 230, 470 + f.dy, 460, { label: 'video-motion', tabs: ['AGENTS.md', 'templates/', 'assets/'], p: K.seg(t, 7.9, 0.5), s: f.s, alpha: f.alpha, rot: -2 });
   K.chip(ctx, K.rolling(0, 72, K.seg(t, 8.0, 0.8), { digits: 'arabic' }) + ' ملف', { x: W / 2, y: 860, size: 30, s: K.enter(t, 8.0).s, alpha: K.enter(t, 8.0).alpha });
-  K.commentCTA(ctx, t, { x: 110, y: 960, w: W - 220, keyword: 'موشن', start: 8.4, dmTitle: 'وصلتك المهارة 🎁', dmBody: 'khaam-motion.zip', accent: RED });
+  K.commentCTA(ctx, t, { x: 110, y: 960, w: W - 220, keyword: 'موشن', start: 8.4, dmTitle: 'استوديو Video Motion', dmBody: 'video-motion', accent: RED });
 }
 
 export function draw(ctx, t, { W, H }) {

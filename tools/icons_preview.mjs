@@ -22,7 +22,7 @@ const { chromium } = req('playwright-core');
 const src = await readFile(path.join(root, 'medo-motion', 'templates', 'render', 'lib', 'icons.js'), 'utf8');
 const shim = src.replace(/^export default .*$/gm, '').replace(/^export\s+/gm, '') + '\nreturn { ICONS, drawIcon };';
 
-const browser = await chromium.launch({ headless: true, ...(process.env.KHAAM_CHROMIUM ? { executablePath: process.env.KHAAM_CHROMIUM } : {}) });
+const browser = await chromium.launch({ headless: true, ...((process.env.MEDO_CHROMIUM || process.env.KHAAM_CHROMIUM) ? { executablePath: process.env.MEDO_CHROMIUM || process.env.KHAAM_CHROMIUM } : {}) });
 const page = await browser.newPage();
 await page.setContent(`<style>html,body{margin:0;background:#0A0A0A}</style><canvas id="c"></canvas>`);
 const manifest = JSON.parse(await readFile(path.join(root, 'medo-motion', 'icons', 'manifest.json'), 'utf8'));

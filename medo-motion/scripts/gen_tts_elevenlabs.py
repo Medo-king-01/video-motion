@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ElevenLabs narration helper for Khaam Motion - Eleven v4 only.
+"""ElevenLabs narration helper for Video Motion - Eleven v4 only.
 
 Subcommands (no subcommand = offline plan):
   plan      offline check of one narration chunk                  no network
@@ -35,7 +35,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
-    from khaam_paths import executable as _configured_executable
+    from video_motion_paths import executable as _configured_executable
 except Exception:  # keep the helper usable if config resolution is unavailable
     _configured_executable = None
 
@@ -443,7 +443,7 @@ def sample_warnings(checks):
 
 
 def multipart(fields, files, files_field):
-    boundary = '----khaam' + uuid.uuid4().hex
+    boundary = '----video-motion' + uuid.uuid4().hex
     parts = []
     for name, value in fields:
         parts.append(('--%s\r\nContent-Disposition: form-data; name="%s"\r\n\r\n' % (boundary, name)).encode('utf-8')

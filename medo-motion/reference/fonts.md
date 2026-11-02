@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md -->
+<!-- Video Motion · font roles, pairings and installation guidance. -->
 # Font research & sourcing (do this before the design file — step 4)
 Never pick fonts from memory or default to Inter/Poppins. **Research first, then download.**
 

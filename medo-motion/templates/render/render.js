@@ -27,7 +27,7 @@ async function probeDuration(file){
   // a missing/broken ffprobe emits 'error' on the child process — handle it, never crash
   return new Promise((resolve)=>{
     let out='';
-    const p=spawn(process.env.KHAAM_FFPROBE||'ffprobe',
+    const p=spawn(process.env.MEDO_FFPROBE||process.env.KHAAM_FFPROBE||'ffprobe',
       ['-v','error','-show_entries','format=duration','-of','json',path.resolve(file)]);
     p.stdout.on('data',c=>out+=c);
     p.on('error',()=>resolve(null));
@@ -41,22 +41,27 @@ async function probeDuration(file){
 if(!jpg&&existsSync(dest))throw Error('Output exists; use a new version name');
 await mkdir(out,{recursive:true});
 if(jpg&&(await readdir(out)).some(f=>/^\d{5}\.(jpg|png)$/.test(f)))throw Error('Frame output already exists; choose a fresh cache directory');
-let cfg={};const cfgPath=process.env.KHAAM_CONFIG||path.join(root,'.khaam/config.json');
+const setting=name=>process.env['MEDO_'+name]||process.env['KHAAM_'+name];
+const configCandidates=process.env.MEDO_CONFIG
+  ? [process.env.MEDO_CONFIG]
+  : [path.join(root,'.video-motion','config.json'),process.env.KHAAM_CONFIG,path.join(root,'.khaam','config.json')].filter(Boolean);
+const cfgPath=configCandidates.find(existsSync)||process.env.MEDO_CONFIG||path.join(root,'.video-motion','config.json');
+let cfg={};
 if(existsSync(cfgPath))cfg=JSON.parse(await readFile(cfgPath,'utf8'));
 const configBase=path.dirname(path.dirname(path.resolve(cfgPath)));
-// Config values may use ~ and $VAR / %VAR%, like the Python helpers (khaam_paths.py).
+// Config values may use ~ and $VAR / %VAR%, like the Python helpers (video_motion_paths.py).
 const expand=v=>String(v).replace(/^~(?=$|[\\/])/,os.homedir()).replace(/\$\{?(\w+)\}?|%(\w+)%/g,(m,a,b)=>process.env[a||b]??m);
 const configPath=v=>{v=expand(v);return path.isAbsolute(v)?v:path.resolve(configBase,v);};
-const toolkit=process.env.KHAAM_TOOLKIT||cfg.toolkit_dir;
+const toolkit=setting('TOOLKIT')||cfg.toolkit_dir;
 const req=createRequire(path.join(toolkit?configPath(toolkit):root,'package.json'));
 // playwright-core works with the bundled Chromium (tools/chromium.mjs); fall back to playwright if only that is installed.
 const {chromium}=(()=>{try{return req('playwright');}catch{return req('playwright-core');}})();
-const ffmpeg=process.env.KHAAM_FFMPEG||(cfg.ffmpeg?(/[\\/~]/.test(cfg.ffmpeg)?configPath(cfg.ffmpeg):cfg.ffmpeg):'ffmpeg');
-const browserPath=process.env.KHAAM_CHROMIUM;
+const ffmpeg=setting('FFMPEG')||(cfg.ffmpeg?(/[\\/~]/.test(cfg.ffmpeg)?configPath(cfg.ffmpeg):cfg.ffmpeg):'ffmpeg');
+const browserPath=setting('CHROMIUM');
 // Serve only render resources on loopback; never expose project .env/config or arbitrary files.
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf','.otf':'font/otf','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4'};
 const srcUrl='/'+path.relative(root,src).split(path.sep).join('/');
-const assetsRoot=path.resolve(process.env.KHAAM_ASSETS_DIR||path.join(root,'assets'));
+const assetsRoot=path.resolve(setting('ASSETS_DIR')||path.join(root,'assets'));
 if(srcUrl.includes('..'))throw Error('Renderer must live inside the selected project');
 const server=http.createServer(async (request,response)=>{
   try{

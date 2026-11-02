@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Read-only optional audio inventory; never downloads or tests inference."""
 import argparse,importlib.util,importlib.metadata,json,sys
-from khaam_paths import models_dir,sfx_library,executable
+from video_motion_paths import models_dir,sfx_library,executable
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--models-dir',default=str(models_dir()));a=p.parse_args()
 from pathlib import Path
 r=Path(a.models_dir).expanduser();out={'python':sys.executable,'models_dir':str(r),'bundled_or_custom_sfx':str(sfx_library()),'packages':{},'weights':{},'ffmpeg':executable('ffmpeg'),'network_used':False,'inference_tested':False}

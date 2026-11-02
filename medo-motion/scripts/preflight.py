@@ -2,7 +2,7 @@
 """Read-only portable inventory: no installs, downloads, secret values or browser launch."""
 import sys, json, platform, importlib.util, shutil, subprocess, os
 from pathlib import Path
-from khaam_paths import config, models_dir, sfx_library, resolve, executable
+from video_motion_paths import config, models_dir, sfx_library, resolve, executable
 try: config()
 except (ValueError, OSError) as e: raise SystemExit('Invalid local configuration: '+str(e))
 def probe(path, args):
@@ -20,11 +20,11 @@ try: node['supported']=node['available'] and int(node['version'].lstrip('v').spl
 except (ValueError,KeyError): node['supported']=False
 im=shutil.which('magick') or shutil.which('montage')
 checks['imagemagick']=dict(probe(im,['-version']),optional=True,path=im)
-toolkit=resolve('toolkit_dir','KHAAM_TOOLKIT')
+toolkit=resolve('toolkit_dir','MEDO_TOOLKIT')
 # Resolve Playwright from the selected project/toolkit, never via npx/network.
 js="""const {createRequire}=require('node:module'),fs=require('node:fs'),path=require('node:path');
 try {const req=createRequire(path.join(process.argv[1],'package.json'));const pw=req('playwright');
-const browser=process.env.KHAAM_CHROMIUM || pw.chromium.executablePath();
+const browser=process.env.MEDO_CHROMIUM || process.env.KHAAM_CHROMIUM || pw.chromium.executablePath();
 console.log(JSON.stringify({package_available:true,browser_path:browser,browser_file_exists:fs.existsSync(browser),launch_tested:false}));}
 catch(e){console.log(JSON.stringify({package_available:false,browser_file_exists:false,launch_tested:false,reason:e.code||e.name}));}"""
 browser={'package_available':False,'browser_file_exists':False,'launch_tested':False,'reason':'Node unavailable or unsupported'}
@@ -33,14 +33,14 @@ if node['supported']:
         p=subprocess.run([binaries['node'],'-e',js,str(toolkit or Path.cwd())],capture_output=True,text=True,timeout=15)
         browser=json.loads(p.stdout) if p.returncode==0 else dict(browser,reason='Node probe failed')
     except (OSError,ValueError,subprocess.TimeoutExpired): browser['reason']='Browser probe failed'
-r={'platform':platform.system(),'python':sys.version.split()[0],'current_python':sys.executable,'models_dir':str(models_dir()),'sfx_library':str(sfx_library()),'sfx_catalog_exists':(sfx_library()/'catalog.json').is_file(),'configured_audio_python':str(resolve('audio_python','KHAAM_AUDIO_PYTHON') or ''),'configured_toolkit':str(toolkit or ''),'binaries':binaries,'checks':checks,'playwright_chromium':browser,'packages_in_current_python':{}}
+r={'platform':platform.system(),'python':sys.version.split()[0],'current_python':sys.executable,'models_dir':str(models_dir()),'sfx_library':str(sfx_library()),'sfx_catalog_exists':(sfx_library()/'catalog.json').is_file(),'configured_audio_python':str(resolve('audio_python','MEDO_AUDIO_PYTHON') or ''),'configured_toolkit':str(toolkit or ''),'binaries':binaries,'checks':checks,'playwright_chromium':browser,'packages_in_current_python':{}}
 for n in ['numpy','scipy','librosa','soundfile','torch','transformers','panns_inference','conette','PIL']:
     try:r['packages_in_current_python'][n]=importlib.util.find_spec(n) is not None
     except (ImportError,ValueError):r['packages_in_current_python'][n]=False
-onb=Path.home()/'.cache'/'khaam-motion'/'onboarding.json'
+onb=Path.home()/'.cache'/'video-motion'/'onboarding.json'
 try: onboarding=json.loads(onb.read_text(encoding='utf-8')) if onb.is_file() else None
 except (OSError,ValueError): onboarding={'unreadable':True}
-r.update(elevenlabs_key_present=bool(os.environ.get('ELEVENLABS_API_KEY')),onboarding=onboarding,user_taste_exists=(Path.home()/'.cache'/'khaam-motion'/'user-taste.md').is_file())
+r.update(elevenlabs_key_present=bool(os.environ.get('ELEVENLABS_API_KEY')),onboarding=onboarding,user_taste_exists=(Path.home()/'.cache'/'video-motion'/'user-taste.md').is_file())
 r.update(network_used=False,installed_anything=False,note='Inventory only, not an all-ready gate. Browser file presence does not prove launch/GPU readiness; run the starter smoke test. ImageMagick is optional (Pillow/FFmpeg alternatives). Model files are optional; no inference readiness is implied. Keep this machine report local.')
 # Medo/brand block: never fail the whole report when one optional dep is absent.
 skill_dir=Path(__file__).resolve().parent.parent

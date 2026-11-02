@@ -233,9 +233,9 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     env = {
         **os.environ,
-        "KHAAM_ASSETS_DIR": str(project / "assets"),
-        "KHAAM_FFMPEG": ffmpeg,
-        "KHAAM_FFPROBE": ffprobe,
+        "MEDO_ASSETS_DIR": str(project / "assets"),
+        "MEDO_FFMPEG": ffmpeg,
+        "MEDO_FFPROBE": ffprobe,
     }
     env.setdefault("PYTHONUNBUFFERED", "1")
 

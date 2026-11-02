@@ -170,7 +170,9 @@ def test_nothing_prescribes_a_fixed_reel_length():
 def test_both_engines_measure_the_vo():
     """Wiring: no engine may take its length from anything but the audio."""
     p_render = (ROOT / "medo-motion" / "templates" / "procedural-reels" / "run_all.py").read_text(encoding="utf-8")
-    assert "vo24.wav" in p_render and "TOTAL=" in p_render
+    assert 'total = _vo_seconds(str(PROJECT / "out" / "vo24.wav"))' in p_render
+    assert "total = B[-1]" in p_render  # fallback only when no VO file is available
+    assert "N = round(total * FPS)" in p_render
     k_render = (ROOT / "medo-motion" / "templates" / "render" / "render.js").read_text(encoding="utf-8")
     assert "probeDuration" in k_render and "VO length" in k_render
     mix_py = (ROOT / "medo-motion" / "templates" / "procedural-reels" / "mix.py").read_text(encoding="utf-8")

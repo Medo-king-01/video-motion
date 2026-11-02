@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md. MANDATORY before scripting or animating any video meant for social platforms. -->
+<!-- Video Motion · hook and opening-beat guidance for social videos. -->
 # Hooks: the first 3 seconds
 
 **The hook comes first, the motion serves it.** Beautiful motion that does not stop the scroll is wasted. Every project starts by choosing a hook, then designs the first 3 seconds around it, then the rest.

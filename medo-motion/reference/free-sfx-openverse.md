@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md. Free sound-effect route. -->
+<!-- Video Motion · sourcing free sound effects and recording attribution. -->
 # Free sound effects: Openverse
 
 **Default route for sound effects when the user has no paid audio service.** Openverse (run by WordPress) indexes millions of openly licensed sounds, many from Freesound. No account or key is needed for normal use.

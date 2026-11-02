@@ -1,31 +1,58 @@
-# Portable setup and path resolution
+# إعداد محمول وإدارة المسارات
 
-Use the installed skill location as `<skill>` and the chosen working folder as `<project>`. Do not infer either from another person's machine. No private toolkit, library, model environment or user configuration is shipped.
+شغّل الأدوات من جذر مستودع Video Motion، وأنشئ كل فيديو داخل `projects/<slug>/`.
+لا تفترض حرف قرص أو مسار مستخدم أو مجلد تثبيت من جهاز آخر.
 
-## Configuration precedence
-- For models: explicit `--models-dir` → `KHAAM_MODELS` → `models_dir` in config → `~/.cache/khaam-motion/models`.
-- For SFX: `KHAAM_SFX_LIBRARY` → `sfx_library` in config → project `<project>/assets/sfx`.
-- Other overrides: `KHAAM_AUDIO_PYTHON`, `KHAAM_TOOLKIT`, `KHAAM_FFMPEG`, `KHAAM_FFPROBE`, corresponding to config keys `audio_python`, `toolkit_dir`, `ffmpeg`, `ffprobe`.
-- Config: `KHAAM_CONFIG` → `<project>/.khaam/config.json`. Relative paths inside config resolve from the parent of its containing directory (normally the project root). Use an absolute path when storing config elsewhere. `~` and environment variables expand locally. An invalid explicit override should be fixed, not silently replaced by another path.
-- Config does not activate/re-execute a Python environment automatically. Use `audio_python` as the quoted interpreter for audio commands and run the inventory with it. Avoid logging config or inventories in a user distribution.
+## إعدادات المشروع
 
-Example config (copy `config.example.json`, customize locally):
-```json
-{"models_dir":"~/.cache/khaam-motion/models","audio_python":null,"toolkit_dir":null,"sfx_library":null,"ffmpeg":null,"ffprobe":null}
-```
-Leave `sfx_library` null to use project-local `assets/sfx` if the user supplies sounds. No audio collection is included. For custom sounds, use a project-relative path or absolute local library and keep its catalog/provenance. User decisions belong in that project, not in the shared vendor pack.
+يوفر `medo-motion/config.example.json` نموذجًا لإعداد المسارات الاختيارية:
+
+- `models_dir`: مجلد مشترك للأوزان والنماذج الاختيارية.
+- `audio_python`: مفسر Python منفصل لأدوات الصوت عند الحاجة.
+- `toolkit_dir`: مسار حزمة الأدوات المشتركة.
+- `sfx_library`: مكتبة مؤثرات محلية يحددها المستخدم.
+- `ffmpeg` و`ffprobe`: مسارات تنفيذية صريحة عند عدم توفرها على PATH.
+
+تُحل المسارات النسبية انطلاقًا من جذر المشروع المرتبط بملف الإعداد، بينما يمكن استخدام
+مسارات مطلقة عند الحاجة. وسّع متغيرات المسار محليًا ولا تضع أسرار API داخل ملف الإعداد.
+
+## التخزين المؤقت
+
+ضع الأوزان الكبيرة والملفات القابلة لإعادة التوليد في مجلد Cache خارج مجلد الفيديو.
+يمكن استخدام `~/.cache/video-motion/models` كمجلد مشترك اختياري للنماذج. احتفظ
+بأصول كل فيديو في مجلده تحت `projects/<slug>/assets/`، وسجّل أي أصل خارجي في
+`assets/CREDITS.md`.
+
+لا ترفع إلى المستودع: مفاتيح API، أو ملفات `.env`، أو `node_modules`، أو البيئات
+الافتراضية، أو كاش الرندر، أو ملفات الفيديو الناتجة، إلا عند وجود سبب واضح وموافقة.
 
 ## Windows
-Use `py -3` or the verified selected interpreter. Quote all paths. A new audio venv, if needed and authorized, may be created with `py -3 -m venv .venv-audio`; invoke `.venv-audio\Scripts\python.exe` explicitly. Configure paths locally. Do not assume a drive letter, Node junction or NVIDIA CUDA.
+
+استخدم مفسر Python موثّقًا، واقتبس المسارات التي تحتوي مسافات. عند الحاجة إلى بيئة
+صوت منفصلة، أنشئها داخل مجلد المشروع أو في مكان يحدده المستخدم، ثم استدعِ مفسرها
+بمساره الكامل. لا تفترض وجود قرص D: أو Junction أو دعم CUDA.
 
 ## macOS / Linux
-Use a supported `python3` with venv support. With permission, `python3 -m venv .venv-audio`; use `.venv-audio/bin/python`. Install FFmpeg through the user's trusted package manager if missing. Reuse working Node/Chromium versions. CPU audio is the baseline; Apple MPS/CUDA/ROCm acceleration is opt-in only after compatibility testing. Shared Node dependencies are optional; project-local dependencies are the simplest portable fallback.
 
-## What works without optional models
-Read-only preflight, project planning, FFmpeg reference analysis/capture/encoding (once FFmpeg exists), selection from user-supplied licensed SFX, deterministic cue/mix planning, and procedural recipes when NumPy/SciPy are installed. Core scripts do not install models or require audio API keys. CLAP/PANNs tags and CoNeTTE captions are optional capabilities with explicit unavailable fallbacks.
+استخدم `python3` وبيئة افتراضية معتمدة. ثبّت FFmpeg من مدير الحزم الموثوق لدى
+المستخدم بعد الموافقة، وأعد استخدام إصدارات Node وChromium المتوافقة متى أمكن.
+العمل على CPU هو خط الأساس؛ أي تسريع GPU يحتاج اختبار توافق مستقل.
 
-## Reproduction boundary
-A portable file layout is not evidence of a full renderer/inference test on every OS. See the release validation for actual tested combinations. The agent must still inspect local versions and ask permission before resolving missing dependencies. Do not silently upgrade shared packages or download all optional tools.
+## ما يعمل دون نماذج اختيارية
 
-## ElevenLabs generation
-New SFX generation is hosted via ElevenLabs after approval, while analysis/editing/mixing stay local. The stdlib helper needs no local generative model or GPU; credentials use `ELEVENLABS_API_KEY` in the user environment, never portable config or the distributed package. Run the no-argument helper for an offline plan; read `reference/elevenlabs-sfx.md` before paid requests.
+يمكن تنفيذ تخطيط المشاريع، وفحوصات ما قبل التشغيل، وتحليل المراجع عبر FFmpeg،
+والتحكم في المؤثرات المرخصة التي يزوّدها المستخدم، ومزج الصوت الإجرائي دون تنزيل
+نماذج توليد محلية. تصنيف الصوت أو التعرف على الكلام بواسطة نماذج محلية قدرات
+اختيارية وليست شرطًا للمحركات الأساسية.
+
+## حدود قابلية النقل
+
+وجود الملفات في بنية محمولة لا يثبت أن الرندر اختُبر على كل نظام تشغيل. ارجع إلى
+نتائج CI وسجلات الاختبارات الفعلية، وافحص البيئة المحلية قبل تقرير جاهزيتها. لا
+ترقِّ الحزم المشتركة أو تنزّل أدوات اختيارية تلقائيًا.
+
+## الصوت والخدمات الخارجية
+
+توليد الصوت عبر API يتطلب مفتاحًا يضيفه المستخدم بنفسه وموافقة صريحة قبل أي طلب
+مدفوع. لا تُخزّن بيانات الاعتماد في ملفات المشروع أو داخل المستودع. تظل أعمال
+التحليل والمزج المحلية متاحة دون خدمة توليد صوت خارجية.

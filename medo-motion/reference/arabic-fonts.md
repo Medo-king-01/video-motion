@@ -1,4 +1,4 @@
-<!-- Khaam Motion · reference file, loaded on demand from SKILL.md. Arabic font catalog. -->
+<!-- Video Motion · Arabic font catalog; loaded on demand when typography work needs it. -->
 # فهرس الخطوط العربية — Arabic font catalog
 
 **طريقة الاستعمال:** اختر خط عرض (للعناوين والكلمة الرئيسية) وخط نص (للكابشن والجمل). **خطين عربي بالكثير لكل فيديو.**

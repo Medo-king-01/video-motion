@@ -7,10 +7,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _common import KEYS, load_env
 proj = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else '.'); os.makedirs(proj, exist_ok=True)
 envp = os.path.join(proj, '.env'); cur = open(envp, encoding='utf-8-sig').read() if os.path.exists(envp) else ''
-head = ('# API keys for khaam-motion. Paste each key right after "=" (no spaces, no quotes), then SAVE.\n'
+head = ('# API keys for Video Motion. Paste each key right after "=" (no spaces, no quotes), then SAVE.\n'
         '# Leave a line empty if you do not use that platform. Never share this file.\n')
 lines = cur.splitlines()
-if 'khaam-motion' not in cur: lines = head.rstrip('\n').split('\n') + lines
+if not any(line.startswith('# API keys for ') for line in lines): lines = head.rstrip('\n').split('\n') + lines
 have = {l.split('=', 1)[0].strip() for l in lines if '=' in l and not l.lstrip().startswith('#')}
 lines += ['%s=' % k for k in KEYS if k not in have]
 open(envp, 'w', encoding='utf-8', newline='\n').write('\n'.join(lines).rstrip('\n') + '\n')

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Offline verification of a portable catalog; no installs, downloads or file restoration."""
 import argparse,json,hashlib,pathlib
-from khaam_paths import sfx_library
+from video_motion_paths import sfx_library
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--library',default=str(sfx_library()));a=p.parse_args();root=pathlib.Path(a.library).expanduser().resolve();catalog=root/'catalog.json'
 if not catalog.is_file():
  print(json.dumps({'status':'not_configured','verified_sounds':0,'network_used':False,'note':'No user catalog present; no sample pack is bundled. Use your own licensed files or procedural recipes.'}));raise SystemExit(0)
