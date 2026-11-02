@@ -1,5 +1,12 @@
 # Changelog — Medo Motion (private fork)
 
+## 2.6 — 2026-11-02 — Palette v2.6 Muted
+- Locked palette v2.6 (given by Medo): the brown inks of v2 are replaced by deep black
+  `ink #0A0A0A` and sharp neutral gray `ink_soft #71717A`; derived `ink_shadow` locks at `#030303`.
+  Red (`#CB271B`/`#CB0801`/`#9F0803`), paper and the four grays, salmon and blush are unchanged.
+- All engines, tools, icons and style recipes updated to the new values; contrast notes recomputed
+  (e.g. paper on ink 17.71:1, red on ink 3.63:1 — still never red text on dark, use salmon).
+
 ## 2.4 — 2026-11-01 — Remotion engine R
 - Added an optional React/TypeScript Remotion renderer as engine R, scaffolded with `--engine r`.
 - The Composition reads the shared VO-derived `plan/beats.json`, loads local Cairo/Inter and Medo pose assets, and keeps frame evaluation deterministic.

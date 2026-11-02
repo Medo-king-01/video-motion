@@ -8,7 +8,7 @@ frame-deterministic.
     from space3d import box, camera, project, draw_mesh
     mesh = box(220, mesh_center=(0, 0, 0))
     cam = camera(dist=900, yaw=0.6, pitch=-0.15)
-    draw_mesh(draw, mesh, cam, W, H, ink=(71, 57, 56), accent=(203, 39, 27))
+    draw_mesh(draw, mesh, cam, W, H, ink=(10, 10, 10), accent=(203, 39, 27))
 
 Coordinates: +x right, +y up, +z towards the viewer (screen space is y-down, handled in `project`).
 """
@@ -183,7 +183,7 @@ def draw_mesh(draw, m: dict, cam: dict, w: int, h: int, colors: dict, light=(0.3
         n = face_normal(m, (idx, role))
         if cull and _dot(n, _sub(cam["pos"], _face_centre(m, idx))) <= 0:
             continue                      # the face points away from the camera
-        col = shade(colors.get(role, colors.get("side", (71, 57, 56))), n, light, ambient)
+        col = shade(colors.get(role, colors.get("side", (10, 10, 10))), n, light, ambient)
         draw.polygon([(p[0], p[1]) for p in pts], fill=col, outline=outline)
         drawn += 1
     return drawn

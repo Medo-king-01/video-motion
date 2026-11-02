@@ -210,7 +210,7 @@ def build(only: list[str] | None = None) -> dict:
     return manifest
 
 
-def sheet(manifest: dict, out: Path, cols: int = 7, cell_h: int = 420, background=(71, 57, 56)) -> Path:
+def sheet(manifest: dict, out: Path, cols: int = 7, cell_h: int = 420, background=(10, 10, 10)) -> Path:
     """Contact sheet on the brand's dark background — catches white halos and scale mismatches."""
     from PIL import Image, ImageDraw, ImageFont  # noqa: PLC0415
 

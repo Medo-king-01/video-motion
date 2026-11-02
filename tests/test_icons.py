@@ -80,7 +80,7 @@ def test_engine_p_reveal_grows_with_time():
 
     def ink_at(t: float) -> int:
         frame = np.zeros((128, 128, 3), dtype=np.float32)
-        frame[:, :] = (46, 36, 35)
+        frame[:, :] = (3, 3, 3)
         draw_icon(frame, "cpu", t, 64, 64, size=112, color=(243, 242, 241), loop=False)
         return int(((frame[:, :, 0] > 150)).sum())
 

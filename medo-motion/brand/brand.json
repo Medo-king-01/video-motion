@@ -1,5 +1,5 @@
 {
-  "_doc": "Single machine-readable source of truth for Medo's reel studio. Human version: brand/BRAND.md. Palette v2 (2026-11-01, given by Medo) replaces the old red/black/white set. Values under `derived` are computed from palette colours and are declared here on purpose — do not invent any other colour.",
+  "_doc": "Single machine-readable source of truth for Medo's reel studio. Human version: brand/BRAND.md. Palette v2.6 Muted (2026-11-02, given by Medo) replaces the brown inks of v2 with deep black #0A0A0A and sharp neutral gray #71717A; red stays the only accent. Values under `derived` are computed from palette colours and are declared here on purpose — do not invent any other colour.",
   "brand": {
     "name": "Kodo Medo",
     "name_ar": "كودو ميدو",
@@ -37,20 +37,20 @@
       "role": "deep red: depth, hover/pressed, shadow side of red shapes"
     },
     "ink": {
-      "hex": "#473938",
+      "hex": "#0A0A0A",
       "rgb": [
-        71,
-        57,
-        56
+        10,
+        10,
+        10
       ],
       "role": "dark base = text on light, device bodies, caption plate"
     },
     "ink_soft": {
-      "hex": "#8B6765",
+      "hex": "#71717A",
       "rgb": [
-        139,
-        103,
-        101
+        113,
+        113,
+        122
       ],
       "role": "muted brown: secondary text (large only), screen bars, dividers"
     },
@@ -97,7 +97,7 @@
         162,
         160
       ],
-      "role": "secondary text on dark (large only: 4.31:1)"
+      "role": "secondary text on dark (large only: 7.76:1 on ink)"
     },
     "salmon": {
       "hex": "#D97F68",
@@ -121,14 +121,14 @@
   "backgrounds": {
     "dark": {
       "top": [
-        71,
-        57,
-        56
+        10,
+        10,
+        10
       ],
       "bottom": [
-        46,
-        36,
-        35
+        3,
+        3,
+        3
       ],
       "note": "ink -> ink_shadow"
     },
@@ -150,7 +150,7 @@
   "contrast_rules": [
     "Body text >= 4.5:1 against its real background",
     "Large text / keywords >= 3:1",
-    "Never red text on a dark background (2.0:1) — use salmon there",
+    "Never red text on a dark background (3.63:1 — visually harsh) — use salmon there",
     "Never gray_4 or salmon for body-size text"
   ],
   "typography": {
@@ -206,9 +206,9 @@
   },
   "caption": {
     "plate_rgba": [
-      71,
-      57,
-      56,
+      10,
+      10,
+      10,
       232
     ],
     "border": "red 3px",
@@ -246,7 +246,7 @@
       "light": "#D5AEA6",
       "note": "the two skin tones are part of the palette; do not invent others"
     },
-    "outline": "#2E2423"
+    "outline": "#030303"
   },
   "motion": {
     "camera_zoom": "1.00 <-> 1.04 alternating per scene + horizontal drift +/-14px",
@@ -287,25 +287,25 @@
   },
   "derived": {
     "ink_shadow": {
-      "hex": "#2E2423",
+      "hex": "#030303",
       "rgb": [
-        46,
-        36,
-        35
+        3,
+        3,
+        3
       ],
-      "role": "computed: ink darkened 35% — outlines, device screens, dark gradient bottom",
-      "from": "ink #473938",
-      "rule": "darken 35% in linear RGB"
+      "role": "computed: ink darkened toward black (locked in v2.6) — outlines, device screens, dark gradient bottom",
+      "from": "ink #0A0A0A",
+      "rule": "locked value #030303 in palette v2.6 — the one derived shade allowed"
     }
   },
   "palette_notes": [
     "There is no green and no yellow in palette v2. Positive emphasis = paper white + a check glyph.",
     "If a video needs a colour outside this palette, stop and ask Medo; do not approximate it.",
-    "On DARK backgrounds red carries only ~2.0:1 — use salmon #D97F68 for red-family keywords there."
+    "On DARK backgrounds red carries only ~3.63:1 — use salmon #D97F68 for red-family keywords there."
   ],
   "devices": {
-    "screen": "#2E2423",
-    "bars": "#8B6765",
+    "screen": "#030303",
+    "bars": "#71717A",
     "dot": "#CB271B",
     "note": "replaces the old dark-green screen + teal bars + yellow dot signature"
   }

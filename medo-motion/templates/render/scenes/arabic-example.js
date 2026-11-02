@@ -8,7 +8,7 @@ export async function init() {
 }
 
 // Brand palette (brand/brand.json): dark bg + red + warm white.
-const BG = '#473938', CREAM = '#F3F2F1', RED = '#CB271B';
+const BG = '#0A0A0A', CREAM = '#F3F2F1', RED = '#CB271B';
 
 export function draw(ctx, t, { W, H }) {
   ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);

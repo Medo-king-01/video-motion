@@ -17,7 +17,7 @@ export async function init() {
 
 // NOTE: this demo keeps an editorial palette to show the kit's range.
 // For a brand reel, copy the tokens from ../lib/brand.js instead.
-const INK = '#473938', RED = '#CB271B', PAPER = '#F3F2F1', BLUE = '#8B6765', SKY = '#D5AEA6', YELLOW = '#D97F68';
+const INK = '#0A0A0A', RED = '#CB271B', PAPER = '#F3F2F1', BLUE = '#71717A', SKY = '#D5AEA6', YELLOW = '#D97F68';
 
 function sectionOne(ctx, t, W, H) {
   K.drawPaper(ctx, W, H, paper, PAPER);
@@ -36,7 +36,7 @@ function sectionOne(ctx, t, W, H) {
     const r = K.rng(5);
     for (let i = 0; i < 26; i++) {                                   // waveform reacting to time
       const h = (12 + r() * 60) * (0.55 + 0.45 * Math.sin(t * 9 + i * 0.7));
-      ctx.fillStyle = i < 26 * K.seg(t, 0.4, 2.4) ? RED : 'rgba(46,36,35,.18)';
+      ctx.fillStyle = i < 26 * K.seg(t, 0.4, 2.4) ? RED : 'rgba(3,3,3,.18)';
       ctx.fillRect(sx + 40 + i * ((sw - 80) / 26), sy + sh - 170 - h / 2, 6, h);
     }
   }, { s: ph.s, alpha: ph.alpha, rot: -2 });
@@ -55,7 +55,7 @@ function sectionOne(ctx, t, W, H) {
 
 function sectionTwo(ctx, t, W, H) {
   ctx.fillStyle = SKY; ctx.fillRect(0, 0, W, H);
-  K.dotGrid(ctx, W, H, { gap: 40, r: 2.4, color: 'rgba(139,103,101,.25)' });
+  K.dotGrid(ctx, W, H, { gap: 40, r: 2.4, color: 'rgba(113,113,122,.25)' });
   ctx.fillStyle = BLUE; ctx.fillRect(0, 1330, W, H - 1330);                 // "desk" band of the colour world
   K.sectionLabel(ctx, '02 · الأدوات', { x: W - 72, y: 172, style: 'tape' });
   K.slotStrip(ctx, t, { x: 70, y: 120, w: 470, total: 4, plugTimes: [4.3, 5.3, 6.3], labels: ['الصوت', 'الخطوط', 'الستايل', '؟'] });
@@ -63,7 +63,7 @@ function sectionTwo(ctx, t, W, H) {
   const c = K.enter(t, 3.95, { rise: 60 });
   K.card(ctx, 100, 470 + c.dy, W - 200, 290, { r: 30, s: c.s, alpha: c.alpha, rot: -1 }, (x, y, w) => {
     ctx.fillStyle = INK; ctx.font = K.font(700, 46, K.FONTS.mono); ctx.direction = 'ltr'; ctx.textAlign = 'left'; ctx.fillText('khaam-motion', x + 44, y + 92);
-    ctx.fillStyle = 'rgba(46,36,35,.55)'; ctx.font = K.font(500, 32, K.FONTS.text); ctx.direction = 'rtl'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(3,3,3,.55)'; ctx.font = K.font(500, 32, K.FONTS.text); ctx.direction = 'rtl'; ctx.textAlign = 'right';
     ctx.fillText('مهارة موشن عربية لـ Claude', x + w - 44, y + 170);
     ctx.fillStyle = INK; ctx.font = K.font(800, 54, K.FONTS.mono); ctx.direction = 'ltr'; ctx.textAlign = 'left';
     ctx.fillText('★ ' + K.rolling(0, 4210, K.seg(t, 4.3, 1.2)), x + 44, y + 245);

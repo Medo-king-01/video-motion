@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 
 from icons import ICONS, draw_icon  # noqa: E402
 
-INK = (71, 57, 56)
+INK = (10, 10, 10)
 PAPER = (243, 242, 241)
 RED = (203, 39, 27)
 SALMON = (217, 127, 104)

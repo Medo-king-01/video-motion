@@ -55,7 +55,7 @@ from space3d import prism, camera, draw_mesh, transform
 card = prism([(-160, -220), (160, -220), (160, 220), (-160, 220)], 60)
 cam   = camera(dist=1500, yaw=0.55, pitch=-0.12, fov=38)
 draw_mesh(draw, transform(card, ry=0.5 + 0.3 * t),
-          cam, W, H, {"front": "#CB271B", "side": "#9F0803"}, outline="#2E2423")
+          cam, W, H, {"front": "#CB271B", "side": "#9F0803"}, outline="#030303")
 ```
 - `+x` يمين، `+y` فوق، `+z` ناحية المشاهد. الشاشة y لتحت — التحويل جوه `project`.
 - **cull** بيشيل الأوجه اللي بتبص بعيد (صح للمجسمات المقفولة، غلط للشرائط).

@@ -26,7 +26,7 @@ export const font = (weight, size, ...families) => `${weight} ${size}px ${famili
 function setDir(ctx, text, align) { ctx.direction = isArabic(text) ? 'rtl' : 'ltr'; ctx.textAlign = align; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; }
 
 export function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
-export function withShadow(ctx, fn, { blur = 36, y = 14, color = 'rgba(46,36,35,.18)' } = {}) {
+export function withShadow(ctx, fn, { blur = 36, y = 14, color = 'rgba(3,3,3,.18)' } = {}) {
   ctx.save(); ctx.shadowColor = color; ctx.shadowBlur = blur; ctx.shadowOffsetY = y; fn(); ctx.restore();
 }
 // Run fn inside a transform: pop scale s and rotation rot (degrees) around (cx, cy).
@@ -52,14 +52,14 @@ export function drawPaper(ctx, W, H, tile, base = '#F3F2F1') {
   ctx.fillStyle = base; ctx.fillRect(0, 0, W, H);
   if (tile) { ctx.fillStyle = ctx.createPattern(tile, 'repeat'); ctx.fillRect(0, 0, W, H); }
 }
-export function dotGrid(ctx, W, H, { gap = 36, r = 2, color = 'rgba(46,36,35,.12)' } = {}) {
+export function dotGrid(ctx, W, H, { gap = 36, r = 2, color = 'rgba(3,3,3,.12)' } = {}) {
   ctx.save(); ctx.fillStyle = color;
   for (let y = gap / 2; y < H; y += gap) for (let x = gap / 2; x < W; x += gap) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
   ctx.restore();
 }
 
 // Chapter transition overlay. p 0→0.5 dots cover the frame from `origin`; 0.5→1 they shrink away. Swap scenes at p = 0.5.
-export function halftoneWipe(ctx, W, H, p, { cell = 44, color = '#473938', origin = [W / 2, H / 2] } = {}) {
+export function halftoneWipe(ctx, W, H, p, { cell = 44, color = '#0A0A0A', origin = [W / 2, H / 2] } = {}) {
   const q = p < 0.5 ? p * 2 : (1 - p) * 2;
   if (q <= 0) return;
   const maxD = Math.hypot(Math.max(origin[0], W - origin[0]), Math.max(origin[1], H - origin[1]));
@@ -73,7 +73,7 @@ export function halftoneWipe(ctx, W, H, p, { cell = 44, color = '#473938', origi
 
 // Printed-dot version of an image (screenshots, photos). Pass w/h with the image's aspect ratio.
 const _ht = new Map();
-export function halftoneImage(ctx, img, x, y, w, h, { cell = 9, ink = '#473938', paper = null, gamma = 1, key = '' } = {}) {
+export function halftoneImage(ctx, img, x, y, w, h, { cell = 9, ink = '#0A0A0A', paper = null, gamma = 1, key = '' } = {}) {
   const id = `${key || img.src}|${Math.round(w)}x${Math.round(h)}|${cell}|${gamma}`;
   let grid = _ht.get(id);
   if (!grid) {
@@ -98,7 +98,7 @@ export function halftoneImage(ctx, img, x, y, w, h, { cell = 9, ink = '#473938',
 
 // ---------- HUD ----------
 // Section label: style 'mono' («// ٠٢ · النظام») or 'tape' (dark tape sticker). rtl anchors at the right edge.
-export function sectionLabel(ctx, text, { x, y, rtl = true, style = 'mono', size = 26, ink = '#473938', tape = '#473938', tapeText = '#F3F2F1', rot = -1.5, alpha = 1 } = {}) {
+export function sectionLabel(ctx, text, { x, y, rtl = true, style = 'mono', size = 26, ink = '#0A0A0A', tape = '#0A0A0A', tapeText = '#F3F2F1', rot = -1.5, alpha = 1 } = {}) {
   ctx.save(); ctx.globalAlpha *= alpha;
   ctx.font = font(style === 'tape' ? 800 : 500, size, FONTS.mono, FONTS.arUi);
   setDir(ctx, text, rtl ? 'right' : 'left'); ctx.textBaseline = 'middle';
@@ -113,7 +113,7 @@ export function sectionLabel(ctx, text, { x, y, rtl = true, style = 'mono', size
   ctx.restore();
 }
 // Progress pips «● ● ○ ○» with an optional label («٢/٥»). done = count finished, active = index in progress.
-export function progressPips(ctx, { x, y, total, done, active = -1, rtl = true, size = 16, ink = '#473938', accent = '#CB271B', label = '' } = {}) {
+export function progressPips(ctx, { x, y, total, done, active = -1, rtl = true, size = 16, ink = '#0A0A0A', accent = '#CB271B', label = '' } = {}) {
   ctx.save(); const gap = size * 0.8, w = size * 2.2;
   for (let i = 0; i < total; i++) {
     const px = rtl ? x - i * (w + gap) - w : x + i * (w + gap);
@@ -130,7 +130,7 @@ export function progressPips(ctx, { x, y, total, done, active = -1, rtl = true, 
   ctx.restore();
 }
 // Metaphor progress: a strip of sockets; slot i gets plugged at plugTimes[i] (a coloured plug drops on a cable).
-export function slotStrip(ctx, t, { x, y, w, total = 4, plugTimes = [], colors = ['#8B6765', '#C9C5C2', '#D5AEA6', '#D97F68'], labels = [], rtl = true, body = '#F3F2F1', ink = '#473938' } = {}) {
+export function slotStrip(ctx, t, { x, y, w, total = 4, plugTimes = [], colors = ['#71717A', '#C9C5C2', '#D5AEA6', '#D97F68'], labels = [], rtl = true, body = '#F3F2F1', ink = '#0A0A0A' } = {}) {
   const h = w / (total + 1.6), r = h * 0.32;
   ctx.save();
   withShadow(ctx, () => { rr(ctx, x, y, w, h, h / 2); ctx.fillStyle = body; ctx.fill(); }, { blur: 20, y: 8 });
@@ -158,7 +158,7 @@ export function slotStrip(ctx, t, { x, y, w, total = 4, plugTimes = [], colors =
   }
   ctx.restore();
 }
-export function handleTag(ctx, text, { x, y, size = 24, color = '#473938', alpha = 0.35, rtl = true } = {}) {
+export function handleTag(ctx, text, { x, y, size = 24, color = '#0A0A0A', alpha = 0.35, rtl = true } = {}) {
   ctx.save(); ctx.globalAlpha *= alpha; ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 3;
   const s = size * 1.2, ix = rtl ? x - s : x;
   rr(ctx, ix, y - s / 2, s, s, s * 0.3); ctx.stroke();
@@ -170,7 +170,7 @@ export function handleTag(ctx, text, { x, y, size = 24, color = '#473938', alpha
 
 // ---------- captions ----------
 // Editorial top caption. words: [{w, s, key}] with s = spoken start (s). Keywords switch to the accent font/colour.
-export function captionBlock(ctx, words, t, { x, y, maxWidth, size = 62, rtl = true, color = '#473938', keyColor = '#CB271B', family = FONTS.text, keyFamily = FONTS.accent, weight = 600, keyWeight = 700, lineHeight = 1.4, appear = 0.18, alpha = 1 } = {}) {
+export function captionBlock(ctx, words, t, { x, y, maxWidth, size = 62, rtl = true, color = '#0A0A0A', keyColor = '#CB271B', family = FONTS.text, keyFamily = FONTS.accent, weight = 600, keyWeight = 700, lineHeight = 1.4, appear = 0.18, alpha = 1 } = {}) {
   const f = wd => wd.key ? font(keyWeight, size * 1.1, keyFamily, family) : font(weight, size, family);
   ctx.save(); ctx.globalAlpha *= alpha; ctx.textBaseline = 'alphabetic';
   ctx.font = font(weight, size, family); const space = ctx.measureText(' ').width;
@@ -191,7 +191,7 @@ export function captionBlock(ctx, words, t, { x, y, maxWidth, size = 62, rtl = t
   ctx.restore();
 }
 // Bottom keycap captions. groups: [{s, e, words: [{w, s, key}]}]. The latest spoken word in the group is highlighted.
-export function keycaps(ctx, groups, t, { x, y, size = 64, rtl = true, gap = 18, face = '#F3F2F1', active = '#D97F68', dark = '#473938', family = FONTS.text } = {}) {
+export function keycaps(ctx, groups, t, { x, y, size = 64, rtl = true, gap = 18, face = '#F3F2F1', active = '#D97F68', dark = '#0A0A0A', family = FONTS.text } = {}) {
   const g = groups.find(gr => t >= gr.s && t < gr.e);
   if (!g) return;
   ctx.save(); ctx.font = font(800, size, family); ctx.textBaseline = 'middle';
@@ -207,9 +207,9 @@ export function keycaps(ctx, groups, t, { x, y, size = 64, rtl = true, gap = 18,
       const isActive = it === current;
       const top = it.key ? dark : isActive ? active : face, ink = it.key ? (isActive ? active : '#fff') : dark;
       around(ctx, kx + it.width / 2, y, { s: e.s, alpha: e.alpha }, () => {
-        rr(ctx, kx, y - h / 2 + depth, it.width, h, size * 0.22); ctx.fillStyle = 'rgba(46,36,35,.35)'; ctx.fill();
+        rr(ctx, kx, y - h / 2 + depth, it.width, h, size * 0.22); ctx.fillStyle = 'rgba(3,3,3,.35)'; ctx.fill();
         rr(ctx, kx, y - h / 2, it.width, h, size * 0.22); ctx.fillStyle = top; ctx.fill();
-        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(46,36,35,.25)'; ctx.stroke();
+        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(3,3,3,.25)'; ctx.stroke();
         ctx.fillStyle = ink; setDir(ctx, it.w, 'center'); ctx.fillText(it.w, kx + it.width / 2, y + 2);
       });
     }
@@ -228,10 +228,10 @@ export function card(ctx, x, y, w, h, { r = 28, fill = '#fff', stroke = null, lw
   });
 }
 // Phone mock-up. drawScreen(sx, sy, sw, sh) paints the screen inside a clip. Height = w * 2.05.
-export function phone(ctx, x, y, w, drawScreen, { frame = '#473938', screen = '#F3F2F1', rot = 0, s = 1, alpha = 1 } = {}) {
+export function phone(ctx, x, y, w, drawScreen, { frame = '#0A0A0A', screen = '#F3F2F1', rot = 0, s = 1, alpha = 1 } = {}) {
   const h = w * 2.05, r = w * 0.16, inset = w * 0.035;
   around(ctx, x + w / 2, y + h / 2, { s, rot, alpha }, () => {
-    withShadow(ctx, () => { rr(ctx, x, y, w, h, r); ctx.fillStyle = frame; ctx.fill(); }, { blur: 50, y: 22, color: 'rgba(46,36,35,.25)' });
+    withShadow(ctx, () => { rr(ctx, x, y, w, h, r); ctx.fillStyle = frame; ctx.fill(); }, { blur: 50, y: 22, color: 'rgba(3,3,3,.25)' });
     const sx = x + inset, sy = y + inset, sw = w - inset * 2, sh = h - inset * 2;
     ctx.save(); rr(ctx, sx, sy, sw, sh, r - inset); ctx.clip(); ctx.fillStyle = screen; ctx.fillRect(sx, sy, sw, sh);
     drawScreen?.(sx, sy, sw, sh); ctx.restore();
@@ -240,12 +240,12 @@ export function phone(ctx, x, y, w, drawScreen, { frame = '#473938', screen = '#
 }
 // App / terminal window with three dots and a title. body(bx, by, bw, bh) draws the content.
 export function appWindow(ctx, x, y, w, h, { title = '', dark = true, body = null, r = 22, rot = 0, s = 1, alpha = 1 } = {}) {
-  const bg = dark ? '#2E2423' : '#F3F2F1', bar = dark ? '#473938' : '#D8D7D5', fg = dark ? '#BFBAB7' : '#8B6765', head = 54;
+  const bg = dark ? '#030303' : '#F3F2F1', bar = dark ? '#0A0A0A' : '#D8D7D5', fg = dark ? '#BFBAB7' : '#71717A', head = 54;
   around(ctx, x + w / 2, y + h / 2, { s, rot, alpha }, () => {
-    withShadow(ctx, () => { rr(ctx, x, y, w, h, r); ctx.fillStyle = bg; ctx.fill(); }, { blur: 44, y: 18, color: 'rgba(46,36,35,.28)' });
+    withShadow(ctx, () => { rr(ctx, x, y, w, h, r); ctx.fillStyle = bg; ctx.fill(); }, { blur: 44, y: 18, color: 'rgba(3,3,3,.28)' });
     ctx.save(); rr(ctx, x, y, w, h, r); ctx.clip();
     ctx.fillStyle = bar; ctx.fillRect(x, y, w, head);
-    ['#CB271B', '#D5AEA6', '#8B6765'].forEach((c, i) => { ctx.beginPath(); ctx.arc(x + 30 + i * 26, y + head / 2, 8, 0, Math.PI * 2); ctx.fillStyle = c; ctx.fill(); });
+    ['#CB271B', '#D5AEA6', '#71717A'].forEach((c, i) => { ctx.beginPath(); ctx.arc(x + 30 + i * 26, y + head / 2, 8, 0, Math.PI * 2); ctx.fillStyle = c; ctx.fill(); });
     if (title) { ctx.font = font(500, 22, FONTS.mono, FONTS.arUi); ctx.fillStyle = fg; setDir(ctx, title, 'center'); ctx.textBaseline = 'middle'; ctx.fillText(title, x + w / 2, y + head / 2 + 1); }
     body?.(x, y + head, w, h - head);
     ctx.restore();
@@ -278,11 +278,11 @@ export function typeLines(ctx, lines, t, { x, y, w, size = 28, lineH = 1.55, col
 }
 // Checklist of steps: pending → spinner → tick. items: [{title, sub}]; step i runs from start + i*step.
 export function checklist(ctx, items, t, { x, y, w, rowH = 92, size = 32, start = 0, step = 0.7, dark = true, accent = '#CB271B', rtl = true } = {}) {
-  const fg = dark ? '#F3F2F1' : '#473938', dim = dark ? 'rgba(243,242,241,.45)' : 'rgba(46,36,35,.45)';
+  const fg = dark ? '#F3F2F1' : '#0A0A0A', dim = dark ? 'rgba(243,242,241,.45)' : 'rgba(3,3,3,.45)';
   items.forEach((it, i) => {
     const ry = y + i * rowH, s0 = start + i * step, state = t < s0 ? 0 : t < s0 + step ? 1 : 2;
     const ix = rtl ? x + w - 34 : x + 34, iy = ry + rowH / 2;
-    if (state === 1) { rr(ctx, x, ry + 6, w, rowH - 12, 14); ctx.fillStyle = dark ? 'rgba(243,242,241,.07)' : 'rgba(46,36,35,.05)'; ctx.fill();
+    if (state === 1) { rr(ctx, x, ry + 6, w, rowH - 12, 14); ctx.fillStyle = dark ? 'rgba(243,242,241,.07)' : 'rgba(3,3,3,.05)'; ctx.fill();
       ctx.fillStyle = accent; ctx.fillRect(rtl ? x + w - 6 : x, ry + 14, 6, rowH - 28); }
     ctx.lineWidth = 4;
     if (state === 0) { ctx.beginPath(); ctx.arc(ix, iy, 15, 0, Math.PI * 2); ctx.strokeStyle = dim; ctx.stroke(); }
@@ -302,7 +302,7 @@ export function checklist(ctx, items, t, { x, y, w, rowH = 92, size = 32, start 
   });
 }
 // Folder with file tabs sticking out. p 0→1 lifts the papers. Height ≈ w * 0.72.
-export function folder(ctx, x, y, w, { color = '#8B6765', label = '', tabs = [], p = 1, rot = 0, s = 1, alpha = 1 } = {}) {
+export function folder(ctx, x, y, w, { color = '#71717A', label = '', tabs = [], p = 1, rot = 0, s = 1, alpha = 1 } = {}) {
   const h = w * 0.72, lift = 60 * ease.outBack(p);
   around(ctx, x + w / 2, y + h / 2, { s, rot, alpha }, () => {
     rr(ctx, x, y + h * 0.08, w, h * 0.92, 26); ctx.fillStyle = shade(color, -0.18); ctx.fill();
@@ -311,15 +311,15 @@ export function folder(ctx, x, y, w, { color = '#8B6765', label = '', tabs = [],
       const px = x + w * (0.1 + i * 0.28), py = y + h * 0.1 - lift * (1 - i * 0.15);
       around(ctx, px + w * 0.15, py + h * 0.3, { rot: (i - 1) * 6 }, () => {
         withShadow(ctx, () => { rr(ctx, px, py, w * 0.3, h * 0.6, 10); ctx.fillStyle = '#F3F2F1'; ctx.fill(); }, { blur: 12, y: 4 });
-        ctx.fillStyle = '#473938'; ctx.font = font(600, w * 0.04, FONTS.mono, FONTS.arUi); setDir(ctx, tb, 'center'); ctx.fillText(tb, px + w * 0.15, py + h * 0.1);
-        ctx.fillStyle = 'rgba(46,36,35,.15)'; for (let k = 0; k < 3; k++) ctx.fillRect(px + w * 0.04, py + h * (0.18 + k * 0.08), w * 0.22, 6);
+        ctx.fillStyle = '#0A0A0A'; ctx.font = font(600, w * 0.04, FONTS.mono, FONTS.arUi); setDir(ctx, tb, 'center'); ctx.fillText(tb, px + w * 0.15, py + h * 0.1);
+        ctx.fillStyle = 'rgba(3,3,3,.15)'; for (let k = 0; k < 3; k++) ctx.fillRect(px + w * 0.04, py + h * (0.18 + k * 0.08), w * 0.22, 6);
       });
     });
     withShadow(ctx, () => { rr(ctx, x, y + h * 0.3, w, h * 0.7, 26); ctx.fillStyle = color; ctx.fill(); }, { blur: 30, y: 12 });
     if (label) { ctx.fillStyle = '#fff'; ctx.font = font(700, w * 0.1, FONTS.text, FONTS.mono); setDir(ctx, label, 'center'); ctx.textBaseline = 'middle'; ctx.fillText(label, x + w / 2, y + h * 0.66); }
   });
 }
-export function chip(ctx, text, { x, y, size = 28, bg = '#F3F2F1', fg = '#473938', stroke = null, align = 'center', s = 1, alpha = 1 } = {}) {
+export function chip(ctx, text, { x, y, size = 28, bg = '#F3F2F1', fg = '#0A0A0A', stroke = null, align = 'center', s = 1, alpha = 1 } = {}) {
   ctx.save(); ctx.font = font(700, size, FONTS.mono, FONTS.arUi);
   const w = ctx.measureText(text).width + size * 1.4, h = size * 1.8, x0 = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
   around(ctx, x0 + w / 2, y, { s, alpha }, () => {
@@ -350,7 +350,7 @@ export function stamp(ctx, text, t, { x, y, start = 0, size = 150, color = '#CB2
   const shake = t - start > 0.25 && t - start < 0.4 ? Math.sin((t - start) * 120) * 3 : 0;
   around(ctx, x + shake, y, { s: sc, rot, alpha: clamp01(p * 3) }, () => ctx.drawImage(bmp, x + shake - bmp.width / 2, y - bmp.height / 2));
 }
-export function burst(ctx, x, y, t, { start = 0, r = 90, n = 8, len = 34, color = '#473938', lw = 6, spread = Math.PI * 2, angle = -Math.PI / 2 } = {}) {
+export function burst(ctx, x, y, t, { start = 0, r = 90, n = 8, len = 34, color = '#0A0A0A', lw = 6, spread = Math.PI * 2, angle = -Math.PI / 2 } = {}) {
   const p = seg(t, start, 0.3); if (p <= 0 || p >= 1) return;
   ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.globalAlpha = 1 - p;
   for (let i = 0; i < n; i++) {
@@ -381,7 +381,7 @@ export function rolling(from, to, p, { digits = 'western', decimals = 0, sep = t
 }
 // End card: a comment field types the keyword, the comment posts, then a DM card arrives with the gift.
 export function commentCTA(ctx, t, { x, y, w, keyword, start = 0, placeholder = 'أضف تعليقاً…', dmTitle = 'وصلتك رسالة جديدة', dmBody = '', accent = '#CB271B', dark = false } = {}) {
-  const bg = dark ? '#2E2423' : '#F3F2F1', fg = dark ? '#F3F2F1' : '#473938', dim = dark ? 'rgba(243,242,241,.45)' : 'rgba(46,36,35,.4)';
+  const bg = dark ? '#030303' : '#F3F2F1', fg = dark ? '#F3F2F1' : '#0A0A0A', dim = dark ? 'rgba(243,242,241,.45)' : 'rgba(3,3,3,.4)';
   const lt = t - start; if (lt < 0) return;
   const fieldY = y + 390, h = 96;
   // DM card
