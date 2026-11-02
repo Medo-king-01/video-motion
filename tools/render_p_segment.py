@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -39,8 +40,17 @@ def main() -> int:
     encoder: subprocess.Popen[bytes] | None = None
     try:
         os.chdir(project)
+        import text_direction as td  # noqa: PLC0415
         from art import H, W  # noqa: PLC0415
         from scenes import render_frame  # noqa: PLC0415
+
+        beats_p = project / "plan" / "beats.json"
+        if beats_p.is_file():
+            beats = json.loads(beats_p.read_text(encoding="utf-8"))
+            report = td.validate(td.load(project), beats, td.load_copy(project))
+            if report["errors"]:
+                raise RuntimeError("Text direction incomplete — the agent must choose styles per scene:\n"
+                                   + "\n".join(report["errors"]))
 
         command = [
             args.ffmpeg, "-hide_banner", "-loglevel", "error", "-y",

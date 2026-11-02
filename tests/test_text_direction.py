@@ -16,6 +16,7 @@ import text_direction as td  # noqa: E402
 
 GOOD_DIR = json.loads((ROOT / "tests" / "fixtures" / "reel" / "good" / "plan" / "text-direction.json").read_text())
 GOOD_BEATS = json.loads((ROOT / "tests" / "fixtures" / "reel" / "good" / "plan" / "beats.json").read_text())
+GOOD_COPY = json.loads((ROOT / "tests" / "fixtures" / "reel" / "good" / "plan" / "copy.json").read_text())
 
 
 def test_good_direction_validates_clean():
@@ -70,17 +71,41 @@ def test_js_and_python_validate_identically():
         "const cases = JSON.parse(process.argv[1]);\n"
         "const beats = JSON.parse(process.argv[2]);\n"
         "const out = {};\n"
-        "for (const [k, v] of Object.entries(cases)) out[k] = validateTextDirection(v, beats);\n"
+        "const copy = JSON.parse(process.argv[3]);\n"
+        "for (const [k, v] of Object.entries(cases)) out[k] = validateTextDirection(v, beats, copy);\n"
         "console.log(JSON.stringify(out));\n"
     )
-    r = subprocess.run(["node", "-e", script, json.dumps(cases), json.dumps(GOOD_BEATS)],
+    r = subprocess.run(["node", "-e", script, json.dumps(cases), json.dumps(GOOD_BEATS), json.dumps(GOOD_COPY)],
                        capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     js = json.loads(r.stdout)
     for name, direction in cases.items():
-        py = td.validate(direction, GOOD_BEATS)
+        py = td.validate(direction, GOOD_BEATS, GOOD_COPY)
         assert js[name]["errors"] == py["errors"], name
         assert js[name]["warnings"] == py["warnings"], name
+
+
+def test_good_direction_covers_every_text_fragment():
+    assert td.validate(GOOD_DIR, GOOD_BEATS, GOOD_COPY)["errors"] == []
+
+
+def test_undirected_text_fragment_is_an_error():
+    copy = json.loads(json.dumps(GOOD_COPY))
+    del copy["copy"][1]["role"]
+    report = td.validate(GOOD_DIR, GOOD_BEATS, copy)
+    assert any("known role" in e for e in report["errors"])
+    # a known role with no style in the scene is also rejected
+    copy = json.loads(json.dumps(GOOD_COPY))
+    copy["copy"][1]["role"] = "quote"
+    report = td.validate(GOOD_DIR, GOOD_BEATS, copy)
+    assert any("no textStyles.quote" in e for e in report["errors"])
+
+
+def test_element_override_resolves_and_must_match_role():
+    first = GOOD_COPY["copy"][0]
+    assert td.text_style_for(GOOD_DIR, first["scene"], "hook", first["id"]) == "wordPop"
+    with pytest.raises(ValueError):
+        td.text_style_for(GOOD_DIR, first["scene"], "title", first["id"])
 
 
 def test_tool_init_then_check(tmp_path):

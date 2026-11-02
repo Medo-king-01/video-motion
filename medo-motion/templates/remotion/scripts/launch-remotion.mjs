@@ -1,7 +1,8 @@
 import {spawnSync} from 'node:child_process';
-import {existsSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import {validateTextDirection} from '../src/lib/text-direction.js';
 
 const project = process.cwd();
 const repoChromium = path.resolve(project, '../../tools/chromium.mjs');
@@ -10,6 +11,18 @@ const cli = path.join(project, 'node_modules', '@remotion', 'cli', 'remotion-cli
 function fail(message) {
   console.error(`Remotion setup: ${message}`);
   process.exit(2);
+}
+
+// Every visible text element must have an explicit agent-chosen motion style.
+const beatsPath = path.join(project, 'plan', 'beats.json');
+if (existsSync(beatsPath)) {
+  const beats = JSON.parse(readFileSync(beatsPath, 'utf8'));
+  const dirPath = path.join(project, 'plan', 'text-direction.json');
+  const direction = existsSync(dirPath) ? JSON.parse(readFileSync(dirPath, 'utf8')) : {};
+  const copyPath = path.join(project, 'plan', 'copy.json');
+  const copy = existsSync(copyPath) ? JSON.parse(readFileSync(copyPath, 'utf8')) : null;
+  const {errors} = validateTextDirection(direction, beats, copy);
+  if (errors.length) fail('Text direction incomplete — the agent must choose styles for every text element:\n' + errors.join('\n'));
 }
 
 let browser = null;

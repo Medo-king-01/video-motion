@@ -10,7 +10,8 @@
 | `examples/card-entrance.json` | تايملاين جاهز للتجربة |
 | `../templates/render/lib/motion.js` | المحرك K: `ease` · `spring` · `keyframes` · `timeline` · `stagger` · `reveal` |
 | `../templates/procedural-reels/motion.py` | المحرك P: نفس الـAPI بالحرف |
-| `../templates/render/lib/captions.js` | كابشن كلمة-كلمة بـ`style` **مطلوب** يختاره الوكيل لكل مشهد (`plan/text-direction.json`) — بتوقيت مقاس، من غير default |
+| `../templates/render/lib/captions.js` | كابشن كلمة-كلمة + `drawDirectedText` لأي نص ظاهر، بـ`style` **مطلوب** يختاره الوكيل لكل عنصر (`plan/text-direction.json`) — بتوقيت مقاس، من غير default |
+| `../templates/render/lib/text-direction.js` | عقد خطة حركة النص (v2): `captionStyle` + `textStyles`/`textElements` لكل مشهد، والتحقق من تغطية كل جزء نص في `copy.json` |
 
 ```js
 import { timeline } from './lib/motion.js';

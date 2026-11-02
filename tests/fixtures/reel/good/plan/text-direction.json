@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "status": "directed",
   "decidedBy": "agent",
   "concept": "A calm explainer that lifts energy on proof beats; text motion follows the spoken emphasis.",
@@ -9,9 +9,17 @@
       "captionStyle": "karaoke",
       "captionWhy": "scene 1 mood fits karaoke for the spoken emphasis",
       "textStyles": {
-        "title": "karaoke"
+        "title": "karaoke",
+        "keyword": "karaoke"
       },
-      "textWhy": "scene 1 title uses karaoke to match the caption rhythm"
+      "textWhy": "scene 1 on-screen text follows the spoken emphasis with directed styles",
+      "textElements": {
+        "s1-title-0": {
+          "role": "hook",
+          "style": "wordPop",
+          "why": "the opening hook pops to grab attention before the title"
+        }
+      }
     },
     {
       "scene": 2,
@@ -20,16 +28,17 @@
       "textStyles": {
         "title": "softFade"
       },
-      "textWhy": "scene 2 title uses softFade to match the caption rhythm"
+      "textWhy": "scene 2 on-screen text follows the spoken emphasis with directed styles"
     },
     {
       "scene": 3,
       "captionStyle": "zoomPunch",
       "captionWhy": "scene 3 mood fits zoomPunch for the spoken emphasis",
       "textStyles": {
-        "title": "zoomPunch"
+        "title": "zoomPunch",
+        "label": "zoomPunch"
       },
-      "textWhy": "scene 3 title uses zoomPunch to match the caption rhythm"
+      "textWhy": "scene 3 on-screen text follows the spoken emphasis with directed styles"
     },
     {
       "scene": 4,
@@ -38,25 +47,27 @@
       "textStyles": {
         "title": "underline"
       },
-      "textWhy": "scene 4 title uses underline to match the caption rhythm"
+      "textWhy": "scene 4 on-screen text follows the spoken emphasis with directed styles"
     },
     {
       "scene": 5,
       "captionStyle": "fadeTilt",
       "captionWhy": "scene 5 mood fits fadeTilt for the spoken emphasis",
       "textStyles": {
-        "title": "fadeTilt"
+        "title": "fadeTilt",
+        "quote": "fadeTilt"
       },
-      "textWhy": "scene 5 title uses fadeTilt to match the caption rhythm"
+      "textWhy": "scene 5 on-screen text follows the spoken emphasis with directed styles"
     },
     {
       "scene": 6,
       "captionStyle": "wordPop",
       "captionWhy": "scene 6 mood fits wordPop for the spoken emphasis",
       "textStyles": {
-        "title": "wordPop"
+        "title": "wordPop",
+        "hook": "wordPop"
       },
-      "textWhy": "scene 6 title uses wordPop to match the caption rhythm"
+      "textWhy": "scene 6 on-screen text follows the spoken emphasis with directed styles"
     },
     {
       "scene": 7,
@@ -65,7 +76,7 @@
       "textStyles": {
         "title": "hormozi"
       },
-      "textWhy": "scene 7 title uses hormozi to match the caption rhythm"
+      "textWhy": "scene 7 on-screen text follows the spoken emphasis with directed styles"
     }
   ]
 }

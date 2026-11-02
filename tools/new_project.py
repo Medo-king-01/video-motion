@@ -52,7 +52,7 @@ BRIEF = """# BRIEF — {slug}
 ---
 ## قرارات الوكيل — Agent decisions (auto-filled)
 - engine: `—`            <!-- P = Pillow، K = Canvas/Playwright، R = Remotion، Hybrid = مقاطع متتابعة -->
-- text motion: `plan/text-direction.json` — الوكيل بيختار ستايل الكابشن والنص لكل مشهد ويبرّره (مفيش default)
+- text motion: `plan/text-direction.json` — الوكيل بيختار ستايل حركة **كل نص ظاهر** (كابشن، عنوان، رقم، CTA، ليبل، UI) لكل مشهد ويبرّره (مفيش default)
 - font: `Cairo` (locked)
 - music: `Am–F–C–G · 76 BPM · ducked` (locked) / none
 - sfx source: `procedural` → Openverse → (ElevenLabs with approval)
@@ -70,7 +70,7 @@ PROGRESS = """# PROGRESS — {slug}
 | reference analysed / STYLE.md | ⬜ | optional — no reference is required |
 | VO analysed / beats locked | ⬜ | |
 | engine chosen | ⬜ | |
-| text direction (per-scene styles) | ⬜ | plan/text-direction.json — agent chooses, no default |
+| text direction (every text element) | ⬜ | plan/text-direction.json — agent chooses a style for all on-screen text, no default |
 | scene 1 prototype | ⬜ | |
 | contact sheet (4–8 frames) | ⬜ | |
 | full render (chunks) | ⬜ | |
@@ -115,8 +115,8 @@ def main():
     # Text motion is an explicit agent decision per scene — never a default look.
     # After the VO beats exist, run: python3 tools/text_direction.py projects/<slug> --init
     (proj / "plan" / "text-direction.json").write_text(json.dumps({
-        "version": 1, "status": "draft", "decidedBy": None, "concept": None, "scenes": [],
-        "note": "the agent chooses captionStyle + textStyles per scene and explains why; no default style",
+        "version": 2, "status": "draft", "decidedBy": None, "concept": None, "scenes": [],
+        "note": "the agent chooses a style for EVERY on-screen text element (captions, titles, numbers, CTAs, labels, UI) and explains why; no default style",
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     # What appears on screen, and the moves drawn for this reel (docs/craft.md §3 and §4).
     (proj / "plan" / "copy.json").write_text(json.dumps({

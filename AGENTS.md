@@ -75,14 +75,18 @@ finished video on guessed timing without saying so.
    Before a render, the plan must pass `python3 tools/reel_lint.py projects/<slug> --scan-code`
    (letters/words on screen, dwell per word, grid-locked cuts, text-free stretch, banned looks).
    Rules, numbers and the conflicts we resolved: `docs/craft.md`. Library: `docs/techniques.md`.
-11. **Text motion is your creative decision, per scene — never a default.** Captions and every
-   on-screen text fragment get an explicit style in `plan/text-direction.json` (`captionStyle`,
-   `textStyles` per role, and a short rationale). Initialise with
-   `python3 tools/text_direction.py projects/<slug> --init`, then choose from the caption-safe
-   catalog (`docs/text-animations.md`) to fit the mood/energy of each beat, and vary it across the
-   reel (a repeated motif needs a `motifReason`). There is no fallback look: the renderers and the
-   lint fail closed if a scene has no chosen style. Timing still comes from the measured VO; the
-   style only shapes how the word/fragment moves. Keep it unboxed, whole-word Arabic, brand colors.
+11. **Text motion is your creative decision for EVERY on-screen text element — never a default.**
+   This is not caption-only: titles, hooks, keywords, numbers/counters, CTAs, labels and text inside
+   cards/UI all get an explicit style in `plan/text-direction.json` (`captionStyle`, `textStyles`
+   per role, optional per-element `textElements` overrides, and a short rationale). List every
+   visible fragment in `plan/copy.json` with a `role` (and an `id` when it needs its own motion).
+   Initialise with `python3 tools/text_direction.py projects/<slug> --init`, then choose from the
+   caption-safe catalog (`docs/text-animations.md`) to fit the mood/energy of each beat, and vary it
+   across the reel (a repeated motif needs a `motifReason`). Draw text only through the directed
+   helpers (`drawDirectedText` K, `draw_directed_text` P, `DirectedText` R); raw `fillText`/`text_sprite`
+   is lint error T04. There is no fallback look: the render gates and lint fail closed if any text
+   has no chosen style. Timing still comes from the measured VO/scene bounds; the style only shapes
+   how the element moves. Keep it unboxed, whole-word Arabic, brand colors.
 
 ## 3. What YOU produce
 
@@ -164,9 +168,11 @@ is the portable inventory it extends. Do not install anything else "just in case
    and mix are cut to it.
    `tests/test_vo_length.py` fails if any doc or template reintroduces a fixed length.
 3. **Engine choice** — see §6. A reel may use the validated hybrid renderer for sequential full-frame segments; this is not simultaneous layer compositing.
-4. **Scenes** — first choose the text motion: `python3 tools/text_direction.py projects/<slug> --init`,
-   then fill `captionStyle` / `textStyles` per scene with a rationale (rule 11). Build one scene,
-   render 3 stills, then a 4–8 frame contact sheet. Do not go to "production" from the first attempt.
+4. **Scenes** — first choose the motion for EVERY on-screen text element:
+   `python3 tools/text_direction.py projects/<slug> --init`, then fill `captionStyle` / `textStyles` /
+   `textElements` per scene with a rationale, and give every `plan/copy.json` fragment a `role`
+   (rule 11). Build one scene, render 3 stills, then a 4–8 frame contact sheet. Do not go to
+   "production" from the first attempt.
 5. **Assets** — code → AI → search, respect the ladder and the licence log.
 6. **Render** — use P, K, or R individually, or render sequential P/K/R segments with `tools/render_hybrid.py`; then mix/master as specified by that workflow.
 7. **QC** — ≥3 visual rounds (contact sheets), probe the MP4, check loudness, check the

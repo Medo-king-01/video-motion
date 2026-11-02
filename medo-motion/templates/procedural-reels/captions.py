@@ -13,6 +13,7 @@ import numpy as np
 
 from caption_motion import caption_transform
 from lib import INK, WHITE, YEL, paste, text_sprite
+from text_direction import text_style_for
 
 
 def active_word_at(words, t):
@@ -86,3 +87,41 @@ def draw_word_caption(fr, t, words, *, style, size=76, y=1455, color=WHITE,
         cv2.line(fr, (int(cx + uw / 2), int(uy)), (int(cx - uw / 2), int(uy)),
                  col, max(4, int(size * 0.07)), cv2.LINE_AA)
     return word
+
+
+def draw_directed_text(fr, text, *, direction, scene, role, element_id=None,
+                       t, start, end, cx, cy, size=64, color=WHITE,
+                       accent=YEL, theme="dark", rtl=True, stroke=0):
+    """Draw ANY on-screen text (title, keyword, number, CTA, label, UI) using the
+    agent's explicit motion choice from plan/text-direction.json. `text` may be a
+    string or a list of lines. There is no default style: a missing direction or
+    role raises before anything is drawn.
+    """
+    style = text_style_for(direction, scene, role, element_id)
+    lines = text.split("\n") if isinstance(text, str) else list(text)
+    elapsed = max(0.0, t - start)
+    dur = max(0.05, end - start)
+    m = caption_transform(style, elapsed, dur)
+    line_h = size * 1.35
+    top = cy - (len(lines) - 1) * line_h / 2
+    for i, line in enumerate(lines):
+        if not line:
+            continue
+        y = top + i * line_h + m["y"] * size
+        x = cx + m["x"] * size
+        if m["karaokeP"] >= 0:
+            spr = _karaoke_sprite(line, size, m["karaokeP"], theme)
+        else:
+            spr = text_sprite(line, size, color, rtl, stroke, INK)
+        if m["blur"] * size > 0.2:
+            k = max(1, int(round(m["blur"] * size)) | 1)
+            spr = cv2.GaussianBlur(spr, (k, k), 0)
+        paste(fr, spr, x, y, scale=m["scale"], rot=m["rotate"], alpha=m["opacity"])
+        if m["underlineP"] > 0:
+            tw = spr.shape[1] * m["scale"]
+            uw = tw * m["underlineP"]
+            uy = y + size * 0.62 * m["scale"]
+            col = accent if theme == "dark" else (203, 39, 27)
+            cv2.line(fr, (int(x + uw / 2), int(uy)), (int(x - uw / 2), int(uy)),
+                     col, max(4, int(size * 0.07)), cv2.LINE_AA)
+    return style

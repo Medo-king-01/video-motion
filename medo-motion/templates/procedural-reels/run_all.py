@@ -58,7 +58,7 @@ if N <= 0:
 beats_p = PROJECT / "plan" / "beats.json"
 if beats_p.is_file():
     beats = json.loads(beats_p.read_text(encoding="utf-8"))
-    report = td.validate(td.load(PROJECT), beats)
+    report = td.validate(td.load(PROJECT), beats, td.load_copy(PROJECT))
     if report["errors"]:
         raise SystemExit("Text direction incomplete — the agent must choose styles per scene:\n"
                          + "\n".join(report["errors"]))

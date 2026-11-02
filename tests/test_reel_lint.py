@@ -80,7 +80,7 @@ def test_no_length_rule_anywhere(tmp_path):
                              "events": [{"t": 0.1, "what": "opening"}]} for i in range(4)]}
         (proj / "plan" / "beats.json").write_text(json.dumps(beats), encoding="utf-8")
         styles = ["karaoke", "softFade", "zoomPunch", "underline"]
-        direction = {"version": 1, "status": "directed", "decidedBy": "agent",
+        direction = {"version": 2, "status": "directed", "decidedBy": "agent",
                      "concept": "text motion follows the spoken emphasis across the reel",
                      "scenes": [{"scene": i + 1, "captionStyle": styles[i], "captionWhy": f"scene {i+1} emphasis",
                                  "textStyles": {}, "textWhy": None} for i in range(4)]}
@@ -195,6 +195,22 @@ def test_scan_code_covers_tsx(tmp_path):
         "export const S = () => <div>{confetti()}</div>;\n", encoding="utf-8")
     r = run(str(proj), "--scan-code")
     assert "K01" in codes(r), r.stdout
+
+
+def test_raw_text_drawing_is_blocked_and_directed_helper_passes(tmp_path):
+    import shutil
+    proj = tmp_path / "raw-text"
+    shutil.copytree(GOOD, proj)
+    (proj / "scenes.py").write_text(
+        "def draw(ctx):\n    ctx.fillText('عنوان', 10, 10)\n", encoding="utf-8")
+    r = run(str(proj), "--scan-code")
+    assert r.returncode == 1 and "T04" in codes(r), r.stdout
+    (proj / "scenes.py").write_text(
+        "from captions import draw_directed_text\n"
+        "def draw(fr):\n    draw_directed_text(fr, 'عنوان', direction=D, scene=1, role='title',\n"
+        "                                    t=0, start=0, end=1, cx=0, cy=0)\n", encoding="utf-8")
+    r = run(str(proj), "--scan-code")
+    assert "T04" not in codes(r), r.stdout
 
 
 def test_every_lint_rule_is_documented():

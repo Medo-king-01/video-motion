@@ -115,9 +115,10 @@ There is no default look and no random picker. Initialise the skeleton after the
 | Code | Rule | Level |
 |---|---|---|
 | `T00` | A text direction exists (the agent has decided the styles) | error |
-| `T01` | Every scene has a valid `captionStyle`, a rationale, and valid `textStyles` for its roles | error |
+| `T01` | Every scene has a valid `captionStyle`, a rationale, and valid `textStyles`/`textElements` | error |
 | `T02` | Variety: not one identical caption style across the whole reel unless `motifReason` explains it | warn |
-| `T03` | Every on-screen copy `role` has a matching `textStyles.<role>` in its scene | error |
+| `T03` | EVERY on-screen text fragment (title, keyword, number, CTA, label, UI…) has a known role and resolves to an explicit style | error |
+| `T04` | Scene code draws text only through the directed helpers (`drawDirectedText` / `draw_directed_text` / `DirectedText`), never raw `fillText`/`text_sprite`/`txt` | error |
 
 ### Code scan — `--scan-code`
 

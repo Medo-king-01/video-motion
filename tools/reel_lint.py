@@ -68,6 +68,8 @@ BANNED_CODE = {
     "shake": "camera shake",
 }
 ALLOW = re.compile(r"#\s*lint:\s*allow\s+([\w, -]+)")
+RAW_TEXT = re.compile(r"\b(?:fillText|strokeText|text_sprite|txt)\s*\(")
+RAW_ALLOW = re.compile(r"(?:#|//)\s*lint:\s*allow\s+([\w, -]+)")
 
 
 class Report:
@@ -330,15 +332,17 @@ def lint_text_direction(rep: Report, project: Path, beats: dict, copy: dict) -> 
         rep.error("T01", e)
     for w in report["warnings"]:
         rep.warn("T02", w)
-    # Every on-screen copy role must have an explicit style in its scene's direction.
-    by_index = {sc.get("scene"): sc for sc in direction.get("scenes") or [] if isinstance(sc, dict)}
+    # EVERY on-screen text fragment (not just captions) must resolve to an explicit choice.
     for c in copy.get("copy") or []:
+        label = c.get("id") or f"copy[{c.get('scene')}]"
         role = c.get("role")
-        if not role:
+        if role not in td.TEXT_ROLES:
+            rep.error("T03", f"{label}: every on-screen text fragment needs a known role (got {role!r})")
             continue
-        sc = by_index.get(c.get("scene"))
-        if not sc or role not in (sc.get("textStyles") or {}):
-            rep.error("T03", f"scene {c.get('scene')} copy role '{role}' has no textStyles.{role} in text-direction")
+        try:
+            td.text_style_for(direction, c.get("scene"), role, c.get("id"))
+        except ValueError as e:
+            rep.error("T03", f"{label}: {e}")
     if not report["errors"]:
         rep.ok("T01", f"text direction: {len(direction.get('scenes') or [])} scenes directed by {direction.get('decidedBy')}")
 
@@ -363,6 +367,26 @@ def lint_code(rep: Report, project: Path) -> None:
                     hits += 1
     if not hits:
         rep.ok("K01", f"no banned looks in {len(files)} scene file(s)")
+
+    # Raw text drawing bypasses the agent's direction. Scene code must use the
+    # directed helpers (drawDirectedText / draw_directed_text / DirectedText).
+    scene_files = [p for p in list(project.glob("scenes.py")) + list(project.glob("scene*.py"))
+                   + list(project.glob("src/scenes/**/*.js")) + list(project.glob("src/scenes/**/*.ts"))
+                   + list(project.glob("src/scenes/**/*.tsx")) + list(project.glob("src/**/*.tsx"))
+                   if p.is_file() and "src/lib" not in p.as_posix()]
+    raw_hits = 0
+    for f in scene_files:
+        for n, line in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+            allowed = RAW_ALLOW.search(line)
+            allow = {t.strip().lower() for t in allowed.group(1).split(",")} if allowed else set()
+            if "raw-text" in allow:
+                continue
+            if RAW_TEXT.search(line):
+                rep.error("T04", f"{f.relative_to(project)}:{n}: raw text drawing bypasses plan/text-direction.json — "
+                                 "use drawDirectedText / draw_directed_text / DirectedText (or annotate a deliberate exception)")
+                raw_hits += 1
+    if not raw_hits:
+        rep.ok("T04", f"all scene text goes through the directed helpers ({len(scene_files)} file(s))")
 
 
 # ---- cli -------------------------------------------------------------------------------------

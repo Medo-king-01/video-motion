@@ -31,7 +31,9 @@ if(existsSync(beatsPath)){
   const beats=JSON.parse(await readFile(beatsPath,'utf8'));
   const dirPath=path.join(root,'plan','text-direction.json');
   const direction=existsSync(dirPath)?JSON.parse(await readFile(dirPath,'utf8')):{};
-  const {errors}=validateTextDirection(direction,beats);
+  const copyPath=path.join(root,'plan','copy.json');
+  const copy=existsSync(copyPath)?JSON.parse(await readFile(copyPath,'utf8')):null;
+  const {errors}=validateTextDirection(direction,beats,copy);
   if(errors.length)throw Error('Text direction incomplete — the agent must choose styles per scene:\n'+errors.join('\n'));
 }
 // The reel is exactly as long as the VO (no target length): say it out loud when they disagree,

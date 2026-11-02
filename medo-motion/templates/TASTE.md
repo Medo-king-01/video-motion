@@ -46,7 +46,7 @@ Visual version for the user: plan/design.html (same values as §2–§5 — alwa
 
 ## 4. Motion language
 - **Easing family:** back/elastic pops, slide+fade cards, stagger 0.14–0.6 s (register A, intensity 4) · register B (intensity 2): slow ≥0.8 s eases, no shake/flash
-- **Text animation:** chosen per scene by the agent in `plan/text-direction.json` (captionStyle + textStyles + rationale). No default look; vary with the mood/energy. Whole-word only, measured VO onsets, unboxed, brand colors. Catalog: `docs/text-animations.md`.
+- **Text animation:** chosen by the agent for EVERY on-screen text element in `plan/text-direction.json` (captionStyle + textStyles/textElements + rationale) — captions, titles, keywords, numbers, CTAs, labels, card/UI text. No default look; vary with the mood/energy. Draw only via `drawDirectedText` (K) / `draw_directed_text` (P) / `DirectedText` (R). Whole-word only, measured VO/scene timing, unboxed, brand colors. Catalog: `docs/text-animations.md`.
 - **Signature devices [LOCKED brand]:** big red circle (80–95 % width) behind the hero + ground shadow · red wipe with white edge 0.4 s between scenes · camera zoom 1.00↔1.04 + drift ±14px · one impact per scene (ring + speed lines + 6–12px shake + 1–2 frame flash) · HUD (progress bar only) drawn AFTER the camera
 - **Transitions:** <hard cut on beat / pixel wipe / zoom-through…>
 - **Camera:** <static / slow push 2 %/s / shake on impact (amp px, duration)>

@@ -8,6 +8,7 @@
 // are intentionally NOT exposed as caption styles.
 import { PALETTE } from './brand.js';
 import { captionTransform, resolveTextStyle, STYLE_ALIAS } from './caption-motion.js';
+import { textStyleFor } from './text-direction.js';
 
 export { STYLE_ALIAS, resolveTextStyle };
 
@@ -116,4 +117,66 @@ export function drawWordCaption(ctx, time, words, {
   }
   ctx.restore();
   return word;
+}
+
+/**
+ * Draw ANY on-screen text (title, keyword, number, CTA, label, UI) using the
+ * agent's explicit motion choice from plan/text-direction.json. `text` may be a
+ * string or an array of lines. There is no default style: a missing direction or
+ * role throws before anything is drawn.
+ */
+export function drawDirectedText(ctx, text, {
+  direction, scene, role, elementId = null,
+  time, start, end, x, y, size = 64, family = 'Cairo', weight = 800,
+  color = PALETTE.paper, accent = PALETTE.salmon, shadow = 'rgba(0,0,0,.72)',
+  theme = 'dark', rtl = true, maxWidth,
+} = {}) {
+  const style = textStyleFor(direction, scene, role, elementId);
+  const lines = Array.isArray(text) ? text : String(text).split('\n');
+  const elapsed = Math.max(0, time - start);
+  const dur = Math.max(0.05, end - start);
+  const m = captionTransform(style, elapsed, dur);
+  const blur = m.blur * size;
+  const lineH = size * 1.35;
+
+  ctx.save();
+  ctx.globalAlpha = m.opacity;
+  ctx.direction = rtl ? 'rtl' : 'ltr';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `${weight} ${size}px "${family}", sans-serif`;
+  ctx.shadowColor = shadow;
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 3;
+  ctx.translate(x + m.x * size, y + m.y * size);
+  ctx.rotate(m.rotate * Math.PI / 180);
+  ctx.scale(m.scale, m.scale);
+  if (blur > 0.2) ctx.filter = `blur(${blur.toFixed(2)}px)`;
+
+  lines.forEach((line, i) => {
+    if (!line) return;
+    const ly = (i - (lines.length - 1) / 2) * lineH;
+    if (m.karaokeP >= 0) {
+      const base = withAlpha(theme === 'dark' ? PALETTE.paper : PALETTE.ink, 0.38);
+      const acc = theme === 'dark' ? accent : PALETTE.red;
+      ctx.fillStyle = karaokeFill(ctx, line, size, m.karaokeP, acc, base);
+    } else {
+      ctx.fillStyle = color;
+    }
+    ctx.fillText(line, 0, ly, maxWidth);
+    if (m.underlineP > 0) {
+      const tw = ctx.measureText(line).width;
+      const uw = (maxWidth ? Math.min(tw, maxWidth) : tw) * m.underlineP;
+      ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      ctx.strokeStyle = theme === 'dark' ? accent : PALETTE.red;
+      ctx.lineWidth = Math.max(4, size * 0.07);
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(uw / 2, ly + size * 0.62);
+      ctx.lineTo(-uw / 2, ly + size * 0.62);
+      ctx.stroke();
+    }
+  });
+  ctx.restore();
+  return style;
 }

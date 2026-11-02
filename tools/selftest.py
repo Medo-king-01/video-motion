@@ -144,9 +144,9 @@ def fill_text_direction(proj: Path, beats: dict) -> None:
         st = styles[i % len(styles)]
         scenes.append({"scene": s.get("index", i + 1), "captionStyle": st,
                        "captionWhy": f"selftest scene {i+1} uses {st}",
-                       "textStyles": {"title": st, "body": "softFade"},
-                       "textWhy": f"selftest scene {i+1} title/body styles"})
-    direction = {"version": 1, "status": "directed", "decidedBy": "agent",
+                       "textStyles": {"title": st, "body": "softFade", "label": st},
+                       "textWhy": f"selftest scene {i+1} title/body/label styles"})
+    direction = {"version": 2, "status": "directed", "decidedBy": "agent",
                  "concept": "selftest text direction exercising the per-scene style gate",
                  "scenes": scenes}
     (proj / "plan" / "text-direction.json").write_text(json.dumps(direction) + "\n", encoding="utf-8")

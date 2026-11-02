@@ -44,34 +44,47 @@ reels_text_animations.html  ──(text_animations_import.py)──►  motion/t
 المرجع اتحوّل لدور دافئ (salmon/red). الكابشن دايمًا **من غير صندوق** (الحركات الـboxed
 مستبعدة من أنماط الكابشن). الخط Cairo.
 
-## أنماط الكابشن: `style` مطلوب — قرار الوكيل لكل مشهد
+## حركة كل نص ظاهر: `style` مطلوب — قرار الوكيل لكل عنصر
 
+القاعدة مش للكابشن بس. أي نص بيظهر على الشاشة — عنوان، هوك، كلمة مفتاحية، رقم/عدّاد،
+CTA، ليبل، أو نص جوه كارت/UI — الوكيل هو اللي بيختار له أفضل ستايل حركة في المشهد.
 مفيش style افتراضي. الـrenderer في `templates/render/lib/captions.js` (وP في
-`captions.py`، وR في `lib/TextMotion.tsx`) بيرفض يرسم لو `style` مش متحدد. الوكيل
-بيختار لكل مشهد في `plan/text-direction.json` ويبرّر اختياره:
+`captions.py`، وR في `lib/TextMotion.tsx` و`lib/DirectedText.tsx`) بيرفض يرسم لو
+الستايل مش متحدد. الوكيل بيختار لكل مشهد في `plan/text-direction.json` ويبرّر اختياره،
+وبيسجّل كل جزء نص ظاهر في `plan/copy.json` بـ`role` (و`id` لو محتاج حركة خاصة):
 
 ```bash
 python3 tools/text_direction.py projects/<slug> --init   # هيكل من الـbeats
-# الوكيل يملأ captionStyle / textStyles / captionWhy لكل مشهد
+# الوكيل يملأ captionStyle / textStyles / textElements / captionWhy لكل مشهد
 python3 tools/text_direction.py projects/<slug> --check  # لازم يعدّي قبل الرندر
 ```
 
 ```json
-{ "version": 1, "status": "directed", "decidedBy": "agent",
+{ "version": 2, "status": "directed", "decidedBy": "agent",
   "concept": "شرح هادي بيعلى طاقته عند لقطات الإثبات",
   "scenes": [
     { "scene": 1, "captionStyle": "karaoke", "captionWhy": "هوك بيأكد على الكلمة المنطوقة",
-      "textStyles": { "title": "zoomPunch" }, "textWhy": "العنوان يدخل بقوة الهوك" }
+      "textStyles": { "title": "zoomPunch", "number": "impact", "cta": "underline", "label": "softFade" },
+      "textWhy": "العنوان يدخل بقوة الهوك، الرقم بيخبط، والCTA بيتسطّر",
+      "textElements": { "hero-cta": { "role": "cta", "style": "wordPop", "why": "زرّ التعليق لازم يخطف العين في آخر لقطة" } } }
   ] }
 ```
 
 ```js
-import { drawWordCaption } from './lib/captions.js';
+// كابشن كلمة-كلمة بتوقيت مقاس
+import { drawWordCaption, drawDirectedText } from './lib/captions.js';
 import { captionStyleFor } from './lib/text-direction.js';
-// words = [{ text, start, end }] بتوقيتات مقاسة (caption_align)
 const style = captionStyleFor(direction, scene.index);
 drawWordCaption(ctx, t, words, { W, H, style, theme: 'dark' });
+
+// أي نص تاني (عنوان/رقم/CTA/ليبل) — الستايل بيتجاب من الخطة، مفيش default
+drawDirectedText(ctx, '٤٢١٠', { direction, scene: 1, role: 'number',
+  time: t, start: 0, end: dur, x: W / 2, y: 500, size: 96 });
 ```
+
+في P استخدم `draw_directed_text(fr, text, direction=..., scene=..., role=..., t=..., start=..., end=..., cx=..., cy=...)`،
+وفي R لفّ أي بلوك نص بـ`<DirectedText direction={DIRECTION} scene={i} role="title" time={t} start={0} end={dur}>…</DirectedText>`.
+الرسم الخام (`fillText`/`text_sprite`/`txt`) في مشاهد المشروع بيترفض بلينت T04.
 
 `pop` لسه موجود كـ**اختيار صريح** زيّه زي باقي الستايلات (scale 0.94→1 في 0.09s)،
 لكنه مش بيفرض نفسه على أي فيديو.
