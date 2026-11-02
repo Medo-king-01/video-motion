@@ -10,8 +10,7 @@ on:
     paths:
       - ".github/workflows/engine-p-chunks.yml"
       - "medo-motion/templates/procedural-reels/**"
-      - "assets/poses/**"
-      - "assets/fonts/**"
+      - "assets/**"
       - "tools/requirements.txt"
       - "tests/**"
       - "pyproject.toml"
