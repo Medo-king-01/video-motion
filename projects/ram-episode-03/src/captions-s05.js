@@ -1,0 +1,27 @@
+// S05 word-level timeline — measured local Whisper small CT2 int8 on the real VO.
+// Onsets validated against the WAV speech envelope; each word holds until the next begins.
+export const CAPTIONS_S05 = [
+  { text: "أولًا", start: 0.7, end: 1.4 },
+  { text: "8", start: 1.4, end: 1.64 },
+  { text: "جيجا", start: 1.64, end: 2.62 },
+  { text: "مناسبة", start: 2.62, end: 3.1 },
+  { text: "للاستخدام", start: 3.1, end: 3.54 },
+  { text: "البسيط", start: 3.54, end: 4.08 },
+  { text: "زي", start: 4.08, end: 4.38 },
+  { text: "التصفح", start: 4.38, end: 5.24 },
+  { text: "والدراسة", start: 5.24, end: 5.88 },
+  { text: "وبرامج", start: 5.88, end: 6.34 },
+  { text: "Office", start: 6.34, end: 6.9 },
+  { text: "واستخدام", start: 6.9, end: 7.4 },
+  { text: "البرامج", start: 7.4, end: 7.84 },
+  { text: "الخفيفة", start: 7.84, end: 8.5 },
+  { text: "مع", start: 8.5, end: 8.8 },
+  { text: "عدد", start: 8.8, end: 9.06 },
+  { text: "محدود", start: 9.06, end: 9.36 },
+  { text: "من", start: 9.36, end: 9.48 },
+  { text: "البرامج", start: 9.48, end: 9.9 },
+  { text: "المفتوحة", start: 9.9, end: 10.42 },
+  { text: "في", start: 10.42, end: 10.58 },
+  { text: "الوقت", start: 10.58, end: 10.86 },
+  { text: "نفس", start: 10.86, end: 11.398 },
+];

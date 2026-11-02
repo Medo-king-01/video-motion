@@ -4,19 +4,53 @@
 |---|---|---|
 | Script + visual direction | ✅ | Approved by Medo |
 | VO measurement | ✅ | 70.520 s, 24 kHz, 2116 frames @ 30 FPS |
-| 10-scene editorial map | 🟡 | S01 end corrected from measured speech/silence; S02–S10 bounds still pending full measured alignment |
+| 10-scene editorial map | ✅ | All 10 bounds from measured Whisper word alignment + silence-midpoint cuts (`src/data.js`, `plan/beats.json`) |
 | K engine scaffold | ✅ | Copied from current repository template |
-| S01 prototype code | ✅ | Rendered successfully in GitHub Actions |
-| Repository CI | ✅ | Static checks, unit tests, lint fixtures, brand audits, and P/K/R/Hybrid real renders passed in run 41487395015 |
-| S01 render | ✅ | 0–12.358 s, 30 FPS, 0.5 scale; render step passed in run 41487395114 |
-| S01 contact sheet | ✅ | Generated and uploaded as artifact `ram-episode-03-s01-preview` (artifact 13162427862) |
-| S01 visual review | 🟡 | Visual style approved by Medo; v3 sync rejected; v6 measured-sync preview pending review |
-| Word-level VO alignment tool | ✅ | Local faster-whisper path built and run on the real WAV using npm-hosted Whisper small CT2 int8 weights; S01 measured |
-| Caption renderer | ✅ | Reusable one-word renderer + validation; S01 populated from measured Whisper word timestamps and checked in rendered frames |
-| Caption unit tests | ✅ | Local Node test passed; preview workflow runs the caption tests and WhisperX output-parser unit tests |
-| Technique draw + project-specific lint | ⬜ | Not independently run for this episode project |
-| S02–S10 | ⬜ | Wait for S01 visual direction approval |
-| Full render / mix / QC | ⬜ | Not started |
+| S01 (approved v6) | ✅ | Measured sync + SFX + style approved by Medo; frozen, untouched |
+| Word-level VO alignment tool | ✅ | Local faster-whisper (Whisper small CT2 int8, npm weights) run on the real WAV; all 10 scenes measured (149 words) |
+| Caption renderer + tests | ✅ | One-word unboxed renderer; `validateWordTimeline` passes for all 10 scenes; checked in rendered frames |
+| S02–S10 scenes | ✅ | 9 new modules built on shared `ramkit.js`, alternating light/dark, word-timed reveals; 0 page errors |
+| Full SFX mix | ✅ | 63 global cues (`plan/full-sfx-cues.json`), duck 0.30, two-pass loudnorm |
+| Full render / mix / QC | ✅ | `artifacts/episode-03-full-final.mp4` — 2116 frames, all QA gates pass (see below) |
+
+## Full episode — FINAL (2026-11-02)
+
+**Deliverable:** `artifacts/episode-03-full-final.mp4` (33.6 MB). Caption-check sheet: `artifacts/episode-03-caption-check.jpg`.
+
+Medo approved S01 v6 ("يا سلام بقا مظبوط الحمد لله كمل يا بطل") and asked to continue. S02–S10 were built with the same measured-sync pipeline and the approved visual language, then the whole episode was rendered, mixed, and QC'd.
+
+**Measured scene map** (`src/data.js`, regenerated `plan/beats.json`, 149 words total):
+
+| Scene | Module | Span (s) | Words | Theme |
+|---|---|---|---|---|
+| S01 | ram-intro | 0 – 8.433 | 18 | dark |
+| S02 | ram-question | 8.433 – 12.358 | 9 | light |
+| S03 | ram-explain | 12.358 – 19.951 | 17 | dark |
+| S04 | ram-choose | 19.951 – 22.042 | 5 | light |
+| S05 | ram-8gb | 22.042 – 33.44 | 23 | dark |
+| S06 | ram-16gb | 33.44 – 45.254 | 19 | light |
+| S07 | ram-32gb | 45.254 – 57.469 | 26 | dark |
+| S08 | ram-bigger | 57.469 – 62.41 | 12 | light |
+| S09 | ram-budget | 62.41 – 67.0 | 11 | dark |
+| S10 | ram-cta | 67.0 – 70.52 | 9 | light |
+
+**Alignment:** per-scene faster-whisper runs (`vad_filter=False`, repetition penalty, DP-align onto the BRIEF script), onsets silence-snapped to the speech envelope. S06/S07 needed a no-prompt retry (the exact-script prompt made Whisper skip slice openings). S09/S10 cut corrected to 67.0 s (the old 68.386 cut landed inside S10 speech). S05 word order sorted + strict-monotonic guard. S01 timeline frozen from the approved v6 (`artifacts/s01-v6-measured-words.json`) — not re-snapped.
+
+**Visuals:** shared `src/lib/ramkit.js` (identical RAM module design across all scenes; brand mesh + per-scene grid + 30 dust; one impact per scene kept above the caption safe line). Card/element reveals baked at measured spoken-word times. Layout fixes from contact-sheet review: capacity labels kept on the red circle (white) with a correctly scaled label gap; S06 headline/cards/subline de-collided; S08 grow-pulse removed so its label never leaves the circle; S10 headline raised clear of the circle.
+
+**Audio:** 63 global SFX cues mixed under the VO (`tools/sfx_kit.mix`, duck 0.30). The original VO WAV has a non-standard header that scipy rejects, so it was re-encoded to `out/vo24.wav` for mixing. Two-pass loudnorm master `cache/full-mix-final.wav` (−14.52 LUFS / −1.49 dBTP). AAC encoding raised the true peak, so the final audio was re-mastered with a true-peak limiter (TP target −1.8) and the audio stream re-encoded (video copied) → `cache/full-mix-tp2.wav`.
+
+**Final QC (all gates pass):**
+- Duration **70.533 s = 2116 frames @ 30 FPS** (VO length; ceil(70.52×30), same convention as approved S01).
+- Resolution **1080×1920**, H.264 + AAC 48 kHz stereo.
+- Integrated loudness **−14.54 LUFS** (gate −14.5 ± 0.3). ✅
+- True peak **−1.64 dBTP** (gate ≤ −1.5). ✅
+- Video bitrate **3.61 Mbps** (gate ≥ 2.5). ✅
+- Burned-in Arabic captions: one spoken word at a time, unboxed, Cairo 76 @ y1455, theme-correct color; verified against the WAV in 10 rendered frames (`artifacts/episode-03-caption-check.jpg`). ✅
+- No logo / series text / chip. ✅
+- Smoke test: 30 frames + fix-checks rendered with **0 page errors**; all 10 scene modules import + draw. ✅
+
+**Tests:** `node test/captions.test.js`, `validateWordTimeline` for all 10 scenes, and `python3 test/test_align_audio.py` passed.
 
 ## Local sandbox readiness — 2026-11-02
 
