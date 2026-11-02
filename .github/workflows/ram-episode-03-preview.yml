@@ -52,6 +52,10 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
           node tools/chromium.mjs --check
 
+      - name: Test word-caption timeline
+        working-directory: projects/ram-episode-03
+        run: node test/captions.test.js
+
       - name: Render S01 frames
         working-directory: projects/ram-episode-03
         run: |
