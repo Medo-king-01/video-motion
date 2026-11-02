@@ -51,8 +51,12 @@ try:
         process.stdin = None
     except BaseException:
         if process.stdin and not process.stdin.closed:
-            process.stdin.close()
-        process.terminate()
+            try:
+                process.stdin.close()
+            except OSError:
+                pass
+        if process.poll() is None:
+            process.terminate()
         process.wait()
         raise
     return_code = process.wait()
