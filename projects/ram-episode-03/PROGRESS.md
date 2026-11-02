@@ -28,4 +28,4 @@
 - A successful render proves technical execution, not final visual approval.
 - Captions must be timed from word-level alignment against the actual WAV; do not estimate word timing from scene boundaries or silence midpoints.
 - S01 now calls the caption renderer, but `captions-s01.js` intentionally contains no words until measured timestamps are available. The source WAV remains local and is not uploaded to GitHub.
-- The caption renderer draws one RTL word directly over the scene with shadow for contrast; it creates no border, panel, pill, or background box.
+- The caption renderer draws one RTL word directly over the scene with shadow for contrast; it creates no border, panel, pill, or background box. Its anchor is set to the brand caption safe line (Y=1455) and uses the brand paper token.
