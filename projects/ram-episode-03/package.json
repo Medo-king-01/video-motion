@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "render": "node src/render.js",
+    "preview": "node src/render.js --from 0 --to 12.358 --scale 0.5 --out cache/s01 --jpg"
+  }
+}

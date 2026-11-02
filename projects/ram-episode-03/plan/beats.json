@@ -1,0 +1,123 @@
+{
+  "duration": 70.52,
+  "fps": 30,
+  "frames": 2116,
+  "audio": "assets/vo/episode-03-ram.wav",
+  "timing_method": "22 silence intervals detected with FFmpeg silencedetect (noise=-38dB,d=0.30s). Ten editorial scenes grouped from selected silence midpoints. Word-level alignment is pending.",
+  "bounds": [
+    0,
+    12.358,
+    19.95,
+    33.223,
+    34.572,
+    45.254,
+    57.469,
+    62.41,
+    64.968,
+    68.386,
+    70.52
+  ],
+  "scenes": [
+    {
+      "id": "S01",
+      "start": 0,
+      "end": 12.358,
+      "dur": 12.358,
+      "frame_start": 0,
+      "frame_end": 371,
+      "frames": 371,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S02",
+      "start": 12.358,
+      "end": 19.95,
+      "dur": 7.592,
+      "frame_start": 371,
+      "frame_end": 599,
+      "frames": 228,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S03",
+      "start": 19.95,
+      "end": 33.223,
+      "dur": 13.273,
+      "frame_start": 599,
+      "frame_end": 997,
+      "frames": 398,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S04",
+      "start": 33.223,
+      "end": 34.572,
+      "dur": 1.349,
+      "frame_start": 997,
+      "frame_end": 1037,
+      "frames": 40,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S05",
+      "start": 34.572,
+      "end": 45.254,
+      "dur": 10.682,
+      "frame_start": 1037,
+      "frame_end": 1358,
+      "frames": 321,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S06",
+      "start": 45.254,
+      "end": 57.469,
+      "dur": 12.215,
+      "frame_start": 1358,
+      "frame_end": 1724,
+      "frames": 366,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S07",
+      "start": 57.469,
+      "end": 62.41,
+      "dur": 4.941,
+      "frame_start": 1724,
+      "frame_end": 1872,
+      "frames": 148,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S08",
+      "start": 62.41,
+      "end": 64.968,
+      "dur": 2.558,
+      "frame_start": 1872,
+      "frame_end": 1949,
+      "frames": 77,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S09",
+      "start": 64.968,
+      "end": 68.386,
+      "dur": 3.418,
+      "frame_start": 1949,
+      "frame_end": 2052,
+      "frames": 103,
+      "timing_status": "provisional"
+    },
+    {
+      "id": "S10",
+      "start": 68.386,
+      "end": 70.52,
+      "dur": 2.134,
+      "frame_start": 2052,
+      "frame_end": 2116,
+      "frames": 64,
+      "timing_status": "provisional"
+    }
+  ],
+  "note": "Silence boundaries are not word timestamps. Verify each visual cut against the narration before final render."
+}
