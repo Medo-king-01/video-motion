@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import json
 import sys
 from types import SimpleNamespace
 
 import pytest
-
 
 
 def test_expected_chunks_are_exact_ordered_half_open_ranges():
