@@ -3,7 +3,15 @@ name: Engine P chunk integrity tests
 on:
   push:
     branches:
+      - main
       - fix/engine-p-chunk-integrity
+    paths:
+      - ".github/workflows/engine-p-chunks.yml"
+      - "medo-motion/templates/procedural-reels/**"
+      - "assets/**"
+      - "tools/requirements.txt"
+      - "tests/**"
+      - "pyproject.toml"
   pull_request:
     branches:
       - main
