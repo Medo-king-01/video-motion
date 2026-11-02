@@ -27,7 +27,7 @@ def _vo_seconds(path):
     """The reel follows the VO duration; scenes.B is the fallback."""
     try:
         result = subprocess.run(
-            ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "json", path],
+            [FFPROBE, "-v", "error", "-show_entries", "format=duration", "-of", "json", path],
             capture_output=True, text=True, check=False,
         )
         if result.returncode != 0:
