@@ -21,6 +21,9 @@
 | `presenter_build.py` | يقص صور ميدو من الخلفية ويطبّعها ويكتب `assets/poses/poses.json` | `python3 tools/presenter_build.py --sheet cache/poses-sheet.png` |
 | `sfx_kit.py` | مكتبة المؤثرات البرمجية: `--list` · `--bank` · `--demo` · `--cues` (ميكس مع التعليق، طوله = طول الـVO) · `--grid` (cue sheet على شبكة الـBPM) |
 | `vo_length.py` | **مصدر الطول الوحيد**: مدة التعليق الصوتي + حدود المشاهد من السكتات + `--bpm` يزحزح القطع للشبكة + `--check` للمشروع | `python3 tools/vo_length.py out/vo24.wav --json plan/beats.json` |
+| `whisper_fetch.py` | تنزيل موديل Whisper-small CT2 int8 من npm (بديل أوفلاين لـHF/Azure المحجوبين) + تحقق SHA-256 | `python3 tools/whisper_fetch.py --out .cache/whisper-small-ct2-int8` |
+| `whisper_align.py` | تفريغ محلي بـfaster-whisper → كلمات بتوقيتات **مقاسة** من الـWAV (JSON) | `python3 tools/whisper_align.py vo.wav --model .cache/whisper-small-ct2-int8 --out cache/words.json --no-vad` |
+| `caption_align.py` | محاذاة الكلمات على السكريبت (DP) + سناب للسكتات + hold لحد الكلمة الجاية + إخراج كابشن و`data.js` | `python3 tools/caption_align.py --scenes plan/script-scenes.json --vo vo.wav --model .cache/whisper-small-ct2-int8 --out-dir src` |
 | `medo-motion/scripts/analyze_ref.py` | تحليل مرجع محليًا: شيتات مؤرخة، حركة، palette تقريبية، إيقاع قطع وصوت؛ لا ينقل ألوان المرجع للهوية | `python3 medo-motion/scripts/analyze_ref.py ref.mp4 --dur 15 --out cache/ref` |
 | `transitions_sheet.py` | شيت مراجعة + كليب معاينة لكل انتقال (بصوته) |
 | `toolkit/` | اعتماديات Node (`playwright-core`, `@sparticuz/chromium`, خطوط OFL) | `cd tools/toolkit && npm install` |
@@ -45,6 +48,7 @@ make clean      # مسح الكاش ومخرجات الرندر
 
 ## ملاحظات
 
+- **محاذاة الكابشن المقاسة**: خط أوفلاين كامل (whisper_fetch → whisper_align → caption_align) موثّق في `docs/alignment.md`. اعتمادياته اختيارية: `pip install -r tools/requirements-align.txt`.
 - كل الأدوات read-only في الفحص، ومابتكتبش بره مجلد المشروع.
 - لو `ffmpeg` مش على الـPATH، المحركات بتحترم `FFMPEG_BIN=/path/to/ffmpeg`.
 - `chromium.mjs --check` بيطبع `CHROMIUM_OK <version>` لو المتصفح بيشتغل فعلاً.
