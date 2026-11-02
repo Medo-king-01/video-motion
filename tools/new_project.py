@@ -90,7 +90,15 @@ def main():
     a = ap.parse_args()
 
     slug = re.sub(r"[^a-z0-9\-_]+", "-", a.slug.lower()).strip("-")
+    if not slug:
+        raise SystemExit(f"invalid project name {a.slug!r}: after normalisation the slug is empty "
+                         f"— use at least one letter or digit, e.g. my-reel")
     proj = ROOT / "projects" / slug
+    # belt and braces: even with --force the target must be a named subfolder of projects/,
+    # never projects/ itself or anything outside it
+    if proj == ROOT / "projects" or ROOT / "projects" not in proj.parents:
+        raise SystemExit(f"refusing to scaffold into {proj} — the target must be a named "
+                         f"subfolder of projects/")
     if proj.exists() and not a.force:
         raise SystemExit(f"projects/{slug} already exists (use --force)")
 

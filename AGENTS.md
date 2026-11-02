@@ -122,10 +122,15 @@ is the portable inventory it extends. Do not install anything else "just in case
    ffmpeg -y -i assets/vo/<voice>.mp3 -ac 1 -ar 24000 -c:a pcm_s16le out/vo24.wav
    ffprobe -v error -show_entries format=duration -of json out/vo24.wav   # duration = video duration
 
-   # Poses -> cutouts named exactly medo_wave / medo_think / medo_point
-   UPLOADS=assets/poses python cutout.py white <wave.png> medo_wave
-   UPLOADS=assets/poses python cutout.py green <think.png> medo_think
-   UPLOADS=assets/poses python cutout.py white <point.png> medo_point
+   # Poses: engine P reads assets/poses/poses.json + the PNGs beside it — cutout.py writes
+   # assets/<name>.png, so move the file into assets/poses/ and register the slug in poses.json
+   UPLOADS=assets/poses python cutout.py white <wave.png> wave
+   UPLOADS=assets/poses python cutout.py green <think.png> thinking
+   UPLOADS=assets/poses python cutout.py white <point.png> point
+   mv assets/wave.png assets/thinking.png assets/point.png assets/poses/
+   # then add/update {"wave": {"file": "wave.png", ...}, ...} entries in assets/poses/poses.json
+   # (slugs: neutral, explain, point, welcome, wave, clap, like, thinking, thinking-deep,
+   #  puzzled, sad, shocked, walk, run — medo_wave etc. are aliases resolved via presenter.py)
    ```
 
    Until the poses exist, engine P draws a silhouette marked `PLACEHOLDER` — that is

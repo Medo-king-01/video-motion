@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -113,14 +114,42 @@ else:
 
 fprobe = shutil.which("ffprobe")
 if fprobe:
-    code, out = run([fprobe, "-version"], 20)
-    add("ffprobe", "OK", "shim" if "shim" in out or code != 0 else "native")
+    # A non-zero exit is NOT proof of a working shim: probe a real file and require a real duration.
+    import tempfile
+    import wave
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tw:
+        wv = wave.open(tw, "wb")
+        wv.setnchannels(1); wv.setsampwidth(2); wv.setframerate(24000)
+        wv.writeframes(b"\0\0" * 2400)          # 0.1 s of silence
+        wv.close()
+        probe_file = tw.name
+    code, out = run([fprobe, "-v", "error", "-show_entries", "format=duration", "-of", "json", probe_file], 20)
+    os.unlink(probe_file)
+    dur = None
+    try:
+        dur = float(json.loads(out)["format"]["duration"])
+    except Exception:
+        pass
+    if code == 0 and dur is not None and abs(dur - 0.1) < 0.01:
+        ver = run([fprobe, "-version"], 20)[1]
+        add("ffprobe", "OK", "shim (tools/ffprobe_shim.py)" if "shim" in ver.lower() else "native")
+    else:
+        add("ffprobe", "BLOCKED", f"present but not functional (exit {code}, duration={dur}) — "
+                                  f"reinstall the shim: bash tools/setup.sh")
 else:
     add("ffprobe", "BLOCKED", "not on PATH — needed for duration/loudness checks")
 
 # ------------------------------------------------------------------ node + browser
 node = shutil.which("node")
-add("node", "OK" if node else "BLOCKED", run([node, "--version"], 20)[1].strip() if node else "install Node 18+")
+if node:
+    ver = run([node, "--version"], 20)[1].strip()
+    m = re.match(r"v(\d+)\.(\d+)", ver)
+    new_enough = bool(m) and (int(m.group(1)), int(m.group(2))) >= (20, 11)   # package-lock engines
+    add("node", "OK" if new_enough else "DEGRADED",
+        f"{ver} — toolkit deps need >=20.11 (package-lock engines)" if not new_enough
+        else f"{ver} (>=20.11 as the toolkit lockfile requires)")
+else:
+    add("node", "BLOCKED", "install Node 20.11+")
 toolkit = ROOT / "tools" / "toolkit" / "node_modules"
 add("playwright-core", "OK" if (toolkit / "playwright-core").exists() else "MISSING",
     "tools/toolkit — npm install" if not (toolkit / "playwright-core").exists() else "")

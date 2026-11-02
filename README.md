@@ -60,7 +60,14 @@ python3 tools/new_project.py اسم-المشروع --engine p   # محرك ال�
 python3 tools/new_project.py اسم-المشروع --engine k   # محرك كانفس/تايبوغرافي
 python3 tools/new_project.py اسم-المشروع --engine r   # محرك Remotion (React/TypeScript)
 python3 tools/new_project.py اسم-المشروع --engine hybrid # P/K/R في مقاطع متتابعة
+```
+
+أوامر npm (`npm install` / `npm run studio`) خاصة بمحرك **R** و**Hybrid** فقط — قوالب P وK لا تحتاج أي سكربت npm:
+
+```bash
+# R أو Hybrid فقط:
 cd projects/اسم-المشروع && npm install && npm run studio
+# محركات P وK: شغّل السكربتات مباشرة من جذر المشروع (شوف AGENTS.md §5)
 ```
 
 بعدها املأ `projects/<المشروع>/BRIEF.md` بالأربعة، وقول للوكيل: **«اقرأ AGENTS.md وابدأ»**.

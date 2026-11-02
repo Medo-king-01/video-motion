@@ -171,7 +171,9 @@ def ease(spec, p):
         return spec(clamp(p))
     if isinstance(spec, str) and spec in FORMULAS:
         return FORMULAS[spec](clamp(p))
-    pts = spec if isinstance(spec, (list, tuple)) else CUBIC_BEZIER.get(spec, CUBIC_BEZIER["easeOut"])
+    if isinstance(spec, str) and spec not in CUBIC_BEZIER:
+        raise ValueError(f"unknown easing name: {spec} (see medo-motion/motion/easings.json)")  # no silent easeOut fallback
+    pts = spec if isinstance(spec, (list, tuple)) else CUBIC_BEZIER[spec]
     return _bezier(float(pts[0]), float(pts[1]), float(pts[2]), float(pts[3]))(clamp(p))
 
 
@@ -186,12 +188,17 @@ def spring(elapsed, params="default"):
         return 0.0
     w0 = math.sqrt(stiffness / mass)
     zeta = damping / (2 * math.sqrt(stiffness * mass))
-    if zeta < 1:
+    if zeta < 1:                      # underdamped: oscillates
         wd = w0 * math.sqrt(1 - zeta * zeta)
         b = (zeta * w0 - velocity) / wd
         return 1 - math.exp(-zeta * w0 * elapsed) * (math.cos(wd * elapsed) + b * math.sin(wd * elapsed))
-    e = math.exp(-w0 * elapsed)
-    return 1 - e * (1 + (w0 - velocity) * elapsed)
+    if abs(zeta - 1) < 1e-9:          # critically damped: repeated-root solution
+        e = math.exp(-w0 * elapsed)
+        return 1 - e * (1 + (w0 - velocity) * elapsed)
+    # overdamped (zeta > 1): two real roots — cosh/sinh, not the critical formula
+    wr = w0 * math.sqrt(zeta * zeta - 1)
+    b = (zeta * w0 - velocity) / wr
+    return 1 - math.exp(-zeta * w0 * elapsed) * (math.cosh(wr * elapsed) + b * math.sinh(wr * elapsed))
 
 
 def spring_duration(params="default", band=0.01):

@@ -114,7 +114,8 @@ function curve(spec) {
   if (typeof spec === 'function') return spec;
   const key = Array.isArray(spec) ? spec.join(',') : String(spec);
   if (CACHE.has(key)) return CACHE.get(key);
-  const pts = Array.isArray(spec) ? spec : (CUBIC_BEZIER[spec] || CUBIC_BEZIER.easeOut);
+  if (!Array.isArray(spec) && !CUBIC_BEZIER[spec]) throw new Error(`unknown easing name: ${spec} (see medo-motion/motion/easings.json)`);
+  const pts = Array.isArray(spec) ? spec : CUBIC_BEZIER[spec];   // no silent easeOut fallback
   const fn = cubicBezier(pts[0], pts[1], pts[2], pts[3]);
   CACHE.set(key, fn);
   return fn;
@@ -143,14 +144,20 @@ export function spring(elapsed, params = {}) {
   if (elapsed <= 0) return 0;
   const w0 = Math.sqrt(stiffness / mass);
   const zeta = damping / (2 * Math.sqrt(stiffness * mass));
-  if (zeta < 1) {
+  if (zeta < 1) {          // underdamped: oscillates
     const wd = w0 * Math.sqrt(1 - zeta * zeta);
     const A = 1;
     const B = (zeta * w0 - velocity) / wd;
     return 1 - Math.exp(-zeta * w0 * elapsed) * (A * Math.cos(wd * elapsed) + B * Math.sin(wd * elapsed));
   }
-  const e = Math.exp(-w0 * elapsed);
-  return 1 - e * (1 + (w0 - velocity) * elapsed);
+  if (Math.abs(zeta - 1) < 1e-9) {   // critically damped: the repeated-root solution
+    const e = Math.exp(-w0 * elapsed);
+    return 1 - e * (1 + (w0 - velocity) * elapsed);
+  }
+  // overdamped (zeta > 1): two REAL roots — cosh/sinh, not the critical formula
+  const wr = w0 * Math.sqrt(zeta * zeta - 1);
+  const B = (zeta * w0 - velocity) / wr;
+  return 1 - Math.exp(-zeta * w0 * elapsed) * (Math.cosh(wr * elapsed) + B * Math.sinh(wr * elapsed));
 }
 
 /** Seconds until the spring is within `band` (default 1%) of its resting value. */

@@ -11,7 +11,7 @@
 | `fonts.md` | **نظام الخطوط**: ١٤ عيلة مجانية (SIL OFL 1.1)، دور كل عيلة، الأزواج عربي×إنجليزي، وإزاي تضيف عيلة |
 | `rhythm.md` | الإيقاع والفضاء: شبكة BPM في المحركين، تحويل 3D بدل القطع، velocity blur — واللي رفضناه من منهج الـshowreel |
 | `craft.md` | **الحرفة المقاسة**: أرقام المونتاج والحركة والنص، قواعد الـlint كلها (`tools/reel_lint.py`)، والدَّرْو (draw) من المكتبة — وإيه اللي خدناه من cinetic وإيه اللي رفضناه |
-| `techniques.md` | مكتبة الحركات (٤١ حركة) — مولّدة من `assets/techniques.json`؛ اقراها للبحث، والاختيار بـ`tools/techniques.py --draw` |
+| `techniques.md` | مكتبة الحركات (٥٩ حركة) — مولّدة من `assets/techniques.json`؛ اقراها للبحث، والاختيار بـ`tools/techniques.py --draw` |
 | `length.md` | **طول الفيديو = طول التعليق الصوتي** — `tools/vo_length.py`، حدود المشاهد من السكتات، وبوّابة `--check` |
 | `remotion.md` | محرك R: إنشاء المشروع، الإعداد، preview/render، مشاركة الهوية والتوقيت، والحدود الحالية |
 | `hybrid.md` | مشروع P/K/R واحد: segments متتابعة، عقد الإطارات والصوت، scaffold واختبار end-to-end |

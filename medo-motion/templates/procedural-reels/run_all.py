@@ -45,5 +45,9 @@ parts=sorted(p for p in glob.glob('out/c_*.mp4') if '.tmp' not in p)
 with open('out/list.txt','w',encoding='utf-8') as f:
     for p in parts: f.write("file '%s'\n"%os.path.abspath(p).replace('\\','/'))
 r=subprocess.run([FF,'-y','-loglevel','error','-f','concat','-safe','0','-i','out/list.txt','-c','copy','out/video_only.mp4'],stdout=log,stderr=log)
-log.write('VIDEODONE\n' if r.returncode==0 else 'CONCAT_FAILED\n'); log.close()
-print('VIDEODONE' if r.returncode==0 else 'CONCAT_FAILED', len(parts),'chunks, N =',N)
+merged=os.path.isfile('out/video_only.mp4') and os.path.getsize('out/video_only.mp4')>0
+log.write('VIDEODONE\n' if r.returncode==0 and merged else 'CONCAT_FAILED\n'); log.close()
+if r.returncode!=0 or not merged:
+    if os.path.exists('out/video_only.mp4'): os.remove('out/video_only.mp4')
+    print('CONCAT_FAILED', len(parts),'chunks, N =',N,'- see out_log.txt'); sys.exit(1)
+print('VIDEODONE', len(parts),'chunks, N =',N)

@@ -11,5 +11,14 @@ cmd=[FF,'-y','-loglevel','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{W}x{
      '-c:v','libx264','-preset','medium','-crf','13','-tune','animation','-x264-params','aq-mode=3:ref=4:deblock=1,1',
      '-pix_fmt','yuv420p',out+'.tmp.mp4']
 p=subprocess.Popen(cmd,stdin=subprocess.PIPE)
-for i in range(a,b): p.stdin.write(render_frame(i/30).tobytes())
-p.stdin.close(); p.wait(); os.rename(out+'.tmp.mp4',out); print('chunk',a,b,flush=True)
+try:
+    for i in range(a,b): p.stdin.write(render_frame(i/30).tobytes())
+    p.stdin.close()
+finally:
+    rc=p.wait()
+tmp=out+'.tmp.mp4'
+# only accept the chunk when ffmpeg exited 0 AND produced a non-empty file
+if rc!=0 or not os.path.isfile(tmp) or os.path.getsize(tmp)==0:
+    if os.path.exists(tmp): os.remove(tmp)
+    print('chunk FAILED',a,b,'ffmpeg exit',rc,flush=True); sys.exit(1)
+os.rename(tmp,out); print('chunk',a,b,flush=True)

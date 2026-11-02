@@ -150,8 +150,13 @@ def lint_timeline(rep: Report, plan: dict, bpm: float, tol: float) -> list[tuple
     if abs(scenes[-1]["end"] - dur) > 0.15:
         rep.error("S02", f"the last scene ends at {scenes[-1]['end']:.2f} s but the VO is {dur:.2f} s")
     for i in range(1, len(scenes)):
-        if scenes[i]["start"] < scenes[i - 1]["end"] - 1e-6:
-            rep.error("S02", f"scene {i + 1} starts before scene {i} ends")
+        prev_end = scenes[i - 1]["end"]
+        if scenes[i]["start"] < prev_end - 1e-6:
+            rep.error("S02", f"scene {i + 1} starts before scene {i} ends (overlap)")
+        elif scenes[i]["start"] > prev_end + 1e-6:
+            rep.error("S02", f"gap of {scenes[i]['start'] - prev_end:.2f} s between scene {i} "
+                             f"(ends {prev_end:g} s) and scene {i + 1} (starts {scenes[i]['start']:g} s) "
+                             f"— scenes must be contiguous: no gaps, no overlaps")
 
     for s in scenes:
         length = s["end"] - s["start"]
@@ -311,7 +316,9 @@ def lint_moves(rep: Report, draw: dict) -> None:
 
 # ---- optional code scan ----------------------------------------------------------------------
 def lint_code(rep: Report, project: Path) -> None:
-    files = [p for p in list(project.glob("*.py")) + list(project.glob("src/**/*.js"))
+    files = [p for p in list(project.glob("*.py")) + list(project.glob("*.ts")) + list(project.glob("*.tsx"))
+             + list(project.glob("src/**/*.js")) + list(project.glob("src/**/*.ts"))
+             + list(project.glob("src/**/*.tsx"))
              if p.is_file() and p.name not in ("run_all.py", "chunk.py")]
     if not files:
         return

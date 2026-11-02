@@ -108,7 +108,9 @@ if tp is not None and tp>TP_CEIL:
                     f'alimiter=limit={lin:.4f}:attack=5:release=50:level=disabled','-ar','44100','out/final_audio_lim.wav'],check=True)
     os.replace('out/final_audio_lim.wav','out/final_audio.wav')
     p3=subprocess.run([FF,'-hide_banner','-i','out/final_audio.wav','-af','loudnorm=I=-14.5:TP=-1.5:print_format=summary','-f','null','-'],capture_output=True,text=True).stderr
-    print('limiter applied (true peak was',tp,'dBTP)')
+    m=re.search(r'Input True Peak:\s*(-?\d+(?:\.\d+)?)',p3)
+    tp=float(m.group(1)) if m else tp   # re-measure: the limiter changed the peak, and the trim below must use the NEW value
+    print('limiter applied (true peak now',tp,'dBTP)')
 mi=re.search(r'Input Integrated:\s*(-?\d+(?:\.\d+)?)',p3)
 lv=float(mi.group(1)) if mi else None
 # Final deterministic trim: land inside -14.5 +/-0.3 without breaking the peak ceiling.

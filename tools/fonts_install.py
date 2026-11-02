@@ -119,6 +119,32 @@ def _norm(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", name.lower())
 
 
+def _safe_extract(tar: tarfile.TarFile, dest: Path) -> None:
+    """Extract only members that stay inside `dest` — never trust the archive's paths.
+
+    `filter="data"` (py>=3.12) already does this, but the project supports 3.10+, so every
+    member is validated explicitly here regardless of Python version: absolute paths, `..`
+    segments, and symlinks/hardlinks pointing outside the destination are all rejected.
+    """
+    dest = dest.resolve()
+    for member in tar.getmembers():
+        target = (dest / member.name).resolve()
+        if target != dest and dest not in target.parents:
+            raise SystemExit(f"refusing unsafe archive member (escapes the target dir): {member.name!r}")
+        if member.issym() or member.islnk():
+            link = Path(member.linkname)
+            if link.is_absolute():
+                raise SystemExit(f"refusing unsafe archive link (absolute): {member.name!r} -> {member.linkname!r}")
+            resolved = (dest / link).resolve()
+            if resolved != dest and dest not in resolved.parents:
+                raise SystemExit(f"refusing unsafe archive link (escapes the target dir): "
+                                 f"{member.name!r} -> {member.linkname!r}")
+    try:
+        tar.extractall(dest, filter="data")    # py>=3.12
+    except TypeError:                          # py3.10/3.11: safe because members were validated above
+        tar.extractall(dest)
+
+
 def pack(npm_name: str, dest: Path) -> Path:
     """`npm pack` one family and extract it; returns the extracted package dir."""
     dest.mkdir(parents=True, exist_ok=True)
@@ -137,10 +163,7 @@ def pack(npm_name: str, dest: Path) -> Path:
         out.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=dest) as tmp:
             with tarfile.open(tgz) as tar:
-                try:
-                    tar.extractall(tmp, filter="data")   # py>=3.12
-                except TypeError:                        # py3.11 has no `filter`
-                    tar.extractall(tmp)
+                _safe_extract(tar, Path(tmp))
             shutil.copytree(Path(tmp) / "package", out / "package", dirs_exist_ok=True)
     return out / "package"
 
