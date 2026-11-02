@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Fetch a local Whisper-small CTranslate2 int8 model from npm tarballs.
 
-This avoids Hugging Face/Azure model CDNs. It downloads four public npm packages,
+Studio alignment infrastructure (see docs/alignment.md).
+
+Why this exists: Hugging Face and the OpenAI/Azure model CDNs are frequently
+unreachable from locked-down sandboxes (TLS EOF). npm's registry is usually
+allow-listed, and a publisher ships a real CTranslate2 int8 conversion of
+OpenAI Whisper-small split across four public packages. This downloads this
 reassembles model.bin, and verifies the publisher's SHA-256 before use.
-The model is written to a cache directory and must not be committed.
+
+The model is written to a cache directory and must NOT be committed (it is
+~480 MB and reproducible from this script).
+
+Usage:
+    python3 tools/whisper_fetch.py --out .cache/whisper-small-ct2-int8
 """
 from __future__ import annotations
 

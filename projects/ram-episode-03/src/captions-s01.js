@@ -1,21 +1,4 @@
-// S01 word-level timeline — approved v6 (measured Whisper + silence-snapped).
-export const CAPTIONS_S01 = [
-  { text: "قبل", start: 0.865, end: 1.04 },
-  { text: "ما", start: 1.04, end: 1.16 },
-  { text: "تشتري", start: 1.16, end: 1.5 },
-  { text: "لابتوب", start: 1.5, end: 2.292 },
-  { text: "أكيد", start: 2.292, end: 2.5 },
-  { text: "شوفت", start: 2.5, end: 2.8 },
-  { text: "أجهزة", start: 2.8, end: 3.14 },
-  { text: "فيها", start: 3.14, end: 3.38 },
-  { text: "8", start: 3.38, end: 3.6 },
-  { text: "جيجا", start: 3.6, end: 4.06 },
-  { text: "RAM", start: 4.06, end: 4.602 },
-  { text: "وأجهزة", start: 4.602, end: 5.24 },
-  { text: "فيها", start: 5.24, end: 5.48 },
-  { text: "16", start: 5.48, end: 6.45 },
-  { text: "وأجهزة", start: 6.45, end: 6.88 },
-  { text: "فيها", start: 6.88, end: 7.1 },
-  { text: "32", start: 7.1, end: 7.7 },
-  { text: "جيجا", start: 7.7, end: 8.08 },
-];
+// S01 word-level timeline. Populate only from measured alignment against the source WAV.
+// Times are scene-local seconds; end is exclusive. Never estimate from scene/silence boundaries.
+export const CAPTIONS_S01_STATUS = 'awaiting-word-alignment';
+export const CAPTIONS_S01 = [];

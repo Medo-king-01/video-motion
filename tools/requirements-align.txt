@@ -1,0 +1,7 @@
+# Optional deps for the measured-caption alignment pipeline (docs/alignment.md).
+# Not part of the base render requirements — install only when aligning captions:
+#   pip install -r tools/requirements-align.txt
+# The Whisper model itself is fetched separately: python3 tools/whisper_fetch.py
+faster-whisper>=1.2
+ctranslate2>=4.8
+numpy>=1.24

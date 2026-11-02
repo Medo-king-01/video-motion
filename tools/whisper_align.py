@@ -1,8 +1,20 @@
 #!/usr/bin/env python3
 """Measure word timestamps with a local faster-whisper CTranslate2 model.
 
+Studio alignment infrastructure (see docs/alignment.md).
+
 No Hugging Face download is performed: pass a local model directory containing
-model.bin, config.json, tokenizer.json and vocabulary.json.
+model.bin, config.json, tokenizer.json and vocabulary.json (build it with
+tools/whisper_fetch.py). Emits measured word intervals as JSON — the only
+acceptable source for burned-in caption timing (never estimate from scene cuts).
+
+Usage:
+    python3 tools/whisper_align.py vo.wav \\
+        --model .cache/whisper-small-ct2-int8 --out cache/words.json --language ar
+
+For short per-scene slices, prefer --no-vad: VAD can drop real speech at slice
+edges. If an exact-script --initial-prompt makes Whisper skip a slice opening,
+retry without the prompt (see tools/caption_align.py).
 """
 from __future__ import annotations
 
@@ -39,7 +51,7 @@ def main() -> int:
         beam_size=args.beam_size,
         word_timestamps=True,
         vad_filter=not args.no_vad,
-        vad_parameters={"min_silence_duration_ms": 300, "speech_pad_ms": 120},
+        vad_parameters={"min_silence_duration_ms": args.vad_min_silence_ms, "speech_pad_ms": args.vad_speech_pad_ms},
         condition_on_previous_text=False,
         initial_prompt=args.initial_prompt,
         temperature=0.0,

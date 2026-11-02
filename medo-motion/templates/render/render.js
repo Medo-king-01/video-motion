@@ -15,7 +15,9 @@ const root=process.cwd(),src=path.dirname(fileURLToPath(import.meta.url)),a=proc
 const opt=(k,d)=>{const i=a.indexOf('--'+k);return i<0?d:a[i+1];};
 const {DURATION}=await import('./data.js');
 const from=Number(opt('from',0)),to=Number(opt('to',DURATION)),fps=Number(opt('fps',30)),scale=Number(opt('scale',1));
+const crf=Number(opt('crf',18));
 if(![from,to,fps,scale].every(Number.isFinite)||from<0||to<=from||fps<=0||scale<=0||scale>1)throw Error('Invalid range, fps or scale');
+if(!Number.isFinite(crf)||crf<0||crf>51)throw Error('Invalid crf');
 const count=Math.ceil((to-from)*fps-1e-8),out=path.resolve(opt('out','cache/smoke')),jpg=a.includes('--jpg');
 const name=String(opt('name','Smoke v1'));
 if(!name||/[\\/:*?"<>|]/.test(name))throw Error('Use a plain output name without path separators');
@@ -86,7 +88,7 @@ try{
     const args=['-hide_banner','-n','-f','image2pipe','-framerate',String(fps),'-i','pipe:0'];
     if(audio)args.push('-ss',String(from),'-t',String(to-from),'-i',path.resolve(audio));
     args.push('-map','0:v:0');if(audio)args.push('-map','1:a:0','-af','apad','-c:a','aac','-b:a','192k','-ar','48000');
-    args.push('-c:v','libx264','-preset','medium','-crf','18','-pix_fmt','yuv420p','-frames:v',String(count),'-t',String(count/fps),'-movflags','+faststart',dest);
+    args.push('-c:v','libx264','-preset','medium','-crf',String(crf),'-pix_fmt','yuv420p','-frames:v',String(count),'-t',String(count/fps),'-movflags','+faststart',dest);
     encoder=spawn(ffmpeg,args,{stdio:['pipe','inherit','inherit']});
     encodeResult=new Promise((resolve,reject)=>{encoder.once('error',reject);encoder.once('close',code=>code===0?resolve():reject(Error('FFmpeg exited '+code)));});
     // Attach a handler immediately to avoid an unhandled rejection during frame capture.
