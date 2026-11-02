@@ -22,11 +22,9 @@ class ExtractWordsTests(unittest.TestCase):
             {"text": "العالم", "start": 0.8, "end": 1.2},
         ])
 
-    def test_ignores_unaligned_tokens(self):
-        self.assertEqual(
-            ALIGN.extract_words({"segments": [{"words": [{"word": "مرحبا"}]}]}),
-            []
-        )
+    def test_fails_when_no_measured_word_timestamps_exist(self):
+        with self.assertRaisesRegex(ValueError, "no word-level"):
+            ALIGN.extract_words({"segments": [{"words": [{"word": "مرحبا"}]}]})
 
     def test_rejects_overlaps_instead_of_fabricating_timings(self):
         with self.assertRaisesRegex(ValueError, "overlapping"):
