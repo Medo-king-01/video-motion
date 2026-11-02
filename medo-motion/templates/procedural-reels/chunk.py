@@ -1,24 +1,71 @@
-import os,sys,subprocess,shutil
-# FFmpeg may live outside PATH (tools/bin, imageio-ffmpeg wheel). Override with FFMPEG_BIN.
-FF=os.environ.get('FFMPEG_BIN') or shutil.which('ffmpeg') or 'ffmpeg'
-HERE=os.path.dirname(os.path.abspath(__file__)); os.chdir(os.environ.get('REEL_DIR',HERE)); sys.path.insert(0,HERE)
-from scenes import *
-a,b=int(sys.argv[1]),int(sys.argv[2]); out=f'out/c_{a:05d}_{b:05d}.mp4'   # name carries BOTH ends so a different chunk size never reuses a stale file
-os.makedirs('out',exist_ok=True)
-if os.path.exists(out): sys.exit()
-# MASTER encode spec (brand brief v4): CRF 13 + animation tune -> ~2.5-4 Mbps at 1080x1920. Below ~2 Mbps = rejected.
-cmd=[FF,'-y','-loglevel','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{W}x{H}','-r','30','-i','-',
-     '-c:v','libx264','-preset','medium','-crf','13','-tune','animation','-x264-params','aq-mode=3:ref=4:deblock=1,1',
-     '-pix_fmt','yuv420p',out+'.tmp.mp4']
-p=subprocess.Popen(cmd,stdin=subprocess.PIPE)
+"""Render and verify one half-open frame range for engine P."""
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+FF = os.environ.get("FFMPEG_BIN") or shutil.which("ffmpeg") or "ffmpeg"
+FFPROBE = os.environ.get("FFPROBE_BIN") or shutil.which("ffprobe") or "ffprobe"
+HERE = Path(__file__).resolve().parent
+PROJECT = Path(os.environ.get("REEL_DIR") or HERE).resolve()
+os.chdir(PROJECT)
+sys.path.insert(0, str(HERE))
+
+from scenes import *  # noqa: F403
+from chunk_utils import is_valid_chunk
+
+if len(sys.argv) != 3:
+    raise SystemExit("usage: chunk.py START_FRAME END_FRAME")
+a, b = map(int, sys.argv[1:])
+if a < 0 or b <= a:
+    raise SystemExit("chunk frame range must satisfy 0 <= start < end")
+
+out_dir = PROJECT / "out"
+out_dir.mkdir(parents=True, exist_ok=True)
+out = out_dir / f"c_{a:05d}_{b:05d}.mp4"
+tmp = out.with_name(out.stem + ".tmp.mp4")
+
+# A cached file is reusable only after a full decode/count/dimension check.
+if is_valid_chunk(out, b - a, W, H, FFPROBE):
+    print(f"chunk cached and verified {a}:{b}", flush=True)
+    raise SystemExit(0)
+if out.exists():
+    out.unlink()
+if tmp.exists():
+    tmp.unlink()
+
+cmd = [
+    FF, "-y", "-loglevel", "error",
+    "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", "30", "-i", "-",
+    "-c:v", "libx264", "-preset", "medium", "-crf", "13", "-tune", "animation",
+    "-x264-params", "aq-mode=3:ref=4:deblock=1,1",
+    "-pix_fmt", "yuv420p", str(tmp),
+]
 try:
-    for i in range(a,b): p.stdin.write(render_frame(i/30).tobytes())
-    p.stdin.close()
-finally:
-    rc=p.wait()
-tmp=out+'.tmp.mp4'
-# only accept the chunk when ffmpeg exited 0 AND produced a non-empty file
-if rc!=0 or not os.path.isfile(tmp) or os.path.getsize(tmp)==0:
-    if os.path.exists(tmp): os.remove(tmp)
-    print('chunk FAILED',a,b,'ffmpeg exit',rc,flush=True); sys.exit(1)
-os.rename(tmp,out); print('chunk',a,b,flush=True)
+    process = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    try:
+        for frame_index in range(a, b):
+            process.stdin.write(render_frame(frame_index / 30).tobytes())  # noqa: F405
+        process.stdin.close()
+        process.stdin = None
+    except BaseException:
+        if process.stdin and not process.stdin.closed:
+            process.stdin.close()
+        process.terminate()
+        process.wait()
+        raise
+    return_code = process.wait()
+except BaseException:
+    if tmp.exists():
+        tmp.unlink()
+    raise
+
+if return_code != 0 or not is_valid_chunk(tmp, b - a, W, H, FFPROBE):
+    if tmp.exists():
+        tmp.unlink()
+    print(f"chunk FAILED {a}:{b}; ffmpeg exit={return_code} or output verification failed", flush=True)
+    raise SystemExit(1)
+
+os.replace(tmp, out)
+print(f"chunk verified {a}:{b}", flush=True)
