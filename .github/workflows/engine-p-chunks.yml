@@ -9,9 +9,11 @@ on:
       - main
     paths:
       - ".github/workflows/engine-p-chunks.yml"
-      - "medo-motion/templates/procedural-reels/chunk_utils.py"
-      - "tests/test_engine_p_chunks.py"
-      - "tests/conftest.py"
+      - "medo-motion/templates/procedural-reels/**"
+      - "assets/poses/**"
+      - "assets/fonts/**"
+      - "tools/requirements.txt"
+      - "tests/**"
       - "pyproject.toml"
 
 permissions:
@@ -37,7 +39,7 @@ jobs:
           cache: pip
 
       - name: Install test dependency
-        run: python -m pip install --upgrade pytest
+        run: python -m pip install --upgrade pytest numpy "av>=12"
 
       - name: Run Engine P chunk integrity tests
         run: python -m pytest -q tests/test_engine_p_chunks.py
