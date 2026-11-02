@@ -6,9 +6,11 @@
 | الملف | إيه ده |
 |---|---|
 | `easings.json` | ١٢ cubic-bezier بأسماء motion.dev + ٥ spring presets + توقيتات البراند (المصدر الوحيد) |
+| `text-animations.json` | كتالوج ٥١ حركة نص (ريلز) كمسارات `{t,v,ease}` + مقدمات كابشن آمنة — `docs/text-animations.md` |
 | `examples/card-entrance.json` | تايملاين جاهز للتجربة |
 | `../templates/render/lib/motion.js` | المحرك K: `ease` · `spring` · `keyframes` · `timeline` · `stagger` · `reveal` |
 | `../templates/procedural-reels/motion.py` | المحرك P: نفس الـAPI بالحرف |
+| `../templates/render/lib/captions.js` | كابشن كلمة-كلمة بأنماط اختيارية (`style`)، الافتراضي `pop` — بتوقيت مقاس |
 
 ```js
 import { timeline } from './lib/motion.js';
