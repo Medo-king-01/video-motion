@@ -93,7 +93,7 @@ with log_path.open("a", encoding="utf-8") as log:
         if result.returncode != 0:
             print(f"chunk failed {start}:{end} - see out_log.txt; re-run to resume")
             raise SystemExit(1)
-        if not is_valid_chunk(part, end - start, W, H, FFPROBE):
+        if not is_valid_chunk(part, end - start, W, H):
             print(f"chunk invalid after render: {part.name} - see out_log.txt")
             raise SystemExit(1)
 
@@ -114,7 +114,7 @@ with log_path.open("a", encoding="utf-8") as log:
     )
     merged = result.returncode == 0 and final_tmp.is_file() and final_tmp.stat().st_size > 0
     if merged:
-        merged = is_valid_chunk(final_tmp, N, W, H, FFPROBE)
+        merged = is_valid_chunk(final_tmp, N, W, H)
     if merged:
         os.replace(final_tmp, OUT / "video_only.mp4")
         log.write("VIDEODONE\n")
