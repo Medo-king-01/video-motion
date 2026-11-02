@@ -118,7 +118,14 @@ jobs:
           if not is_valid_chunk(final, len(parts) * 30, W, H):
               raise SystemExit("assembled multi-scene smoke video failed PyAV validation")
           print(f"SCENE_SMOKE_OK: {len(parts)} transitions, {len(parts) * 30} frames, {W}x{H}")
+          probe = subprocess.run(
+              ["ffprobe", "-v", "error", "-select_streams", "v:0", "-count_frames",
+               "-show_entries", "stream=width,height,nb_read_frames", "-of", "csv=p=0", str(final)],
+              cwd=project, capture_output=True, text=True, check=True,
+          )
+          expected = f"{W},{H},{len(parts) * 30}"
+          actual = probe.stdout.strip()
+          if actual != expected:
+              raise SystemExit(f"FFprobe mismatch: expected {expected}, got {actual}")
+          print(f"FFPROBE_OK: {actual}")
           PY
-          ffprobe -v error -select_streams v:0 -count_frames \\
-            -show_entries stream=width,height,nb_read_frames \\
-            -of csv=p=0 out/scene-smoke.mp4
