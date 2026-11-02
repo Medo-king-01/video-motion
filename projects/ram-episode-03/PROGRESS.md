@@ -18,6 +18,24 @@
 | S02–S10 | ⬜ | Wait for S01 visual direction approval |
 | Full render / mix / QC | ⬜ | Not started |
 
+## Local sandbox readiness — 2026-11-02
+
+- `tools/setup.sh` + `tools/doctor.py`: **READY** (Pillow/numpy/scipy/OpenCV/PyAV/HarfBuzz/FreeType, ffmpeg + ffprobe shim via `tools/bin` on PATH, Chromium 138 via `tools/chromium.mjs`, Cairo fonts, brand lock).
+- Full repo regression suite: **259 pytest tests passed** locally.
+- Project tests: `node test/captions.test.js` and `python3 test/test_align_audio.py` passed locally.
+- S01 rendered locally with engine K: 371 frames @ 30 FPS, 0.5 scale (`cache/s01/`), contact sheet `artifacts/s01-contact-sheet.jpg` + silent motion preview `artifacts/s01-preview-silent.mp4` (12.37 s, no VO, no captions — review artefacts only, not a deliverable). Both are git-ignored.
+- Visual state matches the earlier CI review: 8→16→32 sequence readable; composition still sparse and mostly static. **S01 visual approval still pending.**
+- Alignment-model availability, measured this session (not assumed):
+  - `huggingface.co` — TLS connect fails (blocked).
+  - GitHub release assets (`objects.githubusercontent.com`) — blocked (302 → TLS fail).
+  - Git LFS (`media.githubusercontent.com`) — blocked.
+  - Reachable: `codeload.github.com`, `api.github.com`, `registry.npmjs.org`, `pypi.org`.
+  - Every `ggml-*.bin` Whisper weight found in public GitHub repos is a 133–134-byte **LFS pointer**, not real weights.
+  - ⇒ WhisperX / faster-whisper / whisper.cpp model weights **cannot be fetched in this sandbox**.
+  - Sandbox compute: 2 vCPU, ~3 GB RAM, ~18 GB free disk; gcc 12 + make present; cmake/espeak not installed (installable from PyPI / source).
+  - Viable word-alignment paths: **(A, recommended)** Medo runs `tools/align_audio.py` on a machine with Hugging Face access and uploads the aligned JSON + the WAV; **(B, offline fallback to attempt)** build espeak-ng from GitHub source + `aeneas` (PyPI) for DTW forced alignment against the known script — a real measured alignment, but lower accuracy for Egyptian dialect, so it must be validated against the audio before any caption is accepted.
+- Source WAV `assets/vo/episode-03-ram.wav` is still absent from this workspace.
+
 ## Validation notes
 
 - Latest S01 preview run 41487395114 completed successfully, including dependency installation, Chromium resolution, frame rendering, contact-sheet generation, and artifact upload.
