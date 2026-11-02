@@ -1,11 +1,6 @@
 name: RAM Episode 03 — S01 preview
 
 on:
-  push:
-    branches: [video/ram-episode-03]
-    paths:
-      - "projects/ram-episode-03/**"
-      - ".github/workflows/ram-episode-03-preview.yml"
   pull_request:
     branches: [main]
     paths:
@@ -17,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ram-episode-03-preview-${{ github.ref }}
+  group: ram-episode-03-preview-${{ github.event.pull_request.head.ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
