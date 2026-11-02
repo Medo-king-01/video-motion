@@ -1,0 +1,56 @@
+/* ===================================================
+   MEDO-MOTION OFFICIAL BRAND SYSTEM v2.6 Muted (DARK / RED)
+   Single source of truth for colours: brand.json — this file mirrors it as CSS.
+   =================================================== */
+
+:root {
+  --color-red: #CB271B;
+  --color-red-bright: #CB0801;
+  --color-red-deep: #9F0803;
+  --color-ink: #0A0A0A;
+  --color-ink-soft: #71717A;
+  --color-paper: #F3F2F1;
+  --color-gray-1: #D8D7D5;
+  --color-gray-2: #C9C5C2;
+  --color-gray-3: #BFBAB7;
+  --color-gray-4: #A3A2A0;
+  --color-salmon: #D97F68;
+  --color-blush: #D5AEA6;
+  --color-ink-shadow: #030303;
+}
+
+/* 1. Backgrounds (v2.6 specs — see brand.json backgrounds.v2_6_specs) */
+.bg-mesh-light {
+  background:
+    radial-gradient(circle at 50% 35%, rgba(213, 174, 166, 0.15) 0%, transparent 60%),
+    linear-gradient(185deg, var(--color-paper) 0%, var(--color-gray-1) 100%);
+}
+
+.bg-mesh-dark {
+  background:
+    radial-gradient(circle at 50% 35%, rgba(203, 39, 27, 0.08) 0%, transparent 60%),
+    linear-gradient(185deg, var(--color-ink) 0%, var(--color-ink-shadow) 100%);
+}
+
+.bg-grid-light {
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(to right, rgba(113, 113, 122, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(113, 113, 122, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-grid-dark {
+  background-color: var(--color-ink);
+  background-image:
+    linear-gradient(to right, rgba(201, 197, 194, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(201, 197, 194, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* 2. Typography rules */
+.text-light-mode-main { color: var(--color-ink); }
+.text-light-mode-highlight { color: var(--color-red); }
+
+.text-dark-mode-main { color: var(--color-paper); }
+.text-dark-mode-highlight { color: var(--color-salmon); } /* never red on dark */

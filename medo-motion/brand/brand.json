@@ -145,7 +145,35 @@
       ],
       "note": "paper -> gray_1"
     },
-    "rule": "alternate light/dark per scene; every scene has a different grid cell size/speed/direction; 30 dust particles"
+    "rule": "alternate light/dark per scene; every scene has a different grid cell size/speed/direction; 30 dust particles",
+    "v2_6_specs": {
+      "mesh_light": {
+        "css": "background: radial-gradient(circle at 50% 35%, rgba(213,174,166,0.15) 0%, transparent 60%), linear-gradient(185deg, #F3F2F1 0%, #D8D7D5 100%);",
+        "glow": {
+          "color": "blush #D5AEA6",
+          "alpha": 0.15,
+          "position": "50% 35%"
+        }
+      },
+      "mesh_dark": {
+        "css": "background: radial-gradient(circle at 50% 35%, rgba(203,39,27,0.08) 0%, transparent 60%), linear-gradient(185deg, #0A0A0A 0%, #030303 100%);",
+        "glow": {
+          "color": "red #CB271B",
+          "alpha": 0.08,
+          "position": "50% 35%"
+        }
+      },
+      "grid_light": {
+        "css": "background-color: #F3F2F1; background-image: linear-gradient(to right, rgba(113,113,122,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(113,113,122,0.12) 1px, transparent 1px); background-size: 40px 40px;",
+        "lines": "rgba(113,113,122,0.12) = ink_soft 12%",
+        "cell_px": 40
+      },
+      "grid_dark": {
+        "css": "background-color: #0A0A0A; background-image: linear-gradient(to right, rgba(201,197,194,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(201,197,194,0.08) 1px, transparent 1px); background-size: 40px 40px;",
+        "lines": "rgba(201,197,194,0.08) = gray_2 8%",
+        "cell_px": 40
+      }
+    }
   },
   "contrast_rules": [
     "Body text >= 4.5:1 against its real background",
