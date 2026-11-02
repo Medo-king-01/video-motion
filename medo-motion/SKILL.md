@@ -1,13 +1,14 @@
 ---
-name: medo-motion
+name: video-motion
 description: "Medo (Kodo Medo) Arabic reel studio: locked brand (red/black/white, Cairo), Egyptian dialect, code-drawn reels + canvas motion, SFX, mixing, MP4. Works with any coding agent."
 ---
 
-# Medo Motion «موشن ميدو» — v1.1 (private fork of Khaam Motion v1.4.1)
+# Video Motion — استوديو ميدو
 
-Khaam Motion by Khaam (@khaam.hq), edited by Rashed Alhazmi, **plus Medo's brand layer
-and his procedural-reels engine**. Private copy for Medo only: the licence forbids
-republishing a modified/renamed version (`LICENSE.md`). See `CHANGELOG.md`.
+This is the agent operating guide for the independently developed Video Motion
+project. The repository owner maintains the project code, brand, renderers, templates,
+and documentation. Third-party components retain their own licences and attribution;
+see `LICENSE.md` and the repository-level `assets/CREDITS.md`.
 
 ## 0. This toolkit is host-agnostic
 
@@ -82,12 +83,14 @@ Pillow wheel has no libraqm. `lib.py` picks automatically; never letter-by-lette
 words only, RTL, real shaping, no letter-spacing, keep the dots, no word broken across lines.
 Fonts: Cairo (`python scripts/get_fonts.py "Cairo"`, or `tools/setup.sh` from the repo root).
 
-## 6. Licence and privacy
+## 6. Ownership, licences and privacy
 
-`LICENSE.md`: free for Medo's personal/business/client videos; the skill itself may not be
-republished or resold without written permission from Khaam. Third-party fonts, sounds and
-tools keep their own licences. Never print, ask for, or store API keys. TTS (ElevenLabs) is
-opt-in only, and always asks for approval before a paid request.
+The project-specific code, documentation, brand materials and templates are maintained
+as part of Video Motion. No blanket open-source licence is assigned to those first-party
+materials at present. Third-party fonts, icons, sounds and tools retain their own licences;
+keep their notices and review `../assets/CREDITS.md` before redistribution. See
+`LICENSE.md` for the project's licence status. Never print, ask for, or store API keys.
+TTS (ElevenLabs) is opt-in only, and always asks for approval before a paid request.
 
 ## 7. Resources
 

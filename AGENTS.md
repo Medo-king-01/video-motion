@@ -212,7 +212,7 @@ or a series title** — there is none.
 - `ffmpeg` = static build from `imageio-ffmpeg`; there is no `ffprobe` binary, so
   `tools/ffprobe_shim.py` is installed as `ffprobe` (ffprobe-compatible JSON subset).
 - Chromium for engine K comes from `@sparticuz/chromium` (npm) because the Playwright
-  CDN is blocked; `tools/chromium.mjs --env` exports `KHAAM_CHROMIUM` + `LD_LIBRARY_PATH`.
+  CDN is blocked; `tools/chromium.mjs --env` resolves the Chromium executable and prepares the required shared-library environment.
 - Engine R uses the Remotion packages pinned in the project scaffold (`npm install` inside
   `projects/<slug>/`); it reads the same measured `plan/beats.json` and local Cairo font/pose assets.
 - Pillow here is built **without** libraqm. Engine P detects that and shapes Arabic with
