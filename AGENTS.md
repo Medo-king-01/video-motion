@@ -93,13 +93,18 @@ finished video on guessed timing without saying so.
    `close-explain`, `close-thinking` (anchored on the top guide — a cut between the two framings is a
    camera push-in). Never edit the cut-out PNGs or `poses.json` by hand — edit
    `tools/lib/pose_catalog.py` and rebuild with `make poses`. `docs/presenter.md`.
-9. **Cuts and sound are catalogue-driven**: P/K transitions use `transition.py` / `lib/transition.js`
+9. **Backgrounds are catalogue-driven, and on-palette**: pick from `medo-motion/motion/backgrounds.json`
+   (12 pure-function patterns × dark/light) with `backgrounds.py` (P) / `lib/backgrounds.js` (K+R) —
+   never a hand-drawn gradient, never a colour outside `brand/brand.json`. Each background is a pure
+   function of `t`, so it stays frame-exact in chunks and in parallel rendering. State the id and why
+   in `plan/design.json`; review with `make backgrounds`. `docs/backgrounds.md`.
+10. **Cuts and sound are catalogue-driven**: P/K transitions use `transition.py` / `lib/transition.js`
    (`medo-motion/motion/transitions.json`) and every hit comes from `sfx.py` (`BANK` + `CATALOG`) via a
    cue sheet — never a hand-rolled mask or an unlicensed audio file. R currently supports hard scene cuts;
    if the concept needs a catalog transition, choose P/K until that primitive is ported and tested. All
    engines use the shared SFX/mix pipeline. `docs/transitions.md` and `docs/audio.md` are the references;
    `make transitions` and `make sfx` produce the QA artefacts.
-10. **Draw the moves; then lint them.** Do not choose transitions/camera moves from memory — that is
+11. **Draw the moves; then lint them.** Do not choose transitions/camera moves from memory — that is
    how every reel ends up with the same fade-up and push-in. Draw from the measured library into the
    project: `python3 tools/techniques.py --draw --from-plan plan/beats.json --json plan/techniques.json`
    (`assets/techniques.json`, 59 moves across 13 families — including the UI / product-demo /
@@ -108,7 +113,7 @@ finished video on guessed timing without saying so.
    Before a render, the plan must pass `python3 tools/reel_lint.py projects/<slug> --scan-code`
    (letters/words on screen, dwell per word, grid-locked cuts, text-free stretch, banned looks).
    Rules, numbers and the conflicts we resolved: `docs/craft.md`. Library: `docs/techniques.md`.
-11. **Text motion is your creative decision for EVERY on-screen text element — never a default.**
+12. **Text motion is your creative decision for EVERY on-screen text element — never a default.**
    This is not caption-only: titles, hooks, keywords, numbers/counters, CTAs, labels and text inside
    cards/UI all get an explicit motion style **and font** in `plan/text-direction.json`
    (`captionStyle`, `textStyles`/`fontStyles` per role, optional per-element `textElements`/
@@ -123,7 +128,7 @@ finished video on guessed timing without saying so.
    has no chosen style. Timing still comes from the measured VO/scene bounds; the style only shapes
    how the element moves. Keep it unboxed, whole-word Arabic, brand colors.
 
-12. **The studio is a tool, not a video archive.** The studio's memory is this toolkit —
+13. **The studio is a tool, not a video archive.** The studio's memory is this toolkit —
     `assets/` inputs, `templates/`, `brand/`, `tools/`. `projects/` is not: it is a scratch
     working area for the video being made *right now*, ignored by Git, and every scaffold
     writes its own `.gitignore` with `*`. A delivered video leaves the repository with its
@@ -133,7 +138,7 @@ finished video on guessed timing without saying so.
     `--out` a folder outside the repo (next to the user's own video files). Each new video
     starts from the four inputs and the toolkit, nothing else.
 
-13. **Plan meaning, then verify geometry.** New projects include draft `plan/visual-direction.json`.
+14. **Plan meaning, then verify geometry.** New projects include draft `plan/visual-direction.json`.
     After measuring VO beats/words, choose presenter/overlay/cover per beat, a concrete rationale,
     element/copy IDs and measured word anchors; mark ready with `decidedBy`. `reel_lint.py` enforces
     V01 when this plan exists. Never invent word times or reveal a fact before its spoken anchor.

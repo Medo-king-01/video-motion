@@ -70,6 +70,20 @@
   </div>
 
   <div class="panel">
+    <h2>الخلفية · background (نفس ما في الفريم)</h2>
+    <div class="row" style="flex-wrap:wrap;gap:8px">
+      <select id="bgPick" style="flex:1;min-width:170px;background:#241d1c;color:var(--paper);
+              border:1px solid #4a3c3b;border-radius:9px;padding:8px 10px;font:inherit"></select>
+      <button id="bgTheme">فاتح/غامق</button>
+    </div>
+    <p class="hint" style="color:var(--gray4);font-size:12px;margin:8px 0 0">
+      من <code>medo-motion/motion/backgrounds.json</code> — نفس الدالة بالظبط في
+      <code>lib/backgrounds.js</code> (K/R) و<code>backgrounds.py</code> (P). الشيت:
+      <code>make backgrounds</code>.
+    </p>
+  </div>
+
+  <div class="panel">
     <h2>التايملاين · timeline JSON</h2>
     <textarea id="json" spellcheck="false"></textarea>
     <div class="err" id="err"></div>
@@ -93,6 +107,20 @@
 
 <script type="module">
 import { timeline, ease, progress } from '../medo-motion/templates/render/lib/motion.js';
+import { backgroundFrame, BACKGROUND_IDS } from '../medo-motion/templates/render/lib/backgrounds.js';
+
+// The stage can be painted on any catalogued background, so a timeline is judged over the real one.
+let bgId = new URLSearchParams(location.search).get('bg') || 'wash';
+let bgTheme = new URLSearchParams(location.search).get('theme') === 'light' ? 'light' : 'dark';
+const bgPick = document.getElementById('bgPick');
+if (bgPick) {
+  bgPick.innerHTML = BACKGROUND_IDS.map(id => `<option value="${id}">${id}</option>`).join('');
+  bgPick.value = BACKGROUND_IDS.includes(bgId) ? bgId : 'wash';
+  bgPick.addEventListener('change', () => { bgId = bgPick.value; draw(t); });
+  document.getElementById('bgTheme').addEventListener('click', () => {
+    bgTheme = bgTheme === 'dark' ? 'light' : 'dark'; draw(t);
+  });
+}
 
 const C = { red:'#CB271B', deep:'#9F0803', ink:'#0A0A0A', inkSoft:'#71717A', paper:'#F3F2F1',
             gray2:'#C9C5C2', gray4:'#A3A2A0', salmon:'#D97F68', blush:'#D5AEA6', shadow:'#030303' };
@@ -135,9 +163,7 @@ function roundRect(c, x, y, w, h, r) {
 
 function draw(time) {
   const v = tl.at(Math.min(time, tl.duration));
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, C.ink); g.addColorStop(1, C.shadow);
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  backgroundFrame(ctx, W, H, Math.min(time, tl.duration), { id: bgId, theme: bgTheme });
 
   const circleIn = ease('backOut', progress(time, 0.05, 0.6));
   ctx.fillStyle = C.red;

@@ -1,0 +1,190 @@
+{
+  "_doc": "The animated background vocabulary, shared by the three engines. A background is a PURE FUNCTION of time: paint(ctx_or_array, w, h, t, params) draws frame t from nothing, so any t renders the same frame on any machine, at any fps, with no accumulated state. Geometry is normalised to the frame box (fractions of w/h), and every colour is a BRAND ROLE resolved by the renderer — no hex ever appears in a pattern. Implementation: lib/backgrounds.js (K and R share one file) and procedural-reels/backgrounds.py (P). tests/test_backgrounds.py fails if any of the three drifts from this file.",
+  "version": 2,
+  "roles": {
+    "_doc": "Semantic colours. `dark` and `light` are the two themes; a pattern asks for a role, never a colour.",
+    "dark": {
+      "bg": "ink",
+      "wash": "inkShadow",
+      "line": "gray_1@0.10",
+      "lineStrong": "gray_1@0.20",
+      "matter": "ink@0.90",
+      "text": "paper",
+      "mid": "ink_soft",
+      "accent": "red",
+      "accentDeep": "red_deep",
+      "accentSoft": "salmon@0.30",
+      "glow": "red@0.50",
+      "blobA": "salmon@0.26",
+      "blobB": "red_deep@0.34",
+      "paperWash": "ink@0.10"
+    },
+    "light": {
+      "bg": "paper",
+      "wash": "gray_1",
+      "line": "ink@0.09",
+      "lineStrong": "ink@0.18",
+      "matter": "paper@0.92",
+      "text": "ink",
+      "mid": "gray_4",
+      "accent": "red_deep",
+      "accentDeep": "red",
+      "accentSoft": "red_deep@0.20",
+      "glow": "red@0.26",
+      "blobA": "blush@0.55",
+      "blobB": "red_deep@0.16",
+      "paperWash": "gray_2@0.55"
+    }
+  },
+  "defaults": {
+    "density": 45,
+    "angle": 25,
+    "speed": 1.0
+  },
+  "backgrounds": [
+    {
+      "id": "iso-grid",
+      "ar": "شبكة مائلة",
+      "en": "Isometric grid",
+      "family": "grid",
+      "desc": "شبكة بزاوية + هالة حمراء بتتحرك — أهدأ خلفية للشرح",
+      "params": {
+        "angle": 25,
+        "density": 45
+      },
+      "contrastSafe": false
+    },
+    {
+      "id": "grid-2d",
+      "ar": "شبكة مستقيمة",
+      "en": "Neon grid",
+      "family": "grid",
+      "desc": "شبكة مستقيمة + نبضة ضوء — «نيون» بالبراند من غير نيون",
+      "params": {
+        "angle": 0,
+        "density": 45
+      },
+      "contrastSafe": false
+    },
+    {
+      "id": "paper",
+      "ar": "ورق مجعّد",
+      "en": "Folded paper",
+      "family": "texture",
+      "desc": "تكسير ورق بتدرجات رمادية — للمواضيع الورقية والتعليمية",
+      "params": {
+        "angle": 0,
+        "density": 40
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "aura",
+      "ar": "أورا ناعمة",
+      "en": "Soft aura",
+      "family": "gradient",
+      "desc": "بقعتين ناعمتين (blush + red_deep) — للكلام الهادي",
+      "params": {
+        "angle": 0,
+        "density": 40
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "orbital",
+      "ar": "مدارات",
+      "en": "Orbitals",
+      "family": "orbit",
+      "desc": "مسارات دائرية + مربعات متوهجة — للتقنية والمنتجات",
+      "params": {
+        "angle": 0,
+        "density": 45
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "orbit-mono",
+      "ar": "مدارات رمادية",
+      "en": "Mono orbitals",
+      "family": "orbit",
+      "desc": "نفس المدارات بحبر رمادي من غير أحمر — الأكثر حيادًا",
+      "params": {
+        "angle": 0,
+        "density": 45
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "frames",
+      "ar": "واجهة تقنية",
+      "en": "Tech frames",
+      "family": "frames",
+      "desc": "شبكة + إطارات بتنبض + شعرة سكان — للداتا والمنتجات",
+      "params": {
+        "angle": 0,
+        "density": 40
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "organic",
+      "ar": "شبكة ماسية",
+      "en": "Organic diamond",
+      "family": "texture",
+      "desc": "شكل عضوي داكن على شبكة مائلة — إحساس هادي وطبيعي",
+      "params": {
+        "angle": 45,
+        "density": 35
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "perspective",
+      "ar": "منظور",
+      "en": "Perspective floor",
+      "family": "perspective",
+      "desc": "شبكة بمنظور غائر بتتحرك — للسرعة والتقدم",
+      "params": {
+        "angle": 0,
+        "density": 45
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "glyphs",
+      "ar": "حروف ساقطة",
+      "en": "Falling glyphs",
+      "family": "texture",
+      "desc": "حروف عربية وأرقام بسقوط رأسي — للتحول الرقمي",
+      "params": {
+        "angle": 0,
+        "density": 45
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "pulse",
+      "ar": "نبض",
+      "en": "Signal pulse",
+      "family": "signal",
+      "desc": "خط إشارة أحمر على شبكة — للتحليل والنتائج والأرقام",
+      "params": {
+        "angle": 0,
+        "density": 30
+      },
+      "contrastSafe": true
+    },
+    {
+      "id": "wash",
+      "ar": "تدرج ناعم",
+      "en": "Soft wash",
+      "family": "gradient",
+      "desc": "تدرج رمادي ناعم جدًا — الخلفية الافتراضية لو مفيش سبب لغيرها",
+      "params": {
+        "angle": 0,
+        "density": 45
+      },
+      "contrastSafe": true
+    }
+  ]
+}

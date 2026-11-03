@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased — 2026-11-03 (animated backgrounds)
+
+Twelve animated backgrounds, re-coloured to the brand, now live in all three engines.
+
+- **`medo-motion/motion/backgrounds.json` (new catalogue)**: 12 patterns (`iso-grid`, `grid-2d`,
+  `paper`, `aura`, `orbital`, `orbit-mono`, `frames`, `organic`, `perspective`, `glyphs`, `pulse`,
+  `wash`) × dark/light. Every colour is a brand ROLE (`ink`, `paper`, `red`, `red_deep`, `salmon`,
+  `blush`, `gray_1..4`) resolved against `brand/brand.json` — no hex appears in a pattern, and a test
+  checks that every rendered pixel is a mix of two palette colours.
+- **`templates/render/lib/backgrounds.js`** (K and R share one byte-identical file) and
+  **`templates/procedural-reels/backgrounds.py`** (P, numpy): the same pure function of `t`, so a
+  frame is identical whether the render walks forward, jumps or renders chunks in parallel.
+- **`tools/backgrounds_sheet.py` + `make backgrounds`**: contact sheet, plus `--compare` which
+  rasterises every pattern in K (real Canvas) beside P and reports the per-pattern difference.
+  All 24 variants are currently within Δ11; the test fails above Δ16.
+- Patterns that were outside the palette were converted, not dropped: the katakana `matrix` became
+  `glyphs` (Arabic letters + Arabic-Indic digits), the green ECG `pulse` became brand red, the violet
+  `pastel` became `aura` (blush + red_deep), and `crimson` folded into `grid-2d`.
+- **Fixed a real rendering bug found by the parity check**: Canvas interpolates gradients in
+  premultiplied alpha, so fading a colour to `transparent` (transparent *black*) darkened the middle
+  of every glow. Both engines now fade to the same hue at alpha 0.
+- `tools/motion_studio.html` paints its stage with the real background (`?bg=orbital&theme=light`),
+  `AGENTS.md` gains hard rule 9, `docs/backgrounds.md` documents the catalogue and the gotchas, and
+  `new_project.py` asks which background a scene uses instead of leaving it to chance.
+
 ## Unreleased — 2026-11-03 (pose library v2)
 
 The presenter library was replaced: **24 hand-cut poses → 49 poses of one character**, sourced from
