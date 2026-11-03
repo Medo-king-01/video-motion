@@ -47,7 +47,29 @@ jobs:
           python -m pip check
           npm ci --prefix tools/toolkit
       - name: Run quality gates
-        run: bash tools/ci.sh
+        run: |
+          set -o pipefail
+          bash tools/ci.sh 2>&1 | tee "$RUNNER_TEMP/quality.log"
+      - name: Annotate quality failure
+        if: failure()
+        run: |
+          python - <<'PYTHON'
+          import os
+          from pathlib import Path
+          log = Path(os.environ["RUNNER_TEMP"]) / "quality.log"
+          if log.is_file():
+              excerpt = log.read_text(errors="replace")[-12000:]
+              excerpt = excerpt.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+              print(f"::error title=Quality gate log excerpt::{excerpt}")
+          PYTHON
+      - name: Upload quality log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-python-${{ matrix.python }}
+          path: ${{ runner.temp }}/quality.log
+          if-no-files-found: ignore
+          retention-days: 14
 
   validate-all-renderers:
     name: P + K + R + Hybrid
