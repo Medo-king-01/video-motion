@@ -1,0 +1,21 @@
+# Reviewed baseline shared by Python 3.10/3.12 CI. Update deliberately and run CI.
+# Optional ASR/model dependencies are outside this base-render baseline.
+pillow==12.3.0; python_version < "3.11"
+pillow==13.0.0; python_version >= "3.11"
+numpy==2.2.6
+scipy==1.15.3
+opencv-python-headless==4.12.0.88
+imageio-ffmpeg==0.6.0
+av==16.0.1
+uharfbuzz==0.52.0
+freetype-py==2.5.1
+pytest==9.2.0
+ruff==0.17.3
+iniconfig==2.1.0
+packaging==25.0
+pluggy==1.6.0
+pygments==2.21.0
+exceptiongroup==1.3.0
+tomli==2.3.0
+typing-extensions==4.15.0
+colorama==0.4.6

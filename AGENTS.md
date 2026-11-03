@@ -112,10 +112,13 @@ Medo gives you words, timing, voice and poses. Everything visual and audible is 
 ## 4. First run on a machine
 
 ```bash
-bash tools/setup.sh          # installs python + node deps, ffmpeg, fonts, chromium
+bash tools/setup.sh --dev    # Python >=3.10 + Node >=20.11 must already be installed; use a venv
+                            # installs Python runtime/test deps, Node deps, ffmpeg shim, fonts, Chromium
 python3 tools/doctor.py      # prints READY / BLOCKED for every capability
 python3 tools/selftest.py    # doctor + unit tests + a few real frames (the real proof)
 ```
+
+For a clean-machine walkthrough and dependency policy, see `docs/development.md`.
 
 `make setup`, `make doctor`, `make selftest`, `make test`, `make new SLUG=…` are the
 same commands in short form.

@@ -21,6 +21,8 @@ Scenes JSON: a list of objects
     {"id": "S01", "module": "ram-intro", "text": "...", "words": ["قبل", ...],
      "start": 0.0, "end": 8.433}
 `module` defaults to a slug of `id`; `words` defaults to text.split().
+Frozen scenes require `final`: [{"text": "...", "start": 0.1, "end": 0.5}]
+with scene-local timings matching the script. Input VO must be mono PCM16 WAV.
 
 Usage:
     python3 tools/caption_align.py --scenes plan/script-scenes.json \\
@@ -32,9 +34,14 @@ from __future__ import annotations
 import argparse
 import difflib
 import json
+import math
 import re
+import sys
 import wave
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "medo-motion" / "scripts"))
+from _safe_paths import checked_path  # noqa: E402
 
 PUNCT = "،.!؟?;:«»\"'…ـ()[]{}،"
 
@@ -100,7 +107,7 @@ def dp_align(script: list[str], asr: list[dict]) -> list[dict]:
             del pairs[k]
     anchors = [k for k in range(n) if out[k]["start"] is not None]
     if not anchors:
-        return out
+        raise ValueError("No ASR word anchors matched the script; check speech/model/language before retrying")
     first = anchors[0]
     for k in range(first):
         out[k]["start"] = out[first]["start"]; out[k]["end"] = out[first]["start"]
@@ -148,9 +155,15 @@ def speech_regions(x, sr: int, thresh: float = 0.012) -> list[tuple[float, float
 def snap_and_hold(words: list[dict], regions: list[tuple[float, float]], scene_dur: float) -> list[dict]:
     """Snap early onsets to speech, sort by onset, hold each word until the next
     begins, and enforce strict monotonic order. words: [{"text","start",...}]."""
+    if not words or any(w.get("start") is None for w in words):
+        raise ValueError("No measured word onsets; cannot snap captions without ASR anchors")
+    if not math.isfinite(scene_dur) or scene_dur <= 0:
+        raise ValueError("scene duration must be positive and finite")
     fixed = []
     for i, w in enumerate(words):
         t = float(w["start"])
+        if not math.isfinite(t) or t < 0:
+            raise ValueError("word onset must be non-negative and finite")
         for a, _b in regions:
             if a - 0.12 > t and a - t < 0.9 and (i == 0 or t <= words[i - 1]["start"] + 0.001):
                 t = round(a, 3)
@@ -172,11 +185,19 @@ def snap_and_hold(words: list[dict], regions: list[tuple[float, float]], scene_d
             out[i - 1]["end"] = out[i]["start"]
         if out[i]["end"] <= out[i]["start"]:
             out[i]["end"] = round(out[i]["start"] + 0.05, 3)
+    for w in out:
+        w["end"] = min(w["end"], scene_dur)
+        if not 0 <= w["start"] < w["end"] <= scene_dur:
+            raise ValueError("Measured captions exceed scene bounds; review scene cuts")
     return out
 
 
 def emit_caption_module(scene_id: str, words: list[dict], note: str = "measured local Whisper CT2 int8 on the real VO") -> str:
     """One unboxed-caption ES module: export const CAPTIONS_<ID> = [...]."""
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", scene_id):
+        raise ValueError("invalid scene id")
+    validate_timed_words(words)
+    note = note.replace("\n", " ").replace("\r", " ").replace("\u2028", " ").replace("\u2029", " ")
     sid = scene_id.upper().replace("-", "_")
     lines = [f"// {scene_id} word-level timeline — {note}.",
              "// Onsets validated against the WAV speech envelope; each word holds until the next begins.",
@@ -198,14 +219,82 @@ def emit_data_js(scenes: list[dict], font_family: str = "Cairo",
              "export const W=1080,H=1920,FPS=30;", "export const scenes=["]
     for sc in scenes:
         module = sc.get("module") or _slug(sc["id"])
-        lines.append(f"  {{id:'{module}',start:{sc['start']},end:{sc['end']}}},")
+        entry = {"id": module, "start": sc["start"], "end": sc["end"]}
+        lines.append("  " + json.dumps(entry, ensure_ascii=False, allow_nan=False) + ",")
     lines.append("];")
     lines.append("export const DURATION=scenes.at(-1).end;")
-    lines.append(f"export const ARABIC_FONT={{family:'{font_family}',urls:['{font_url}'],descriptors:{{weight:'800'}}}};")
+    font = {"family": font_family, "urls": [font_url], "descriptors": {"weight": "800"}}
+    lines.append("export const ARABIC_FONT=" + json.dumps(font, ensure_ascii=False, allow_nan=False) + ";")
     return "\n".join(lines) + "\n"
 
 
+def _number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def validate_timed_words(words, duration=float("inf")):
+    if not isinstance(words, list) or not words:
+        raise ValueError("frozen final must be a non-empty list of {text,start,end}")
+    previous_end = 0.0
+    for word in words:
+        if not isinstance(word, dict) or not isinstance(word.get("text"), str) or not word["text"].strip():
+            raise ValueError("timed words require non-empty text")
+        start, end = word.get("start"), word.get("end")
+        if not _number(start) or not _number(end) or not previous_end <= start < end <= duration:
+            raise ValueError("timed words must be finite, ordered, non-overlapping and within the scene")
+        previous_end = end
+
+
+def validate_scenes(scenes, freeze):
+    """words are script strings; frozen final contains scene-local timed words."""
+    if not isinstance(scenes, list) or not scenes:
+        raise ValueError("scenes must be a non-empty JSON list")
+    ids, modules, exports = set(), set(), set()
+    previous_end = 0.0
+    for scene in scenes:
+        if not isinstance(scene, dict):
+            raise ValueError("each scene must be an object")
+        sid = scene.get("id")
+        if not isinstance(sid, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", sid):
+            raise ValueError("scene id must be a safe ASCII identifier")
+        exported = sid.upper().replace("-", "_")
+        module = scene.get("module", _slug(sid))
+        if not isinstance(module, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", module):
+            raise ValueError(f"{sid}: module must be a lowercase slug, not a path")
+        if sid.lower() in ids or exported in exports or module in modules:
+            raise ValueError("scene ids, exports and modules must be unique")
+        ids.add(sid.lower()); exports.add(exported); modules.add(module)
+        start, end = scene.get("start"), scene.get("end")
+        if not _number(start) or not _number(end) or not previous_end <= start < end:
+            raise ValueError(f"{sid}: scene bounds must be finite, ordered and non-overlapping")
+        previous_end = end
+        if not isinstance(scene.get("text"), str) or not scene["text"].strip():
+            raise ValueError(f"{sid}: non-empty text is required")
+        words = scene.get("words", scene["text"].split())
+        if not isinstance(words, list) or not words or any(not isinstance(w, str) or not w.strip() for w in words):
+            raise ValueError(f"{sid}: words must be a non-empty list of script strings; put frozen timings in final")
+        if sid in freeze:
+            validate_timed_words(scene.get("final"), end - start)
+            if [norm(w["text"]) for w in scene["final"]] != [norm(w) for w in words]:
+                raise ValueError(f"{sid}: frozen final text must match script words")
+    unknown = freeze - {scene["id"] for scene in scenes}
+    if unknown:
+        raise ValueError(f"unknown frozen scene ids: {sorted(unknown)}")
+
+
+def validate_wav(src):
+    with wave.open(str(src), "rb") as w:
+        if w.getnchannels() != 1 or w.getsampwidth() != 2 or w.getcomptype() != "NONE":
+            raise ValueError("VO must be mono PCM16 WAV; convert with ffmpeg -i input -ac 1 -c:a pcm_s16le output.wav")
+        if w.getnframes() <= 0 or w.getframerate() <= 0:
+            raise ValueError("VO WAV must contain audio samples")
+        return w.getframerate(), w.getnframes() / w.getframerate()
+
+
 def _slice_wav(src: Path, dst: Path, start: float, end: float) -> None:
+    sr, duration = validate_wav(src)
+    if not 0 <= start < end <= duration:
+        raise ValueError("slice bounds exceed VO duration")
     with wave.open(str(src), "rb") as w:
         sr = w.getframerate()
         w.setpos(int(start * sr))
@@ -219,7 +308,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--scenes", type=Path, required=True, help="JSON list of {id,text,words,start,end}")
     ap.add_argument("--vo", type=Path, required=True)
-    ap.add_argument("--model", type=Path, required=True)
+    ap.add_argument("--model", type=Path, help="required unless every scene is frozen")
     ap.add_argument("--out-dir", type=Path, default=Path("src"))
     ap.add_argument("--lang", default="ar")
     ap.add_argument("--threads", type=int, default=2)
@@ -228,15 +317,24 @@ def main() -> int:
     args = ap.parse_args()
 
     import numpy as np
-    from faster_whisper import WhisperModel
-
     scenes = json.loads(args.scenes.read_text(encoding="utf-8"))
     freeze = {s.strip() for s in args.freeze.split(",") if s.strip()}
+    validate_scenes(scenes, freeze)
+    sr, duration = validate_wav(args.vo)
+    if scenes[-1]["end"] > duration:
+        raise ValueError("scene bounds exceed VO duration")
+    for target in (args.out_dir, args.measurements.parent / "scene-slices", args.measurements):
+        checked_path(target, tree=True)
+    needs_model = any(sc["id"] not in freeze for sc in scenes)
+    if needs_model and args.model is None:
+        ap.error("--model is required for scenes that are not frozen")
     with wave.open(str(args.vo), "rb") as w:
         sr = w.getframerate()
         x = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768
-    model = WhisperModel(str(args.model), device="cpu", compute_type="int8",
-                         cpu_threads=args.threads, num_workers=1, local_files_only=True)
+    if needs_model:
+        from faster_whisper import WhisperModel
+        model = WhisperModel(str(args.model), device="cpu", compute_type="int8",
+                             cpu_threads=args.threads, num_workers=1, local_files_only=True)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     slices = args.measurements.parent / "scene-slices"; slices.mkdir(parents=True, exist_ok=True)
     report = []
@@ -245,7 +343,7 @@ def main() -> int:
         g0, g1 = float(sc["start"]), float(sc["end"])
         script_words = sc.get("words") or sc["text"].split()
         if sid in freeze:
-            final = [{"text": w["text"], "start": w["start"], "end": w["end"]} for w in sc["words"]]
+            final = [{"text": w["text"], "start": w["start"], "end": w["end"]} for w in sc["final"]]
             note = "approved (frozen, measured + silence-snapped)"
         else:
             wav = slices / f"{sid}.wav"
@@ -274,4 +372,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (ValueError, OSError, wave.Error) as error:
+        print(f"Caption alignment failed: {error}", file=sys.stderr)
+        raise SystemExit(1) from error

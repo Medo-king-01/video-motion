@@ -1,0 +1,86 @@
+{
+  "@expo-google-fonts/alexandria": {
+    "integrity": "sha512-maaOCuuDgt0ek1wxquTOgT4EKxDRvDxNSXuMyHP9esxFW56EZm9Xd+PTurzeYXHhDL6p9F5sn8AWVSXQ5wVlaQ==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/almarai": {
+    "integrity": "sha512-mbFizbbS8JapmhR6/pWYLq5YAR+CX8VFIUjPC5Z0YIYy3rKz1X10DnU4WijgRASUniCyf10V84W3ws+NvtvqCA==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/amiri": {
+    "integrity": "sha512-JTZUZ4olyqGeXu5UBWVEerrbym/MD9U3wU8qzSg8z4qEtHFKAI3uPg2DuytfeRmJ6EppaHLYsYqpGerMOrpJeA==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/anton": {
+    "integrity": "sha512-VXxS6ZppH1W/0ch06c52iVpZhVwHX9sXEctyFy/NiF/gb3i697R4va+qpiDQHB71NI8pLyecdBjNrc5FA9qKrw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/archivo-black": {
+    "integrity": "sha512-Zi4M9NPyKBllCd8TobvYRRAAm/dbhnrYTywbkfGVOJ7cThEetli+jYBh/deAjzOEqYMTrlSM89uEiherIPjkpQ==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/bebas-neue": {
+    "integrity": "sha512-Ibnf0EQgMUj01tT/ws64RlsMQmOvDP+UDFW93bld0C/WwaOaCGWKgNnqxNkKxmL73y2kpT8EB4dkSNUOyAOEJA==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/cairo": {
+    "integrity": "sha512-iWXHgE4MH6BfFqs8IxhbjNphAboUsb8NSEVIf1kWVGkiwCkAXDHxotgASabuPhhM1SQQXrgOPdmjT9VyeakM3Q==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/changa": {
+    "integrity": "sha512-RY8L/Fej6xm0R5LU3QL2CJ1W6vLVhhl2ZE5DJIdBOLS1jCKx4AwZFwRRkD8gMgPP4x6H7ZHAKKBPgnKX5PjcGw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/el-messiri": {
+    "integrity": "sha512-T6Vd8G8GfqxRq1Anth7KWOXAAzJ4Aq47JhAm4i62OhfSK9LZr49WzSHbA/jtjHPyyTp2EFmJ75Yovz9FVASXiw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/ibm-plex-mono": {
+    "integrity": "sha512-/yYz1mPZq8Nd4tSiH0SBDPEdJUqiOGBwVgSrQvLuw7SPh6C7ezBzmi6eFyHY4QaQwjHDmOLSBKsxzq8ZDFXVAg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/ibm-plex-sans": {
+    "integrity": "sha512-allsuhZbvKoKDTB/U8creFVYYzhI97Nw9MgyyNjFzqISNc/sURpA7ZY37Rr+IRI567OV9BWQ/ioUCjAQrVGRbw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/ibm-plex-sans-arabic": {
+    "integrity": "sha512-Cx24iSo/4pWBKHVf69tbVLDUiHWCSTHrhKPw/+SYWLDnyiX10WXh+amNWRSo9N3ruwd+qk9AQgDaIY1KO0u1Ig==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/instrument-serif": {
+    "integrity": "sha512-1CgCrLbTSgE7RV8ZrTT7i06UAyNQDBrhxQuxkReNnfq5yvUhTmvpOK17grlEsXG5p04lJ1ZXGiIjPeHo6X0sXg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/inter": {
+    "integrity": "sha512-syfiImMaDmq7cFi0of+waE2M4uSCyd16zgyWxdPOY7fN2VBmSLKEzkfbZgeOjJq61kSqPBNNtXjggiQiSD6gMQ==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/kufam": {
+    "integrity": "sha512-9Yey5dNLXTU9G4TaolH+P7itq1FJN6aYpKynwlxljSGoIu8CL7OyL9jHevww6EWq+MwLvA/TrhsksP+R4SIl7A==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/lalezar": {
+    "integrity": "sha512-1bSXcPR+lO+BB8k2Zuz3oPWAmt4TXRyhNsEwnBTvzPqijqaZ6fPJwpWNbkBd9uMWaStF0yLt/q6WT1RJajdYiw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/readex-pro": {
+    "integrity": "sha512-BADsKySd3E/KIHvm5rHNvaRGTM2WmJ6EgnLAaj3ksgV+wyBbRaOSvqik2gYh00vb74AUSZGmvei/YeAv3Korsw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/rubik": {
+    "integrity": "sha512-WJtpQEw4lDKjCVnVIBF9qiZn+BTOB3juWvSchpZ+mnHFFV0gh4PyOvLLJCOMmKVgSj/pzFDtNe4apqexrD0+pA==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/sora": {
+    "integrity": "sha512-X86Kl1cfObcSUzTLIbtmrPCLRlIbCNh0uBOo8bjmXb8gWgVVhnI8CZJEK2btsdq85JPn5k4P6sbV9JLbAm7dqQ==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/space-grotesk": {
+    "integrity": "sha512-ZVQYw4Ok/pgcSJiufP8oRZE3AVxS9xtmKEUfsurbHkHNdMc/GA1gDXP9G4Cr7KL4KqSc0haexR2TuMigotCn4Q==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/tajawal": {
+    "integrity": "sha512-cxbpKCUn8784UwrUQz/YLz8eHbqXN1vWjx5oyvf481pxho+CQR8QfoaeCS0LJ03Op2HG8SMCxRbPopNHebPR5Q==",
+    "version": "0.4.1"
+  }
+}

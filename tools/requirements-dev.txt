@@ -1,0 +1,4 @@
+# Runtime + local quality gates. Install in a virtual environment.
+-r requirements.txt
+pytest
+ruff

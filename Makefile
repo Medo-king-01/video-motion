@@ -5,8 +5,11 @@ PY ?= python3
 help:            ## show this list
 	@grep -E '^[a-z-]+:.*?##' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
-setup:           ## install everything missing (ffmpeg, fonts, chromium, python deps)
+setup:           ## install runtime deps (Python/Node are prerequisites; use a venv)
 	bash tools/setup.sh
+
+setup-dev:       ## install runtime + pytest/Ruff for local CI
+	bash tools/setup.sh --dev
 
 doctor:          ## print READY / DEGRADED / BLOCKED per capability
 	$(PY) tools/doctor.py
@@ -77,4 +80,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint poses sfx sfx-bank transitions clean
+.PHONY: help setup setup-dev doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint poses sfx sfx-bank transitions clean

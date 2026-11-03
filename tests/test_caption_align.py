@@ -7,9 +7,14 @@ monotonic guard, and caption/data module emission. No faster-whisper required.
 from __future__ import annotations
 
 import importlib.util
+import json
+import subprocess
+import sys
+import wave
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 _SPEC = importlib.util.spec_from_file_location(
     "caption_align", Path(__file__).resolve().parents[1] / "tools" / "caption_align.py"
@@ -110,5 +115,150 @@ def test_emit_data_js_map():
     ]
     js = ca.emit_data_js(scenes)
     assert "export const W=1080,H=1920,FPS=30;" in js
-    assert "{id:'ram-intro',start:0.0,end:8.433}," in js
+    assert '{"id": "ram-intro", "start": 0.0, "end": 8.433},' in js
     assert "export const DURATION=scenes.at(-1).end;" in js
+
+
+@pytest.mark.parametrize('asr', [[], [{'text': 'xyz', 'start': 0.0, 'end': 0.4}]])
+def test_no_asr_anchors_is_actionable(asr):
+    with pytest.raises(ValueError, match='No ASR word anchors'):
+        ca.dp_align(['قبل'], asr)
+    with pytest.raises(ValueError, match='No measured word onsets'):
+        ca.snap_and_hold([{'text': 'قبل', 'start': None}], [], 1.0)
+
+
+def scene():
+    return {'id': 'S01', 'module': 'intro', 'text': 'قبل', 'words': ['قبل'], 'start': 0.0, 'end': 1.0,
+            'final': [{'text': 'قبل', 'start': 0.1, 'end': 0.8}]}
+
+
+def test_scene_schema_and_frozen_words():
+    ca.validate_scenes([scene()], {'S01'})
+    sc = scene()
+    del sc['final']
+    with pytest.raises(ValueError, match='frozen final'):
+        ca.validate_scenes([sc], {'S01'})
+    ca.validate_scenes([sc], set())
+
+
+@pytest.mark.parametrize(('field', 'value'), [('id', '../escape'), ('id', 'S01\nexport'),
+    ('module', '../outside'), ('module', "a';alert(1)//"), ('start', float('nan')), ('end', float('inf')),
+    ('words', ['a', {'text': 'b'}]), ('words', []), ('text', '')])
+def test_invalid_scene_schema(field, value):
+    sc = scene()
+    sc[field] = value
+    with pytest.raises(ValueError):
+        ca.validate_scenes([sc], set())
+
+
+@pytest.mark.parametrize('words', [[{'text': 'قبل', 'start': None, 'end': 1}],
+    [{'text': 'قبل', 'start': 0.2, 'end': 1.1}], [{'text': 'قبل', 'start': 0, 'end': float('nan')}],
+    [{'text': 'قبل', 'start': 0, 'end': 0.7}, {'text': 'ما', 'start': 0.5, 'end': 0.9}]])
+def test_invalid_frozen_timing(words):
+    sc = scene()
+    sc['final'] = words
+    with pytest.raises(ValueError):
+        ca.validate_scenes([sc], {'S01'})
+
+
+def test_duplicate_and_unknown_scenes():
+    with pytest.raises(ValueError, match='unique'):
+        ca.validate_scenes([scene(), scene()], set())
+    with pytest.raises(ValueError, match='unknown frozen'):
+        ca.validate_scenes([scene()], {'MISSING'})
+
+
+def make_wav(path, channels=1, width=2):
+    with wave.open(str(path), 'wb') as w:
+        w.setnchannels(channels)
+        w.setsampwidth(width)
+        w.setframerate(24000)
+        w.writeframes(b'\0' * 24000 * channels * width)
+
+
+@pytest.mark.parametrize(('channels', 'width'), [(2, 2), (1, 1), (1, 3), (2, 4)])
+def test_wav_rejects_unsupported_layout_before_slice(tmp_path, channels, width):
+    source, output = tmp_path / 'source.wav', tmp_path / 'slice.wav'
+    make_wav(source, channels, width)
+    with pytest.raises(ValueError, match='mono PCM16'):
+        ca._slice_wav(source, output, 0, 0.5)
+    assert not output.exists()
+
+
+def test_pcm16_slice_duration_and_bytes(tmp_path):
+    source, output = tmp_path / 'source.wav', tmp_path / 'slice.wav'
+    make_wav(source)
+    ca._slice_wav(source, output, 0.25, 0.75)
+    assert ca.validate_wav(output) == (24000, 0.5)
+    with pytest.raises(ValueError, match='bounds'):
+        ca._slice_wav(source, output, 0, 2)
+
+
+def test_frozen_cli_without_asr_model(tmp_path):
+    source = tmp_path / 'source.wav'
+    make_wav(source)
+    scenes = tmp_path / 'scenes.json'
+    scenes.write_text(json.dumps([scene()]))
+    output = tmp_path / 'src'
+    result = subprocess.run([sys.executable, str(Path(ca.__file__)), '--scenes', str(scenes), '--vo', str(source),
+        '--out-dir', str(output), '--measurements', str(tmp_path / 'cache' / 'measurement.json'), '--freeze', 'S01'],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    assert 'CAPTIONS_S01' in (output / 'captions-s01.js').read_text()
+    assert '0.1' in (output / 'captions-s01.js').read_text()
+
+
+def test_generated_js_quotes_untrusted_strings(tmp_path):
+    payload = "x';globalThis.INJECTED=true;//\n\\\""
+    sc = {'id': 'S01', 'module': payload, 'start': 0, 'end': 1}
+    js = ca.emit_data_js([sc], payload, payload)
+    assert json.dumps(payload) in js
+    import shutil
+    if not shutil.which('node'):
+        pytest.skip('node unavailable for JS evaluation')
+    path = tmp_path / 'data.mjs'
+    path.write_text(js)
+    script = f'import {{scenes, ARABIC_FONT}} from {json.dumps(path.as_uri())}; console.log(JSON.stringify([scenes[0].id, ARABIC_FONT.family, ARABIC_FONT.urls[0], !!globalThis.INJECTED]));'
+    result = subprocess.run(['node', '--input-type=module', '-e', script], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == [payload, payload, payload, False]
+    with pytest.raises(ValueError, match='scene id'):
+        ca.emit_caption_module('S01\nmalicious', scene()['final'])
+
+
+def test_snap_rejects_out_of_scene_onsets():
+    with pytest.raises(ValueError, match='bounds'):
+        ca.snap_and_hold([{'text': 'a', 'start': 1.0}], [], 1.0)
+
+
+def test_freeze_accepts_generated_punctuation_normalization():
+    sc = scene()
+    sc['words'] = ['قبل؟']
+    ca.validate_scenes([sc], {'S01'})
+
+
+@pytest.mark.parametrize('target', ['src', 'slices', 'measurements'])
+def test_caption_cli_rejects_output_symlinks(tmp_path, target):
+    source = tmp_path / 'source.wav'
+    make_wav(source)
+    scenes = tmp_path / 'scenes.json'
+    scenes.write_text(json.dumps([scene()]))
+    outside = tmp_path / 'outside'
+    outside.mkdir()
+    protected = outside / 'captions-s01.js'
+    protected.write_text('keep')
+    output = tmp_path / 'src'
+    measurements = tmp_path / 'cache' / 'scene-measurements.json'
+    measurements.parent.mkdir()
+    if target == 'src':
+        output.symlink_to(outside, target_is_directory=True)
+    elif target == 'slices':
+        (measurements.parent / 'scene-slices').symlink_to(outside, target_is_directory=True)
+    else:
+        measurements.symlink_to(protected)
+    result = subprocess.run([sys.executable, str(Path(ca.__file__)), '--scenes', str(scenes), '--vo', str(source),
+        '--out-dir', str(output), '--measurements', str(measurements), '--freeze', 'S01'],
+        capture_output=True, text=True)
+    assert result.returncode != 0
+    assert 'symlink' in result.stderr
+    assert protected.read_text() == 'keep'

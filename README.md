@@ -4,6 +4,8 @@
 هوية مقفولة (بالِت ١٢ لون)، وخطوط وحركة نص بيختارهم الوكيل لكل مشهد، وثلاثة محركات رندر، وطبقة أيقونات متحركة، وأدوات صوت، وقواعد عربي سليم،
 وكل ده شغال مع **أي وكيل برمجي** — مش كلود بس.
 
+**حقوق الاستخدام:** مفيش حاليًا ترخيص Open Source شامل للكود والمواد الأصلية؛ أي إعادة استخدام محتاجة إذن منفصل من صاحب المشروع. تراخيص الخطوط والأيقونات تخص مكوناتها بس. [تفاصيل الترخيص](medo-motion/LICENSE.md) · [نسب الأصول](assets/CREDITS.md).
+
 **المرجع الموحّد لنظام التصميم:** [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md).
 
 ---
@@ -46,33 +48,39 @@
 
 ## أول تشغيل
 
+ثبّت Python 3.12 وNode 20.11+ مع npm الأول (السكربت مش بيثبتهم).
+ابدأ من جذر المستودع الكامل؛ [دليل البيئة النظيفة والتطوير](docs/development.md):
+
 ```bash
-bash tools/setup.sh        # بينزّل اللي ناقص (python deps · ffmpeg · خطوط · كروميوم)
+python3 -m venv .venv
+source .venv/bin/activate
+bash tools/setup.sh --dev  # حزم التشغيل والاختبارات · ffmpeg/shim · خطوط · Chromium
 python3 tools/doctor.py    # تقرير READY / DEGRADED / BLOCKED لكل قدرة
 python3 tools/selftest.py           # doctor + اختبارات + رندر P/K + فحص قالب R
 python3 tools/selftest.py --remotion # كمان npm ci + typecheck + رندر فعلي من R
 python3 tools/selftest.py --hybrid   # رندر فعلي لمقاطع P + K + R وتجميعها مع مسار صوت
 ```
 
-أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=اسم` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make fonts` · `make length VO=…` · `make techniques PLAN=…` · `make lint P=…`
+أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=my-reel` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make fonts` · `make length VO=…` · `make techniques PLAN=…` · `make lint P=…`
 
 مشروع جديد:
 
 ```bash
-python3 tools/new_project.py اسم-المشروع --engine p   # محرك الشخصية/الشرح (الأنسب للريلز اللي فيها كلام)
-python3 tools/new_project.py اسم-المشروع --engine k   # محرك كانفس/تايبوغرافي
-python3 tools/new_project.py اسم-المشروع --engine r   # محرك Remotion (React/TypeScript)
-python3 tools/new_project.py اسم-المشروع --engine hybrid # P/K/R في مقاطع متتابعة
+python3 tools/new_project.py my-reel --engine p   # محرك الشخصية/الشرح (الأنسب للريلز اللي فيها كلام)
+python3 tools/new_project.py my-reel --engine k   # محرك كانفس/تايبوغرافي
+python3 tools/new_project.py my-reel --engine r   # محرك Remotion (React/TypeScript)
+python3 tools/new_project.py my-reel --engine hybrid # P/K/R في مقاطع متتابعة
 ```
 
-أوامر npm (`npm install` / `npm run studio`) خاصة بمحرك **R** و**Hybrid** فقط — قوالب P وK لا تحتاج أي سكربت npm:
+أوامر npm للمشروع (`npm ci` / `npm run studio`) خاصة بمحرك **R** و**Hybrid** فقط — قوالب P وK لا تحتاج أي سكربت npm:
 
 ```bash
 # R أو Hybrid فقط:
-cd projects/اسم-المشروع && npm install && npm run studio
+cd projects/my-reel && npm ci && npm run studio
 # محركات P وK: شغّل السكربتات مباشرة من جذر المشروع (شوف AGENTS.md §5)
 ```
 
+ملفات `BRIEF.md` و`plan/` وكود المشروع قابلة للتتبع بـGit؛ الفيديوهات والكاش ومجلدات `out/` متجاهلة.
 بعدها املأ `projects/<المشروع>/BRIEF.md` بالأربعة، وقول للوكيل: **«اقرأ AGENTS.md وابدأ»**.
 
 ---
@@ -134,7 +142,7 @@ medo-motion/           ← حزمة أدوات Video Motion: الهوية، ال
 | FFmpeg 7.0.2 (x264/aac) + بديل `ffprobe` متوافق | ✅ |
 | Arabic shaping: بديل HarfBuzz+FreeType (`arabic_shape.py`) لأن Pillow هنا من غير libraqm | ✅ |
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
-| Remotion 4 (محرك R) | ✅ القالب متكامل؛ كل مشروع Remotion يثبّت تبعياته عبر `npm install` |
+| Remotion 4 (محرك R) | ✅ القالب متكامل؛ كل مشروع Remotion يثبّت تبعياته عبر `npm ci` |
 | ٢١ عيلة خطوط OFL في `assets/fonts/` | ✅ |
 | المحركان P وK | ✅ اتجربوا ورندروا فريمات عربية صح |
 | محرك R | ✅ رندر تجريبي بـRemotion/Chromium؛ `npm run render` يراجع WAV والتوقيت |

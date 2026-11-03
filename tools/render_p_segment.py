@@ -7,7 +7,11 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "medo-motion" / "scripts"))
+from _safe_paths import checked_path  # noqa: E402
 
 
 def main() -> int:
@@ -21,7 +25,7 @@ def main() -> int:
     args = parser.parse_args()
 
     project = args.project.resolve()
-    output = args.out.resolve()
+    output = checked_path(args.out)
     count = args.to_frame - args.from_frame
     if not (project / "scenes.py").is_file():
         parser.error(f"{project} is not an engine-P project (scenes.py missing)")
@@ -32,8 +36,9 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists():
         parser.error(f"refusing to overwrite segment output: {output}")
-    temp = output.with_name(output.stem + ".part.mp4")
-    temp.unlink(missing_ok=True)
+    fd, name = tempfile.mkstemp(prefix=output.stem + ".", suffix=".part.mp4", dir=output.parent)
+    os.close(fd)
+    temp = Path(name)
 
     sys.path.insert(0, str(project))
     old_cwd = Path.cwd()
@@ -71,7 +76,9 @@ def main() -> int:
         encoder = None
         if code != 0 or not temp.is_file() or temp.stat().st_size <= 0:
             raise RuntimeError(f"FFmpeg failed to encode the P segment (exit {code})")
-        os.replace(temp, output)
+        # Publish without overwriting a file produced by another invocation.
+        os.link(temp, output)
+        temp.unlink()
         print(f"P segment: frames {args.from_frame}:{args.to_frame} -> {output}")
         return 0
     except BaseException:

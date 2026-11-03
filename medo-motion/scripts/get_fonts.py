@@ -45,6 +45,8 @@ def _request(url):
         req.add_header('Authorization', 'Bearer ' + token)
     return urllib.request.urlopen(req, timeout=30)
 
+from _safe_paths import checked_path
+
 def family_dir(family):
     return re.sub(r'[^a-z0-9]', '', family.lower())
 
@@ -69,7 +71,10 @@ def font_files(listing):
     return files, lic
 
 def download(entry, dest):
-    target = dest / entry['name']
+    name = entry['name']
+    if not isinstance(name, str) or name in ('', '.', '..') or '/' in name or '\\' in name or ':' in name:
+        raise ValueError('unsafe font filename')
+    target = checked_path(dest / name, within=dest)
     if target.exists():
         return 'kept'
     with _request(entry['download_url']) as r:
@@ -108,6 +113,14 @@ def main():
         return
     if not a.families:
         ap.error('name at least one family, or use --list')
+    try:
+        base = checked_path(pathlib.Path(a.dest), tree=True)
+        checked_path(pathlib.Path(a.manifest))
+        if any(not family_dir(family) or '/' in family or '\\' in family or family in ('.', '..')
+               for family in a.families):
+            ap.error('family names must be plain names, not paths')
+    except ValueError as error:
+        ap.error(str(error))
     failed = 0
     for family in a.families:
         lic_dir, listing = lookup(family)
@@ -120,7 +133,7 @@ def main():
         source = f'https://github.com/google/fonts/tree/main/{lic_dir}/{family_dir(family)}'
         if a.check:
             print(f'✓ {family}: {len(files)} file(s), {licence} — {source}'); continue
-        dest = pathlib.Path(a.dest) / family
+        dest = checked_path(base / family_dir(family), within=base, tree=True)
         dest.mkdir(parents=True, exist_ok=True)
         results = [download(f, dest) for f in files + lic]
         (dest / 'SOURCE.md').exists() or (dest / 'SOURCE.md').write_text(

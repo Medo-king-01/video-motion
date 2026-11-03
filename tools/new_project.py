@@ -17,10 +17,13 @@ import argparse
 import json
 import re
 import shutil
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILL = ROOT / "medo-motion"
+sys.path.insert(0, str(SKILL / "scripts"))
+from _safe_paths import checked_path  # noqa: E402
 
 BRIEF = """# BRIEF — {slug}
 
@@ -101,6 +104,10 @@ def main():
     if proj == ROOT / "projects" or ROOT / "projects" not in proj.parents:
         raise SystemExit(f"refusing to scaffold into {proj} — the target must be a named "
                          f"subfolder of projects/")
+    try:
+        checked_path(proj, within=ROOT / "projects", tree=True)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
     if proj.exists() and not a.force:
         raise SystemExit(f"projects/{slug} already exists (use --force)")
 

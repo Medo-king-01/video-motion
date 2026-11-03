@@ -1,3 +1,4 @@
+-c constraints.txt
 # Optional deps for the measured-caption alignment pipeline (docs/alignment.md).
 # Not part of the base render requirements — install only when aligning captions:
 #   pip install -r tools/requirements-align.txt

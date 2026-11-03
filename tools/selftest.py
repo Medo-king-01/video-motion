@@ -7,7 +7,7 @@
     python3 tools/selftest.py --hybrid        # end-to-end 18-frame P + K + R assembly
 
 Each step prints PASS / FAIL / SKIP. Exit code 1 if anything failed. The `--remotion`
-option installs pinned dependencies in a throwaway ignored project under `projects/` and
+option installs pinned dependencies in a throwaway project under `projects/` and
 removes it when finished.
 """
 from __future__ import annotations

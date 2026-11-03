@@ -30,29 +30,35 @@
 
 ## ٢. أول مرة على أي جهاز
 
+ثبّت **Python 3.12 (الموصى به)** و**Node 20.11+ مع npm** الأول؛ السكربت مش بيثبت اللغتين.
+روابط التثبيت وخطوات clone في [`../docs/development.md`](../docs/development.md).
+شغّل الأوامر من جذر المستودع الكامل، مش من `medo-motion/` لوحده:
+
 ```bash
-bash tools/setup.sh        # بينزّل اللي ناقص: python + node + ffmpeg + خطوط + كروميوم
+python3 -m venv .venv
+source .venv/bin/activate
+bash tools/setup.sh --dev  # حزم Python والاختبارات + حزم Node + FFmpeg/shim + خطوط + Chromium
 python3 tools/doctor.py    # بيقولك READY ولا BLOCKED وليه
 ```
 
 بعد كده مشروع جديد:
 
 ```bash
-python3 tools/new_project.py اسم-المشروع --engine p
+python3 tools/new_project.py my-reel --engine p
 # أو: --engine k (Canvas) أو --engine r (Remotion) أو --engine hybrid (مقاطع P/K/R متتابعة)
 ```
 
 `--engine p` = محرك الشخصية والشرح (الأنسب لمعظم الريلز اللي فيها كلام).
 `--engine k` = محرك Canvas/التايبوغرافي.
-`--engine r` = Remotion بـReact/TypeScript؛ بعد إنشاء المشروع شغّل `npm install` ثم `npm run studio`.
+`--engine r` = Remotion بـReact/TypeScript؛ بعد إنشاء المشروع شغّل `npm ci` ثم `npm run studio`.
 `--engine hybrid` = P/K/R في مقاطع كاملة متتابعة (مش طبقات في نفس الفريم)؛ املأ `plan/hybrid.json` واتبع `HYBRID.md`.
 
 ---
 
 ## ٣. أول فيديو في ١٠ دقايق
 
-1. حط صوتك في `projects/<المشروع>/assets/vo/` وصورك في `assets/poses/`.
-2. الصق السكريبت وتوجيه المشاهد في `BRIEF.md`.
+1. حط صوتك في `projects/<المشروع>/assets/vo/` وصورك في `projects/<المشروع>/assets/poses/`. حدّث `poses.json` في نفس المجلد لو ضفت وضعية جديدة؛ ما تعدّلش المكتبة المشتركة في جذر المستودع.
+2. الصق السكريبت وتوجيه المشاهد في `projects/<المشروع>/BRIEF.md`.
 3. قول للوكيل: **«اقرأ AGENTS.md وابدأ»**.
 
 هو بيعمل: تحليل الصوت → تثبيت حدود المشاهد → بناء مشهد واحد → ٣ فريمات → contact sheet
