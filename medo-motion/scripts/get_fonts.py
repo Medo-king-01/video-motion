@@ -25,6 +25,9 @@ LICENCE_DIRS = ('ofl', 'apache', 'ufl')
 LICENCE_FILES = {'OFL.txt': 'SIL Open Font License 1.1', 'LICENSE.txt': 'Apache License 2.0', 'UFL.txt': 'Ubuntu Font Licence 1.0'}
 MAX_BYTES = 25 * 1024 * 1024
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from _common import append_asset_entry  # noqa: E402
+
 # Arabic families (role, feel) and Latin pairing families. Descriptions live in reference/arabic-fonts.md.
 CATALOG = {
     'arabic-display': ['Kufam', 'Reem Kufi', 'Reem Kufi Fun', 'Lalezar', 'Marhey', 'Rakkas', 'Jomhuria', 'Lemonada',
@@ -85,18 +88,11 @@ def download(entry, dest):
     return 'downloaded'
 
 def update_manifest(manifest, rel_dir, family, licence, source_url, licence_file):
-    if not manifest.exists():
-        manifest.write_text('[]\n', encoding='utf-8')
-    data = json.loads(manifest.read_text(encoding='utf-8-sig') or '[]')
-    items = data if isinstance(data, list) else data.get('assets') if isinstance(data, dict) else None
-    if not isinstance(items, list):
-        return 'manifest format not recognised; add the entry by hand'
-    if any(isinstance(i, dict) and i.get('path') == rel_dir for i in items):
-        return 'manifest already lists it'
-    items.append({'path': rel_dir, 'type': 'font', 'name': family, 'source_url': source_url,
-                  'author': 'see licence file', 'license': licence, 'license_file': licence_file, 'used_in': []})
-    manifest.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    return 'manifest updated'
+    return append_asset_entry(manifest, {
+        'path': rel_dir, 'type': 'font', 'name': family, 'source_url': source_url,
+        'author': 'see licence file', 'license': licence, 'license_file': licence_file,
+        'used_in': []})
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)

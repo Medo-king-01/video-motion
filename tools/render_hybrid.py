@@ -79,18 +79,27 @@ def validate_plan(raw: Any) -> dict[str, Any]:
             "duration_frames": total, "segments": clean, "audio": audio}
 
 
+def _as_program(candidate: str) -> str | None:
+    """A CLI flag or `<NAME>_BIN` value: a path, or a name on PATH. Symlinks stay unresolved so a
+    venv/managed-tool path keeps pointing at its own interpreter."""
+    found = shutil.which(candidate)
+    if found:
+        return found
+    path = Path(candidate)
+    return str(path) if path.is_file() else None
+
+
 def executable(value: str | None, name: str, fallback: str | None = None) -> str:
-    candidate = value or os.environ.get(name.upper() + "_BIN")
-    if candidate:
-        found = shutil.which(candidate)
-        if found:
-            return found
-        path = Path(candidate)
-        if path.is_file():
-            return str(path.resolve())
-        raise RuntimeError(f"{name} executable not found: {candidate}")
+    """Resolve a program for the hybrid runner: explicit flag, then `<NAME>_BIN`, then the repo
+    fallback, then PATH. Failing loudly matters here: a wrong binary silently ruins an assembly."""
+    for candidate in (value, os.environ.get(f"{name.upper()}_BIN")):
+        if not candidate:
+            continue
+        resolved = _as_program(candidate)
+        if resolved is None:
+            raise RuntimeError(f"{name} executable not found: {candidate}")
+        return resolved
     if fallback and Path(fallback).is_file():
-        # Preserve venv/managed-tool symlink paths; resolving them can bypass the environment.
         return str(Path(fallback))
     found = shutil.which(name)
     if found:

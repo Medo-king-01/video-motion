@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -34,12 +33,13 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 P_DIR = ROOT / "medo-motion" / "templates" / "procedural-reels"
 sys.path.insert(0, str(P_DIR))
-
+sys.path.insert(0, str(ROOT / "tools" / "lib"))
 import sfx  # noqa: E402
+from media_bin import ffmpeg as find_ffmpeg  # noqa: E402
 
 
 def _to_mp3(wav: Path, out: Path) -> Path:
-    ff = os.environ.get("FFMPEG_BIN") or shutil.which("ffmpeg")
+    ff = find_ffmpeg()
     if not ff:
         print("ffmpeg not found — keeping the WAV")
         return wav

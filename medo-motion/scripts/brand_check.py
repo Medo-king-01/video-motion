@@ -48,8 +48,6 @@ for k, v in d['palette'].items():
     if not re.fullmatch(r'#[0-9A-Fa-f]{6}', v['hex']) or [int(v['hex'][i:i + 2], 16) for i in (1, 3, 5)] != v['rgb']:
         print(f"  FAIL {k}: hex {v['hex']} != rgb {v['rgb']}")
         bad += 1
-if not all(P['x'] is not None for x in []):
-    pass
 # the 12 hex values must stay inside the light/dark ramps the brief uses
 for side, k in (('dark', 'top'), ('dark', 'bottom'), ('light', 'top'), ('light', 'bottom')):
     if list(d['backgrounds'][side][k]) not in [list(v) for v in P.values()] + [SHADOW]:

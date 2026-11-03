@@ -47,34 +47,21 @@ def run(cmd, cwd=None, env=None, timeout=600):
     return subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True, timeout=timeout)
 
 
-def ffmpeg_bin() -> str | None:
-    if os.environ.get("FFMPEG_BIN"):
-        return os.environ["FFMPEG_BIN"]
-    found = shutil.which("ffmpeg")
-    if found:
-        return found
-    try:
-        import imageio_ffmpeg
-        return imageio_ffmpeg.get_ffmpeg_exe()
-    except Exception:
-        return None
+def media_bin(name: str) -> str | None:
+    """Resolve ffmpeg/ffprobe through the one shared precedence rule (tools/lib/media_bin.py)."""
+    sys.path.insert(0, str(ROOT / "tools" / "lib"))
+    from media_bin import ffmpeg, ffprobe  # noqa: PLC0415 - only needed once a render step runs
 
+    return (ffmpeg if name == "ffmpeg" else ffprobe)()
+
+
+def ffmpeg_bin() -> str | None:
+    return media_bin("ffmpeg")
 
 
 def ffprobe_bin() -> str | None:
-    """Resolve the real ffprobe binary or the repository's installed shim."""
-    configured = os.environ.get("FFPROBE_BIN")
-    candidates = [configured, str(ROOT / "tools" / "bin" / "ffprobe"), shutil.which("ffprobe")]
-    for candidate in candidates:
-        if not candidate:
-            continue
-        found = shutil.which(candidate)
-        if found:
-            return found
-        path = Path(candidate)
-        if path.is_file():
-            return str(path.resolve())
-    return None
+    return media_bin("ffprobe")
+
 
 def step_doctor() -> bool:
     r = run([sys.executable, str(ROOT / "tools" / "doctor.py"), "--fast"], cwd=ROOT)
