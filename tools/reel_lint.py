@@ -36,6 +36,9 @@ sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 import text_direction as td  # noqa: E402
 import visual_direction as vd  # noqa: E402
 
+sys.path.insert(0, str(ROOT / "tools"))
+import contrast  # noqa: E402
+
 # ---- measured norms (30 fps, 9:16) ------------------------------------------------------------
 WORDS_PER_FRAGMENT = {"calm": 4, "crisp": 5}
 VISIBLE_AT_ONCE = {"calm": 8, "crisp": 10}
@@ -197,6 +200,32 @@ def lint_timeline(rep: Report, plan: dict, bpm: float, tol: float) -> list[tuple
                 rep.warn("S05", f"cut at {edge:.2f} s is {d * 1000:.0f} ms off the {bpm:g} BPM grid "
                                 f"— hero cuts land within ±1 frame")
     return [(s["start"], s["end"]) for s in scenes]
+
+
+def lint_first_frame(rep: Report, plan: dict, copy: dict) -> None:
+    """S06 — frame 0 is the poster: social players freeze it, so it must not be an empty ground.
+
+    A reel that fades a title in *from nothing* starts on its own background — and a reel that
+    opens on a presenter model posed but unlit or off-frame has the same problem. The check is
+    deliberately structural, not a claim about pixels: something must be already on screen at
+    `t = 0`, either a declared picture event at 0 or a copy fragment that starts at 0.
+    """
+    scenes = plan.get("scenes") or []
+    if not scenes:
+        return
+    first = scenes[0]
+    if abs(first.get("start", 0.0)) > 0.05:
+        return                                     # S02 already reports a timeline that does not start at 0
+    at_zero = [e for e in (first.get("events") or []) if abs(float(e.get("t", -1))) <= 1e-6]
+    copy_at_zero = [c for c in (copy.get("copy") or [])
+                    if c.get("scene") == first.get("index") and abs(float(c.get("start", -1))) <= 1e-6]
+    if at_zero or copy_at_zero:
+        detail = at_zero[0].get("what") if at_zero else f"“{copy_at_zero[0].get('text', '')}”"
+        rep.ok("S06", f"frame 0 already carries the picture ({detail})")
+        return
+    rep.warn("S06", f"frame 0 is an empty ground — social players show it as the thumbnail; put the "
+                    f"title or the key image on screen at 0 s instead of entering from nothing "
+                    f"(a copy fragment at 0 or events[0].t = 0 in scene {first.get('index')})")
 
 
 # ---- copy ------------------------------------------------------------------------------------
@@ -409,6 +438,49 @@ def lint_text_direction(rep: Report, project: Path, beats: dict, copy: dict) -> 
         rep.ok("T01", f"text direction: {len(direction.get('scenes') or [])} scenes directed by {direction.get('decidedBy')}")
 
 
+def lint_contrast(rep: Report, copy: dict, plan: dict) -> None:
+    """T06 — every on-screen fragment is readable against the ground it is actually drawn on.
+
+    A fragment may name its own `color` (a brand token) and `size` (stage px) and the scene may
+    name its `theme` (`dark`/`light`, the same word the backgrounds use). Nothing here guesses:
+    a fragment that names no colour is skipped, because the renderer's default is not this
+    tool's to assume — the count of unchecked fragments is reported instead.
+    """
+    fragments = copy.get("copy") or []
+    if not fragments:
+        return
+    brand = contrast.load_brand()
+    themes = {s.get("index"): s.get("theme") for s in plan.get("scenes") or []}
+    checked = skipped = 0
+    for fragment in fragments:
+        token = fragment.get("color")
+        if not token:
+            skipped += 1
+            continue
+        label = fragment.get("id") or f"copy[{fragment.get('scene')}]"
+        theme = themes.get(fragment.get("scene")) or "dark"
+        result = contrast.solve(brand, token, theme, fragment.get("size"))
+        checked += 1
+        if result["ok"]:
+            continue
+        size = fragment.get("size")
+        at = f" at {size:g} px" if isinstance(size, (int, float)) and not isinstance(size, bool) else ""
+        if result["reason"] == "forbidden":
+            why = f"is banned on the {theme} ground — {result['against']}"
+        elif result["reason"] == "unknown-token":
+            why = f"is not a brand token ({result['against']})"
+        else:
+            why = (f"reads {result['worst']:.2f}:1 on the {theme} ground{at} and needs "
+                   f"{result['required']:.1f}:1 (weakest at {result['against']})")
+        rep.error("T06", f"{label}: {token} {why} — pick a brand.json token that clears the bar")
+    if checked:
+        rep.ok("T06", f"{checked} coloured fragment(s) clear WCAG contrast on their ground"
+                      + (f" · {skipped} name no colour (renderer default, unchecked)" if skipped else ""))
+    elif skipped:
+        rep.ok("T06", f"{skipped} fragment(s) name no colour — nothing to measure "
+                      f"(add \"color\": a brand token and \"theme\": dark|light per scene to gate them)")
+
+
 # ---- optional code scan ----------------------------------------------------------------------
 def lint_code(rep: Report, project: Path) -> None:
     files = [p for p in list(project.glob("*.py")) + list(project.glob("*.ts")) + list(project.glob("*.tsx"))
@@ -476,6 +548,7 @@ def main() -> int:
 
     rep = Report()
     lint_timeline(rep, plan, bpm, a.tol)
+    lint_first_frame(rep, plan, copy)
     dur = float(plan.get("duration") or 0)
     scenes = plan.get("scenes") or []
     if dur and scenes:
@@ -483,6 +556,7 @@ def main() -> int:
     lint_moves(rep, draw)
     if dur and scenes:
         lint_text_direction(rep, a.project, plan, copy)
+        lint_contrast(rep, copy, plan)
     if (a.project / 'plan/visual-direction.json').is_file():
         for error in vd.check_project(a.project)['errors']:
             rep.error('V01', error)

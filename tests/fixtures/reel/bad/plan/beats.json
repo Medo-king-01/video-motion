@@ -19,7 +19,8 @@
       "end": 3.17,
       "dur": 3.17,
       "frames": 95,
-      "events": []
+      "events": [],
+      "theme": "dark"
     },
     {
       "index": 2,
@@ -27,7 +28,8 @@
       "end": 6.3,
       "dur": 3.13,
       "frames": 94,
-      "events": []
+      "events": [],
+      "theme": "dark"
     },
     {
       "index": 3,
@@ -40,7 +42,8 @@
           "t": 6.4,
           "what": "counter"
         }
-      ]
+      ],
+      "theme": "light"
     },
     {
       "index": 4,
@@ -48,7 +51,8 @@
       "end": 13.2,
       "dur": 3.0,
       "frames": 90,
-      "events": []
+      "events": [],
+      "theme": "dark"
     },
     {
       "index": 5,
@@ -56,7 +60,8 @@
       "end": 17.1,
       "dur": 3.9,
       "frames": 117,
-      "events": []
+      "events": [],
+      "theme": "dark"
     },
     {
       "index": 6,
@@ -64,7 +69,8 @@
       "end": 19.8,
       "dur": 2.7,
       "frames": 81,
-      "events": []
+      "events": [],
+      "theme": "light"
     },
     {
       "index": 7,
@@ -72,7 +78,8 @@
       "end": 24.0,
       "dur": 4.2,
       "frames": 126,
-      "events": []
+      "events": [],
+      "theme": "dark"
     }
   ]
 }
