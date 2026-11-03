@@ -55,7 +55,10 @@ UI_MIN = 1.20                        # a UI insert needs time for its interactio
 FIRST_CHANGE = 0.43
 SIGNATURE_BUDGET = 2
 
-# Words and looks this studio never puts on screen.
+# Words and looks this studio never puts on screen on its own. Placeholders only: a name,
+# title, episode number or logo is the USER's decision (AGENTS.md rule 1) — when he asks for
+# one, the words he gave are his copy and C07 does not apply to them. The plan records that
+# with `"approvedByUser": true` on the fragment.
 BANNED_WORDS = ("introducing", "lorem ipsum", "نقدم لكم", "اسم السلسلة", "لوجو")
 BANNED_CODE = {
     "sparkle": "sparkles standing in for an idea",
@@ -225,7 +228,10 @@ def lint_copy(rep: Report, copy: dict, dur: float, pace: str, bpm: float, scenes
                              f"split it, copy arrives in pieces")
         if len(ws) > 6 and re.search(r"[.!؟?]$", text.strip()):
             rep.error("C08", f"{where}: a whole sentence arrives at once — chain it in fragments")
-        for bad in BANNED_WORDS:
+        # The user owns the name/title/episode slot: words he supplied are not this studio's
+        # defaults, so C07 only guards copy the plan claims is the studio's own choice.
+        user_words = c.get("approvedByUser") is True
+        for bad in () if user_words else BANNED_WORDS:
             if bad in text.lower():
                 rep.error("C07", f"{where}: “{bad}” is on the banned-words list")
         if end <= start:

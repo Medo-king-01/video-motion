@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased — 2026-11-03 (studio scope)
+
+- **The studio is a tool, not a video archive.** `projects/*` is now ignored by Git (only
+  `projects/README.md` is tracked), every scaffold writes its own `*` `.gitignore`, and
+  `tools/new_project.py` gained `--out` so a video can live outside the repository. Past
+  project folders and per-video CI workflows are not kept: the finished episode project that
+  was left behind and its preview workflow were removed (the studio does not name or archive
+  videos). AGENTS rule 12, `tests/test_studio_not_archive.py`.
+- **The name/title/episode slot belongs to the user.** The agent never asks for, invents or
+  suggests a series name; if the user asks for one on screen, it is executed word-for-word.
+  The archived working name was removed from `brand.json` (`studio_name` + explicit
+  `on_screen_name_rule`), `BRAND.md`, `SKILL.md`, TASTE and START-HERE.
+- Engine P template no longer draws a default episode chip or captions that talk about
+  "the series" (`CHIP` gates the chip; two demo captions rewritten).
+- Follow-up pass: the name slot is explicitly the user's (`approvedByUser` skips C07 only for
+  copy he asked for, `docs/craft.md`), the archived master brief lost its copyable script /
+  palette / chip recipe (inventory only), `brand.json` no longer describes itself as "Medo's"
+  studio, AGENTS rule 12 now says what the studio's memory *is* (the toolkit), and engine-P
+  workflows no longer target the dead `fix/engine-p-chunk-integrity` branch.
+
 ## Unreleased — 2026-11-03
 
 - Project scaffolds are trackable by Git; only generated output/caches/secrets are ignored.

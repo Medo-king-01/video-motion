@@ -100,16 +100,16 @@ def test_scaffold_sources_trackable_outputs_ignored(tmp_path, monkeypatch):
     monkeypatch.setattr(sys, 'argv', ['new_project.py', 'ignore-probe'])
     (tmp_path / 'assets' / 'fonts').mkdir(parents=True)
     new_project.main()
-    for relative in ['BRIEF.md', 'plan/beats.json', 'plan/text-direction.json']:
-        assert (tmp_path / 'projects' / 'ignore-probe' / relative).is_file()
-        result = subprocess.run(['git', 'check-ignore', '--no-index', 'projects/ignore-probe/' + relative],
-                                cwd=ROOT, capture_output=True)
-        assert result.returncode == 1, result.stdout
-    for relative in ['out/frame.png', 'cache/a.json', 'renders/a.png', 'frames/a.png', 'video.mp4',
-                     'node_modules/a.js', '.env', '.env.local', '.env.tmp-abcd']:
+    # A video project is a working folder, not studio memory: sources and plans included,
+    # the whole scaffold is ignored (it also carries its own `*` .gitignore).
+    for relative in ['BRIEF.md', 'plan/beats.json', 'plan/text-direction.json', 'out/frame.png',
+                     'cache/a.json', 'renders/a.png', 'frames/a.png', 'video.mp4',
+                     'node_modules/a.js', '.env', '.env.local', '.env.tmp-abcd', 'TASTE.md']:
         result = subprocess.run(['git', 'check-ignore', '--no-index', 'projects/ignore-probe/' + relative],
                                 cwd=ROOT, capture_output=True)
         assert result.returncode == 0, relative
+    own_ignore = (tmp_path / 'projects' / 'ignore-probe' / '.gitignore').read_text(encoding='utf-8')
+    assert own_ignore.splitlines()[-1].strip() == '*'
 
 
 def test_reference_analysis_rejects_motion_symlink_before_probe(tmp_path):

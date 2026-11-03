@@ -28,10 +28,14 @@ finished video on guessed timing without saying so.
 
 ## 2. Hard rules — do not deviate
 
-1. **No logo. No series name. No episode chip. No empty logo ring.**
-   This is a studio, not a named series: Medo tells you what to make and you make it.
-   Never ask for a logo or a series title, never invent one, never leave a placeholder
-   circle "for the logo" on screen. End cards are **typographic only**.
+1. **No logo. No default name or title. No episode chip. No empty logo ring.**
+   This is a studio, not a named series: the user tells you what to make and you make it.
+   **Never ask for a series name, never invent one, never leave a placeholder circle or a
+   descriptive chip "for the name/logo".** These are not inputs and the agent has no
+   authority to decide them: if the user wants a name, a title or an episode number on
+   screen, he says so and you execute it exactly, word for word (C07 then does not apply —
+   `approvedByUser` in `plan/copy.json`); if he does not, nothing goes on screen.
+   End cards are **typographic only**, built from the copy he approved.
 2. **The brand is locked** (palette, safe zones, loudness, Egyptian dialect) — but **the font is
    your creative choice**. `medo-motion/brand/BRAND.md` + `brand/brand.json` are the source of truth:
    **exactly 12 colours** (palette v2) plus the derived `ink_shadow`. Never improvise outside the
@@ -94,7 +98,17 @@ finished video on guessed timing without saying so.
    has no chosen style. Timing still comes from the measured VO/scene bounds; the style only shapes
    how the element moves. Keep it unboxed, whole-word Arabic, brand colors.
 
-12. **Plan meaning, then verify geometry.** New projects include draft `plan/visual-direction.json`.
+12. **The studio is a tool, not a video archive.** The studio's memory is this toolkit —
+    `assets/` inputs, `templates/`, `brand/`, `tools/`. `projects/` is not: it is a scratch
+    working area for the video being made *right now*, ignored by Git, and every scaffold
+    writes its own `.gitignore` with `*`. A delivered video leaves the repository with its
+    folder: never keep finished projects, old renders, episode folders or old scripts in the
+    repo as memory, never use a past video as the starting point of a new one, and never add
+    a per-project CI workflow that renders a specific past video. Need to keep the work?
+    `--out` a folder outside the repo (next to the user's own video files). Each new video
+    starts from the four inputs and the toolkit, nothing else.
+
+13. **Plan meaning, then verify geometry.** New projects include draft `plan/visual-direction.json`.
     After measuring VO beats/words, choose presenter/overlay/cover per beat, a concrete rationale,
     element/copy IDs and measured word anchors; mark ready with `decidedBy`. `reel_lint.py` enforces
     V01 when this plan exists. Never invent word times or reveal a fact before its spoken anchor.
@@ -250,6 +264,8 @@ introduces no pre-render approval gate.
 - One impact per scene, no static hold > 2.5 s, HUD drawn after the camera move
 - No text over a face, nothing important outside y 200–1350, captions at y≈1455
 - Every placeholder declared, every external asset in `assets/CREDITS.md`
+- No series name, title, episode number or logo invented by you: on screen only if the user
+  asked, worded by him
 - `python3 medo-motion/scripts/brand_check.py --project <project>` is clean
 - `python3 tools/selftest.py` still passes after your changes (regression net); when changing R, also run `python3 tools/selftest.py --remotion`
 
@@ -258,7 +274,8 @@ introduces no pre-render approval gate.
 8–10 short lines of Egyptian Arabic: file name + measured specs · scene-by-scene in one
 line each · what you are unsure about (inferred boundaries, temporary font, placeholder
 presenter) · assets used + licence line · 2–3 next improvements. **Never mention a logo
-or a series title** — there is none.
+or a series title** — there is none, and never suggest adding one. Say where the project
+folder is, and remind the user it is a working folder (outside the repo history).
 
 ## 9. Environment notes (this sandbox)
 
@@ -285,7 +302,7 @@ AGENTS.md              ← this contract (any agent)
 DESIGN_SYSTEM.md       ← unified design system reference
 README.md              ← Arabic overview
 assets/                ← shared inputs: fonts/, poses/, sfx/
-projects/<slug>/       ← one video: BRIEF.md, plan/, assets/, out/, PROGRESS.md
+projects/<slug>/       ← scratch folder for one video (Git-ignored, not an archive)
 tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · ffprobe_shim.py · chromium.mjs
 tests/                 ← pytest: Arabic shaping invariants, brand lock, scaffold, one real frame
 docs/                  ← analysis + conventions + Skillry fit review (docs/README.md)
@@ -300,7 +317,10 @@ medo-motion/           ← the toolkit
 
 ## 11. Never do this
 
-- Ask for a logo, a series name, an episode number, or "your brand colours".
+- Ask for a logo, a series name, an episode number, or "your brand colours". The name/
+  title/episode slot belongs to the user: if he wants one he says it; you never propose it.
+- Keep a finished video as a project folder in the repo, or add a CI workflow for a past
+  video. The studio is a tool, not an archive — deliver, then let the folder go.
 - Add a font outside the manifest, a colour outside the palette, or a random stock clip.
 - Ship a preview with motion but no sound as if it were the deliverable.
 - Claim capabilities you did not verify (`doctor.py` output is your evidence).

@@ -36,6 +36,7 @@ def project(tmp_path):
 
     root = ROOT / "projects"
     root.mkdir(exist_ok=True)
+    # projects/ is a scratch workspace, never a package and never tracked: nothing to do here.
     name = f"_test-{tmp_path.name}"
     proj = root / name
     if proj.exists():

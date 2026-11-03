@@ -2,13 +2,10 @@
 node_modules/
 package-lock.json.bak
 
-# render output and runtime caches (big, reproducible)
-projects/*/out/
-projects/*/cache/
-projects/*/renders/
-projects/*/frames/
-projects/*/out_log.txt
-projects/*/src/node_modules
+# The studio is a tool, not a video archive: project folders are working copies and
+# never part of this repository's history. Old renders must not pile up in Git.
+projects/*
+!projects/README.md
 *.mp4
 *_preview.mp4
 

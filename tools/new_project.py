@@ -6,10 +6,16 @@
     python3 tools/new_project.py my-reel --engine k      # + copy engine K into src/
     python3 tools/new_project.py my-reel --engine r      # + copy Remotion (React/TS) into the project
     python3 tools/new_project.py my-reel --engine hybrid # + install P, K and R sequential hybrid scaffold
+    python3 tools/new_project.py my-reel --out ~/reels/my-reel  # scaffold outside the repo (recommended)
 
 Layout follows medo-motion/reference/planning-and-tracking.md.
 The scaffold asks for nothing: fill BRIEF.md with the four inputs (script, scene
-direction, VO, poses). There is no logo and no series name — by design.
+direction, VO, poses). There is no logo, no series name and no episode number unless
+the user asks for one — by design.
+
+A project is a working folder, not studio memory: `projects/` is ignored by Git and a
+scaffold written there carries its own ignore file, so finished videos never accumulate
+in the toolkit. Use --out to keep the folder next to the video's own files.
 """
 from __future__ import annotations
 
@@ -91,6 +97,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("slug", help="short project name, e.g. laptop-ep1")
     ap.add_argument("--engine", choices=["p", "k", "r", "hybrid", "none"], default="none")
+    ap.add_argument("--out", help="where to create the project (default: projects/<slug> in the repo, "
+                                  "which Git ignores). Pass a path outside the repo to keep the video elsewhere.")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
 
@@ -98,21 +106,39 @@ def main():
     if not slug:
         raise SystemExit(f"invalid project name {a.slug!r}: after normalisation the slug is empty "
                          f"— use at least one letter or digit, e.g. my-reel")
-    proj = ROOT / "projects" / slug
-    # belt and braces: even with --force the target must be a named subfolder of projects/,
-    # never projects/ itself or anything outside it
-    if proj == ROOT / "projects" or ROOT / "projects" not in proj.parents:
-        raise SystemExit(f"refusing to scaffold into {proj} — the target must be a named "
-                         f"subfolder of projects/")
+    default_root = ROOT / "projects"
+    proj = Path(a.out).expanduser().resolve() if a.out else default_root / slug
+    if proj == proj.parent or proj == ROOT:
+        raise SystemExit(f"refusing to scaffold into {proj} — the target must be a named folder")
+    if a.out:
+        # A custom target is allowed (the video may live outside the repo), but never
+        # inside the toolkit: medo-motion/ is read-only source, not a place for reels.
+        for read_only in (ROOT / "medo-motion", ROOT / "tools", ROOT / "tests", ROOT / "assets"):
+            if proj == read_only or read_only in proj.parents:
+                raise SystemExit(f"refusing to scaffold into {proj} — {read_only.name}/ is read-only")
+    else:
+        # belt and braces: even with --force the target must be a named subfolder of projects/
+        if proj == default_root or default_root not in proj.parents:
+            raise SystemExit(f"refusing to scaffold into {proj} — the target must be a named "
+                             f"subfolder of projects/")
     try:
-        checked_path(proj, within=ROOT / "projects", tree=True)
+        if a.out:
+            checked_path(proj, tree=True)          # symlink safety only: the parent is the user's choice
+        else:
+            checked_path(proj, within=default_root, tree=True)
     except ValueError as error:
         raise SystemExit(str(error)) from error
     if proj.exists() and not a.force:
-        raise SystemExit(f"projects/{slug} already exists (use --force)")
+        raise SystemExit(f"{proj} already exists (use --force)")
 
     for d in ["plan", "assets/vo", "assets/poses", "assets/refs", "assets/fonts/Cairo", "assets/sfx", "out", "cache"]:
         (proj / d).mkdir(parents=True, exist_ok=True)
+    # This studio is a tool, not a video archive: a project folder (and everything in it)
+    # stays out of Git even when it sits under projects/.
+    (proj / ".gitignore").write_text(
+        "# A video project is a working folder, not studio memory.\n"
+        "# Keep it out of the studio's Git history (AGENTS.md §2 rule 12).\n"
+        "*\n", encoding="utf-8")
 
     (proj / "BRIEF.md").write_text(BRIEF.format(slug=slug), encoding="utf-8")
     (proj / "PROGRESS.md").write_text(PROGRESS.format(slug=slug), encoding="utf-8")
@@ -202,7 +228,8 @@ def main():
                 "duration_frames": None, "segments": [], "audio": None,
             }, indent=2) + "\n", encoding="utf-8")
 
-    print(f"created projects/{slug}  (engine={a.engine})")
+    shown = proj.relative_to(ROOT) if ROOT in proj.parents else proj
+    print(f"created {shown}  (engine={a.engine})")
     print("next: fill BRIEF.md with the 4 inputs, then read AGENTS.md §5")
 
 

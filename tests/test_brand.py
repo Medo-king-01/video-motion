@@ -68,13 +68,27 @@ def test_safe_zone_numbers():
 
 
 def test_no_logo_and_no_series_name():
-    """This studio has none by design: no keys, no fallbacks, no chip slot."""
+    """The studio has no logo and no default name: the name slot belongs to the user."""
     brand = BRAND["brand"]
     assert brand["logo"] is None
     assert brand.get("on_screen_name") is None
     assert "logo_file" not in brand and "series_title_laptop" not in brand
-    assert "no logo" in brand["logo_rule"].lower()
     assert BRAND["safe_zone"]["series_chip_center_y"] is None
+    # no archived/working series name may live in the brand file any more
+    serialised = json.dumps(BRAND, ensure_ascii=False).lower()
+    for archived in ("kodo", "كودو", "\"name\":", "name_ar"):
+        assert archived not in serialised, archived
+    rule = brand["logo_rule"].lower()
+    assert "no logo" in rule
+    assert "unless the user" in rule          # the only exception: the user asks for a title
+    assert "never ask" in rule and "never invent" in rule
+
+
+def test_the_agent_never_owns_the_name_decision():
+    """A title/series name is the user's call; the contract must say the agent only executes it."""
+    contract = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert "has no\n   authority to decide them" in contract or "no\n   authority" in contract
+    assert "if the user wants a name" in contract
 
 
 def test_no_chip_default_in_engine_p():

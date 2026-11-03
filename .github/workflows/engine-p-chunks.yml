@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - fix/engine-p-chunk-integrity
     paths:
       - ".github/workflows/engine-p-chunks.yml"
       - "medo-motion/templates/procedural-reels/**"

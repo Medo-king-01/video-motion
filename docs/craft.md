@@ -92,7 +92,7 @@ Twenty-one rules in four groups. `tools/reel_lint.py <project>` reads `plan/beat
 | `C04` | 0.4–1.7 on-screen words per second over the whole reel | warn |
 | `C05` | Copy covers ≤ 65 % of the runtime (80 % crisp) | warn |
 | `C06` | ≥ 1.5 s of text-free picture inside every full 10 s window | warn |
-| `C07` | No banned words (`introducing`, `lorem ipsum`, `نقدم لكم`, `اسم السلسلة`, `لوجو`) | error |
+| `C07` | No banned words (`introducing`, `lorem ipsum`, `نقدم لكم`, `اسم السلسلة`, `لوجو`) — skipped for a fragment marked `"approvedByUser": true`, because a name/title/episode the user asked for is his words, not the studio's default | error |
 | `C08` | A sentence never arrives in one block (> 6 words ending in `. ! ؟ ?`) | error |
 | `C09` | A fragment ends after it starts (`end > start`) | error |
 | `C10` | Every fragment points at a scene that exists | error |

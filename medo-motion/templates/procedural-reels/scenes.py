@@ -8,9 +8,9 @@ from art import *
 # A real project rebuilds B from its own VO: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json
 B=[0,5.9,15.75,20.2,28.7,43.5,48.9,55.2]
 FPS=30
-# HUD: progress bar only. There is NO series name and NO logo in this studio, so
-# CHIP stays None. Set it to a short string only if the user explicitly asks for
-# an on-screen label (never invent one).
+# HUD: progress bar only. There is NO logo and NO default series name or title in this
+# studio, so CHIP stays None. The name/title/episode slot belongs to the USER: set CHIP
+# only to the exact words the user asked for on screen (never invent, never suggest one).
 CHIP=None
 def over(dst,src,x,y):
     h,w=src.shape[:2]; H_,W_=dst.shape[:2]
@@ -99,7 +99,7 @@ CAPS=[
  mk("اللي بيبيعلك بيكلمك بأرقام ومصطلحات،",9.65,12.57,{"بأرقام":YEL,"ومصطلحات":YEL}),
  mk("ومحدش بيشرحلك الكلام ده يعني إيه",12.95,15.5,{"يعني":RED,"إيه":RED}),
  mk("أهلاً بيكم،",16.24,17.1,{}),
- mk("معاكم ميدو، وعشان كده بدأنا السلسلة دي.",17.26,19.9,{"ميدو":RED}),
+ mk("معاكم ميدو، وهنشرح الموضوع من أوله.",17.26,19.9,{"ميدو":RED}),
  mk("هنبدأ من الأول خالص:",20.6,22.0,{"الأول":YEL}),
  mk("إيه الفرق بين اللابتوب والكمبيوتر المكتبي،",22.0,25.1,{"اللابتوب":EMER,"والكمبيوتر":YEL,"المكتبي":YEL}),
  mk("وإمتى يبقى كل واحد فيهم هو الاختيار الأنسب ليك",25.1,28.45,{"الأنسب":YEL}),
@@ -110,7 +110,7 @@ CAPS=[
  mk("من غير ما تعتمد على كلام البائع.",46.6,48.7,{"البائع":RED}),
  mk("لو عايز تشتري لابتوب في الفترة الجاية،",49.27,51.85,{}),
  mk("أو عايز تفهم اللي في إيدك،",51.85,53.55,{}),
- mk("تابع السلسلة من أول حلقة.",53.55,55.2,{"تابع":RED,"السلسلة":YEL}),
+ mk("تابعني عشان متفوّتش اللي جاي.",53.55,55.2,{"تابعني":YEL,"الجاي":YEL}),
 ]
 @functools.lru_cache(maxsize=None)
 def cap_layout(i):
@@ -286,7 +286,9 @@ def scene3(fr,t):
 def scene4(fr,t):
     lt=t-B[3]
     red_circle(fr,540,1050,430,RED,0.92,40)
-    c=e_back(prog(lt,0.2,0.65)); paste(fr,pill(420,92,RED),540,255,scale=c,alpha=min(1,c)); txt(fr,"الحلقة الأولى",540,255,52,WHITE,scale=c)
+    # No episode chip by default: the demo keeps the name/episode slot empty unless a user
+    # explicitly asks for it. Swap the label below for his exact words if he does.
+    if CHIP: c=e_back(prog(lt,0.2,0.65)); paste(fr,pill(420,92,RED),540,255,scale=c,alpha=min(1,c)); txt(fr,CHIP,540,255,52,WHITE,scale=c)
     c2=prog(lt,0.7,1.2); txt(fr,"لابتوب ولا كمبيوتر مكتبي؟",540,355-(1-c2)*20,60,INK2,alpha=c2)
     # devices
     k1=e_back(prog(lt,2.3,2.8)); k2=e_back(prog(lt,3.4,3.9))
