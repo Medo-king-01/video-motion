@@ -61,3 +61,49 @@ def test_safe_extract_accepts_a_clean_package(tmp_path):
     with tarfile.open(tgz) as tar:
         fonts_install._safe_extract(tar, out)
     assert (out / "package" / "package.json").is_file()
+
+
+def test_pack_rejects_bad_checksum_before_extract(tmp_path, monkeypatch):
+    import json
+    root = tmp_path / 'root'
+    (root / 'tools').mkdir(parents=True)
+    (root / 'tools' / 'font-packages.lock.json').write_text(json.dumps({
+        '@expo-google-fonts/inter': {'version': '1.2.3', 'integrity': 'sha512-wrong'}}))
+    cache = tmp_path / 'cache'
+    cache.mkdir()
+    (cache / 'inter-1.2.3.tgz').write_bytes(b'not a tarball')
+    monkeypatch.setattr(fonts_install, 'ROOT', root)
+    with pytest.raises(SystemExit, match='checksum mismatch'):
+        fonts_install.pack('inter', cache)
+    assert not (cache / 'inter-1.2.3').exists()
+
+
+def test_pack_uses_pinned_version_and_validates_integrity(tmp_path, monkeypatch):
+    import base64
+    import hashlib
+    import json
+    import types
+    tgz = _tar_with(tmp_path, {'package/package.json': b'{}', 'package/font.ttf': b'font'})
+    data = tgz.read_bytes()
+    integrity = 'sha512-' + base64.b64encode(hashlib.sha512(data).digest()).decode()
+    root = tmp_path / 'root'
+    (root / 'tools').mkdir(parents=True)
+    (root / 'tools' / 'font-packages.lock.json').write_text(json.dumps({
+        '@expo-google-fonts/inter': {'version': '1.2.3', 'integrity': integrity}}))
+    monkeypatch.setattr(fonts_install, 'ROOT', root)
+    cache = tmp_path / 'cache'
+    def run(command, **kwargs):
+        assert '@expo-google-fonts/inter@1.2.3' in command
+        (cache / 'expo-google-fonts-inter-1.2.3.tgz').write_bytes(data)
+        return types.SimpleNamespace(returncode=0)
+    monkeypatch.setattr(fonts_install.subprocess, 'run', run)
+    out = fonts_install.pack('inter', cache)
+    assert (out / 'font.ttf').read_bytes() == b'font'
+    assert out.parent.name == 'inter-1.2.3'
+
+
+def test_font_lock_covers_exact_expected_families():
+    import json
+    lock = json.loads((ROOT / 'tools' / 'font-packages.lock.json').read_text())
+    assert set(lock) == {f"@expo-google-fonts/{spec['npm']}" for spec in fonts_install.FAMILIES}
+    assert all(item['version'] and item['integrity'].startswith('sha512-') for item in lock.values())

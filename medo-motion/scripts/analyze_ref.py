@@ -8,6 +8,7 @@ import sys, json, argparse, subprocess, re
 from pathlib import Path
 from fractions import Fraction
 from _common import ffmpeg, ffprobe
+from _safe_paths import checked_path
 from reference_report import build_report
 p=argparse.ArgumentParser();p.add_argument('ref');p.add_argument('--dur',type=float,default=15);p.add_argument('--start',type=float,default=0);p.add_argument('--fps',type=float,default=4);p.add_argument('--frames',type=float,default=3);p.add_argument('--stems',action='store_true');p.add_argument('--out');o=p.parse_args()
 import math
@@ -15,7 +16,9 @@ if not all(math.isfinite(x) for x in [o.dur,o.start,o.fps,o.frames]) or o.dur<=0
 ref=Path(o.ref).resolve()
 if not ref.is_file():p.error('Reference file not found')
 name=''.join(c if c.isalnum() else '_' for c in ref.stem)[:40]
-out=Path(o.out or 'cache/ref_'+name).resolve()
+try:
+    out=checked_path(Path(o.out or 'cache/ref_'+name), tree=True)
+except ValueError as error:p.error(str(error))
 if ref.is_relative_to(out):p.error('Reference input must be outside the analysis output directory')
 FF,FP=ffmpeg(),ffprobe()
 def run(args):
@@ -27,7 +30,7 @@ v=next((s for s in info['streams'] if s.get('codec_type')=='video'),None)
 if v is None:p.error('Reference has no video stream')
 has_audio=any(s.get('codec_type')=='audio' for s in info['streams'])
 # Only generated files with known names are removed, not arbitrary output-directory contents.
-for d in [out,out/'f',out/'frames']:
+for d in [out,out/'f',out/'frames',out/'motion']:
     if d.is_symlink():p.error('Analysis output cannot be a symlink')
     d.mkdir(parents=True,exist_ok=True)
 for d in [out/'f',out/'frames']:

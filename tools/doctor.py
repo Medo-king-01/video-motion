@@ -78,8 +78,10 @@ add("Arabic shaping", "OK" if backend != "none" else "BLOCKED", f"{backend} — 
 # the type system: manifest first, then the brand file (Cairo 800 preferred — see docs/fonts.md)
 try:
     _sys_fams = json.loads((ROOT / "assets" / "fonts" / "fonts.json").read_text(encoding="utf-8"))["families"]
-    add("Type system", "OK" if len(_sys_fams) >= 14 else "DEGRADED",
-        f"{len(_sys_fams)} free families (OFL) in assets/fonts/fonts.json")
+    from fonts_install import FAMILIES, check_type_system
+    _font_problems = check_type_system()
+    add("Type system", "BLOCKED" if _font_problems else "OK",
+        "; ".join(_font_problems) if _font_problems else f"{len(FAMILIES)} free families (OFL), files verified")
 except Exception as e:
     _sys_fams = {}
     add("Type system", "DEGRADED", f"no assets/fonts/fonts.json ({e}) — run: make fonts")

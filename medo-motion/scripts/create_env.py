@@ -1,23 +1,53 @@
 #!/usr/bin/env python3
-"""Create/update <project>/.env with empty key slots for the user to fill in. Never overwrites existing values,
-never prints values.  Works on Windows, macOS and Linux.
-Usage:  python3 scripts/create_env.py [project_dir]      (Windows: py scripts\\create_env.py [project_dir])"""
-import os, sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _common import KEYS, load_env
-proj = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else '.'); os.makedirs(proj, exist_ok=True)
-envp = os.path.join(proj, '.env'); cur = open(envp, encoding='utf-8-sig').read() if os.path.exists(envp) else ''
-head = ('# API keys for Video Motion. Paste each key right after "=" (no spaces, no quotes), then SAVE.\n'
-        '# Leave a line empty if you do not use that platform. Never share this file.\n')
-lines = cur.splitlines()
-if not any(line.startswith('# API keys for ') for line in lines): lines = head.rstrip('\n').split('\n') + lines
-have = {l.split('=', 1)[0].strip() for l in lines if '=' in l and not l.lstrip().startswith('#')}
-lines += ['%s=' % k for k in KEYS if k not in have]
-open(envp, 'w', encoding='utf-8', newline='\n').write('\n'.join(lines).rstrip('\n') + '\n')
-gi = os.path.join(proj, '.gitignore'); g = open(gi, encoding='utf-8').read().splitlines() if os.path.exists(gi) else []
-for p in ('.env', '*.env', 'node_modules/', 'cache/', 'models/'):
-    if p not in g: g.append(p)
-open(gi, 'w', encoding='utf-8', newline='\n').write('\n'.join(g) + '\n')
-print('Created/updated:', envp)
-env = load_env(envp)
-for k in env: print(('✅ %s filled' if env[k] else '⬜ %s empty') % k)
+"""Create private empty key slots; preserve existing values and never print them."""
+import os
+from pathlib import Path
+import sys
+import tempfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _common import KEYS
+from _safe_paths import checked_path
+
+
+def create_env(project):
+    project = checked_path(project)
+    project.mkdir(parents=True, exist_ok=True)
+    envp = checked_path(project / '.env', within=project)
+    gi = checked_path(project / '.gitignore', within=project)
+    cur = envp.read_text(encoding='utf-8-sig') if envp.exists() else ''
+    head = ('# API keys for Video Motion. Fill locally, then SAVE.\n'
+            '# Leave unused keys empty. Never share this file.\n')
+    lines = cur.splitlines()
+    if not any(line.startswith('# API keys for ') for line in lines):
+        lines = head.rstrip('\n').split('\n') + lines
+    have = {line.split('=', 1)[0].strip() for line in lines if '=' in line and not line.lstrip().startswith('#')}
+    lines += ['%s=' % key for key in KEYS if key not in have]
+    # mkstemp creates 0600 regardless of umask. Replace atomically, never open the
+    # destination for writing (so existing links/hardlinks cannot be truncated).
+    fd, name = tempfile.mkstemp(prefix='.env.', dir=project)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as stream:
+            stream.write('\n'.join(lines).rstrip('\n') + '\n')
+        checked_path(envp, within=project)
+        os.replace(name, envp)
+    finally:
+        Path(name).unlink(missing_ok=True)
+    g = gi.read_text(encoding='utf-8').splitlines() if gi.exists() else []
+    for pattern in ('.env', '*.env', '.env.*', '.env-*', 'node_modules/', 'cache/', 'models/'):
+        if pattern not in g:
+            g.append(pattern)
+    gi.write_text('\n'.join(g) + '\n', encoding='utf-8')
+    return envp
+
+
+def main():
+    try:
+        path = create_env(sys.argv[1] if len(sys.argv) > 1 else '.')
+    except (OSError, ValueError) as error:
+        raise SystemExit(f'Could not create private .env: {error}') from error
+    print('Created/updated private key slots:', path)
+
+
+if __name__ == '__main__':
+    main()

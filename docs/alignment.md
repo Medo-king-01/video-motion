@@ -48,10 +48,10 @@ python3 tools/caption_align.py \
     --scenes plan/script-scenes.json \
     --vo assets/vo/episode.wav \
     --model .cache/whisper-small-ct2-int8 \
-    --out-dir src --lang ar --freeze S01
+    --out-dir src --lang ar
 ```
 
-صيغة `script-scenes.json` (لكل مشهد):
+صيغة `script-scenes.json`: قائمة JSON غير فارغة؛ كل مشهد زي المثال ده (حطّه جوه `[...]`):
 
 ```json
 { "id": "S02", "module": "ram-question",
@@ -61,7 +61,17 @@ python3 tools/caption_align.py \
 ```
 
 - `start/end` بالثواني على توقيت الحلقة الكامل (حدود المشاهد من منتصف السكتات — `tools/vo_length.py`).
-- `--freeze S01` بيسيب مشهد متوافق عليه كما هو من غير إعادة سناب.
+- `words` دايمًا قائمة كلمات السكريبت (strings)، أو بتتشتق من `text.split()` لو مش موجودة.
+- `--freeze S01` محتاج `final` في مشهد S01: قائمة `{text,start,end}` بتوقيت **محلي للمشهد**، مش الحلقة.
+  النصوص لازم تطابق `words` بعد تطبيع التشكيل/علامات الترقيم وبنفس الترتيب، والتوقيت محدود بمدة المشهد ومن غير تداخل. مثال:
+  `"final": [{"text":"قبل","start":0.12,"end":0.6}]` مع `"words":["قبل"]`.
+  تقدر تستخدم `cache/scene-measurements.json` الناتج كمدخل للتشغيل اللي بعده وتجمّد مشاهد منه.
+  لو كل المشاهد frozen، مش محتاج `--model` أو حزم Whisper.
+- `id` معرف ASCII يبدأ بحرف (حروف/أرقام/`_`/`-`)، و`module` slug إنجليزي صغير؛ ممنوع المسارات والمعرفات المكررة.
+- الصوت لازم **mono PCM16 WAV**؛ stereo وأي عمق عينة تاني بيترفضوا قبل القص.
+  للتحويل: `ffmpeg -i input.wav -ac 1 -ar 24000 -c:a pcm_s16le episode.wav`.
+- حدود المشاهد مرتبة وغير متداخلة وجوه مدة الصوت. لو ASR ماطلعش كلمات مطابقة، الأداة بتوقف بخطأ واضح؛
+  مش بتخترع توقيتات. راجع الصوت/اللغة/الموديل قبل إعادة المحاولة.
 - الناتج: `src/captions-sXX.js` (موديول لكل مشهد) + `src/data.js` + `cache/scene-measurements.json`.
 
 ## دروس اتأكدت عمليًا (مهمة للجودة)

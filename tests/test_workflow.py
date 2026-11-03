@@ -136,3 +136,32 @@ def test_one_engine_p_frame_has_brand_size(project, monkeypatch):
     assert frame.shape == (1920, 1080, 3)
     assert frame.dtype.name == "uint8"
     assert frame.std() > 5, "frame looks blank"
+
+
+def test_collection_paths_do_not_shadow_standard_library_wave(tmp_path):
+    # Cold process: wave may already be cached by pytest in this process.
+    # Python 3.10 imports stdlib chunk when loading wave; the engine's chunk.py
+    # must not run as a side effect of that import (it changes cwd and exits).
+    script = '''
+import io
+import os
+import runpy
+import sys
+before = os.getcwd()
+runpy.run_path(sys.argv[1])
+import wave
+stream = io.BytesIO()
+with wave.open(stream, "wb") as writer:
+    writer.setnchannels(1)
+    writer.setsampwidth(2)
+    writer.setframerate(24000)
+    writer.writeframes(b"\\0\\0" * 2400)
+stream.seek(0)
+with wave.open(stream, "rb") as reader:
+    assert reader.getnframes() == 2400
+assert os.getcwd() == before
+assert "scenes" not in sys.modules
+'''
+    result = subprocess.run([sys.executable, '-c', script, str(ROOT / 'tests' / 'conftest.py')],
+                            cwd=tmp_path, capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr

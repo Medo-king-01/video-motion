@@ -17,6 +17,9 @@ The result is `assets/fonts/<Family>/<File>.ttf` + `OFL.txt` per family, and `as
 from __future__ import annotations
 
 import argparse
+import base64
+import hashlib
+import hmac
 import json
 import re
 import shutil
@@ -159,21 +162,17 @@ def _safe_extract(tar: tarfile.TarFile, dest: Path) -> None:
 
     `filter="data"` (py>=3.12) already does this, but the project supports 3.10+, so every
     member is validated explicitly here regardless of Python version: absolute paths, `..`
-    segments, and symlinks/hardlinks pointing outside the destination are all rejected.
+    segments, links and special files are all rejected.
     """
     dest = dest.resolve()
     for member in tar.getmembers():
         target = (dest / member.name).resolve()
         if target != dest and dest not in target.parents:
             raise SystemExit(f"refusing unsafe archive member (escapes the target dir): {member.name!r}")
-        if member.issym() or member.islnk():
-            link = Path(member.linkname)
-            if link.is_absolute():
-                raise SystemExit(f"refusing unsafe archive link (absolute): {member.name!r} -> {member.linkname!r}")
-            resolved = (dest / link).resolve()
-            if resolved != dest and dest not in resolved.parents:
-                raise SystemExit(f"refusing unsafe archive link (escapes the target dir): "
-                                 f"{member.name!r} -> {member.linkname!r}")
+        # Packages contain only directories and regular files. Reject links and
+        # special files entirely, including link chains on the Python 3.10 fallback.
+        if not member.isfile() and not member.isdir():
+            raise SystemExit(f"refusing unsafe archive link/special file: {member.name!r}")
     try:
         tar.extractall(dest, filter="data")    # py>=3.12
     except TypeError:                          # py3.10/3.11: safe because members were validated above
@@ -183,17 +182,23 @@ def _safe_extract(tar: tarfile.TarFile, dest: Path) -> None:
 def pack(npm_name: str, dest: Path) -> Path:
     """`npm pack` one family and extract it; returns the extracted package dir."""
     dest.mkdir(parents=True, exist_ok=True)
-    tgz = dest / f"{npm_name}.tgz"
+    lock = json.loads((ROOT / "tools" / "font-packages.lock.json").read_text())
+    spec = lock[f"@expo-google-fonts/{npm_name}"]
+    version = spec["version"]
+    tgz = dest / f"{npm_name}-{version}.tgz"
     if not tgz.is_file():
-        r = subprocess.run(["npm", "pack", f"@expo-google-fonts/{npm_name}", "--silent",
+        r = subprocess.run(["npm", "pack", f"@expo-google-fonts/{npm_name}@{version}", "--silent",
                             "--pack-destination", str(dest)], capture_output=True, text=True)
         if r.returncode != 0:
             raise SystemExit(f"npm pack @expo-google-fonts/{npm_name} failed:\n{r.stderr}")
-        produced = sorted(dest.glob(f"expo-google-fonts-{npm_name}-*.tgz"))
+        produced = sorted(dest.glob(f"expo-google-fonts-{npm_name}-{version}.tgz"))
         if not produced:
             raise SystemExit(f"npm pack produced nothing for {npm_name}")
         produced[-1].replace(tgz)
-    out = dest / npm_name
+    integrity = "sha512-" + base64.b64encode(hashlib.sha512(tgz.read_bytes()).digest()).decode()
+    if not hmac.compare_digest(integrity, spec["integrity"]):
+        raise SystemExit(f"font archive checksum mismatch: {tgz}; remove it and retry")
+    out = dest / f"{npm_name}-{version}"
     if not (out / "package" / "package.json").is_file():     # also recovers a half-extracted dir
         out.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=dest) as tmp:
@@ -278,12 +283,39 @@ def build_manifest() -> dict:
     }
 
 
+def check_type_system(base: Path = OUT) -> list[str]:
+    """Validate every expected family, weight and licence against actual files."""
+    problems = []
+    try:
+        families = json.loads((base / "fonts.json").read_text(encoding="utf-8"))["families"]
+        for spec in FAMILIES:
+            family = spec["family"]
+            meta = families.get(family, {})
+            weights = meta.get("weights", [])
+            if not set(spec["weights"]).issubset({w["weight"] for w in weights}):
+                problems.append(f"{family}: missing manifest weights")
+            paths = [base / family / w["file"] for w in weights]
+            paths.append(base / family / "OFL.txt")
+            for path in paths:
+                if not path.resolve().is_relative_to(base.resolve()) or not path.is_file() or path.stat().st_size == 0:
+                    problems.append(f"{family}: missing/unsafe/empty file {path.name}")
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        problems.append(f"invalid type system: {error}")
+    return problems
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--check", action="store_true", help="read-only check of every family and file")
     ap.add_argument("--only", action="append", help="family name (repeatable)")
     ap.add_argument("--force", action="store_true", help="re-fetch even if the files exist")
     ap.add_argument("--list", action="store_true", help="print the manifest and exit")
     a = ap.parse_args()
+
+    if a.check:
+        problems = check_type_system()
+        print("\n".join(problems) if problems else f"Type system OK ({len(FAMILIES)} families, files verified)")
+        return int(bool(problems))
 
     if a.list:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8")) if MANIFEST.is_file() else build_manifest()

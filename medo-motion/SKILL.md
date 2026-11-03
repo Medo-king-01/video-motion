@@ -12,8 +12,9 @@ see `LICENSE.md` and the repository-level `assets/CREDITS.md`.
 
 ## 0. This toolkit is host-agnostic
 
-The studio contract lives in **`../AGENTS.md`** at the repo root (or, on a machine where
-only this folder was installed, right next to your project). **Read it first.** It defines
+The studio contract lives in **`../AGENTS.md`** at the repo root. This folder is not a
+standalone install: clone the whole repository and run commands from its root.
+**Read the contract first.** It defines
 the four inputs, the hard rules (no logo, no series name, VO from Medo), the workflow and
 the QA gates. Nothing here depends on Claude Code: any agent with file + shell tools can
 use it. Claude Code additionally auto-loads this file as a skill.
