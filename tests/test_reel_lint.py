@@ -222,3 +222,25 @@ def test_every_lint_rule_is_documented():
     assert len(codes) >= 18
     missing = [c for c in codes if c not in doc]
     assert not missing, f"undocumented lint codes: {missing}"
+
+
+def test_the_name_slot_belongs_to_the_user(tmp_path):
+    """A name/title/episode the user asked for is his copy, not a studio default.
+
+    C07 still guards the studio's own wording (`نقدم لكم`, a filled-in `اسم السلسلة`), but a
+    fragment the plan marks `approvedByUser` is executed word for word (AGENTS.md rule 1).
+    """
+    proj = tmp_path / "name"
+    (proj / "plan").mkdir(parents=True)
+    beats = {"duration": 8.0, "fps": 30,
+             "scenes": [{"index": 1, "start": 0.0, "end": 8.0,
+                         "events": [{"t": 0.2, "what": "title"}, {"t": 4.0, "what": "close"}]}]}
+    (proj / "plan" / "beats.json").write_text(json.dumps(beats), encoding="utf-8")
+    copy = {"pace": "calm", "bpm": 100,
+            "copy": [{"scene": 1, "text": "اسم السلسلة هنا", "start": 0.4, "end": 2.0, "mode": "build"}]}
+    (proj / "plan" / "copy.json").write_text(json.dumps(copy, ensure_ascii=False), encoding="utf-8")
+    assert "C07" in codes(run(str(proj))), "the studio's own placeholder wording must still fail"
+
+    copy["copy"][0]["approvedByUser"] = True          # exactly what the user asked for
+    (proj / "plan" / "copy.json").write_text(json.dumps(copy, ensure_ascii=False), encoding="utf-8")
+    assert "C07" not in codes(run(str(proj)))

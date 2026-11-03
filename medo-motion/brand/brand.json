@@ -1,12 +1,12 @@
 {
-  "_doc": "Single machine-readable source of truth for Medo's reel studio. Human version: brand/BRAND.md. Palette v2.6 Muted (2026-11-02, given by Medo) replaces the brown inks of v2 with deep black #0A0A0A and sharp neutral gray #71717A; red stays the only accent. Values under `derived` are computed from palette colours and are declared here on purpose — do not invent any other colour.",
+  "_doc": "Single machine-readable source of truth for the reel studio. Human version: brand/BRAND.md. Palette v2.6 Muted (2026-11-02, given by the owner) replaces the brown inks of v2 with deep black #0A0A0A and sharp neutral gray #71717A; red stays the only accent. Values under `derived` are computed from palette colours and are declared here on purpose — do not invent any other colour. The studio is a production tool: no video is archived here, and the name/title/episode slot is the user's decision, never the agent's.",
   "brand": {
-    "name": "Kodo Medo",
-    "name_ar": "كودو ميدو",
-    "name_status": "archived working name — never put any name on screen (studio, not a series)",
+    "studio_name": "video-motion",
+    "studio_name_status": "the studio's own repository name — never rendered on screen and never offered as a series title",
     "on_screen_name": null,
+    "on_screen_name_rule": "There is NO default on-screen name. A series name, title or episode number appears only if the user asks for it, worded by him.",
     "logo": null,
-    "logo_rule": "NONE. This is a reel studio, not a named series: no logo, no series name, no episode number, no descriptive chip, no reserved empty circle. Never ask for these; never invent them. End cards are typographic only."
+    "logo_rule": "NONE. This is a reel studio, not a named series: no logo, no series name or title, no episode number, no descriptive chip, no reserved empty circle — unless the user explicitly asks for a name/title on screen. Never ask for these; never invent or suggest them. End cards are typographic only."
   },
   "palette": {
     "red": {

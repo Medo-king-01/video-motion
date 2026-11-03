@@ -1,6 +1,6 @@
 ---
 name: video-motion
-description: "Medo (Kodo Medo) Arabic reel studio: locked brand palette (red/black/white), agent-chosen fonts + text motion, Egyptian dialect, code-drawn reels + canvas motion, SFX, mixing, MP4. Works with any coding agent."
+description: "Video Motion Arabic reel studio (never puts a series name or logo on screen unless the user asks): locked brand palette (red/black/white), agent-chosen fonts + text motion, Egyptian dialect, code-drawn reels + canvas motion, SFX, mixing, MP4. Works with any coding agent."
 ---
 
 # Video Motion — استوديو ميدو
@@ -27,9 +27,10 @@ Machine readiness: `bash tools/setup.sh` then `python3 tools/doctor.py` (repo ro
    Palette, fonts, safe zones, loudness, dialect and signature devices are **locked**.
    Never re-ask Medo about them and never improvise outside them.
    Items marked 🟡 proposed or "no hex" (pistachio, gold-text) are NOT approved.
-2. **There is no logo and no series name.** This is a reel studio: Medo says what to make.
-   Never ask for a logo/series title, never invent one, never reserve an empty circle for
-   one. End cards are typographic only.
+2. **There is no logo and no default series name.** This is a reel studio: the user says
+   what to make. Never ask for a logo/series title, never invent or suggest one, never
+   reserve an empty circle for one. If the user asks for a name/title/episode number on
+   screen, do exactly what he said. End cards are typographic only.
 3. `reference/medo-playbook.md` resolves every conflict and says which engine to use.
 4. Default style = `styles/medo-red-circle.md`; default workflow = **Medo contract**
    (ask once, deliver a finished MP4, ≥3 internal visual QA rounds, declare placeholders).

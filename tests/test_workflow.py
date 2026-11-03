@@ -17,7 +17,9 @@ def test_brief_asks_for_four_inputs_only():
 
 def test_agents_contract_has_hard_rules():
     contract = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
-    assert "No logo. No series name." in contract
+    assert "No logo. No default name or title." in contract
+    # the name/title slot is the user's call, never the agent's
+    assert "has no\n   authority to decide them" in contract
     for needle in ("four inputs", "Egyptian Arabic", "Never print", "2.5 Mbps"):
         assert needle.lower() in contract.lower(), needle
 

@@ -1,2 +1,0 @@
-# CPU-only alignment environment. Python 3.10–3.13 recommended by WhisperX.
-whisperx>=3.7,<4
