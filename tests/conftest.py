@@ -13,10 +13,12 @@ FONTS = ROOT / "assets" / "fonts" / "Cairo"
 
 
 # Import paths at collection time: test modules import the engine directly and we
-# never install the studio as a package.
-for _p in (str(ENGINE_P), str(SKILL / "scripts"), str(ROOT / "tools")):
+# never install the studio as a package. Keep helpers after the standard library:
+# Python 3.10 wave imports stdlib chunk, not the renderer CLI named chunk.py.
+# Preserve the existing tools -> scripts -> engine precedence among local helpers.
+for _p in (str(ROOT / "tools"), str(SKILL / "scripts"), str(ENGINE_P)):
     if _p not in sys.path:
-        sys.path.insert(0, _p)
+        sys.path.append(_p)
 
 
 @pytest.fixture(scope="session")

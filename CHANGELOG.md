@@ -26,3 +26,7 @@ repository tree unchanged; one real pinned font package passed SHA-512 verificat
 `pip-audit` (base/development Python baseline on 3.11) and production npm audits
 (toolkit + Remotion template lockfiles) reported no known vulnerabilities. Optional ASR
 dependencies and the legacy Python 3.10 Pillow baseline are not covered by that clean audit.
+
+Remote-matrix follow-up: keep test helper paths after the standard library so Python 3.10
+`wave` does not import the renderer CLI `chunk.py`. Added a cold-process WAV regression
+check, plus per-version CI log artifacts and bounded failure annotations.
