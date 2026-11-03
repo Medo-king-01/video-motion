@@ -46,7 +46,7 @@ session, then load only the guides you need — do not reread the whole manual p
 | Script | narration text, ideally numbered beats + what appears on screen |
 | Scene direction | how Medo wants the scenes presented |
 | VO audio | Medo's voiceover file — the timing master |
-| Medo poses | 2–4 images (wave / think / point) |
+| Medo poses | 49 poses already in `assets/poses/` — cast from `poses.json`; ask only when a beat needs a pose the library does not have |
 
 Everything else is yours: backgrounds, cards, devices, charts, captions, HUD, SFX by code,
 music bed, assets via the code → AI → search ladder, plus `CREDITS.md` for anything external.

@@ -18,10 +18,31 @@ four inputs from Medo and deliver a finished vertical MP4.
 | 1 | **Script** | The narration text, numbered beats, plus what should appear on screen |
 | 2 | **Scene direction** | How Medo wants the scenes presented (order, feel, what each shot shows) |
 | 3 | **VO audio** | Medo's recorded voiceover file (wav/mp3). This is the timing master |
-| 4 | **Medo poses** | 2–4 PNG/JPEG images (wave / think / point) on a clean background |
+| 4 | **Medo poses** | **already in the repo** — 49 poses in `assets/poses/` are copied into every project. Ask for an image **only when a scene needs a pose the library does not have** (§1a). |
 
 Ask **once, in a single message**, for whatever is missing. Then decide the rest
 yourself and say what you decided. Never run a multi-step interview.
+
+### 1a. The pose library is the fourth input, not a request
+
+Every project starts with the full library (49 poses, `assets/poses/poses.json`): standing beats,
+motion, seated, props and 19 half-body close-ups. **Read the catalogue before you storyboard** and
+cast each beat from it — that is the default, and it needs no message to Medo.
+
+Ask for a pose image **only when the script needs something the library genuinely lacks** — a prop,
+an outfit or an action nobody in `poses.json` performs. Then:
+
+1. say **which slug is missing and which beat needs it** (one line, inside the intake message — never
+   a separate interview);
+2. ask for the image the way the library was built: one character, full body or half body, clean flat
+   background, no text, no collage;
+3. when it arrives, run it through the same production line as the rest —
+   `assets/poses/source/<id>.png` → a row in `tools/lib/pose_catalog.py` → `make poses` (see
+   `docs/presenter.md`). Never hand-place a raw image into `assets/poses/`, and never register a
+   pose in `poses.json` by hand.
+
+Reusing a pose that is only *close* to the beat, or asking for four images "to be safe", are both
+failures of this rule: the first makes the acting lie, the second is the interview we are avoiding.
 
 If the VO is missing you may *offer* a placeholder timing track, but do not build a
 finished video on guessed timing without saying so.
@@ -62,12 +83,16 @@ finished video on guessed timing without saying so.
    `tests/test_motion.py` enforces the shared easing/math implementation. `docs/motion.md` maps motion.dev recipes onto it and
    `tools/theatre_import.py` converts a Theatre.js state export.
 8. **Medo is a pose library, not a PNG per scene**: use `presenter.py` (P) / `lib/presenter.js` (K) / `MedoPresenter` (R)
-   with the slugs from `assets/poses/poses.json` (`neutral`, `explain`, `point`, `welcome`, `wave`,
-   `clap`, `like`, `thinking`, `thinking-deep`, `puzzled`, `sad`, `shocked`, `walk`, `run`, `waiting`,
-   `warm`, `phone`, `unfold`, `point-up`, `seated-talk`, plus the close-ups `close-neutral`,
-   `close-explain`, `close-point`, `close-thinking` — full shots anchor on the ground line, close-ups
-   on the top guide, so a cut between them is a camera push-in). Never edit
-   the cut-out PNGs by hand — rebuild with `make poses`. `docs/presenter.md`.
+   with the slugs from `assets/poses/poses.json` — 49 poses: `neutral`, `arms-crossed`, `smile-calm`,
+   `open-hands`, `explain`, `point`, `point-viewer`, `point-up`, `welcome`, `wave`, `wave-goodbye`, `clap`,
+   `clap-excited`, `celebrate`, `like`, `discovery`, `confused-choice`, `thinking`, `think-hands`, `sad`,
+   `shocked`, `surprised`, `warning`, `walk`, `run`, `seated-talk`, `seated-reflect`, `laptop-work`,
+   `phone`, `document` (full shots, anchored on the ground line) plus the half-body close-ups `angry`,
+   `hide-face`, `laptop-hold`, `listen`, `shh`, `point-self`, `point-down`, `point-aside`, `relaxed`,
+   `searching`, `shrug`, `head-scratch`, `coat-look`, `watch`, `phone-show`, `coffee`, `sigh`,
+   `close-explain`, `close-thinking` (anchored on the top guide — a cut between the two framings is a
+   camera push-in). Never edit the cut-out PNGs or `poses.json` by hand — edit
+   `tools/lib/pose_catalog.py` and rebuild with `make poses`. `docs/presenter.md`.
 9. **Cuts and sound are catalogue-driven**: P/K transitions use `transition.py` / `lib/transition.js`
    (`medo-motion/motion/transitions.json`) and every hit comes from `sfx.py` (`BANK` + `CATALOG`) via a
    cue sheet — never a hand-rolled mask or an unlicensed audio file. R currently supports hard scene cuts;
@@ -179,27 +204,24 @@ is the portable inventory it extends. Do not install anything else "just in case
 ## 5. Workflow (the default path)
 
 1. **Intake** — fill `projects/<slug>/BRIEF.md` from the four inputs; copy the VO into
-   `assets/vo/`, the poses into `assets/poses/`, the script into `plan/script.md`.
-   Then prepare the two files the engines expect:
+   `assets/vo/`, the script into `plan/script.md`. `new_project.py` already copied the whole pose
+   library (49 PNGs + `poses.json`) into the project, so pose work starts from the catalogue, not
+   from a request. Then prepare the two files the engines expect:
 
    ```bash
    # VO master: 24 kHz mono PCM16 (mix.py reads out/vo24.wav)
    ffmpeg -y -i assets/vo/<voice>.mp3 -ac 1 -ar 24000 -c:a pcm_s16le out/vo24.wav
    ffprobe -v error -show_entries format=duration -of json out/vo24.wav   # duration = video duration
 
-   # Poses: engine P reads assets/poses/poses.json + the PNGs beside it — cutout.py writes
-   # assets/<name>.png, so move the file into assets/poses/ and register the slug in poses.json
-   UPLOADS=assets/poses python cutout.py white <wave.png> wave
-   UPLOADS=assets/poses python cutout.py green <think.png> thinking
-   UPLOADS=assets/poses python cutout.py white <point.png> point
-   mv assets/wave.png assets/thinking.png assets/point.png assets/poses/
-   # then add/update {"wave": {"file": "wave.png", ...}, ...} entries in assets/poses/poses.json
-   # (slugs: neutral, explain, point, welcome, wave, clap, like, thinking, thinking-deep,
-   #  puzzled, sad, shocked, walk, run — medo_wave etc. are aliases resolved via presenter.py)
+   # Poses: nothing to prepare — the project already has all 49. Read the catalogue, then cast:
+   python3 -c "import sys; sys.path.insert(0,'tools/lib'); import pose_catalog as c; \
+     [print(p[0], '·', p[1], '·', p[2], '·', ', '.join(p[3])) for p in c.POSES]"
+   # Only when a beat needs a pose the library lacks (AGENTS.md §1a), add it through the line:
+   #   assets/poses/source/<id>.png → a row in tools/lib/pose_catalog.py → make poses
    ```
 
-   Until the poses exist, engine P draws a silhouette marked `PLACEHOLDER` — that is
-   allowed for a prototype, but declare it in the delivery.
+   Engine P draws a silhouette marked `PLACEHOLDER` only if a project arrives without the library;
+   declare that in the delivery.
 
    **Optional reference (only when the user supplies or requests one):** keep it in
    `assets/refs/` and inspect it before locking the visual direction. From the project root,

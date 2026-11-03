@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
-"""Cut the presenter poses out of their backgrounds, normalise them, and write the pose manifest.
+"""Normalise the presenter pose art and write the pose manifest.
 
-The raw art arrives as light-background JPEGs (`assets/poses/raw/*.jpg`). A reel needs transparent,
-consistently scaled cut-outs, so this tool does the boring part once and keeps it repeatable:
+The source art lives in `assets/poses/source/<id>.png` as **transparent RGBA cut-outs** — one
+character, 49 poses, 30 full-body and 19 half-body (from Medo's personal pose library). Nothing has
+to be cut out here, so this tool only does the boring part that makes poses interchangeable:
 
-  1. background removal — border-connected light pixels, holes filled, largest figure kept, 1 px feed
-  2. alpha trim + normalisation — every pose is scaled to the same figure height and its feet are
-     put on the same baseline, so cutting between poses does not make Medo jump
+  1. alpha trim + normalisation — every pose is scaled to the same figure height and its feet are put
+     on the same baseline (full shots) or its hair on the top guide (close shots), so cutting
+     between poses does not make Medo jump
+  2. `assets/poses/<slug>.png` — the normalised cut-out, one file per slug
   3. `assets/poses/poses.json` — slug, Arabic label, tags, size and the anchor the engines use
   4. a contact sheet on the brand background (`--sheet`) to eyeball the edges
 
-    python3 tools/presenter_build.py                 # rebuild everything from raw/
-    python3 tools/presenter_build.py --only wave,run # one or two poses
+`tools/lib/pose_catalog.py` holds the catalogue (slugs, labels, tags, framing, provenance); this
+tool only knows how to turn a source file into a placed one.
+
+    python3 tools/presenter_build.py                  # rebuild everything from source/
+    python3 tools/presenter_build.py --only wave,run  # one or two poses
     python3 tools/presenter_build.py --sheet cache/poses.png
 
 Both engines read the same manifest: `lib/presenter.js` (K) and `presenter.py` (P).
@@ -25,10 +30,13 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from scipy import ndimage as ndi
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW = ROOT / "assets" / "poses" / "raw"
+sys.path.insert(0, str(ROOT / "tools" / "lib"))
+
+import pose_catalog as catalog  # noqa: E402
+
+SOURCE = ROOT / "assets" / "poses" / "source"
 OUT = ROOT / "assets" / "poses"
 MANIFEST = OUT / "poses.json"
 
@@ -36,116 +44,20 @@ MANIFEST = OUT / "poses.json"
 #   full  — figure height normalised, soles on the ground line (1390): a wide/medium shot
 #   bust  — the whole cut-out normalised by image height, hair line at the top guide (190): a close-up
 # Cutting between them is a camera push-in, which is exactly what these two sets are for.
-FRAMING = {"full": {"height": 1200, "place": "feet"}, "bust": {"height": 1180, "place": "top"}}
+FRAMING = catalog.FRAMING
 MARGIN = 8               # padding kept around the cut-out
 
-# slug → Arabic label, English label, tags, facing, notes. `scale` is applied when drawing
-# (a seated pose normalised to the same height would look oversized next to a standing one).
-POSES = [
-    ("neutral",       "طبيعي",              "neutral",        ["standing", "idle"],            "front", "وضعية الأساس — اليدين على الجانبين"),
-    ("explain",       "شرح أو تفكير",        "explaining",     ["standing", "talk", "hands"],   "front", "يد مفتوحة + إصبع على الذقن"),
-    ("point",         "بيشاور",              "pointing",       ["standing", "direct"],          "front", "بيشاور بإيد والثانية على الذقن"),
-    ("welcome",       "الترحيب بالجمهور",    "welcome",        ["standing", "open arms"],       "front", "الدراعين مفتوحين للكاميرا"),
-    ("wave",          "التلويح باليد",       "wave",           ["standing", "greeting"],        "front", "إيد مرفوعة — تتحرك بدورة إيقاعية"),
-    ("clap",          "التسقيف",             "clapping",       ["standing", "celebration"],     "front", "إيدين متقابلين — تصفيق"),
-    ("like",          "الاعجاب",             "delighted",      ["standing", "smile", "hands"],  "front", "إيدين على الصدر ووش مبسوط"),
-    ("thinking",      "التفكير",             "thinking",       ["standing", "pause"],           "front", "إصبع على الذقن، جسم مستقيم"),
-    ("thinking-deep", "التفكير العميق",      "thinking-deep",  ["sitting", "stool", "pause"],   "front", "قاعد على كرسي — لحظة تأمل طويلة"),
-    ("puzzled",       "الحيرة",              "puzzled",        ["standing", "question"],        "front", "يد مفتوحة + علامة استفهام في الوش"),
-    ("sad",           "حزين",                "sad",            ["standing", "down", "pockets"], "front", "بص لتحت وإيدين في الجيوب"),
-    ("shocked",       "مصدوم",               "shocked",        ["standing", "impact", "wide"],  "front", "فزع/صدمة — للـimpact cuts"),
-    ("walk",          "المشي",               "walking",        ["motion", "side"],              "left",  "خطوة مشي — loop أو cut"),
-    ("run",           "الجري",               "running",        ["motion", "side"],              "left",  "جري — حركة سريعة/إلحاح"),
-    # ---- batch 2: everyday beats ----
-    ("waiting",       "إيدين في الجيوب",     "waiting",        ["standing", "idle", "pockets"], "front", "idle تانية — إيدين في الجيوب"),
-    ("warm",          "دفء",                "warm",           ["standing", "sincere", "smile"], "front", "إيد على الصدر وابتسامة — جملة صادقة"),
-    ("phone",         "ماسك موبايل",         "phone",          ["standing", "tech"],            "front", "بيقرأ/بيكتب على الموبايل"),
-    ("unfold",        "بيفتح ورقة",          "unfold",         ["standing", "document"],        "front", "ورقة/سكريبت — بيقدّم فكرة"),
-    ("point-up",      "بيشاور لفوق",         "point-up",       ["standing", "direct"],          "front", "إصبع لفوق — تأكيد نقطة"),
-    ("seated-talk",   "قاعد بيتكلم",         "seated-talk",    ["sitting", "chair", "talk"],    "front", "قاعد على كرسي — كلام هادي"),
-    # ---- batch 2: close-ups (camera push-in) ----
-    ("close-neutral", "نصف جسد طبيعي",       "close-neutral",  ["bust", "idle"],                "front", "قريب — الأساس"),
-    ("close-explain", "نصف جسد يشرح",        "close-explain",  ["bust", "talk"],                "front", "قريب — شرح بإيد مفتوحة"),
-    ("close-point",   "نصف جسد يشير",        "close-point",    ["bust", "direct"],              "front", "قريب — إشارة"),
-    ("close-thinking","نصف جسد يفكر",        "close-thinking", ["bust", "pause"],               "front", "قريب — تفكير"),
-]
-
-# Which poses are close-ups (everything else is a full shot).
-BUST = {"close-neutral", "close-explain", "close-point", "close-thinking"}
-
-
-SCALE = {"thinking-deep": 0.86, "run": 0.94, "walk": 0.97}
 
 def _load(path: Path) -> np.ndarray:
-    im = cv2.imread(str(path), cv2.IMREAD_COLOR)
+    """Read a source cut-out as RGBA, failing loudly if it is not actually transparent."""
+    im = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
     if im is None:
         raise FileNotFoundError(path)
-    return cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-
-
-def cutout(im: np.ndarray, log: list[str]) -> np.ndarray:
-    """RGB → RGBA with the light studio background removed (border flood + largest component)."""
-    h, w = im.shape[:2]
-    mx = im.max(2).astype(int)
-    mn = im.min(2).astype(int)
-    white = mn >= 228                                        # paper-white studio background
-    shadow = (mx - mn < 16) & (mn > 120) & (mn <= 228)       # the soft grey contact shadow
-    shadow[: int(h * 0.45)] = False                          # never above mid-frame
-    # Treat *every* background-coloured pixel as background, not only the border-connected ones:
-    # the studio white also shows through the gap between the stool legs, and there it is enclosed
-    # by the figure (so a border flood leaves a white block behind).
-    bg = white | shadow
-    fg = ~bg
-    fg = ndi.binary_opening(fg, iterations=1)
-
-    # drop JPEG specks but keep small deliberate marks (sweat drops, sparkles)
-    lab2, n2 = ndi.label(fg)
-    if n2:
-        sizes = ndi.sum(fg, lab2, range(1, n2 + 1))
-        biggest = sizes.max()
-        keep = [i + 1 for i, v in enumerate(sizes) if v > max(24, 0.002 * biggest)]
-        fg = np.isin(lab2, keep)
-        log.append(f"components={n2} kept={len(keep)}")
-
-    # the figure's own enclosed whites (t-shirt, highlights) are holes in the silhouette → fill them,
-    # but only up to 10% of the figure, so a real background gap stays transparent
-    # Enclosed regions are either the figure's own whites (t-shirt: shaded, mean ≈242, std ≥3) or
-    # studio background showing through a gap (arms/legs/stool: pure white, mean ≥252, std ≤2.5).
-    # Fill the first, punch out the second.
-    holes = ndi.binary_fill_holes(fg) & ~fg
-    hl, hn = ndi.label(holes)
-    fill_ids, punch_ids = [], []
-    for i in range(1, hn + 1):
-        m = hl == i
-        area = int(m.sum())
-        if area < 60:
-            continue
-        inner = ndi.binary_erosion(m, iterations=4)      # ignore the anti-aliased rim
-        vals = im[inner if inner.any() else m].astype(np.float32)
-        pure_white = float(vals.mean()) >= 250.5 and float(vals.std()) <= 4.0
-        # pure white → the studio background showing through; anything shaded → part of the figure
-        if pure_white:
-            punch_ids.append(i)
-        else:
-            fill_ids.append(i)
-    if fill_ids:
-        fg = fg | np.isin(hl, fill_ids)
-    if punch_ids:
-        fg = fg & ~np.isin(hl, punch_ids)
-    log.append(f"holes={hn} filled={len(fill_ids)} punched={len(punch_ids)}")
-
-    alpha = ndi.binary_erosion(fg, iterations=1).astype(np.float32)
-    alpha = cv2.GaussianBlur(alpha, (0, 0), 0.8)
-
-    # de-halo: JPEG ringing leaves a light rim; pull the rim pixels toward the nearby figure colour
-    rim = (alpha > 0.02) & (alpha < 0.85)
-    if rim.any():
-        blur = cv2.GaussianBlur(im.astype(np.float32), (0, 0), 2.2)
-        im = im.astype(np.float32).copy()
-        im[rim] = im[rim] * 0.35 + blur[rim] * 0.65
-        im = np.clip(im, 0, 255).astype(np.uint8)
-
-    return np.dstack([im, (alpha * 255).astype(np.uint8)])
+    if im.ndim == 3 and im.shape[2] == 3:
+        raise ValueError(f"{path.name}: no alpha channel — the source art must be a cut-out PNG")
+    if int(im[..., 3].max()) < 250:
+        raise ValueError(f"{path.name}: alpha never reaches 255 — the cut-out is broken")
+    return cv2.cvtColor(im, cv2.COLOR_BGRA2RGBA)   # OpenCV decodes BGRA; PIL expects RGBA
 
 
 def normalise(rgba: np.ndarray, target_h: int = 1200) -> np.ndarray:
@@ -167,41 +79,43 @@ def normalise(rgba: np.ndarray, target_h: int = 1200) -> np.ndarray:
 
 def build(only: list[str] | None = None) -> dict:
     OUT.mkdir(parents=True, exist_ok=True)
-    manifest = {"_doc": "Presenter cut-outs. Generated by tools/presenter_build.py from assets/poses/raw/. "
-                        "Engines read this file: lib/presenter.js (K) and presenter.py (P). Split each file "
-                        "into <slug>.png + poses.json; never hand-edit the PNGs.",
+    manifest = {"_doc": "Presenter cut-outs. Generated by tools/presenter_build.py from "
+                        "assets/poses/source/. Engines read this file: lib/presenter.js (K) and "
+                        "presenter.py (P). Never hand-edit the PNGs or this manifest — edit "
+                        "tools/lib/pose_catalog.py and rebuild.",
                 "figureHeight": FRAMING["full"]["height"],
                 "bustHeight": FRAMING["bust"]["height"],
                 "topGuide": 190,
                 "margin": MARGIN,
                 "ground": 1390,
                 "poses": {}}
-    for slug, ar, en, tags, facing, note in POSES:
+    for slug, ar, en, tags, facing, note in catalog.POSES:
         if only and slug not in only:
             continue
-        src = RAW / f"{slug}.jpg"
+        source_id = catalog.SOURCE_ID[slug]
+        src = SOURCE / f"{source_id}.png"
         if not src.exists():
-            print(f"  skip {slug}: no {src.relative_to(ROOT)}")
-            continue
-        log: list[str] = []
-        framing = "bust" if slug in BUST else "full"
-        rgba = normalise(cutout(_load(src), log), FRAMING[framing]["height"])
+            raise FileNotFoundError(f"{slug}: missing {src.relative_to(ROOT)} (source id {source_id})")
+        framing = "bust" if slug in catalog.BUST else "full"
+        rgba = normalise(_load(src), FRAMING[framing]["height"])
         h, w = rgba.shape[:2]
         # PIL's optimiser packs the alpha much better than cv2's default PNG writer
         from PIL import Image  # noqa: PLC0415
 
         Image.fromarray(rgba, "RGBA").save(OUT / f"{slug}.png", optimize=True, compress_level=9)
         manifest["poses"][slug] = {
-            "scale": SCALE.get(slug, 1.0),
-            "ar": ar, "en": en, "file": f"{slug}.png", "tags": tags, "facing": facing, "note": note,
+            "scale": catalog.SCALE.get(slug, 1.0),
+            "ar": ar, "en": en, "file": f"{slug}.png", "tags": list(tags), "facing": facing,
+            "note": note,
             "framing": framing,
             # how the engines place it: `feet` → soles on the ground line, `top` → hair on the top guide
             "place": FRAMING[framing]["place"],
+            "source": source_id,
             "w": int(w), "h": int(h),
             "feet": round((h - MARGIN) / h, 4),
             "center": round(0.5, 4),
         }
-        print(f"  {slug:14s} {w}×{h}  {'; '.join(log)}")
+        print(f"  {slug:16s} {w}×{h}  {framing}")
     if MANIFEST.exists() and only:
         merged = json.loads(MANIFEST.read_text(encoding="utf-8"))
         merged["poses"].update(manifest["poses"])
@@ -211,7 +125,7 @@ def build(only: list[str] | None = None) -> dict:
 
 
 def sheet(manifest: dict, out: Path, cols: int = 7, cell_h: int = 420, background=(10, 10, 10)) -> Path:
-    """Contact sheet on the brand's dark background — catches white halos and scale mismatches."""
+    """Contact sheet on the brand's dark background — catches halos and scale mismatches."""
     from PIL import Image, ImageDraw, ImageFont  # noqa: PLC0415
 
     poses = manifest["poses"]

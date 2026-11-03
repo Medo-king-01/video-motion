@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased — 2026-11-03 (pose library v2)
+
+The presenter library was replaced: **24 hand-cut poses → 49 poses of one character**, sourced from
+Medo's personal library (`Medo-king-01/Medo-s-Personal-Library`, 30 full-body + 19 half-body, RGBA).
+
+- **New intake rule (changed, not removed).** "Ask for 2–4 images at the start" is gone. The library
+  *is* the fourth input: the agent reads the catalogue and casts every beat from it, and asks for an
+  image **only when a scene needs a pose the library does not have** — then names the missing slug and
+  the beat in the same intake message. `AGENTS.md` §1/§1a, `SKILL.md`, `START-HERE.md`,
+  `templates/TASTE.md`, the `new_project.py` brief, `docs/presenter.md`; pinned by
+  `tests/test_workflow.py::test_poses_are_asked_for_only_when_the_library_cannot_cast_the_beat`.
+- **`tools/lib/pose_catalog.py` (new).** Slug, Arabic label, English search word, tags, facing, note,
+  framing (`full`/`bust`), `SCALE`, `ALIASES` and `SOURCE_ID` (which source file each slug came from).
+  The catalogue, not the manifest, is the thing you edit.
+- **`tools/presenter_build.py`** now takes transparent cut-outs (`assets/poses/source/<id>.png`) and
+  only trims + normalises (1200 px full / 1180 px half, 8 px margin); `cutout()` and the JPEG `raw/`
+  folder are gone, and a source without an alpha channel fails loudly instead of shipping a grey box.
+- **Framing**: 30 full shots anchored on the ground line (1390), 19 half-body on the top guide (190),
+  so a cut between them stays a clean camera push-in.
+- **Aliases** cover the whole previous library (`warm → open-hands`, `puzzled → shrug`, `waiting →
+  neutral`, `close-point → point-aside`, …) and every `medo_*` name, so older scene code still
+  resolves; both engines' embedded fallback tables are generated from the catalogue.
+- `assets/poses/`: 49 normalised PNGs + `poses.json` (geometry now includes the `source` id), and
+  `assets/poses/source/` keeps the untouched originals. `docs/presenter.md` rewritten, `README.md` and
+  `docs/README.md` counts corrected.
+
 ## Unreleased — 2026-11-03 (refactor pass)
 
 Structure-only: **no rendered pixel, lint verdict or CLI output changed**. Every claim below is
