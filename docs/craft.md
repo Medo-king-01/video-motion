@@ -61,7 +61,7 @@ a ban-safe form. Where the two disagree, **this studio wins**, and the reason is
 
 ## 3. The lint rules
 
-Twenty-one rules in four groups. `tools/reel_lint.py <project>` reads `plan/beats.json` (from `tools/vo_length.py`),
+Twenty-three rules in four groups. `tools/reel_lint.py <project>` reads `plan/beats.json` (from `tools/vo_length.py`),
 `plan/copy.json` and `plan/techniques.json` (from `tools/techniques.py`). `!!` is an error,
 ` ?` is a warning, and `--strict` makes warnings fail.
 
@@ -74,6 +74,7 @@ Twenty-one rules in four groups. `tools/reel_lint.py <project>` reads `plan/beat
 | `S03` | A scene under 0.27 s is punctuation only; under 0.45 s it can carry no words | warn |
 | `S04` | A scene longer than 2.2 s must declare `events[]` — the picture changes inside the shot | warn |
 | `S05` | Every cut lands within `--tol` (default 120 ms) of the tempo grid | warn |
+| `S06` | Frame 0 is not an empty ground: something is already on screen at `t = 0` (a fragment starting at 0, or `events[0].t = 0`). Social players freeze frame 0 as the thumbnail, and a title that fades in from nothing means the poster is a blank background | warn |
 | `U01` | A scene flagged `"ui": true` must declare its interaction (`events[]`) and run ≥ 1.2 s | warn |
 
 ### Copy — `plan/copy.json`
@@ -98,6 +99,10 @@ Twenty-one rules in four groups. `tools/reel_lint.py <project>` reads `plan/beat
 | `C10` | Every fragment points at a scene that exists | error |
 | `C11` | A fragment arrives within 120 ms of the grid | warn |
 
+A fragment may also declare the ground it is drawn on and the colour itself:
+`{"text": "…", "color": "salmon", "size": 76}` plus `"theme": "dark"|"light"` on its scene in
+`plan/beats.json` (the same two words the backgrounds use). That is what `T06` measures.
+
 ### Moves — `plan/techniques.json`
 
 | Code | Rule | Level |
@@ -120,6 +125,7 @@ There is no default look and no random picker. Initialise the skeleton after the
 | `T03` | EVERY on-screen text fragment (title, keyword, number, CTA, label, UI…) has a known role and resolves to an explicit style | error |
 | `T04` | Scene code draws text only through the directed helpers (`drawDirectedText` / `draw_directed_text` / `DirectedText`), never raw `fillText`/`text_sprite`/`txt` | error |
 | `T05` | EVERY on-screen text fragment has an agent-chosen font from the manifest (family + weight), and Arabic text uses an Arabic-capable family | error |
+| `T06` | A fragment that names a `color` clears WCAG against the ground it is actually drawn on: ≥ 4.5:1 for body text, ≥ 3:1 at or above `text_contrast.large_px` (76 px). Both ends of the scene's background ramp are tested, so a token that only survives the middle of a gradient fails. Pairs `brand.json → text_contrast.forbidden_on_theme` bans (red on dark, gray_4/salmon on light) fail regardless of size | error |
 
 ### Code scan — `--scan-code`
 

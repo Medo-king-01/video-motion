@@ -26,6 +26,9 @@ fi
 echo "== icons =="
 $PY medo-motion/icons/build.py --check
 
+echo "== contrast contract =="
+$PY tools/contrast.py --check
+
 echo "== brand audit =="
 $PY medo-motion/scripts/brand_check.py --project medo-motion/templates
 

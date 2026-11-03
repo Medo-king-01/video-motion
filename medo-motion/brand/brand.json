@@ -181,6 +181,20 @@
     "Never red text on a dark background (3.63:1 — visually harsh) — use salmon there",
     "Never gray_4 or salmon for body-size text"
   ],
+  "text_contrast": {
+    "_doc": "The machine-readable form of contrast_rules; tools/contrast.py and tools/reel_lint.py (T06) read it. Colours are brand tokens only — never a hex.",
+    "body_ratio": 4.5,
+    "large_ratio": 3.0,
+    "large_px": 76,
+    "large_px_why": "WCAG large text = 18pt (14pt bold). A 1080-wide reel plays on a ~70 mm phone screen; 14pt bold = 4.94 mm = 76 px of frame width (18pt regular = 98 px). Every display/keyword size in this studio is bold, so 76 px is the crossover and a 58 px caption is held to the body bar.",
+    "text_tokens": ["red", "red_bright", "red_deep", "ink", "ink_soft", "paper",
+                    "gray_1", "gray_2", "gray_3", "gray_4", "salmon", "blush"],
+    "forbidden_on_theme": {
+      "dark": {"red": "3.63:1 — the rule says use salmon on dark", "red_deep": "2.37:1 — depth shade, never text on dark"},
+      "light": {"gray_4": "2.28:1 on paper — secondary text is for dark only",
+                "salmon": "2.61:1 on paper — warm accent is for dark only"}
+    }
+  },
   "typography": {
     "arabic": "agent-chosen from assets/fonts/fonts.json (Cairo is one option / last-resort fallback)",
     "arabic_weight": "ExtraBold/Bold",

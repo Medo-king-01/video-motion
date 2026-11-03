@@ -26,6 +26,9 @@ selftest:        ## doctor + tests + P/K frames (R render: python3 tools/selftes
 new:             ## scaffold a project: make new SLUG=my-reel ENGINE=p
 	$(PY) tools/new_project.py $(or $(SLUG),untitled) --engine $(or $(ENGINE),p)
 
+contrast:        ## WCAG contrast of the palette per ground/size; --check proves the contract
+	$(PY) tools/contrast.py $(if $(CHECK),--check,)
+
 brand:           ## audit brand tokens of a project: make brand P=projects/x
 	$(PY) medo-motion/scripts/brand_check.py --project $(or $(P),.)
 
