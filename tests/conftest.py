@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+import wave  # noqa: F401  — see below: import it BEFORE any test module touches sys.path
 from pathlib import Path
 
 import pytest
@@ -15,6 +16,10 @@ FONTS = ROOT / "assets" / "fonts" / "Cairo"
 # Import paths at collection time: test modules import the engine directly and we
 # never install the studio as a package. Keep helpers after the standard library:
 # Python 3.10 wave imports stdlib chunk, not the renderer CLI named chunk.py.
+# That is why `wave` is imported above, before any test module edits sys.path: on 3.10
+# it does `from chunk import Chunk`, and the engine ships a `chunk.py` CLI that raises
+# SystemExit unless it gets START_FRAME END_FRAME. Once `wave` is imported here the
+# stdlib module is cached and the engine folder can be on sys.path harmlessly.
 # Preserve the existing tools -> scripts -> engine precedence among local helpers.
 for _p in (str(ROOT / "tools"), str(SKILL / "scripts"), str(ENGINE_P)):
     if _p not in sys.path:

@@ -16,8 +16,12 @@ R_LIB = SKILL / "templates" / "remotion" / "src" / "lib" / "backgrounds.js"
 P_DIR = SKILL / "templates" / "procedural-reels"
 BRAND = ROOT / "medo-motion" / "brand" / "brand.json"
 
-sys.path.insert(0, str(P_DIR))
-sys.path.insert(0, str(ROOT / "tools"))
+# Append, never insert(0): the engine folder contains a CLI named `chunk.py`, and on Python 3.10 the
+# stdlib `wave` module does `from chunk import Chunk`. Putting that folder first shadows `chunk` and
+# collection dies with "usage: chunk.py START_FRAME END_FRAME" (this exact failure hit CI on 3.10).
+for _p in (str(ROOT / "tools"), str(P_DIR)):
+    if _p not in sys.path:
+        sys.path.append(_p)
 
 import backgrounds as bg  # noqa: E402
 import backgrounds_sheet  # noqa: E402
@@ -178,6 +182,25 @@ def test_engine_p_frame_budget():
         bg.frame(bid, 1080, 1920, 2.4)
         ms = (time.perf_counter() - t0) * 1000
         assert ms < 700, f"{bid} takes {ms:.0f} ms/frame at 1080×1920"
+
+
+def test_engine_path_never_shadows_the_stdlib_chunk_module():
+    """Regression guard for the Python 3.10 CI failure this file caused.
+
+    The engine folder ships a `chunk.py` CLI, and on 3.10 the stdlib `wave` module does
+    `from chunk import Chunk`. A test module that puts the engine folder FIRST in sys.path can
+    therefore kill collection with `SystemExit: usage: chunk.py START_FRAME END_FRAME` — but only
+    when it is collected before `wave` is imported. Two rules keep it dead:
+      1. tests/conftest.py imports `wave` before any test module runs (documented there);
+      2. a test module that needs the engine appends the folder instead of inserting it.
+    """
+    conftest = (ROOT / "tests" / "conftest.py").read_text(encoding="utf-8")
+    assert "import wave" in conftest, "conftest must import wave before tests touch sys.path"
+    assert conftest.index("import wave") < conftest.index("sys.path.append"), "wave must come first"
+    here = (ROOT / "tests" / "test_backgrounds.py").read_text(encoding="utf-8")
+    calls = [ln.strip() for ln in here.splitlines() if ln.strip().startswith("sys.path.insert")]
+    assert not any("P_DIR" in ln or "procedural-reels" in ln for ln in calls), \
+        f"append the engine folder, never insert(0): {calls}"
 
 
 def test_sheet_builds(tmp_path):
