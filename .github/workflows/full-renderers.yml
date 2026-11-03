@@ -58,7 +58,7 @@ jobs:
           from pathlib import Path
           log = Path(os.environ["RUNNER_TEMP"]) / "quality.log"
           if log.is_file():
-              excerpt = log.read_text(errors="replace")[-12000:]
+              excerpt = log.read_text(errors="replace")[-3000:]
               excerpt = excerpt.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
               print(f"::error title=Quality gate log excerpt::{excerpt}")
           PYTHON
