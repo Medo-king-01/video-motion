@@ -21,7 +21,7 @@ Visual version for the user: plan/design.html (same values as §2–§5 — alwa
 - **One-line concept:** <e.g. "A pixel-art founder fights a giant 'busywork' monster; words decode from binary">
 - **Video type / platform / format:** <e.g. Instagram Reel, 9:16 1080×1920, 30 fps> · **length = the VO duration** (measure it: `tools/vo_length.py`; never plan a target length) · no series name / title / episode number unless the user explicitly asks
 - **Audience & goal / CTA:** <who, what they should do>
-- **Inputs (only these):** script (beats) · scene direction · VO audio · Medo poses · **use:** <personal | client/commercial (licences!)> · **deadline:** <…>
+- **Inputs (only these):** script (beats) · scene direction · VO audio · the 49-pose library in `assets/poses/` (an extra image is requested only for a beat the library cannot cast) · **use:** <personal | client/commercial (licences!)> · **deadline:** <…>
 - **No logo / no default series name / no episode chip.** Never ask for them, never invent or suggest them, never reserve a circle for one. A name/title/episode number goes on screen only when the user asks, worded by him.
 - **Story world & characters:** <setting, characters + personality, recurring props, what each character looks like (link model sheet: assets/…)>
 - **Narrative structure:** <hook → problem → solution → proof → CTA, with seconds>
@@ -52,7 +52,7 @@ Visual version for the user: plan/design.html (same values as §2–§5 — alwa
 - **Signature devices [LOCKED brand]:** big red circle (80–95 % width) behind the hero + ground shadow · red wipe with white edge 0.4 s between scenes · camera zoom 1.00↔1.04 + drift ±14px · one impact per scene (ring + speed lines + 6–12px shake + 1–2 frame flash) · HUD (progress bar only) drawn AFTER the camera
 - **Transitions:** <hard cut on beat / pixel wipe / zoom-through…>
 - **Camera:** <static / slow push 2 %/s / shake on impact (amp px, duration)>
-- **Character acting rules:** <idle bob, blink rate, how gestures read, no frozen poses > 1 s>
+- **Character acting rules:** <idle bob, blink rate, how gestures read, no frozen poses > 1 s; which pose each beat casts, and stay inside one framing per sentence (full vs half-body)>
 
 ## 5. Sound identity
 - **Text SFX:** <type (soft dry ticks/pops), 40–150 ms, one per word, level vs VO (e.g. −7 dB)>, files: <assets/sfx/…>

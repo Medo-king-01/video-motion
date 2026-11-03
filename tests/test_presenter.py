@@ -16,12 +16,13 @@ P_DIR = SKILL / "templates" / "procedural-reels"
 
 sys.path.insert(0, str(P_DIR))
 sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT / "tools" / "lib"))
 
-EXPECTED = {"neutral", "explain", "point", "welcome", "wave", "clap", "like", "thinking",
-            "thinking-deep", "puzzled", "sad", "shocked", "walk", "run",
-            "waiting", "warm", "phone", "unfold", "point-up", "seated-talk",
-            "close-neutral", "close-explain", "close-point", "close-thinking"}
-BUST = {"close-neutral", "close-explain", "close-point", "close-thinking"}
+import pose_catalog  # noqa: E402  (the catalogue is the single source of truth)
+
+SOURCE = POSES_DIR / "source"
+EXPECTED = set(pose_catalog.slugs())
+BUST = set(pose_catalog.BUST)
 
 
 @pytest.fixture(scope="module")
@@ -39,8 +40,27 @@ def test_every_pose_is_present_and_described(manifest):
         assert path.is_file(), f"missing {path}"
         assert meta["ar"] and meta["en"] and meta["tags"]
         assert 0.5 <= meta["scale"] <= 1.5
-    raws = {p.stem for p in (POSES_DIR / "raw").glob("*.jpg")}
-    assert raws == EXPECTED, "every pose must keep its original"
+    sources = {p.stem for p in SOURCE.glob("*.png")}
+    assert sources == set(pose_catalog.SOURCE_ID.values()), \
+        "every pose must keep its source cut-out (and nothing else)"
+
+
+def test_the_catalogue_describes_the_whole_library():
+    """49 poses, one source file each, unique slugs, and a framing that matches the source art."""
+    from PIL import Image  # noqa: PLC0415
+
+    assert len(pose_catalog.POSES) == len(EXPECTED) == 49, "the library is 49 poses"
+    assert len(set(pose_catalog.SOURCE_ID.values())) == 49, "two poses claim the same source file"
+    assert set(pose_catalog.SOURCE_ID) == EXPECTED
+    assert len(BUST) == 19 and len(EXPECTED - BUST) == 30, "30 full shots + 19 half-body"
+    assert all(("bust" in tags) == (slug in BUST)
+               for slug, _ar, _en, tags, _facing, _note in pose_catalog.POSES)
+    for slug, source_id in pose_catalog.SOURCE_ID.items():
+        w, h = Image.open(SOURCE / f"{source_id}.png").size
+        half = (w, h) == (896, 1200)
+        assert half == (slug in BUST), f"{slug}: source {source_id} does not match its framing"
+    # every alias must land on a pose that exists
+    assert all(target in EXPECTED for target in pose_catalog.ALIASES.values())
 
 
 def test_cutouts_are_normalised_and_transparent(manifest):
@@ -74,7 +94,7 @@ def test_close_ups_sit_on_the_top_guide():
     import presenter  # noqa: PLC0415
 
     fr = np.zeros((1920, 1080, 3), np.uint8)
-    presenter.draw(fr, "close-neutral", 1.0, height=0.62, idle=False)
+    presenter.draw(fr, "listen", 1.0, height=0.62, idle=False)
     rows = np.where(fr.any(axis=(1, 2)))[0]
     assert 185 <= rows.min() <= 215, f"hair should start at the top guide, got {rows.min()}"
     assert rows.max() <= 1390, "a close-up must not spill onto the caption zone"
@@ -94,7 +114,7 @@ def test_no_white_fringe_on_the_brand_background(manifest):
     from PIL import Image  # noqa: PLC0415
     from scipy import ndimage as ndi  # noqa: PLC0415
 
-    for slug in ("neutral", "wave", "thinking-deep", "run"):
+    for slug in ("neutral", "wave", "seated-reflect", "run"):
         im = np.asarray(Image.open(POSES_DIR / manifest["poses"][slug]["file"]).convert("RGBA")).astype(np.float32)
         a = im[..., 3] / 255
         solid = a > 0.9
@@ -149,21 +169,36 @@ def test_pose_track_cross_fades_on_cue():
     assert track.at(3.0)["blend"] == 1 and track.at(3.0)["prev"] is None
 
 
-def test_cutout_keeps_the_shirt_but_drops_the_background_gap():
-    """Synthetic figure: white canvas, dark body, a white 'shirt' hole and a background gap."""
-    from presenter_build import cutout  # noqa: PLC0415
+def test_build_rejects_a_source_without_alpha():
+    """The pipeline takes transparent cut-outs; a flat JPEG must fail loudly, not ship a grey box."""
+    from presenter_build import _load  # noqa: PLC0415
 
-    img = np.full((300, 200, 3), 255, np.uint8)
-    img[40:260, 60:140] = (40, 34, 33)          # body
-    img[90:150, 75:125] = (243, 242, 241)       # t-shirt (shaded white) — must survive
-    img[190:250, 120:140] = (255, 255, 255)     # background showing through a limb gap
-    img[189, 60:140] = (40, 34, 33)             # close the gap so it becomes a hole
-    rgba = cutout(img, [])
-    a = rgba[..., 3] / 255.0
-    assert a[60, 100] > 0.9, "body lost"
-    assert a[120, 100] > 0.9, "t-shirt was punched out"
-    assert a[220, 130] < 0.1, "enclosed background gap was filled"
-    assert a[10, 10] < 0.05, "background kept"
+    flat = np.full((40, 40, 3), 200, np.uint8)
+    with pytest.raises(ValueError, match="alpha"):
+        _load(_write_png(flat))
+
+
+def test_normalise_scales_to_one_height_and_pads_a_margin():
+    from presenter_build import MARGIN, normalise  # noqa: PLC0415
+
+    rgba = np.zeros((900, 400, 4), np.uint8)
+    rgba[100:800, 50:350] = (40, 34, 33, 255)      # an off-centre figure, 700 px tall
+    out = normalise(rgba, 1200)
+    ys, xs = np.where(out[..., 3] > 8)
+    assert out.shape[0] == 1200 + 2 * MARGIN, "figure height is normalised to the target"
+    assert ys.min() == MARGIN and ys.max() == out.shape[0] - 1 - MARGIN
+    assert xs.min() == MARGIN, "the cut-out is trimmed and re-padded, not rescaled in frame"
+
+
+def _write_png(arr: np.ndarray):
+    import tempfile  # noqa: PLC0415
+    from pathlib import Path  # noqa: PLC0415
+
+    import cv2  # noqa: PLC0415
+
+    path = Path(tempfile.mkdtemp()) / "x.png"
+    cv2.imwrite(str(path), arr)
+    return path
 
 
 def test_engine_k_and_p_place_the_pose_identically(manifest):
@@ -173,7 +208,7 @@ def test_engine_k_and_p_place_the_pose_identically(manifest):
 
     script = (
         "const p = await import(" + json.dumps(str(SKILL / "templates" / "render" / "lib" / "presenter.js")) + ");\n"
-        "const names = ['neutral', 'wave', 'run', 'thinking-deep'];\n"
+        "const names = ['neutral', 'wave', 'run', 'seated-reflect'];\n"
         "const out = {};\n"
         "for (const n of names) out[n] = [0, .5, 2.3, 7.7].map(t => p.poseFrame(n, t, { height: .62, x: .48, flip: false }));\n"
         "console.log(JSON.stringify(out));\n"
@@ -221,7 +256,7 @@ def test_pose_track_resolves_lazily_against_the_loaded_manifest():
     assert out["after"] == "cameo", "the cue must resolve once the manifest is loaded"
     # a close-up is placed by its hair line (top guide 190), not by its soles
     assert out["cy"] == pytest.approx(190 + 0.62 * 1920 / 2 - 0.0, abs=8)
-    assert out["names"] >= 24
+    assert out["names"] >= 49
 
 
 def test_scenes_and_project_template_are_wired():

@@ -15,6 +15,32 @@ def test_brief_asks_for_four_inputs_only():
     assert "no logo" in src.lower()
 
 
+def test_poses_are_asked_for_only_when_the_library_cannot_cast_the_beat():
+    """The old rule was "ask for 2–4 images at the start". It is now: the library is the input, and an
+    image is requested only for a beat the library cannot cast. Guard the wording everywhere it
+    reaches an agent or a human."""
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert "The pose library is the fourth input, not a request" in agents
+    assert "only when" in agents and "pose the library" in agents
+    for stale in ("2–4 PNG/JPEG images", "2–4 images (wave / think / point)"):
+        assert stale not in agents, stale
+
+    skill = (ROOT / "medo-motion" / "SKILL.md").read_text(encoding="utf-8")
+    assert "ask only when a beat needs a pose the library does not have" in skill
+    assert "2–4 images" not in skill
+
+    start = (ROOT / "medo-motion" / "START-HERE.md").read_text(encoding="utf-8")
+    assert "٤٩ وضعية" in start and "٢–٤ صور" not in start
+
+    taste = (ROOT / "medo-motion" / "templates" / "TASTE.md").read_text(encoding="utf-8")
+    assert "49-pose library" in taste and "requested only for a beat" in taste
+
+    brief = (ROOT / "tools" / "new_project.py").read_text(encoding="utf-8")
+    assert "٤٩ وضعية" in brief and "١٤ وضعية" not in brief
+    # the rule must also say where a new image goes — never a raw file dropped into assets/poses/
+    assert "assets/poses/source/" in agents and "pose_catalog.py" in agents
+
+
 def test_agents_contract_has_hard_rules():
     contract = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert "No logo. No default name or title." in contract

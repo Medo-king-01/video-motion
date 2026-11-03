@@ -51,9 +51,12 @@ BRIEF = """# BRIEF — {slug}
 - measured duration: `—`
 
 ## 4) صور ميدو — Poses
-- [x] `assets/poses/` — صور ميدو (١٤ وضعية) + `poses.json` بتتنسخ أوتوماتيك من الاستوديو
-   (شوف `docs/presenter.md`; الوضعيات: neutral, explain, point, welcome, wave, clap, like,
-   thinking, thinking-deep, puzzled, sad, shocked, walk, run)
+- [x] `assets/poses/` — المكتبة كاملة (٤٩ وضعية) + `poses.json` بتتنسخ أوتوماتيك من الاستوديو
+   (شوف `docs/presenter.md`; منها full: neutral, arms-crossed, explain, point, welcome, wave, clap,
+   celebrate, like, thinking, sad, shocked, walk, run, seated-talk, laptop-work — ونصف جسم:
+   listen, shrug, searching, angry, sigh, close-explain, close-thinking …)
+- [ ] مشهد محتاج وضعية مش في المكتبة؟ اكتب هنا اسم الوضعية والمشهد اللي محتاجها → هتتدخل خط الإنتاج
+   (`assets/poses/source/<id>.png` → `tools/lib/pose_catalog.py` → `make poses`), متضيفش صورة خام.
 
 ## مرجع بصري (اختياري) — Visual reference
 - file/link: `assets/refs/` — حلّله كإلهام للحركة والتكوين فقط؛ ممنوع نسخ شعاراته أو أصوله.
