@@ -24,12 +24,12 @@ def test_agents_contract_has_hard_rules():
 
 def test_engine_templates_are_present():
     for f in ("scenes.py", "lib.py", "art.py", "mix.py", "chunk.py", "run_all.py",
-              "sfx.py", "cutout.py", "arabic_shape.py"):
+              "sfx.py", "cutout.py", "arabic_shape.py", "motion_plan.py", "motion_state.py", "motion_geometry.py", "text_measure.py", "geometry_draw.py", "svg_art.py", "svg_morph.py", "render_policy.py", "resource_scope.py", "frame_batch.py"):
         assert (ENGINE_P / f).is_file(), f
-    for f in ("render.js", "main.js", "data.js", "lib/kit.js", "lib/arabic.js", "lib/brand.js"):
+    for f in ("render.js", "main.js", "data.js", "lib/kit.js", "lib/arabic.js", "lib/brand.js", "lib/motion-state.js", "lib/motion-geometry.js", "lib/text-measure.js", "lib/geometry-canvas.js", "lib/svg-art.js", "lib/svg-morph.js", "lib/svg-canvas.js", "lib/render-policy.js", "lib/resource-scope.js", "lib/frame-batch.js"):
         assert (SKILL / "templates" / "render" / f).is_file(), f
     for f in ("package.json", "src/index.ts", "src/Root.tsx", "src/RemotionRoot.tsx",
-              "src/brand.ts", "src/lib/motion.js", "src/lib/Presenter.tsx", "scripts/render.mjs"):
+              "src/brand.ts", "src/lib/motion.js", "src/lib/motion-state.js", "src/lib/motion-geometry.js", "src/lib/text-measure.js", "src/lib/GeometryBindings.tsx", "src/lib/SvgArt.tsx", "src/lib/svg-morph.js", "src/lib/Presenter.tsx", "scripts/render.mjs"):
         assert (SKILL / "templates" / "remotion" / f).is_file(), f
 
 
@@ -51,6 +51,8 @@ def test_new_project_scaffolds(tmp_path):
         assert list((proj / "assets" / "fonts" / "Cairo").glob("*.ttf"))
         beats = json.loads((proj / "plan" / "beats.json").read_text(encoding="utf-8"))
         assert "scenes" in beats
+        visual = json.loads((proj / "plan/visual-direction.json").read_text(encoding="utf-8"))
+        assert visual["status"] == "draft" and visual["clock"] == "vo" and visual["scenes"] == []
     finally:
         import shutil
         shutil.rmtree(proj, ignore_errors=True)
@@ -165,3 +167,10 @@ assert "scenes" not in sys.modules
     result = subprocess.run([sys.executable, '-c', script, str(ROOT / 'tests' / 'conftest.py')],
                             cwd=tmp_path, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_svg_art_and_phase_four_templates_are_scaffolded():
+    assert (SKILL / 'templates/procedural-reels/svg_art.py').is_file()
+    assert (SKILL / 'templates/render/lib/svg-art.js').read_bytes() == (SKILL / 'templates/remotion/src/lib/svg-art.js').read_bytes()
+    assert (SKILL / 'templates/render/lib/svg-canvas.js').is_file()
+    assert (SKILL / 'templates/remotion/src/lib/SvgArt.tsx').is_file()

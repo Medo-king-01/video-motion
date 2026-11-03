@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "source": {
+    "repository": "https://github.com/motiondivision/motion",
+    "commit": "7415b6cd14dfdb35d91dfc5b9758994444cc228b"
+  },
+  "selection": "render features selected; interactive authoring excluded",
+  "phase": 8,
+  "features": [
+    {
+      "id": 1,
+      "status": "complete",
+      "scope": "finite visual-duration spring with explicit C1 landing P/K/R"
+    },
+    {
+      "id": 2,
+      "status": "complete",
+      "scope": "analytic decay then finite snap, hard bounds P/K/R; no bounce-boundary simulation"
+    },
+    {
+      "id": 3,
+      "status": "complete",
+      "scope": "authored scalar event-log retarget with continuous position/velocity P/K/R"
+    },
+    {
+      "id": 4,
+      "status": "complete",
+      "scope": "scalar piecewise-constant target follower with authored lag P/K/R; no live input"
+    },
+    {
+      "id": 5,
+      "status": "complete",
+      "scope": "advanced stagger math P/K/R"
+    },
+    {
+      "id": 6,
+      "status": "complete",
+      "scope": "marker and relative sequence compilation P/K/R"
+    },
+    {
+      "id": 7,
+      "status": "partial",
+      "scope": "bounded nested offline sequences with local markers and namespaced tracks P/K/R; no live editing, child time scaling or cross-level marker references"
+    },
+    {
+      "id": 8,
+      "status": "complete",
+      "scope": "hierarchical label variants with parent/child ordering and stagger P/K/R"
+    },
+    {
+      "id": 9,
+      "status": "complete",
+      "scope": "finite loop/reverse/mirror and delays P/K/R"
+    },
+    {
+      "id": 10,
+      "status": "complete",
+      "scope": "independent property tracks/easing P/K/R"
+    },
+    {
+      "id": 11,
+      "status": "complete",
+      "scope": "JSON-only derived value DAG with maps/arithmetic/templates and estimated velocity P/K/R"
+    },
+    {
+      "id": 12,
+      "status": "partial",
+      "scope": "matching numeric structures and px/%/deg; complex mixers pending"
+    },
+    {
+      "id": 13,
+      "status": "partial",
+      "scope": "explicit authored snapshots and finite reflow P/K/R; no automatic DOM capture"
+    },
+    {
+      "id": 14,
+      "status": "partial",
+      "scope": "stable unique IDs across snapshots of one group P/K/R; no automatic cross-group matching"
+    },
+    {
+      "id": 15,
+      "status": "partial",
+      "scope": "coordinated finite group layout P/K/R; no arbitrary nested group propagation"
+    },
+    {
+      "id": 16,
+      "status": "partial",
+      "scope": "positive axis-aligned inverse radius/stroke math; no arbitrary transforms or anisotropic scalar correction"
+    },
+    {
+      "id": 17,
+      "status": "partial",
+      "scope": "explicit sync/wait/popLayout group windows P/K/R; wait is three durations, no live lifecycle callbacks"
+    },
+    {
+      "id": 18,
+      "status": "complete",
+      "scope": "authored finite list permutation/reflow P/K/R; interactive drag excluded"
+    },
+    {
+      "id": 19,
+      "status": "partial",
+      "scope": "whole-word real Canvas/HarfBuzz font measurement and bounded autosize; no general DOM typography or cross-engine metric identity"
+    },
+    {
+      "id": 20,
+      "status": "complete",
+      "scope": "arc sampler and tangent angle P/K/R"
+    },
+    {
+      "id": 21,
+      "status": "partial",
+      "scope": "bounded SVG geometry compiler for standard path commands, basic shapes and transforms; no full SVG DOM/CSS"
+    },
+    {
+      "id": 22,
+      "status": "partial",
+      "scope": "polyline trim plus compiled SVG contours, per-contour progress P/K/R; no SVG dash/marker features"
+    },
+    {
+      "id": 23,
+      "status": "partial",
+      "scope": "ordered compatible closed multi-contour SVG morph with conservative continuous polygon checks P/K/R; no topology change, automatic pairing or full SVG morph"
+    },
+    {
+      "id": 24,
+      "status": "partial",
+      "scope": "validated rect/circle/polyline typed properties and palette bindings P/K/R; not arbitrary renderer properties"
+    },
+    {
+      "id": 25,
+      "status": "partial",
+      "scope": "numeric box style and native rect/circle/path compound bindings; no general CSS parsing"
+    },
+    {
+      "id": 26,
+      "status": "excluded",
+      "scope": "live hover/tap/focus authoring; authored film states use variants instead"
+    },
+    {
+      "id": 27,
+      "status": "excluded",
+      "scope": "live drag interface"
+    },
+    {
+      "id": 28,
+      "status": "excluded",
+      "scope": "pointer recording/interactive authoring"
+    },
+    {
+      "id": 29,
+      "status": "excluded",
+      "scope": "live scroll authoring; authored progress remains a normal film track"
+    },
+    {
+      "id": 30,
+      "status": "excluded",
+      "scope": "live viewport triggers; film visibility uses fixed presence times"
+    },
+    {
+      "id": 31,
+      "status": "excluded",
+      "scope": "responsive authoring UI excluded; explicit measured fitting under 19"
+    },
+    {
+      "id": 32,
+      "status": "partial",
+      "scope": "explicit normal/reduced mode P/K/R/Hybrid; authored demo decorations only; no automatic adaptation or accessibility certification"
+    },
+    {
+      "id": 33,
+      "status": "excluded",
+      "scope": "interactive playback UI expansion; existing preview and pure at(time) remain"
+    },
+    {
+      "id": 34,
+      "status": "excluded",
+      "scope": "UI bundle optimization; no Motion runtime installed"
+    },
+    {
+      "id": 35,
+      "status": "deferred",
+      "scope": "WAAPI does not accelerate our canvas/encoder automatically; benchmark R feasibility first"
+    },
+    {
+      "id": 36,
+      "status": "partial",
+      "scope": "pure per-frame sampler deduplication P/K/R; no global scheduling/DOM batching"
+    },
+    {
+      "id": 37,
+      "status": "partial",
+      "scope": "K per-scene scopes and P optional per-render/chunk init hook with LIFO disposal; R remains explicit/manual; no crash guarantee"
+    },
+    {
+      "id": 38,
+      "status": "partial",
+      "scope": "opt-in K capture/write and encoder flush, P segment render/write/flush, R and Hybrid subprocess wall timing; no GPU attribution"
+    },
+    {
+      "id": 39,
+      "status": "partial",
+      "scope": "optional pinned MIT Three r187 K WebGL2 canvas bridge with explicit local-time updates and cleanup; tested software rendering and sequential Hybrid only, not P/R or GPU hardware"
+    },
+    {
+      "id": 40,
+      "status": "planned",
+      "scope": "initial feasibility and local WebGPU compute preflight completed; vgpu adapter not implemented or installed"
+    },
+    {
+      "id": 41,
+      "status": "partial",
+      "scope": "typed R geometry and SvgArt adapters; no general-purpose typed renderer or editor"
+    },
+    {
+      "id": 42,
+      "status": "excluded",
+      "scope": "external interactive Motion Studio"
+    },
+    {
+      "id": 43,
+      "status": "requires-review",
+      "scope": "preliminary 2026-11-03 price/terms review; exact component, version and distribution need approval before dependencies or purchases"
+    },
+    {
+      "id": 44,
+      "status": "excluded",
+      "scope": "external AI/MCP authoring services"
+    }
+  ]
+}

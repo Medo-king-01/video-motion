@@ -119,3 +119,7 @@ python3 -m http.server 8080          # من جذر الريبو
 - الـspring بيستخدم حل مغلق (closed-form) مش تكامل رقمي: نفس القيمة في JS وPython ومفيش تراكم خطأ.
 - الـ`duration` بتاع الـspring طبيعي (مش مدة الكيفريم): لو المقطع أقصر من `springDuration()` الهبوط بيتقطع
   — `springDuration('bouncy')` بيقولك المدة المناسبة.
+
+## التوسعات الأصلية للرندر
+
+التسلسلات والعلامات والمسارات: [خطة Motion](motion-rollout.md). الفيزياء ذات المدة المحدودة، retarget/follow من سجل أحداث، variants وvalue graph: [المرحلة الثانية](motion-state.md). التخطيط وقياس النص وstroke/morph وbindings المحدودة: [المرحلة الثالثة](motion-geometry.md). [المرحلة الخامسة: تسلسلات متداخلة ومورف حلقات متوافقة](motion-nested-morph.md). [المرحلتان الرابعة والسادسة](motion-render.md) و[SVG المحدود](motion-svg.md) تضيف خيارات رندر وهندسة مستوردة آمنة ضمن عقد واضح. لا تستلزم Motion runtime أو محررًا تفاعليًا.

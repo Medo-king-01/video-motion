@@ -470,7 +470,7 @@ The viewer watches a hand: the cursor travels at reading speed, presses, and the
 
 Frame, then content, then result: the window assembles in three steps on consecutive beats instead of appearing finished.
 
-**How:** K: `appWindow(ctx, x, y, w, h, {title, body})` and reveal the body progressively (rows after 8 f, result after 16 f). P: `art.laptop()` or `art.desktop()` as the frame, with `fill_rect` rows over it. One accent for the result only.
+**How:** K: `appWindow(ctx, x, y, w, h, {title, body})` and reveal the body progressively (rows after 8 f, result after 16 f). P: `art.laptop()` or `art.desktop()` as the frame, with `fill_rect` rows over it. One accent for the result only. For a continuous K shell, use `drawSharedPanel` (shared geometry also available in R): move the same header once, and gate the body with contentAt after arrival; use measured scene-local timing, never an automatic loop under VO.
 
 **Use when:** Introducing a tool or a screen for the first time.
 

@@ -1,0 +1,9 @@
+{
+  "name": "video-motion-optional-three-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Optional offline 3D test dependency, not required for the standard renderers",
+  "dependencies": {
+    "three": "0.187.0"
+  }
+}

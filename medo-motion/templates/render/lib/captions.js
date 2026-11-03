@@ -1,3 +1,4 @@
+import { withLayout } from './layout.js';
 // Word-by-word Arabic caption renderer (engine K). Timeline values are absolute
 // scene-local seconds; the caller supplies MEASURED word onsets/offsets
 // (tools/caption_align.py) — this module never estimates timing.
@@ -117,7 +118,7 @@ export function drawWordCaption(ctx, time, words, {
   } else {
     ctx.fillStyle = color;
   }
-  ctx.fillText(word.text, 0, 0, W * 0.88);
+  withLayout(ctx,{id:'caption',zone:'caption'},()=>ctx.fillText(word.text, 0, 0, W * 0.88));
   ctx.filter = 'none';
 
   if (m.underlineP > 0) {
@@ -182,7 +183,7 @@ export function drawDirectedText(ctx, text, {
     } else {
       ctx.fillStyle = color;
     }
-    ctx.fillText(line, 0, ly, maxWidth);
+    withLayout(ctx,{id:`${elementId||role}-${i}`,zone:role==='caption'?'caption':'content'},()=>ctx.fillText(line, 0, ly, maxWidth));
     if (m.underlineP > 0) {
       const tw = ctx.measureText(line).width;
       const uw = (maxWidth ? Math.min(tw, maxWidth) : tw) * m.underlineP;

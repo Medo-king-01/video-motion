@@ -12,6 +12,6 @@ export const RemotionRoot: React.FC = () => (
     fps={BRAND.fps}
     width={BRAND.width}
     height={BRAND.height}
-    defaultProps={{audioFile: null, previewOnly: IS_PREVIEW_TIMELINE}}
+    defaultProps={{audioFile: null, previewOnly: IS_PREVIEW_TIMELINE, motionMode: 'normal'}}
   />
 );

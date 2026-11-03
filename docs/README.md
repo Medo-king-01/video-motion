@@ -16,6 +16,16 @@
 | `craft.md` | **الحرفة المقاسة**: أرقام المونتاج والحركة والنص، قواعد الـlint كلها (`tools/reel_lint.py`)، والدَّرْو (draw) من المكتبة — وإيه اللي خدناه من cinetic وإيه اللي رفضناه |
 | `techniques.md` | مكتبة الحركات (٥٩ حركة) — مولّدة من `assets/techniques.json`؛ اقراها للبحث، والاختيار بـ`tools/techniques.py --draw` |
 | `length.md` | **طول الفيديو = طول التعليق الصوتي** — `tools/vo_length.py`، حدود المشاهد من السكتات، وبوّابة `--check` |
+| `motion-rollout.md` | اختيار مميزات رندر Motion بدون واجهة تأليف؛ حالة المراحل وAPIs النقية الجديدة لـP/K/R |
+| `motion-nested-morph.md` | المرحلة الخامسة: تسلسلات متداخلة ومورف حلقات SVG متوافقة مع فحص محافظ وحدود صريحة |
+| `motion-svg.md` | عقد SVG محدود: مسارات وأشكال وتحويلات ثابتة وثقوب even-odd، ورفض غير المدعوم |
+| `motion-three.md` | المرحلة الثامنة: طبقة Three اختيارية محدودة في K، الموارد، الاختبارات والقيود |
+| `motion-gpu-feasibility.md` | المرحلة السابعة: فحص WebGL2/WebGPU المحلي ومراجعة أولية لـThree/vgpu والتراخيص قبل الاعتماد |
+| `motion-render.md` | المرحلتان الرابعة والسادسة: تقليل الحركة الاختياري، batching، دورة الموارد والقياس وحدودها |
+| `motion-geometry.md` | المرحلة الثالثة: تخطيط مجموعات وقياس خطوط وstroke/morph وbindings وحدودها لـP/K/R |
+| `motion-state.md` | المرحلة الثانية: offline springs/inertia، سجل أهداف retarget/follow، variants وderived values لـP/K/R |
+| `charlie-motion-review.md` | انتقاء 15 skill من Charlie: استمرارية كارت K/R وفحص RGBA/metadata عند seek عكسي، مع القرارات والتراخيص والحدود |
+| `visual-data-qa.md` | خطة دلالية لكل beat، بيانات ووحدات وتوقيت مقاس لـK/R، وفحص تصادم/أمان نصوص K بصور وتقارير |
 | `remotion.md` | محرك R: إنشاء المشروع، الإعداد، preview/render، مشاركة الهوية والتوقيت، والحدود الحالية |
 | `hybrid.md` | مشروع P/K/R واحد: segments متتابعة، عقد الإطارات والصوت، scaffold واختبار end-to-end |
 | `skillry-fit.md` | مراجعة صفحات Skillry العامة من زاوية استوديو ميدو |

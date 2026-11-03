@@ -42,12 +42,17 @@ def build_signature(
     height: int,
     font_override: str | None = None,
     fallback_assets_dir: str | os.PathLike | None = None,
+    motion_mode: str = "normal",
 ) -> str:
     """Hash render code, visual assets by content, and all frame/timing settings."""
     source_root = Path(source_dir)
     assets_root = Path(assets_dir)
     hasher = hashlib.sha256()
-    hasher.update(b"engine-p-cache-v2\\0")
+    if motion_mode not in ("normal", "reduced"):
+        raise ValueError("invalid motion mode")
+    hasher.update(b"engine-p-cache-v3\\0")
+    hasher.update(motion_mode.encode("ascii"))
+    hasher.update(b"\\0")
     hasher.update(
         repr((total_frames, chunk_frames, tuple(scene_bounds), fps, width, height)).encode("utf-8")
     )

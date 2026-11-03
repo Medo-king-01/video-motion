@@ -97,6 +97,15 @@
 | **R** (Remotion/React) | `src/brand.ts` | `DirectedText.tsx`, `TextMotion.tsx` | Presenter + مشاهد React | @font-face من المانيفست؛ التغطية أقل من K kit |
 | **Hybrid** | مقاطع متتابعة P/K/R | كل محرك بقواعده | `tools/render_hybrid.py` | مش layer compositor؛ كل segment بمحرك واحد |
 
+**الصورة والبيانات والـQA:** `plan/visual-direction.json` يربط كل beat بمعناه وكلمة مقاسة،
+وبوابة V01 في lint تمنع اعتماد الـdraft. وصفات `comparison/timeline/counter` في K/R
+تشترك في نموذج بيانات/توقيت نقي، والوحدات والمصدر والنص الموجّه إلزامية. فحص `layout_audit.mjs`
+خاص بـK: TextMetrics/تحويلات ومناطق وجه مقاسة، وليس كشف وجوه أو ضمان جودة/صدق البيانات.
+[التفاصيل والحدود والأدلة القابلة للإعادة](docs/visual-data-qa.md).
+استمرارية shell واحدة في K/R عبر `shared-element.js` و`drawSharedPanel`/`SharedPanel`،
+مع فحص `--replay` للبكسلات وبيانات التخطيط عند seek عكسي: [الشرح والانتقاء](docs/charlie-motion-review.md).
+
+
 **مش component library موحّدة بنفس الـAPI عبر المحركات.** فيه helpers ونماذج، لكن التغطية
 متفاوتة. أي مكون جديد لازم يتبني على توكنز الهوية والنص الموجّه، ويتاختبار في محركه.
 

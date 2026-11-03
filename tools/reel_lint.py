@@ -34,6 +34,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 import text_direction as td  # noqa: E402
+import visual_direction as vd  # noqa: E402
 
 # ---- measured norms (30 fps, 9:16) ------------------------------------------------------------
 WORDS_PER_FRAGMENT = {"calm": 4, "crisp": 5}
@@ -433,6 +434,9 @@ def main() -> int:
     lint_moves(rep, draw)
     if dur and scenes:
         lint_text_direction(rep, a.project, plan, copy)
+    if (a.project / 'plan/visual-direction.json').is_file():
+        for error in vd.check_project(a.project)['errors']:
+            rep.error('V01', error)
     if a.scan_code:
         lint_code(rep, a.project)
 

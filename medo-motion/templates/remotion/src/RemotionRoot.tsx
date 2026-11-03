@@ -30,9 +30,10 @@ const USED_FONTS = (() => {
   return [...seen.values()];
 })();
 
-export type ReelProps = {audioFile?: string | null; previewOnly?: boolean};
+export type ReelProps = {audioFile?: string | null; previewOnly?: boolean; motionMode?: 'normal' | 'reduced'};
 
-export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly = IS_PREVIEW_TIMELINE}) => {
+export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly = IS_PREVIEW_TIMELINE, motionMode = 'normal'}) => {
+  if(motionMode!=='normal'&&motionMode!=='reduced')throw Error('invalid motion mode');
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   const [fontHandle] = useState(() => delayRender('Loading agent-chosen fonts'));
@@ -53,7 +54,7 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
   const primary = light ? PALETTE.ink : PALETTE.paper;
   const accent = light ? PALETTE.red : PALETTE.salmon;
   const progress = frame / Math.max(1, durationInFrames - 1);
-  const pulse = 1 + Math.sin((localSeconds * Math.PI * 2) / Math.max(duration, 1)) * 0.025;
+  const pulse = motionMode==='reduced' ? 1 : 1 + Math.sin((localSeconds * Math.PI * 2) / Math.max(duration, 1)) * 0.025;
 
   useEffect(() => {
     const jobs = USED_FONTS.length
