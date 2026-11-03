@@ -159,3 +159,50 @@ def test_xml_declaration_and_comments_are_supported_without_accepting_entities()
     assert compile_svg(source) == compile_svg(SVG)
     with pytest.raises(ValueError): compile_svg('<!--safe--><!DOCTYPE svg [<!ENTITY x "oops">]><svg viewBox="0 0 1 1"/>')
     with pytest.raises(ValueError): compile_svg('<?xml version="1.0"?><?evil go?><svg viewBox="0 0 1 1"/>')
+
+
+def test_safe_inline_presentation_declarations_inherit_and_override():
+    source = '''<svg viewBox="0 0 100 100" fill="#0A0A0A" style="fill: #CB271B; fill-rule: evenodd">
+      <g stroke="#0A0A0A" style="stroke-width: 2"><rect x="10" y="10" width="80" height="80" fill="none" style="fill: #D8D7D5; opacity: 1"/></g></svg>'''
+    equivalent = '''<svg viewBox="0 0 100 100"><g fill="#CB271B" fill-rule="evenodd" stroke="#0A0A0A" stroke-width="2"><rect x="10" y="10" width="80" height="80" fill="#D8D7D5" opacity="1"/></g></svg>'''
+    assert compile_svg(source) == compile_svg(equivalent)
+
+
+@pytest.mark.parametrize('style', [
+    'fill:url(https://example.com/a)', 'fill:var(--x)', 'fill:#CB271B!important',
+    'fill:#CB271B;fill:#0A0A0A', 'filter:none', 'fill:#CB271B;opacity:1.5',
+    'stroke-width:1px', 'stroke-width:-1', 'fill-rule:bogus', 'transform:rotate(30deg)',
+    'fill:#CB271B/*comment*/', 'fill:red', 'fill:#CB271B:extra',
+])
+def test_unsupported_inline_style_fails_closed(style):
+    with pytest.raises(ValueError):
+        compile_svg(f'<svg viewBox="0 0 10 10"><rect width="5" height="5" fill="none" style="{style}"/></svg>')
+
+
+def test_inline_style_rejects_group_opacity_even_if_child_overrides():
+    with pytest.raises(ValueError):
+        compile_svg('<svg viewBox="0 0 10 10"><g style="opacity:1"><rect width="5" height="5" fill="none"/></g></svg>')
+
+
+def test_svg_explicit_stable_ids_are_optional_and_independent_of_order(tmp_path):
+    import subprocess
+    import sys
+
+    from conftest import ROOT
+
+    source='''<svg viewBox="0 0 100 100"><rect id="first" x="0" y="0" width="10" height="10" fill="none"/><circle id="second" cx="30" cy="30" r="10" fill="none"/></svg>'''
+    assert [s['id'] for s in compile_svg(source)['shapes']]==['svg-0','svg-1']
+    plan=compile_svg(source,preserve_ids=True)
+    assert [s['id'] for s in plan['shapes']]==['first','second']
+    file=tmp_path/'input.svg';file.write_text(source);out=tmp_path/'plan.json'
+    result=subprocess.run([sys.executable,str(ROOT/'tools/svg_compile.py'),str(file),str(out),'--preserve-ids'],capture_output=True,text=True)
+    assert result.returncode==0,result.stderr
+    assert json.loads(out.read_text())==plan
+
+
+@pytest.mark.parametrize('ids', [('', 'b'), ('same', 'same'), ('a b', 'b'), ('<script>', 'b'), ('a'*65, 'b'), ('a', 'shade')])
+def test_svg_preserve_ids_rejects_missing_duplicate_unsafe_or_gradient_collision(ids):
+    first,second=ids
+    source=f'''<svg viewBox="0 0 100 100"><defs><linearGradient id="shade" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#CB271B"/><stop offset="1" stop-color="#0A0A0A"/></linearGradient></defs>
+      <rect id="{first}" width="10" height="10" fill="none"/><rect id="{second}" width="10" height="10" fill="none"/></svg>'''
+    with pytest.raises(ValueError): compile_svg(source,preserve_ids=True)

@@ -143,7 +143,7 @@ def test_rollout_preserves_all_decisions_and_excludes_authoring():
     assert set(states) == set(range(1, 45))
     assert states[42] == states[44] == states[27] == 'excluded'
     assert states[39] == 'partial' and states[40] == 'planned'
-    assert states[43] == 'requires-review'
+    assert states[43] == 'excluded'
     assert states[17] == 'partial' and states[5] == 'complete'
 
 

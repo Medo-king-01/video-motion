@@ -25,7 +25,9 @@ def main():
     for i, t in enumerate([.1, .8, 1.6]):
         image = Image.new('RGB', (1080, 1920), '#F3F2F1')
         progress = policy.at({'stroke': min(1, t/1.5)})['stroke']
-        draw_svg_art(image, plan, {'x': 80, 'y': 650, 'width': 430, 'height': 430, 'progress': min(1, t/1.5)})
+        p = min(1, t/1.5); start = max(0, p-.5)
+        draw_svg_art(image, plan, {'x': 80, 'y': 650, 'width': 430, 'height': 430, 'progress': p, 'strokeStart': start,
+                                   'strokeWindows': {'svg-0': [{'start': start, 'end': p}, {'start': 0, 'end': p/2}]}})
         draw_svg_art(image, plan, {'x': 570, 'y': 650, 'width': 430, 'height': 430, 'progress': progress})
         frame = np.array(image)
         draw_directed_text(frame, 'رسم ثابت ومسارات آمنة', direction=direction, scene=1, role='label', element_id='title', t=t, start=0, end=2, cx=540, cy=300, size=56, color=(10,10,10), theme='light')

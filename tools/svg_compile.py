@@ -7,6 +7,7 @@ closed; this is NOT a general SVG renderer. See docs/motion-svg.md before using 
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import math
 import re
@@ -30,11 +31,37 @@ def _num(value):
     return number
 
 
-def _paint(value):
+def _transform_point(matrix, x, y):
+    a,b,c,d,e,f = matrix
+    return _num(a*x+c*y+e), _num(b*x+d*y+f)
+
+
+def _paint(value, *, allow_reference=False):
     if value == 'none': return None
+    if allow_reference and re.fullmatch(r'url\(#[A-Za-z_][A-Za-z0-9_.-]{0,63}\)', value): return value
     for token, hex_value in TOKENS.items():
         if value.lower() == hex_value.lower(): return token
     raise ValueError('SVG paint must be none or an exact brand palette hex; named colors are not accepted')
+
+
+def _inline_style(value, *, allow_opacity=False):
+    """A strict list of static presentation declarations, not a general CSS parser."""
+    if not isinstance(value, str) or len(value) > 4096: raise ValueError('invalid inline SVG style')
+    allowed = {'fill', 'stroke', 'stroke-width', 'fill-rule'} | ({'opacity'} if allow_opacity else set())
+    result = {}
+    for declaration in value.split(';'):
+        if not declaration.strip(): continue
+        if declaration.count(':') != 1: raise ValueError('invalid inline SVG declaration')
+        key, val = (part.strip() for part in declaration.split(':', 1))
+        if key not in allowed or key in result or not val: raise ValueError('unsupported or duplicate inline SVG declaration')
+        if key in ('fill', 'stroke'): _paint(val, allow_reference=key == 'fill')
+        elif key == 'stroke-width':
+            if _num(val) < 0: raise ValueError('negative SVG stroke width')
+        elif key == 'fill-rule':
+            if val not in ('evenodd', 'nonzero'): raise ValueError('unsupported fill rule')
+        elif not 0 <= _num(val) <= 1: raise ValueError('opacity must be between 0 and 1')
+        result[key] = val
+    return result
 
 
 def parse_d(data, steps=32):
@@ -162,7 +189,8 @@ def _shape_data(tag, attrs):
         return f'M {x+rx} {y} H {x+w-rx} A {rx} {ry} 0 0 1 {x+w} {y+ry} V {y+h-ry} A {rx} {ry} 0 0 1 {x+w-rx} {y+h} H {x+rx} A {rx} {ry} 0 0 1 {x} {y+h-ry} V {y+ry} A {rx} {ry} 0 0 1 {x+rx} {y} Z'
     raise ValueError('unsupported SVG element')
 
-def compile_svg(source, steps=32):
+def compile_svg(source, steps=32, *, preserve_ids=False):
+    if not isinstance(preserve_ids, bool): raise ValueError('preserve_ids must be boolean')
     if not isinstance(source, str) or len(source.encode('utf-8')) > 262144: raise ValueError('SVG too large')
     # Preflight before XML parsing: ignore valid comments for this scan only, then allow
     # a leading XML declaration. All remaining declarations/PIs fail closed.
@@ -176,34 +204,74 @@ def compile_svg(source, steps=32):
         if '{' in tag or ':' in tag: raise ValueError('unsupported SVG namespace')
         return tag
     if local(root.tag) != 'svg': raise ValueError('root must be svg')
-    if set(root.attrib) - {'viewBox', 'width', 'height'}: raise ValueError('unsupported svg attributes')
+    if set(root.attrib) - {'viewBox', 'width', 'height', 'style', 'fill', 'stroke', 'stroke-width', 'fill-rule'}: raise ValueError('unsupported svg attributes')
     view = re.split(r'[\s,]+', root.get('viewBox', '').strip())
     if len(view) != 4: raise ValueError('explicit viewBox required')
     view = [_num(v) for v in view]
     if view[2] <= 0 or view[3] <= 0: raise ValueError('invalid viewBox')
     for key in ('width', 'height'):
         if key in root.attrib and _num(root.get(key)) <= 0: raise ValueError('invalid dimensions')
-    shapes = []
+    # Static, local, explicit-coordinate linear/radial gradients only. No resources are fetched.
+    gradients = {}; defs_count = 0
+    for node in root:
+        if local(node.tag) != 'defs': continue
+        defs_count += 1
+        if defs_count > 1 or node.attrib or (node.text and node.text.strip()) or (node.tail and node.tail.strip()): raise ValueError('invalid SVG defs')
+        for gradient in node:
+            tag = local(gradient.tag)
+            keys = {'linearGradient': ('x1','y1','x2','y2'), 'radialGradient': ('cx','cy','r')}.get(tag)
+            if not keys or set(gradient.attrib) != {'id','gradientUnits',*keys} or gradient.get('gradientUnits') != 'userSpaceOnUse' or (gradient.text and gradient.text.strip()) or (gradient.tail and gradient.tail.strip()): raise ValueError('unsupported SVG gradient')
+            name = gradient.get('id')
+            if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.-]{0,63}', name) or name in gradients or len(gradients) >= 16: raise ValueError('invalid SVG gradient id')
+            coords = {k:_num(gradient.get(k)) for k in keys}
+            if tag == 'linearGradient' and math.hypot(coords['x2']-coords['x1'], coords['y2']-coords['y1']) < 1e-9: raise ValueError('SVG gradient endpoints must differ')
+            if tag == 'radialGradient' and coords['r'] < 1e-9: raise ValueError('SVG gradient radius must be positive')
+            stops = []
+            for stop in gradient:
+                if local(stop.tag) != 'stop' or set(stop.attrib) != {'offset','stop-color'} or len(stop) or (stop.text and stop.text.strip()) or (stop.tail and stop.tail.strip()): raise ValueError('unsupported SVG gradient stop')
+                offset = _num(stop.get('offset')); color = _paint(stop.get('stop-color'))
+                if color is None or not 0 <= offset <= 1 or (stops and offset <= stops[-1]['offset']): raise ValueError('invalid SVG gradient stop')
+                stops.append({'offset':offset,'color':color})
+            if not 2 <= len(stops) <= 16 or stops[0]['offset'] != 0 or stops[-1]['offset'] != 1: raise ValueError('SVG gradient needs 2..16 ordered stops from 0 to 1')
+            gradients[name] = {'type':'linear' if tag == 'linearGradient' else 'radial',**coords,'stops':stops}
+    shapes = []; shape_ids = set()
     def walk(node, inherited, parent_matrix, depth=0):
         if depth > 16: raise ValueError('SVG groups too deep')
         if node.text and node.text.strip(): raise ValueError('text not supported')
         for child in node:
             tag = local(child.tag)
+            if tag == 'defs' and node is root: continue
             if child.tail and child.tail.strip(): raise ValueError('text not supported')
             geometry = {'path': {'d'}, 'rect': {'x','y','width','height','rx','ry'}, 'circle': {'cx','cy','r'}, 'ellipse': {'cx','cy','rx','ry'}, 'line': {'x1','y1','x2','y2'}, 'polygon': {'points'}, 'polyline': {'points'}}
             if tag != 'g' and tag not in geometry: raise ValueError(f'unsupported SVG element: {tag}')
-            allowed = {'fill', 'stroke', 'stroke-width', 'fill-rule', 'transform'} | ((geometry[tag] | {'opacity', 'id'}) if tag != 'g' else set())
+            allowed = {'fill', 'stroke', 'stroke-width', 'fill-rule', 'transform', 'style'} | ((geometry[tag] | {'opacity', 'id'}) if tag != 'g' else set())
             if set(child.attrib)-allowed: raise ValueError('unsupported SVG attribute')
             style = dict(inherited)
             for key in ('fill', 'stroke', 'stroke-width', 'fill-rule'):
                 if key in child.attrib: style[key] = child.get(key)
+            inline = _inline_style(child.get('style', ''), allow_opacity=tag != 'g')
+            style.update({key:value for key,value in inline.items() if key != 'opacity'})
             matrix = _mul(parent_matrix, _transform(child.get('transform', '')))
             if tag == 'g': walk(child, style, matrix, depth+1); continue
             if len(child): raise ValueError('path cannot contain elements')
             if style['fill'] is None: raise ValueError('explicit fill required; use none for stroke-only paths')
-            fill, stroke = _paint(style['fill']), _paint(style['stroke'])
-            width = _num(style['stroke-width']); opacity = _num(child.get('opacity', '1'))
-            if width < 0 or opacity != 1: raise ValueError('stroke width must be nonnegative and opacity must be 1')
+            fill, stroke = _paint(style['fill'], allow_reference=True), _paint(style['stroke'])
+            if isinstance(fill, str) and fill.startswith('url('):
+                name = fill[5:-1]
+                if name not in gradients: raise ValueError('unknown local SVG gradient')
+                # Similarity transforms preserve the gradient projection; nonuniform scale/shear do not.
+                a,b,c,d,e,f = matrix; sx, sy = math.hypot(a,b), math.hypot(c,d)
+                if sx == 0 or sy == 0 or abs(sx-sy) > 1e-9*max(sx,sy) or abs(a*c+b*d) > 1e-9*sx*sy: raise ValueError('gradient-filled SVG shapes require uniform orthogonal transform')
+                fill = copy.deepcopy(gradients[name])
+                if fill['type'] == 'linear':
+                    fill['x1'],fill['y1'] = _transform_point(matrix,fill['x1'],fill['y1'])
+                    fill['x2'],fill['y2'] = _transform_point(matrix,fill['x2'],fill['y2'])
+                    if math.hypot(fill['x2']-fill['x1'],fill['y2']-fill['y1']) < 1e-9: raise ValueError('transformed gradient is too small')
+                else:
+                    fill['cx'],fill['cy'] = _transform_point(matrix,fill['cx'],fill['cy']); fill['r'] = _num(fill['r']*sx)
+                    if fill['r'] < 1e-9: raise ValueError('transformed gradient is too small')
+            width = _num(style['stroke-width']); opacity = _num(inline.get('opacity', child.get('opacity', '1')))
+            if width < 0 or not 0 <= opacity <= 1: raise ValueError('stroke width must be nonnegative and opacity must be 0..1')
             if fill is not None and style['fill-rule'] != 'evenodd': raise ValueError('filled paths require explicit evenodd fill-rule')
             if style['fill-rule'] not in ('evenodd', 'nonzero'): raise ValueError('unsupported fill rule')
             a,b,c,d,e,f = matrix; sx, sy = math.hypot(a,b), math.hypot(c,d)
@@ -212,10 +280,16 @@ def compile_svg(source, steps=32):
             for contour in contours:
                 for point in contour['points']:
                     x, y = point['x'], point['y']; point['x'], point['y'] = _num(a*x+c*y+e), _num(b*x+d*y+f)
-            shapes.append({'id': f'svg-{len(shapes)}', 'fill': fill, 'stroke': stroke, 'strokeWidth': _num(width*sx) if stroke is not None else 0, 'opacity': opacity, 'contours': contours})
+            shape_id = child.get('id') if preserve_ids else f'svg-{len(shapes)}'
+            if preserve_ids and (not shape_id or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.-]{0,63}', shape_id) or shape_id in shape_ids or shape_id in gradients): raise ValueError('preserve-ids requires unique safe IDs for every shape, distinct from gradient IDs')
+            shape_ids.add(shape_id)
+            shapes.append({'id': shape_id, 'fill': fill, 'stroke': stroke, 'strokeWidth': _num(width*sx) if stroke is not None else 0, 'opacity': opacity, 'contours': contours})
             if len(shapes) > 128: raise ValueError('too many SVG paths')
             if sum(len(c['points']) for s in shapes for c in s['contours']) > 65536: raise ValueError('SVG exceeds point budget')
-    walk(root, {'fill': None, 'stroke': 'none', 'stroke-width': '1', 'fill-rule': 'nonzero'}, [1,0,0,1,0,0])
+    root_style = {'fill': None, 'stroke': 'none', 'stroke-width': '1', 'fill-rule': 'nonzero'}
+    root_style.update({key: root.get(key) for key in root_style if key in root.attrib})
+    root_style.update(_inline_style(root.get('style', '')))
+    walk(root, root_style, [1,0,0,1,0,0])
     if not shapes: raise ValueError('SVG contains no paths')
     return {'version': 1, 'viewBox': view, 'shapes': shapes}
 
@@ -223,9 +297,10 @@ def compile_svg(source, steps=32):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input', type=Path); parser.add_argument('output', type=Path); parser.add_argument('--steps', type=int, default=32)
+    parser.add_argument('--preserve-ids', action='store_true', help='require and retain a safe unique id on every shape')
     args = parser.parse_args()
     if args.output.exists(): raise SystemExit('Output exists; choose a fresh path')
-    plan = compile_svg(args.input.read_text(encoding='utf-8'), args.steps)
+    plan = compile_svg(args.input.read_text(encoding='utf-8'), args.steps, preserve_ids=args.preserve_ids)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open('x', encoding='utf-8') as f: json.dump(plan, f, ensure_ascii=False, indent=2); f.write('\n')
 

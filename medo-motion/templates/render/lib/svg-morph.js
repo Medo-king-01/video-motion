@@ -63,10 +63,30 @@ export function compileSvgMorph(spec){
   if(!spec||spec.version!==1)throw Error('SVG morph requires version 1');
   const source=spec.from,target=spec.to,count=Object.hasOwn(spec,'count')?spec.count:24;validateSvgArt(source);validateSvgArt(target);
   if(!Number.isInteger(count)||count<8||count>64||JSON.stringify(source.viewBox)!==JSON.stringify(target.viewBox)||source.shapes.length!==target.shapes.length||source.shapes.length>8)throw Error('incompatible SVG morph plans');
+  const matchById=Object.hasOwn(spec,'matchById')?spec.matchById:false;
+  if(typeof matchById!=='boolean')throw Error('matchById must be boolean');
+  const targets=matchById?source.shapes.map(a=>target.shapes.find(b=>b.id===a.id)):target.shapes;
+  if(targets.some(b=>!b))throw Error('SVG morph IDs do not match');
+  if(matchById&&targets.some((b,i)=>b!==target.shapes[i])){
+    // Source stacking stays fixed; differing target order is safe only if swept bounds cannot overlap.
+    const bounds=source.shapes.map((a,i)=>{
+      const box=[Infinity,Infinity,-Infinity,-Infinity];
+      for(const shape of [a,targets[i]])for(const contour of shape.contours)for(const p of contour.points){box[0]=Math.min(box[0],p.x);box[1]=Math.min(box[1],p.y);box[2]=Math.max(box[2],p.x);box[3]=Math.max(box[3],p.y);}
+      const pad=Math.max(a.stroke===null?0:a.strokeWidth,targets[i].stroke===null?0:targets[i].strokeWidth)/2;
+      return [box[0]-pad,box[1]-pad,box[2]+pad,box[3]+pad];
+    });
+    for(let i=0;i<bounds.length;i++)for(let j=i+1;j<bounds.length;j++){
+      const a=bounds[i],b=bounds[j];
+      if(!(a[2]<b[0]||b[2]<a[0]||a[3]<b[1]||b[3]<a[1]))throw Error('reordered SVG morph swept bounds overlap');
+    }
+  }
   const morphs=[];let total=0;
   source.shapes.forEach((a,i)=>{
-    const b=target.shapes[i];
-    if(['id','fill','stroke','strokeWidth','opacity'].some(k=>a[k]!==b[k])||a.contours.length!==b.contours.length)throw Error('SVG shape paint/contour mismatch');
+    const b=targets[i];
+    const sameFill=a.fill===b.fill||a.fill&&b.fill&&typeof a.fill==='object'&&typeof b.fill==='object'&&
+      ['type','x1','y1','x2','y2','cx','cy','r'].every(k=>a.fill[k]===b.fill[k])&&a.fill.stops.length===b.fill.stops.length&&
+      a.fill.stops.every((stop,j)=>stop.offset===b.fill.stops[j].offset&&stop.color===b.fill.stops[j].color);
+    if(!sameFill||['id','stroke','strokeWidth','opacity'].some(k=>a[k]!==b[k])||a.contours.length!==b.contours.length)throw Error('SVG shape paint/contour mismatch');
     const group=[],rings=[];
     a.contours.forEach((x,j)=>{
       const y=b.contours[j];total+=count;

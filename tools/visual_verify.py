@@ -178,7 +178,7 @@ def main():
         shutil.copytree(ROOT / 'medo-motion/templates/remotion', r)
         (r / 'public/fonts/Cairo').mkdir(parents=True)
         shutil.copy2(font, r / 'public/fonts/Cairo')
-        shutil.copy2(ROOT / 'tests/fixtures/visual/DataReview.tsx', r / 'src/Root.tsx')
+        shutil.copyfile(ROOT / 'tests/fixtures/visual/DataReview.tsx', r / 'src/Root.tsx')
         # Compile just this isolated composition and its imported adapters.
         tsconfig = json.loads((r / 'tsconfig.json').read_text())
         tsconfig['include'] = ['src/Root.tsx', 'src/index.ts']
@@ -193,7 +193,7 @@ def main():
         sheet.save(out / 'R-recipes.png')
         if args.shared:
             shutil.copy2(ROOT / 'tests/fixtures/visual/shared-demo.js', r / 'src/shared-demo.js')
-            shutil.copy2(ROOT / 'tests/fixtures/visual/SharedReview.tsx', r / 'src/Root.tsx')
+            shutil.copyfile(ROOT / 'tests/fixtures/visual/SharedReview.tsx', r / 'src/Root.tsx')
             run(['node', 'node_modules/typescript/bin/tsc', '--noEmit'], cwd=r)
             sheet = Image.new('RGB', (1080, 640))
             for i, frame in enumerate([6,15,36]):
@@ -203,7 +203,7 @@ def main():
             sheet.save(out / 'R-shared.png')
         if args.plans:
             shutil.copy2(ROOT / 'tests/fixtures/visual/plan-demo.js', r / 'src/plan-demo.js')
-            shutil.copy2(ROOT / 'tests/fixtures/visual/PlanReview.tsx', r / 'src/Root.tsx')
+            shutil.copyfile(ROOT / 'tests/fixtures/visual/PlanReview.tsx', r / 'src/Root.tsx')
             run(['node', 'node_modules/typescript/bin/tsc', '--noEmit'], cwd=r)
             sheet = Image.new('RGB', (1080, 640))
             for i, frame in enumerate([8,21,42]):
@@ -213,7 +213,7 @@ def main():
             sheet.save(out / 'R-plans.png')
         if args.states:
             shutil.copy2(ROOT / 'tests/fixtures/visual/state-demo.js', r / 'src/state-demo.js')
-            shutil.copy2(ROOT / 'tests/fixtures/visual/StateReview.tsx', r / 'src/Root.tsx')
+            shutil.copyfile(ROOT / 'tests/fixtures/visual/StateReview.tsx', r / 'src/Root.tsx')
             run(['node', 'node_modules/typescript/bin/tsc', '--noEmit'], cwd=r)
             sheet = Image.new('RGB', (1080, 640))
             for i, frame in enumerate([9,24,42]):
@@ -223,7 +223,7 @@ def main():
             sheet.save(out / 'R-states.png')
         if args.geometry:
             shutil.copy2(ROOT / 'tests/fixtures/visual/geometry-demo.js', r / 'src/geometry-demo.js')
-            shutil.copy2(ROOT / 'tests/fixtures/visual/GeometryReview.tsx', r / 'src/Root.tsx')
+            shutil.copyfile(ROOT / 'tests/fixtures/visual/GeometryReview.tsx', r / 'src/Root.tsx')
             run(['node', 'node_modules/typescript/bin/tsc', '--noEmit'], cwd=r)
             sheet = Image.new('RGB', (1080, 640))
             for i, frame in enumerate([3,27,84]):
@@ -232,7 +232,7 @@ def main():
                 sheet.paste(Image.open(target).resize((360, 640)), (i*360, 0))
             sheet.save(out / 'R-geometry.png')
         if args.svg:
-            shutil.copy2(ROOT / 'tests/fixtures/visual/SvgReview.tsx', r / 'src/Root.tsx')
+            shutil.copyfile(ROOT / 'tests/fixtures/visual/SvgReview.tsx', r / 'src/Root.tsx')
             (r / 'src/svg-proof.js').write_text('export const PLAN='+json.dumps(plan)+';')
             run(['node', 'node_modules/typescript/bin/tsc', '--noEmit'], cwd=r)
             sheet = Image.new('RGB', (1080, 640))
@@ -242,7 +242,7 @@ def main():
                 sheet.paste(Image.open(target).resize((360, 640)), (i*360, 0))
             sheet.save(out / 'R-svg.png')
         if args.morph:
-            shutil.copy2(ROOT / 'tests/fixtures/visual/MorphReview.tsx', r / 'src/Root.tsx')
+            shutil.copyfile(ROOT / 'tests/fixtures/visual/MorphReview.tsx', r / 'src/Root.tsx')
             shutil.copy2(ROOT / 'tests/fixtures/visual/morph-demo.js', r / 'src/morph-demo.js')
             (r / 'src/morph-plans.js').write_text('export const FROM='+json.dumps(morph_source)+';export const TO='+json.dumps(morph_target)+';')
             run(['node', 'node_modules/typescript/bin/tsc', '--noEmit'], cwd=r)

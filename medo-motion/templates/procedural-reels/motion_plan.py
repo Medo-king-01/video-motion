@@ -178,7 +178,7 @@ def presence_at(time, spec):
 
 
 def compile_nested_sequence(spec):
-    """Nested local markers/clips compiled into namespaced finite tracks; no time scaling."""
+    """Nested local markers/clips compiled into namespaced finite tracks."""
     active = set(); count = [0]
     def walk(node, prefix, depth):
         if not isinstance(node, dict) or type(node.get('version')) is not int or node['version'] != 1 or not isinstance(node.get('items'), list) or not node['items'] or depth > 8 or id(node) in active:
@@ -203,15 +203,18 @@ def compile_nested_sequence(spec):
                 if not _finite(start) or start < 0: raise ValueError('invalid nested item start')
                 name = prefix+item['id']
                 if 'sequence' in item:
-                    if set(item)-{'id','at','sequence'}: raise ValueError('unsupported nested sequence property')
-                    child, child_duration = walk(item['sequence'], name+'/', depth+1); end = start+child_duration
-                    if not _finite(end): raise ValueError('invalid nested end')
+                    if set(item)-{'id','at','sequence','timeScale'}: raise ValueError('unsupported nested sequence property')
+                    scale = item.get('timeScale', 1)
+                    if not _finite(scale) or not .01 <= scale <= 100: raise ValueError('nested timeScale must be between 0.01 and 100')
+                    child, child_duration = walk(item['sequence'], name+'/', depth+1); end = start+child_duration*scale
+                    if not _finite(end) or end <= start: raise ValueError('invalid nested end')
                     for clip in child:
-                        at = start+clip['at']
-                        if not _finite(at): raise ValueError('invalid nested clip time')
-                        clips.append({**clip, 'at': at})
+                        at, duration_scaled = start+clip['at']*scale, clip['duration']*scale
+                        if not _finite(at) or not _finite(duration_scaled) or duration_scaled < 1e-9 or not _finite(at+duration_scaled) or at+duration_scaled <= at: raise ValueError('invalid scaled nested clip time')
+                        clips.append({**clip, 'at': at, 'duration': duration_scaled})
                     previous = {'start': start, 'end': end}; duration = max(duration, end)
                 else:
+                    if 'timeScale' in item: raise ValueError('timeScale requires a nested sequence')
                     track, d = item.get('track'), item.get('duration')
                     if not isinstance(track, str) or not track.strip() or '/' in track or len(track) > 128 or not _finite(d) or d <= 0 or not _finite(start+d): raise ValueError('invalid nested clip')
                     clips.append({**item, 'id': name, 'track': prefix+track, 'at': start})

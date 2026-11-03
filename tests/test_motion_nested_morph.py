@@ -189,3 +189,60 @@ def test_phase_five_rollout_preserves_scope_and_exclusions():
     assert by_id[7]['status'] == by_id[23]['status'] == 'partial'
     assert 'nested' in by_id[7]['scope'] and 'multi-contour' in by_id[23]['scope']
     assert by_id[27]['status'] == by_id[42]['status'] == 'excluded'
+
+
+def test_nested_authored_time_scaling_parity_and_relative_end():
+    original = nested(); scaled = copy.deepcopy(original); scaled['items'][1]['timeScale'] = 2
+    a, b = compile_nested_sequence(original), compile_nested_sequence(scaled)
+    assert b.duration == pytest.approx(2.6)
+    for t in [0, .1, .35, .6, .75, 1, .35]:
+        for key in ('group/x', 'group/sub/y'):
+            assert b.at(.4+2*t)[key] == pytest.approx(a.at(.4+t)[key])
+    times = [0, .6, 1.1, 1.6, 2.4, 2.5, 2.6, 1.1]
+    assert_same(javascript_samples(NESTED, 'compileNestedSequence', scaled, times)['frames'], [b.at(t) for t in times])
+    scaled['items'][1]['sequence']['items'][1]['timeScale'] = .5
+    plan = compile_nested_sequence(scaled)
+    assert plan.at(1.7)['group/sub/y'] == pytest.approx(25)
+    assert plan.duration == pytest.approx(2.4)
+    assert_same(javascript_samples(NESTED, 'compileNestedSequence', scaled, times)['frames'], [plan.at(t) for t in times])
+
+
+@pytest.mark.parametrize('bad', [0, -1, .009, 101, None, True, float('inf')])
+def test_nested_invalid_time_scale_rejected(bad):
+    spec=nested();spec['items'][1]['timeScale']=bad
+    with pytest.raises(ValueError): compile_nested_sequence(spec)
+    assert rejects_js(NESTED, 'compileNestedSequence', spec)
+
+
+def test_nested_scale_is_only_for_sequences_and_rejects_underflow():
+    spec=nested();spec['items'][0]['timeScale']=2
+    with pytest.raises(ValueError): compile_nested_sequence(spec)
+    assert rejects_js(NESTED, 'compileNestedSequence', spec)
+    spec={'version':1,'items':[{'id':'a','at':0,'timeScale':.01,'sequence':{'version':1,'items':[
+        {'id':'b','track':'x','at':0,'duration':1e-8,'from':0,'to':1}]}}]}
+    with pytest.raises(ValueError): compile_nested_sequence(spec)
+    assert rejects_js(NESTED, 'compileNestedSequence', spec)
+
+
+def test_morph_explicit_ids_allow_safe_reordering_with_swept_bounds():
+    one='''<svg viewBox="0 0 100 100"><rect id="left" x="5" y="10" width="20" height="20" fill="#CB271B" fill-rule="evenodd"/><rect id="right" x="75" y="10" width="20" height="20" fill="#D8D7D5" fill-rule="evenodd"/></svg>'''
+    two='''<svg viewBox="0 0 100 100"><rect id="right" x="70" y="12" width="20" height="20" fill="#D8D7D5" fill-rule="evenodd"/><rect id="left" x="10" y="12" width="20" height="20" fill="#CB271B" fill-rule="evenodd"/></svg>'''
+    spec={'version':1,'from':compile_svg(one,preserve_ids=True),'to':compile_svg(two,preserve_ids=True),'count':8}
+    with pytest.raises(ValueError): compile_svg_morph(spec)
+    assert rejects_js(MORPH,'compileSvgMorph',spec)
+    spec['matchById']=True
+    py=compile_svg_morph(spec);times=[0,.25,.5,.75,1]
+    j=javascript_samples(MORPH,'compileSvgMorph',spec,times)
+    assert_same([py.at(t) for t in times],j['frames'])
+    assert [s['id'] for s in py.at(1)['shapes']]==['left','right']
+    overlapping=copy.deepcopy(spec)
+    for p in overlapping['to']['shapes'][0]['contours'][0]['points']: p['x']-=55
+    with pytest.raises(ValueError,match='bounds overlap'): compile_svg_morph(overlapping)
+    assert rejects_js(MORPH,'compileSvgMorph',overlapping)
+    missing=copy.deepcopy(spec);missing['to']['shapes'][0]['id']='missing'
+    with pytest.raises(ValueError): compile_svg_morph(missing)
+    assert rejects_js(MORPH,'compileSvgMorph',missing)
+    for invalid in (None,1,'true'):
+        wrong=copy.deepcopy(spec);wrong['matchById']=invalid
+        with pytest.raises(ValueError): compile_svg_morph(wrong)
+        assert rejects_js(MORPH,'compileSvgMorph',wrong)
