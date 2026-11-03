@@ -99,8 +99,23 @@ def compile_svg_morph(spec):
     source, target, count = spec.get('from'), spec.get('to'), spec.get('count', 24)
     validate_svg_art(source); validate_svg_art(target)
     if type(count) is not int or not 8 <= count <= 64 or source['viewBox'] != target['viewBox'] or len(source['shapes']) != len(target['shapes']) or len(source['shapes']) > 8: raise ValueError('incompatible SVG morph plans')
+    match_by_id = spec.get('matchById', False)
+    if type(match_by_id) is not bool: raise ValueError('matchById must be boolean')
+    target_map = {shape['id']: shape for shape in target['shapes']}
+    targets = [target_map.get(shape['id']) for shape in source['shapes']] if match_by_id else target['shapes']
+    if any(shape is None for shape in targets): raise ValueError('SVG morph IDs do not match')
+    if match_by_id and any(a is not b for a,b in zip(targets,target['shapes'])):
+        # A single fixed stacking order is visually safe only for disjoint swept bounds.
+        bounds = []
+        for a,b in zip(source['shapes'],targets):
+            points = [p for shape in (a,b) for contour in shape['contours'] for p in contour['points']]
+            pad = max(a['strokeWidth'] if a['stroke'] is not None else 0, b['strokeWidth'] if b['stroke'] is not None else 0)/2
+            bounds.append((min(p['x'] for p in points)-pad,min(p['y'] for p in points)-pad,max(p['x'] for p in points)+pad,max(p['y'] for p in points)+pad))
+        for i,a in enumerate(bounds):
+            for b in bounds[i+1:]:
+                if not (a[2] < b[0] or b[2] < a[0] or a[3] < b[1] or b[3] < a[1]): raise ValueError('reordered SVG morph swept bounds overlap')
     morphs, total = [], 0
-    for a,b in zip(source['shapes'],target['shapes']):
+    for a,b in zip(source['shapes'],targets):
         if any(a[k] != b[k] for k in ('id','fill','stroke','strokeWidth','opacity')) or len(a['contours']) != len(b['contours']): raise ValueError('SVG shape paint/contour mismatch')
         group, rings = [], []
         for x,y in zip(a['contours'],b['contours']):

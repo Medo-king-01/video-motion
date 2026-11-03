@@ -19,8 +19,23 @@ drawGeometry(ctx, layoutBindings(group.at(t), {colors:{a:'gray1',b:'gray2'}}));
 الـIDs فريدة داخل المجموعة (حتى 256 عنصرًا) وتربط العنصر نفسه عبر snapshots؛ الأحداث لا تتداخل. `stackLayout` يدعم x/y/grid وRTL (x في RTL هو الحد الأيمن)، و`reorderLayout` يتطلب permutation كاملة. grid يستخدم عرض الخلية الأكبر في الصفوف. في Python الأسماء `stack_layout`, `reorder_layout`, `compile_layout`, `layout_bindings` والخيارات dict مماثلة. يمكن تغذية العينات مباشرة إلى `GeometryBindings` في R أو `draw_geometry` في P؛ الـadapter يرتب `overlay` بعد `flow`.
 
 - `sync`: خروج ودخول وانتقال متزامن داخل مدة D. `popLayout`: الخروج على طبقة overlay، وبقية العناصر تنتقل داخل D. `wait`: خروج D، ثم انتقال D، ثم دخول D؛ نافذته **3D** حتى لو لا يوجد داخل أو خارج. توجد `duration` محسوبة على الخطة؛ يجب أن تتسع داخل توقيت الـVO الحقيقي، ولا تمدد مدة الفيلم تلقائيًا.
-- `at(t)` يرجع id وbox وopacity وphase وlayer. تتغير الأحجام الرقمية مباشرة؛ النص يُرسم منفصلًا بالحجم الحقيقي، ولا يُكبَّر معه تلقائيًا. لا يوجد ربط تلقائي بين مجموعات مستقلة أو DOM snapshots عامة.
+- `at(t)` يرجع id وbox وopacity وphase وlayer. تتغير الأحجام الرقمية مباشرة؛ النص يُرسم منفصلًا بالحجم الحقيقي، ولا يُكبَّر معه تلقائيًا. توجد الآن مطابقة صريحة محدودة بين مجموعتين عبر `compileSharedLayout` / `compile_shared_layout`؛ لا توجد مطابقة تلقائية أو DOM snapshots عامة.
 - `correctScale({scaleX,scaleY,radius,strokeWidth})` / `correct_scale` يعطي `radiusX/Y` و`strokeX/Y` عكس المقياس الموجب لكل محور. هذا حساب للمحاور فقط، ولا يصلح CSS transforms اعتباطية أو shadows أو stroke scalar تحت مقياسين مختلفين. الأفضل رسم الهندسة بالحجم النهائي.
+
+## ربط مجموعتين بهويات مؤلَّفة
+
+```js
+const transition = compileSharedLayout({version:1, at:0.4, duration:0.6,
+  from:[{id:'left',x:140,y:400,w:220,h:120,r:18}],
+  to:[{id:'right',x:600,y:600,w:260,h:140,r:20}],
+  pairs:[{id:'card',from:'left',to:'right'}]});
+const states = transition.at(localSeconds); // id الثابت card
+```
+
+استوردها من `motion-geometry.js`، أو `compile_shared_layout` في P. يجب ربط كل عنصر مرة واحدة
+في الجانبين بـID جديد فريد، وبحد 256 عنصرًا؛ المدخلات غير المطابقة تفشل. الاندماج/الاختفاء، أو
+تطابق المعنى تلقائيًا، أو التقاط DOM، ليست مدعومة؛ استخدم `compileLayout` للدخول والخروج المؤلف.
+لا تحرك نصًا أو حقيقة قبل مرساة VO ولا تغيّر مدة المشهد لتعويض الانتقال.
 
 ## قياس النص العربي
 

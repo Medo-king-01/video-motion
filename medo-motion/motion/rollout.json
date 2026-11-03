@@ -5,7 +5,7 @@
     "commit": "7415b6cd14dfdb35d91dfc5b9758994444cc228b"
   },
   "selection": "render features selected; interactive authoring excluded",
-  "phase": 8,
+  "phase": 11,
   "features": [
     {
       "id": 1,
@@ -40,7 +40,7 @@
     {
       "id": 7,
       "status": "partial",
-      "scope": "bounded nested offline sequences with local markers and namespaced tracks P/K/R; no live editing, child time scaling or cross-level marker references"
+      "scope": "bounded nested offline sequences with local markers, namespaced tracks and finite child time scaling P/K/R; no live editing, repeats or cross-level markers"
     },
     {
       "id": 8,
@@ -75,7 +75,7 @@
     {
       "id": 14,
       "status": "partial",
-      "scope": "stable unique IDs across snapshots of one group P/K/R; no automatic cross-group matching"
+      "scope": "stable IDs and explicit one-to-one cross-group snapshot mapping P/K/R; no automatic semantic matching"
     },
     {
       "id": 15,
@@ -110,17 +110,17 @@
     {
       "id": 21,
       "status": "partial",
-      "scope": "bounded SVG geometry compiler for standard path commands, basic shapes and transforms; no full SVG DOM/CSS"
+      "scope": "bounded SVG compiler with local linear/radial gradient fills, per-shape opacity, restricted inline styles, path/basic shapes and transforms; no full SVG DOM/CSS/filters"
     },
     {
       "id": 22,
       "status": "partial",
-      "scope": "polyline trim plus compiled SVG contours, per-contour progress P/K/R; no SVG dash/marker features"
+      "scope": "polyline trim and compiled SVG contour windows with authored start/end/offset overrides P/K/R; no SVG dash/marker features"
     },
     {
       "id": 23,
       "status": "partial",
-      "scope": "ordered compatible closed multi-contour SVG morph with conservative continuous polygon checks P/K/R; no topology change, automatic pairing or full SVG morph"
+      "scope": "ordered or explicit ID-matched closed multi-contour SVG morph with safe reordered swept bounds and identical static paint, plus crossfade for unrelated plans P/K/R; no topology-changing geometric morph"
     },
     {
       "id": 24,
@@ -165,7 +165,7 @@
     {
       "id": 32,
       "status": "partial",
-      "scope": "explicit normal/reduced mode P/K/R/Hybrid; authored demo decorations only; no automatic adaptation or accessibility certification"
+      "scope": "explicit normal/reduced mode and numeric-tree decorative overrides P/K/R/Hybrid; no automatic semantic adaptation or accessibility certification"
     },
     {
       "id": 33,
@@ -180,17 +180,17 @@
     {
       "id": 35,
       "status": "deferred",
-      "scope": "WAAPI does not accelerate our canvas/encoder automatically; benchmark R feasibility first"
+      "scope": "deferred; free paused WAAPI manual-seek probe succeeds locally, no integrated renderer or performance/hardware claim"
     },
     {
       "id": 36,
       "status": "partial",
-      "scope": "pure per-frame sampler deduplication P/K/R; no global scheduling/DOM batching"
+      "scope": "per-frame sampler deduplication and bounded explicit dependency graph P/K/R; no cross-frame caching or global DOM/GPU scheduling"
     },
     {
       "id": 37,
       "status": "partial",
-      "scope": "K per-scene scopes and P optional per-render/chunk init hook with LIFO disposal; R remains explicit/manual; no crash guarantee"
+      "scope": "K per-scene scopes, P per-render/chunk scope and R synchronous scoped effect including Three; no crash guarantee"
     },
     {
       "id": 38,
@@ -200,7 +200,7 @@
     {
       "id": 39,
       "status": "partial",
-      "scope": "optional pinned MIT Three r187 K WebGL2 canvas bridge with explicit local-time updates and cleanup; tested software rendering and sequential Hybrid only, not P/R or GPU hardware"
+      "scope": "optional MIT Three r187 K/R WebGL2 bridge; P/K have separate native software mesh rendering, not Three parity or GPU hardware"
     },
     {
       "id": 40,
@@ -219,8 +219,8 @@
     },
     {
       "id": 43,
-      "status": "requires-review",
-      "scope": "preliminary 2026-11-03 price/terms review; exact component, version and distribution need approval before dependencies or purchases"
+      "status": "excluded",
+      "scope": "Motion+ excluded by user: no paid components or purchases; review licenses of free dependencies separately"
     },
     {
       "id": 44,

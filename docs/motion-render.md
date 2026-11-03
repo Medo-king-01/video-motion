@@ -13,7 +13,7 @@ const policy = compileMotionPolicy({version:1,reduced:true,decorative:[
 const safeValues = policy.at(values);
 ```
 
-Python: `compile_motion_policy` من `render_policy.py`، بنفس صيغة البيانات. `reduced:false` يمرر القيم؛ `true` يثبت **فقط** tracks المحددة عند أرقام صريحة. يجب أن تكون tracks موجودة ورقمية؛ لا يُعدل باقي القيم أو الزمن. لا يمكن للأداة معرفة ما إذا كان track زخرفيًا: المؤلف مسؤول عن عدم اختيار إظهار حقيقة أو نص/opacity gated أو موضع يغيّر المعنى. هذا ليس switch عامًا يعيد تأليف جميع المشاهد تلقائيًا ولا يغني عن فحص إتاحة الحركة والـVO.
+Python: `compile_motion_policy` من `render_policy.py`، بنفس صيغة البيانات. `reduced:false` يمرر القيم؛ `true` يثبت **فقط** tracks المحددة عند أرقام صريحة. يمكن أن تكون tracks أرقامًا أو أشجار أرقام محدودة متطابقة البنية (مصفوفات وكائنات بلا نصوص أو ألوان)؛ يجب أن تكون موجودة وصالحة؛ لا يُعدل باقي القيم أو الزمن. لا يمكن للأداة معرفة ما إذا كان track زخرفيًا: المؤلف مسؤول عن عدم اختيار إظهار حقيقة أو نص/opacity gated أو موضع يغيّر المعنى. هذا ليس switch عامًا يعيد تأليف جميع المشاهد تلقائيًا ولا يغني عن فحص إتاحة الحركة والـVO.
 
 ## الوضع الإنتاجي الاختياري — المرحلة السادسة
 
@@ -52,8 +52,30 @@ K يعطي كل مشهد scope منفصلًا في `init({resources,...})` و`dr
 `def init_resources(scope): ...` في `scenes.py` وتسجيل `scope.defer(dispose)`؛ ينظف كل chunk أو segment
 بعد الرندر أو الخطأ، ولا يُستدعى hook عند cache hit. على المؤلف تسجيل الموارد نفسها وعدم الاعتماد على حالة
 إطار سابق. الإغلاق متكرر وآمن؛ لا تنتظر `scope.close()` من داخل disposer تابع لنفس scope لأنه سيعلق.
-R يوفّر `createResourceScope()` يدويًا فقط، ولا نضمن دورة حياة عامة لمكوّنات Remotion أو cleanup عند إنهاء
-قسري للعملية. لا ضمان للتنظيف بعد قتل العملية أو crash في أي محرك.
+R يوفّر `useScopedEffect(setup, dependencies)` من `lib/useScopedEffect.ts` لتهيئة موارد متزامنة
+وتسجيل cleanup في `scope.defer`، مع LIFO عند تغيّر dependencies أو unmount، وتنظيف عند فشل setup.
+المؤلف يضمّن كل dependencies، ويسجل كل مورد فور إنشائه؛ تُرفض setup أو cleanup اللامتزامنة، لكن
+لا يمكن إلغاء عمل async بدأ بالفعل. الاختبار يستخدم React حقيقيًا في Chromium. لا نضمن cleanup عند إنهاء قسري للعملية. لا ضمان للتنظيف بعد قتل العملية أو crash في أي محرك.
+
+
+## رسم بياني لحسابات الإطار
+
+`compileFrameGraph` في K/R و`compile_frame_graph` في P يقيّمان nodes ذات تبعيات مصرح بها مرة
+واحدة لكل `at(t)`. مثلًا:
+
+```js
+import {compileFrameGraph} from '../lib/frame-batch.js';
+const graph = compileFrameGraph([
+  {id:'result', depends:['motion'], sample:(t,d)=>d.motion * 2},
+  {id:'motion', depends:[], sample:(t)=>sequence.at(t).x},
+]);
+const values = graph.at(sceneLocalSeconds);
+```
+
+يمكن تعريف nodes قبل تبعياتها؛ يرفض المترجم التبعيات المفقودة، التكرار والدورات، بحد 256 node.
+لا يحتفظ بكاش بين الإطارات، ويرفض النتائج اللامتزامنة. الدوال يجب أن تكون نقية ومتزامنة؛ اعتبر
+نتائج التبعيات immutable لأن الرسم البياني لا يمنع callback من تعديلها، ولا يضمن نقاء callbacks أو
+تجميع DOM/GPU. ترتيب التقييم داخلي، وليس callback زمنيًا أو آلية لتجاوز بوابات الحقائق.
 
 ## قياس محلي اختياري
 
@@ -80,3 +102,11 @@ python3 tools/selftest.py --remotion --hybrid --reduced-motion
 
 مكوّنات `GeometryBindings` و`SvgArt` في R ذات أنواع ومحددات وليست ربطًا عامًا لكل CSS/3D.
 [عقد SVG المحدود](motion-svg.md)؛ [حالة كل ميزة](motion-rollout.md).
+
+
+## فحص WAAPI المجاني فقط
+
+`node tools/waapi_preflight.mjs --out cache/waapi-fresh.json` يفحص محليًا animation متوقفة
+عند أزمنة `currentTime` صريحة و30 عينة بالعكس في Chromium. لا يثبّت مكتبات أو يتصل بخدمة.
+النجاح لا يعني تكامل WAAPI في Remotion، أو تسريعًا عتاديًا، أو أداءً أفضل، أو تطابق أجهزة، أو VO صالحًا؛
+لا تستخدمه كبديل لمحرك الرندر الحتمي دون تنفيذ واختبارات مستقلة.

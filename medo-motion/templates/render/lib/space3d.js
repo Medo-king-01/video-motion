@@ -43,7 +43,7 @@ export function box(w, h = w, d = w, center = [0, 0, 0],
   ];
   const faces = [
     [[0, 1, 2, 3], roles[0]], [[4, 5, 1, 0], roles[4]], [[3, 2, 6, 7], roles[2]],
-    [[1, 5, 6, 2], roles[3]], [[0, 4, 7, 3], roles[1]], [[5, 4, 7, 6], roles[5]],
+    [[1, 5, 6, 2], roles[3]], [[0, 3, 7, 4], roles[1]], [[5, 4, 7, 6], roles[5]],
   ];
   return mesh(verts, faces);
 }

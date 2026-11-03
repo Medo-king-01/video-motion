@@ -159,12 +159,17 @@ export function compileNestedSequence(spec){
         ids.add(item.id);const start=resolve(item.at);if(!finite(start)||start<0)throw Error('invalid nested item start');
         const id=prefix+item.id;
         if(Object.hasOwn(item,'sequence')){
-          if(Object.keys(item).some(k=>!['id','at','sequence'].includes(k)))throw Error('unsupported nested sequence property');
-          const child=walk(item.sequence,id+'/',depth+1),end=start+child.duration;
-          if(!finite(end))throw Error('invalid nested end');
-          for(const clip of child.clips){const at=start+clip.at;if(!finite(at))throw Error('invalid nested clip time');clips.push({...clip,at});}
+          if(Object.keys(item).some(k=>!['id','at','sequence','timeScale'].includes(k)))throw Error('unsupported nested sequence property');
+          const scale=Object.hasOwn(item,'timeScale')?item.timeScale:1;
+          if(!finite(scale)||scale<.01||scale>100)throw Error('nested timeScale must be between 0.01 and 100');
+          const child=walk(item.sequence,id+'/',depth+1),end=start+child.duration*scale;
+          if(!finite(end)||end<=start)throw Error('invalid nested end');
+          for(const clip of child.clips){const at=start+clip.at*scale,duration=clip.duration*scale;
+            if(!finite(at)||!finite(duration)||duration<1e-9||!finite(at+duration)||at+duration<=at)throw Error('invalid scaled nested clip time');
+            clips.push({...clip,at,duration});}
           previous={start,end};duration=Math.max(duration,end);
         }else{
+          if(Object.hasOwn(item,'timeScale'))throw Error('timeScale requires a nested sequence');
           if(typeof item.track!=='string'||!item.track.trim()||item.track.includes('/')||item.track.length>128||!finite(item.duration)||item.duration<=0||!finite(start+item.duration))throw Error('invalid nested clip');
           const clip={...item,id,track:prefix+item.track,at:start};clips.push(clip);previous={start,end:start+item.duration};duration=Math.max(duration,previous.end);
         }

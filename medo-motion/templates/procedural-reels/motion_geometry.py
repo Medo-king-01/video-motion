@@ -258,3 +258,19 @@ def layout_bindings(states, options=None):
     ordered = sorted(states, key=lambda s: s['layer'] == 'overlay')
     return compile_bindings({'version': 1, 'bindings': [{'id': s['id'], 'kind': 'rect', 'fill': colors.get(s['id'], options.get('fill', 'gray1')), 'stroke': options.get('stroke', 'ink'),
         'constants': {**s['box'], 'opacity': s['opacity'], 'strokeWidth': options.get('strokeWidth', 3)}} for s in ordered]}).at({})
+
+
+def compile_shared_layout(spec):
+    """One-to-one authored identities between two group snapshots; no automatic capture."""
+    if not isinstance(spec, dict) or type(spec.get('version')) is not int or spec['version'] != 1 or not isinstance(spec.get('pairs'), list) or not 1 <= len(spec['pairs']) <= 256:
+        raise ValueError('invalid shared layout')
+    source, target = _boxes(spec.get('from')), _boxes(spec.get('to'))
+    a, b = {v['id']:v for v in source}, {v['id']:v for v in target}
+    if len(source) != len(spec['pairs']) or len(target) != len(spec['pairs']): raise ValueError('shared layout requires exact coverage')
+    seen, used_a, used_b = set(), set(), set(); initial, items = [], []
+    for pair in spec['pairs']:
+        if not isinstance(pair, dict) or set(pair)-{'id','from','to'} or not isinstance(pair.get('id'), str) or not pair['id'].strip() or pair['id'] in seen or not isinstance(pair.get('from'), str) or not isinstance(pair.get('to'), str) or pair['from'] not in a or pair['to'] not in b or pair['from'] in used_a or pair['to'] in used_b:
+            raise ValueError('invalid shared layout pair')
+        seen.add(pair['id']); used_a.add(pair['from']); used_b.add(pair['to'])
+        initial.append({**a[pair['from']], 'id':pair['id']});items.append({**b[pair['to']], 'id':pair['id']})
+    return compile_layout({'version':1, 'initial':initial, 'events':[{'at':spec.get('at'), 'duration':spec.get('duration'), 'easing':spec.get('easing','cubicInOut'), 'items':items}]})

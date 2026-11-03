@@ -198,3 +198,17 @@ export function layoutBindings(states,{fill='gray1',stroke='ink',strokeWidth=3,c
   return compileBindings({version:1,bindings:ordered.map(({state:s})=>({id:s.id,kind:'rect',fill:Object.hasOwn(colors,s.id)?colors[s.id]:fill,stroke,
     constants:{...s.box,opacity:s.opacity,strokeWidth}}))}).at({});
 }
+
+/** Explicit one-to-one identities between two authored group snapshots. No DOM capture. */
+export function compileSharedLayout(spec){
+  if(!obj(spec)||spec.version!==1||!Array.isArray(spec.pairs)||!spec.pairs.length||spec.pairs.length>256)throw Error('invalid shared layout');
+  const source=boxes(spec.from),target=boxes(spec.to),a=new Map(source.map(v=>[v.id,v])),b=new Map(target.map(v=>[v.id,v]));
+  if(source.length!==spec.pairs.length||target.length!==spec.pairs.length)throw Error('shared layout requires exact coverage');
+  const seen=new Set(),usedA=new Set(),usedB=new Set(),initial=[],items=[];
+  for(const p of spec.pairs){
+    if(!obj(p)||Object.keys(p).some(k=>!['id','from','to'].includes(k))||typeof p.id!=='string'||!p.id.trim()||seen.has(p.id)||
+       typeof p.from!=='string'||typeof p.to!=='string'||!a.has(p.from)||!b.has(p.to)||usedA.has(p.from)||usedB.has(p.to))throw Error('invalid shared layout pair');
+    seen.add(p.id);usedA.add(p.from);usedB.add(p.to);initial.push({...a.get(p.from),id:p.id});items.push({...b.get(p.to),id:p.id});
+  }
+  return compileLayout({version:1,initial,events:[{at:spec.at,duration:spec.duration,easing:opt(spec,'easing','cubicInOut'),items}]});
+}

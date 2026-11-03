@@ -1,7 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
-  <g fill="#CB271B" fill-rule="evenodd" stroke="#0A0A0A" stroke-width="3">
-    <path d="M 150 20 A 130 130 0 1 1 149.999 20 Z M 150 80 A 70 70 0 1 1 149.999 80 Z" />
+  <defs>
+    <linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="280" y2="0">
+      <stop offset="0" stop-color="#CB271B"/><stop offset="1" stop-color="#9F0803"/>
+    </linearGradient>
+    <radialGradient id="centre" gradientUnits="userSpaceOnUse" cx="150" cy="150" r="24">
+      <stop offset="0" stop-color="#D8D7D5"/><stop offset="1" stop-color="#A3A2A0"/>
+    </radialGradient>
+  </defs>
+  <g style="fill:#CB271B;fill-rule:evenodd;stroke:#0A0A0A;stroke-width:3">
+    <path fill="url(#ring)" d="M 150 20 A 130 130 0 1 1 149.999 20 Z M 150 80 A 70 70 0 1 1 149.999 80 Z" />
   </g>
-  <circle cx="150" cy="150" r="24" fill="#D8D7D5" fill-rule="evenodd"/>
+  <circle cx="150" cy="150" r="24" fill="url(#centre)" opacity="0.75" fill-rule="evenodd"/>
   <path fill="none" stroke="#0A0A0A" stroke-width="5" d="M 30 220 C 70 140 110 280 150 210 S 230 170 270 210" />
 </svg>
