@@ -59,6 +59,9 @@ techniques-doc:  ## regenerate docs/techniques.md from assets/techniques.json
 lint:            ## lint a reel plan before rendering: make lint P=projects/x [STRICT=1]
 	$(PY) tools/reel_lint.py $(or $(P),.) $(if $(STRICT),--strict,) $(if $(SCAN),--scan-code,)
 
+backgrounds:     ## review every animated background (P) or check P↔K parity: make backgrounds [PARITY=1]
+	$(PY) tools/backgrounds_sheet.py $(if $(PARITY),--compare,)
+
 poses:           ## rebuild Medo's pose cut-outs + a QA sheet: make poses
 	$(PY) tools/presenter_build.py --sheet cache/poses-sheet.png
 
@@ -80,4 +83,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup setup-dev doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint poses sfx sfx-bank transitions clean
+.PHONY: help setup setup-dev doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint poses backgrounds sfx sfx-bank transitions clean

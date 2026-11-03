@@ -58,6 +58,10 @@ BRIEF = """# BRIEF — {slug}
 - [ ] مشهد محتاج وضعية مش في المكتبة؟ اكتب هنا اسم الوضعية والمشهد اللي محتاجها → هتتدخل خط الإنتاج
    (`assets/poses/source/<id>.png` → `tools/lib/pose_catalog.py` → `make poses`), متضيفش صورة خام.
 
+## 5) الخلفية — Background
+- الخلفيات من الكتالوج: `medo-motion/motion/backgrounds.json` (١٢ نمط × فاتح/غامق، كلها بالپاليت)
+- اختار لكل مشهد: id: `—` — ليه: `—` (شوف الشيت: `make backgrounds` · `docs/backgrounds.md`)
+
 ## مرجع بصري (اختياري) — Visual reference
 - file/link: `assets/refs/` — حلّله كإلهام للحركة والتكوين فقط؛ ممنوع نسخ شعاراته أو أصوله.
 
