@@ -94,6 +94,36 @@ finished video on guessed timing without saying so.
    has no chosen style. Timing still comes from the measured VO/scene bounds; the style only shapes
    how the element moves. Keep it unboxed, whole-word Arabic, brand colors.
 
+12. **Plan meaning, then verify geometry.** New projects include draft `plan/visual-direction.json`.
+    After measuring VO beats/words, choose presenter/overlay/cover per beat, a concrete rationale,
+    element/copy IDs and measured word anchors; mark ready with `decidedBy`. `reel_lint.py` enforces
+    V01 when this plan exists. Never invent word times or reveal a fact before its spoken anchor.
+    Native comparison/timeline/counter primitives share a deterministic K/R data model; require
+    units, source and explicit label/number text direction, and human-check factual correctness.
+    For K run `node tools/layout_audit.mjs --project ... --out <fresh-directory>` at every frame;
+    inspect issue screenshots/report AND rendered frames. Add `--replay` to verify observed
+    reverse-seek RGBA/layout reproducibility (R01/R02), not loop continuity or cross-browser parity.
+    For a continuous app-window shell, K `drawSharedPanel` / R `SharedPanel` keeps one identity
+    and defers details until `contentAt`; still gate facts with measured VO and explicit directed text.
+    Source selection and limits: `docs/charlie-motion-review.md`. Register measured per-pose `faceBox`
+    fractions; no guessed face bounds. Missing capture/resources is not PASS. This is conservative
+    main-canvas text QA, not pixel/vision proof or an R/P audit. `docs/visual-data-qa.md`.
+
+### Motion expansion scope
+
+The user selected render capabilities, excluding a new interactive authoring UI. Track the staged
+work in `medo-motion/motion/rollout.json` and `docs/motion-rollout.md`; partial/planned is NOT shipped.
+Use native `motion-plan.js` (K/R) / `motion_plan.py` (P) for portable sequences, advanced stagger,
+finite cycles and paths. Use `motion-state.js` / `motion_state.py` for tested analytic springs, finite inertia,
+authored retarget/follow logs, hierarchical variants and JSON-derived values (not live callbacks). Do not install Motion/Motion Studio, authoring gestures or paid services
+by default. For authored group snapshots, measured text and bounded shape bindings see `docs/motion-geometry.md`;
+these do not cover arbitrary DOM/CSS/SVG or prove VO gates. For bounded SVG preprocessing see `docs/motion-svg.md`;
+for opt-in reduced decorative motion and resource/profiling limits see `docs/motion-render.md`.
+For bounded nested timelines and compatible multi-contour morph see `docs/motion-nested-morph.md`;
+never treat polygon checks as a universal SVG/topology guarantee. GPU feasibility and licensing are documented in
+`docs/motion-gpu-feasibility.md`; a local API pass is not proof of hardware or Three/vgpu compatibility. Optional K-only Three bridge and
+resource ownership: `docs/motion-three.md`; do not claim general P/R/Hardware GPU or vgpu support. Keep VO word gates, palette, directed text and frame-replay verification intact.
+
 ## 3. What YOU produce
 
 Medo gives you words, timing, voice and poses. Everything visual and audible is yours:

@@ -12,7 +12,7 @@ except ModuleNotFoundError as error:
     raise SystemExit("Missing packaging; run setup without --check inside a venv") from error
 
 RUNTIME = {'pillow', 'numpy', 'scipy', 'opencv-python-headless', 'imageio-ffmpeg',
-           'av', 'uharfbuzz', 'freetype-py', 'packaging'}
+           'av', 'uharfbuzz', 'freetype-py', 'svgpathtools', 'svgwrite', 'packaging'}
 
 
 def main():

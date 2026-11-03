@@ -9,6 +9,8 @@ imageio-ffmpeg==0.6.0
 av==16.0.1
 uharfbuzz==0.52.0
 freetype-py==2.5.1
+svgpathtools==1.7.2
+svgwrite==1.4.3
 pytest==9.2.0
 ruff==0.17.3
 iniconfig==2.1.0

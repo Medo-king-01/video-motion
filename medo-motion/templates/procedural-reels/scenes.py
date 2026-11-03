@@ -1,4 +1,8 @@
-import math, functools, random
+import math, functools, random, os
+from render_policy import decorative_time, motion_mode
+MOTION_MODE = motion_mode(os.environ.get("MEDO_MOTION_MODE", "normal"))
+# This demo explicitly reduces only its ambient grid/dust, not every scene motion.
+SUPPORTS_REDUCED_MOTION = True
 from art import *
 # The demo episode's VO is 55.2 s — this is that episode's data, NOT a length rule.
 # A real project rebuilds B from its own VO: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json
@@ -408,7 +412,8 @@ def chip_spr(label):
     d=D(w,64); d.rrect((2,2,w-2,62),31,fill=(60,48,50,238)); b=d.done(); over(b,ts,(w-ts.shape[1])//2,(64-ts.shape[0])//2); return b
 def render_frame(t):
     k=max(0,min(6,int(np.searchsorted(B,t,side='right')-1))); dark=THEME[k]; T['dark']=bool(dark)
-    fr=bg_frame(k,t); dust(fr,t,dark)
+    ambient_t=decorative_time(t,MOTION_MODE)
+    fr=bg_frame(k,ambient_t); dust(fr,ambient_t,dark)
     SCENES[k](fr,t)
     lt=t-B[k]; u=e_io(clamp(lt/(B[k+1]-B[k])))
     z=1+0.04*u if k%2==0 else 1.04-0.04*u

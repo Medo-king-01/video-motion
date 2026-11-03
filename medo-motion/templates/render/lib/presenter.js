@@ -1,3 +1,4 @@
+import { protectBox } from './layout.js';
 // Medo, the presenter — engine K.
 //
 // The poses come from `assets/poses/` (`<slug>.png` + `poses.json`, built by
@@ -127,6 +128,12 @@ export function drawPresenter(ctx, name, t, opts = {}) {
   ctx.translate(f.cx, f.cy);
   ctx.rotate((f.rot * Math.PI) / 180);
   ctx.scale(opts.flip ? -f.scale : f.scale, f.scale);
+  const face=opts.faceBoxes ? opts.faceBoxes[f.slug] : opts.faceBox;
+  // Face bounds are explicitly measured per pose; never guess from the silhouette.
+  if(face) {
+    if(!['x','y','w','h'].every(k=>Number.isFinite(face[k]))||face.x<0||face.y<0||face.w<=0||face.h<=0||face.x+face.w>1||face.y+face.h>1)throw Error('Invalid normalized presenter faceBox');
+    protectBox(ctx,`face-${f.slug}`,{x:-f.w/2+face.x*f.w,y:-f.h/2+face.y*f.h,w:face.w*f.w,h:face.h*f.h});
+  } else protectBox(ctx,`missing-faceBox-${f.slug}`,{x:0,y:0,w:0,h:0});
   ctx.drawImage(img, -f.w / 2, -f.h / 2, f.w, f.h);
   ctx.restore();
   return f;

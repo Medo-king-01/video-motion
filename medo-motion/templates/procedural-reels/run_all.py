@@ -18,7 +18,9 @@ CH = int(os.environ.get("REEL_CHUNK", "276"))
 if CH <= 0:
     raise SystemExit("REEL_CHUNK must be a positive integer")
 
+import scenes
 from scenes import B
+from render_policy import motion_mode
 from lib import W, H, FONT
 from chunk_utils import build_signature, expected_chunks, is_valid_chunk
 import text_direction as td
@@ -47,6 +49,9 @@ elif abs(B[-1] - total) > 0.05:
     print(f"note: scenes.B ends at {B[-1]:.2f}s but the VO is {total:.2f}s -> rendering the VO length")
     print("      rebuild the bounds: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json")
 
+MODE = motion_mode(os.environ.get("MEDO_MOTION_MODE", "normal"))
+if MODE == "reduced" and getattr(scenes, "SUPPORTS_REDUCED_MOTION", False) is not True:
+    raise SystemExit("Reduced motion requires an explicit SUPPORTS_REDUCED_MOTION=True in scenes.py")
 N = round(total * FPS)
 if os.environ.get("REEL_MAXFRAMES"):
     N = min(N, int(os.environ["REEL_MAXFRAMES"]))  # smoke test only
@@ -70,7 +75,7 @@ ranges = expected_chunks(N, CH)
 # Include that exact fallback tree in the signature so fallback sprite changes invalidate cache.
 STUDIO_ASSETS = HERE.parents[2] / "assets" / "poses"
 signature = build_signature(
-    HERE, PROJECT / "assets", N, CH, B, FPS, W, H, FONT, STUDIO_ASSETS
+    HERE, PROJECT / "assets", N, CH, B, FPS, W, H, FONT, STUDIO_ASSETS, motion_mode=MODE
 )
 signature_file = OUT / "chunks.sig"
 previous_signature = None

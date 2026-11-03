@@ -125,6 +125,10 @@ def main():
         "version": 3, "status": "draft", "decidedBy": None, "concept": None, "scenes": [],
         "note": "the agent chooses a motion style AND a font for EVERY on-screen text element (captions, titles, numbers, CTAs, labels, UI) and explains why; no creative default",
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (proj / "plan" / "visual-direction.json").write_text(json.dumps({
+        "version": 1, "clock": "vo", "status": "draft", "decidedBy": None, "scenes": [],
+        "note": "after measured VO beats exist, run tools/visual_direction.py <project> --init --force; choose treatments and measured word anchors",
+    }, indent=2) + "\n", encoding="utf-8")
     # What appears on screen, and the moves drawn for this reel (docs/craft.md §3 and §4).
     (proj / "plan" / "copy.json").write_text(json.dumps({
         "pace": "calm", "bpm": 100, "copy": [],

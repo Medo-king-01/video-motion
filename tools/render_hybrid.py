@@ -14,6 +14,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import uuid
 from pathlib import Path
 from typing import Any
@@ -185,6 +186,7 @@ def escape_concat_path(path: Path) -> str:
 
 
 def main() -> int:
+    started = time.perf_counter()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", type=Path, default=ROOT / "projects" / "hybrid-project")
     parser.add_argument("--plan", type=Path, default=None, help="defaults to <project>/plan/hybrid.json")
@@ -194,11 +196,15 @@ def main() -> int:
     parser.add_argument("--ffprobe", default=None)
     parser.add_argument("--node", default=None)
     parser.add_argument("--python", default=None)
+    parser.add_argument("--profile", action="store_true", help="write end-to-end segment/assembly timing")
+    parser.add_argument("--motion-mode", choices=("normal", "reduced"), default=os.environ.get("MEDO_MOTION_MODE", "normal"))
     args = parser.parse_args()
 
     project = args.project.resolve()
     plan_path = (args.plan or project / "plan" / "hybrid.json").resolve()
     output = (args.out or project / "out" / "hybrid.mp4").resolve()
+    profile_path = output.with_name(output.name + ".profile.json")
+    if args.profile and profile_path.exists(): raise RuntimeError(f"profile already exists: {profile_path}")
     if output.exists():
         raise RuntimeError(f"refusing to overwrite existing output: {output}; choose a new --out path")
     temp_out = output.with_name(output.stem + ".part.mp4")
@@ -233,12 +239,14 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     env = {
         **os.environ,
+        "MEDO_MOTION_MODE": args.motion_mode,
         "MEDO_ASSETS_DIR": str(project / "assets"),
         "MEDO_FFMPEG": ffmpeg,
         "MEDO_FFPROBE": ffprobe,
     }
     env.setdefault("PYTHONUNBUFFERED", "1")
 
+    segment_times = []
     for segment in plan["segments"]:
         sid = segment["id"]
         start, end = segment["start_frame"], segment["end_frame"]
@@ -254,8 +262,12 @@ def main() -> int:
         else:
             cmd = [node, "scripts/render.mjs", "--silent", "--from-frame", str(start),
                    "--to-frame", str(end), "--out", str(target)]
+        t0 = time.perf_counter()
         run(cmd, cwd=project, env=env, label=f"engine {engine.upper()} · {sid}")
-        verify_segment(ffprobe, target, end - start, sid)
+        render_ms = (time.perf_counter()-t0)*1000
+        t0 = time.perf_counter(); verify_segment(ffprobe, target, end - start, sid)
+        if args.profile: segment_times.append({'id': sid, 'engine': engine.upper(), 'frames': end-start,
+                                               'renderMs': render_ms, 'verifyMs': (time.perf_counter()-t0)*1000})
 
     list_file = run_dir / "segments.txt"
     list_file.write_text("".join(f"file '{escape_concat_path(run_dir / (s['id'] + '.mp4'))}'\n"
@@ -272,7 +284,9 @@ def main() -> int:
                 "-c:v", "libx264", "-preset", "medium", "-crf", "13", "-pix_fmt", "yuv420p",
                 "-r", str(FPS), "-movflags", "+faststart", str(temp_out)]
     try:
+        assembly_started = time.perf_counter()
         run(command, cwd=project, env=env, label="assemble final hybrid reel")
+        assembly_ms = (time.perf_counter()-assembly_started)*1000
         final = probe(ffprobe, temp_out)
         if (final["width"], final["height"], final["fps"], final["frames"]) != (
             WIDTH, HEIGHT, float(FPS), plan["duration_frames"]
@@ -281,6 +295,11 @@ def main() -> int:
         if audio_path:
             verify_audio_stream(ffprobe, temp_out)
         os.replace(temp_out, output)
+        if args.profile:
+            report = {'version': 1, 'engine': 'Hybrid', 'motionMode': args.motion_mode, 'frames': plan['duration_frames'],
+                      'segments': segment_times, 'assemblyMs': assembly_ms, 'wallMs': (time.perf_counter()-started)*1000,
+                      'scope': 'Segment render subprocesses and verification measured separately; assembly includes final FFmpeg encode. No GPU metrics.'}
+            with profile_path.open('x', encoding='utf-8') as stream: json.dump(report, stream, indent=2); stream.write('\n')
     except BaseException:
         temp_out.unlink(missing_ok=True)
         raise

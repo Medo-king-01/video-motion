@@ -12,6 +12,7 @@
 | `new_project.py` | سكافولد مشروع (مدخلات + مجلدات + خط + محرك P/K/R) | `python3 tools/new_project.py my-reel --engine r` |
 | `ffprobe_shim.py` | بديل `ffprobe` متوافق (JSON) مبني على PyAV — لأن FFmpeg الستاتيك بييجي من غير ffprobe | `ffprobe -v error -show_streams -of json in.mp4` |
 | `ci.sh` | نفس اللي الـCI بيعمله: ruff + pytest + تدقيق البراند | `bash tools/ci.sh` |
+| `gpu_preflight.mjs` | فحص WebGL2 وWebGPU محلي ومحدود، بدون استنتاج وجود تسريع عتادي أو تثبيت حزم | `node tools/gpu_preflight.mjs --require webgl2` |
 | `chromium.mjs` | كروميوم مشترك لمحركَي K وR، من غير تنزيلات متصفح من CDN | `eval "$(node tools/chromium.mjs --env)"` |
 | `itshover_import.py` | يستورد مكوّنات itshover المنسوخة (٢٦٣) ويحوّلها geometry للمحركين | `python3 tools/itshover_import.py --list` |
 | `icons_sheet.py` | شيت مراجعة بصري لكل الأيقونات (المحرك P) | `python3 tools/icons_sheet.py --group itshover --limit 24` |

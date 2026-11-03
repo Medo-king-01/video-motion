@@ -5,6 +5,7 @@
     python3 tools/selftest.py --fast          # skip the engine renders
     python3 tools/selftest.py --remotion      # also npm ci + R typecheck + 6-frame render
     python3 tools/selftest.py --hybrid        # end-to-end 18-frame P + K + R assembly
+    python3 tools/selftest.py --remotion --hybrid --reduced-motion  # explicit reduced-mode smoke
 
 Each step prints PASS / FAIL / SKIP. Exit code 1 if anything failed. The `--remotion`
 option installs pinned dependencies in a throwaway project under `projects/` and
@@ -29,6 +30,10 @@ TOOLKIT = ROOT / "tools" / "toolkit"
 FAST = "--fast" in sys.argv
 WITH_REMOTION = "--remotion" in sys.argv
 WITH_HYBRID = "--hybrid" in sys.argv
+REDUCED = "--reduced-motion" in sys.argv or os.environ.get("MEDO_MOTION_MODE") == "reduced"
+
+def motion_env():
+    return {**os.environ, "MEDO_MOTION_MODE": "reduced"} if REDUCED else os.environ.copy()
 results: list[tuple[str, str, str]] = []
 
 
@@ -96,7 +101,7 @@ def step_engine_p(work: Path) -> bool:
     fonts.mkdir(parents=True)
     for f in (ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"):
         shutil.copy2(f, fonts / f.name)
-    env = {**os.environ, "REEL_DIR": str(proj), "REEL_MAXFRAMES": "6", "FFMPEG_BIN": ff}
+    env = {**motion_env(), "REEL_DIR": str(proj), "REEL_MAXFRAMES": "6", "FFMPEG_BIN": ff}
     r = run([sys.executable, str(proj / "run_all.py")], cwd=proj, env=env)
     out = proj / "out" / "video_only.mp4"
     ok = r.returncode == 0 and out.is_file() and out.stat().st_size > 1000
@@ -114,9 +119,10 @@ def step_engine_k(work: Path) -> bool:
     fonts.mkdir(parents=True)
     for f in (ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"):
         shutil.copy2(f, fonts / f.name)
+    timing = "--from 0.2 --to 0.4 --fps 30" if REDUCED else "--from 2.2 --to 3.0 --fps 2"
     cmd = (f'eval "$(node {ROOT}/tools/chromium.mjs --env)" && '
-           f'node src/render.js --from 2.2 --to 3.0 --fps 2 --scale 0.4 --out frames --jpg')
-    r = run(["bash", "-c", cmd], cwd=proj)
+           f'node src/render.js {timing} --scale 0.4 --out frames --jpg')
+    r = run(["bash", "-c", cmd], cwd=proj, env=motion_env())
     frames = list((proj / "frames").glob("*.jpg"))
     ok = r.returncode == 0 and len(frames) >= 1
     return record("engine K render", 0 if ok else 1,
@@ -185,7 +191,7 @@ def step_engine_r() -> bool:
                          ("الحركة والإيقاع بيساعدوا الفكرة توصل بوضوح.", "وضوح الفكرة.")]:
             src = src.replace(old, new)
         data_ts.write_text(src, encoding="utf-8")
-        stills = run([npm, "run", "stills", "--", "0", "0.1"], cwd=proj, timeout=300)
+        stills = run([npm, "run", "stills", "--", "0", "0.1"], cwd=proj, env=motion_env(), timeout=300)
         if stills.returncode:
             return record("engine R render", 1, stills.stdout + stills.stderr)
         checked = run([npm, "run", "typecheck"], cwd=proj, timeout=180)
@@ -193,7 +199,7 @@ def step_engine_r() -> bool:
             return record("engine R render", 1, checked.stdout + checked.stderr)
         rendered = run([node, str(proj / "scripts" / "render.mjs"), "--silent",
                         "--from-frame", "2", "--to-frame", "8", "--out", "out/selftest.mp4"],
-                       cwd=proj, timeout=600)
+                       cwd=proj, env=motion_env(), timeout=600)
         output = proj / "out" / "selftest.mp4"
         ok = rendered.returncode == 0 and output.is_file() and output.stat().st_size > 1000
         return record("engine R render", 0 if ok else 1,
@@ -229,7 +235,7 @@ def step_hybrid() -> bool:
         if browser_info.returncode:
             return record("hybrid P/K/R render", 1, browser_info.stdout + browser_info.stderr)
         browser = json.loads(browser_info.stdout)
-        env = {**os.environ, "MEDO_TOOLKIT": str(TOOLKIT), "MEDO_CHROMIUM": browser["executablePath"],
+        env = {**motion_env(), "MEDO_TOOLKIT": str(TOOLKIT), "MEDO_CHROMIUM": browser["executablePath"],
                "FFMPEG_BIN": ff, "FFPROBE_BIN": ffprobe, "PYTHONUNBUFFERED": "1"}
         if browser.get("libraryPath"):
             env["LD_LIBRARY_PATH"] = browser["libraryPath"] + ":" + env.get("LD_LIBRARY_PATH", "")
@@ -254,10 +260,12 @@ def step_hybrid() -> bool:
         fill_story_cards(proj)
         fill_text_direction(proj, beats)
         rendered = run([sys.executable, str(ROOT / "tools" / "render_hybrid.py"), "--project", str(proj),
-                        "--ffmpeg", ff, "--ffprobe", ffprobe],
+                        "--ffmpeg", ff, "--ffprobe", ffprobe, "--profile"],
                        cwd=proj, env=env, timeout=900)
         output = proj / "out" / "hybrid.mp4"
-        ok = rendered.returncode == 0 and output.is_file() and output.stat().st_size > 1000
+        profile = output.with_name(output.name + ".profile.json")
+        ok = rendered.returncode == 0 and output.is_file() and output.stat().st_size > 1000 and profile.is_file()
+        if ok: ok = json.loads(profile.read_text())["motionMode"] == ("reduced" if REDUCED else env.get("MEDO_MOTION_MODE", "normal"))
         return record("hybrid P/K/R render", 0 if ok else 1,
                       "P + K + R segments assembled and probed" if ok else rendered.stdout + rendered.stderr)
     finally:

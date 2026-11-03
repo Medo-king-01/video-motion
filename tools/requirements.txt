@@ -10,4 +10,5 @@ av>=12                  # powers the ffprobe shim (no ffprobe binary needed)
 uharfbuzz>=0.37         # Arabic shaping for engine P when Pillow lacks libraqm
 freetype-py>=2.4        # glyph rasterising for that fallback
 
+svgpathtools>=1.7.2   # bounded offline SVG path compilation
 packaging>=25            # dependency-baseline marker evaluation

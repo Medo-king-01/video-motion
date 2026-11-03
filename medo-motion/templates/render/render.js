@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { auditLayout } from './lib/layout.js';
+import {performance} from 'node:perf_hooks';
 // Copy this directory to <project>/src; package.json must contain "type":"module".
 // node src/render.js --from 0 --to 3 --fps 30 --scale 1 --out cache/smoke --jpg
 // Without --jpg: --out renders/previews --name "Smoke v1" [--audio mix.wav]. Silent if no --audio.
@@ -11,15 +13,22 @@ import {existsSync} from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
+const invocationStarted=performance.now();
 const root=process.cwd(),src=path.dirname(fileURLToPath(import.meta.url)),a=process.argv.slice(2);
 const opt=(k,d)=>{const i=a.indexOf('--'+k);return i<0?d:a[i+1];};
 const {DURATION}=await import('./data.js');
 import {validateTextDirection} from './lib/text-direction.js';
 const from=Number(opt('from',0)),to=Number(opt('to',DURATION)),fps=Number(opt('fps',30)),scale=Number(opt('scale',1));
 const crf=Number(opt('crf',18));
+const motionMode=opt('motion-mode',process.env.MEDO_MOTION_MODE||'normal');
+if(!['normal','reduced'].includes(motionMode))throw Error('motion-mode must be normal or reduced');
 if(![from,to,fps,scale].every(Number.isFinite)||from<0||to<=from||fps<=0||scale<=0||scale>1)throw Error('Invalid range, fps or scale');
 if(!Number.isFinite(crf)||crf<0||crf>51)throw Error('Invalid crf');
 const count=Math.ceil((to-from)*fps-1e-8),out=path.resolve(opt('out','cache/smoke')),jpg=a.includes('--jpg');
+const audit=a.includes('--audit'), replay=a.includes('--replay'), profile=a.includes('--profile'), every=Number(opt('every',1));
+if(replay&&!audit)throw Error('--replay requires --audit');
+if(audit&&(!Number.isInteger(every)||every<1))throw Error('--every must be a positive frame stride');
+if(audit&&(fps!==30||to>DURATION+1e-8))throw Error('Audit requires native 30 fps and a range inside the timeline');
 const name=String(opt('name','Smoke v1'));
 if(!name||/[\\/:*?"<>|]/.test(name))throw Error('Use a plain output name without path separators');
 const dest=path.join(out,name+'.mp4'),audio=opt('audio');
@@ -55,7 +64,9 @@ async function probeDuration(file){
     });
   });
 }
-if(!jpg&&existsSync(dest))throw Error('Output exists; use a new version name');
+if(audit&&existsSync(out))throw Error('Audit output exists; choose a fresh directory');
+if(profile&&existsSync(path.join(out,'render-profile.json')))throw Error('Profile already exists; choose a fresh directory');
+if(!audit&&!jpg&&existsSync(dest))throw Error('Output exists; use a new version name');
 await mkdir(out,{recursive:true});
 if(jpg&&(await readdir(out)).some(f=>/^\d{5}\.(jpg|png)$/.test(f)))throw Error('Frame output already exists; choose a fresh cache directory');
 const setting=name=>process.env['MEDO_'+name]||process.env['KHAAM_'+name];
@@ -92,14 +103,30 @@ const server=http.createServer(async (request,response)=>{
     response.writeHead(200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream'});response.end(await readFile(f));
   }catch{response.writeHead(404);response.end('Not found');}
 });
-let browser,encoder;let encodeResult;
+let browser,encoder,page;let encodeResult;let completed=false;
 try{
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
   browser=await chromium.launch({headless:true,...(browserPath?{executablePath:browserPath}:{})});
-  const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(`http://127.0.0.1:${server.address().port}${srcUrl}/index.html?scale=${scale}`);
-  await page.waitForFunction(()=>window.__ready===true,{},{timeout:30000});
-  if(!jpg){
+  page=await browser.newPage();const errors=[];
+  if(audit)await page.route('**/*',route=>{
+    const u=new URL(route.request().url());
+    if(u.origin!==`http://127.0.0.1:${server.address().port}`){errors.push('Blocked external resource: '+u.origin);return route.abort();}
+    return route.continue();
+  });
+  if(audit){
+    page.on('requestfailed',r=>errors.push('Resource failed: '+r.url()));
+    page.on('response',r=>{
+      const optionalPlan=new URL(r.url()).pathname==='/plan/text-direction.json'&&!existsSync(path.join(root,'plan/text-direction.json'));
+      if(r.status()>=400&&!optionalPlan)errors.push(`Resource HTTP ${r.status()}: ${r.url()}`);
+    });
+  }
+  page.on('pageerror',e=>errors.push(e.message));
+  const initStarted=performance.now();
+  await page.goto(`http://127.0.0.1:${server.address().port}${srcUrl}/index.html?scale=${scale}&motionMode=${motionMode}&rangeStart=${from}&rangeEnd=${from+count/fps}${audit?'&audit=1':''}`);
+  await page.waitForFunction(()=>window.__ready===true||window.__error,{},{timeout:30000});
+  const initError=await page.evaluate(()=>window.__error||null);if(initError)throw Error(initError);
+  const initMs=performance.now()-initStarted,profileTimes=[],captureTimes=[];let encoderFinalizeMs=null;
+  if(!audit&&!jpg){
     const args=['-hide_banner','-n','-f','image2pipe','-framerate',String(fps),'-i','pipe:0'];
     if(audio)args.push('-ss',String(from),'-t',String(to-from),'-i',path.resolve(audio));
     args.push('-map','0:v:0');if(audio)args.push('-map','1:a:0','-af','apad','-c:a','aac','-b:a','192k','-ar','48000');
@@ -109,24 +136,92 @@ try{
     // Attach a handler immediately to avoid an unhandled rejection during frame capture.
     encodeResult.catch(()=>{});encoder.stdin.on('error',()=>{});
   }
+  const auditFrames=[], fingerprints=[];let captured=0,screenshots=0;
+  // Hash decoded RGBA, not PNG bytes or a resized/grayscale approximation.
+  const fingerprint=()=>page.evaluate(async()=>{
+    const c=document.getElementById('c'),data=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+    const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',data));
+    return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+  });
   for(let i=0;i<count;i++){
+    if(audit&&i%every!==0&&i!==count-1)continue;
+    const frameStarted=profile?performance.now():0;
     await page.evaluate(t=>window.renderFrame(t),from+i/fps);
+    if(profile)profileTimes.push(performance.now()-frameStarted);
     if(errors.length)throw Error(errors.join('\n'));
+    if(audit){
+      const boxes=await page.evaluate(()=>window.layoutSnapshot?.());
+      const issues=auditLayout(boxes);captured+=boxes.filter(b=>b.kind==='text').length;
+      if(replay)fingerprints.push({index:i,hash:await fingerprint(),layout:JSON.stringify(boxes)});
+      if(issues.length){
+        const image=screenshots<12?`frame-${i}.png`:null;
+        auditFrames.push({frame:Math.round(from*fps)+i,time:from+i/fps,issues,boxes,image});
+        if(image){
+          await page.evaluate(({boxes,ids})=>{
+            const c=document.getElementById('c'),ctx=c.getContext('2d');ctx.save();
+            ctx.setTransform(c.width/1080,0,0,c.height/1920,0,0);ctx.strokeStyle='#CB271B';ctx.lineWidth=4;
+            for(const b of boxes)if(ids.includes(b.id))ctx.strokeRect(b.x,b.y,b.w,b.h);ctx.restore();
+          },{boxes,ids:issues.flatMap(i=>i.ids)});
+          await page.locator('canvas').screenshot({path:path.join(out,image)});screenshots++;
+        }
+      }
+      continue;
+    }
+    const captureStarted=profile?performance.now():0;
     const data=await page.evaluate(type=>window.grab(type),jpg?'image/jpeg':'image/png');
     const bytes=Buffer.from(data.slice(data.indexOf(',')+1),'base64');
     if(jpg)await writeFile(path.join(out,String(i).padStart(5,'0')+'.jpg'),bytes);
     else if(!encoder.stdin.write(bytes))await Promise.race([once(encoder.stdin,'drain'),encodeResult.then(()=>{throw Error('Encoder ended early');})]);
+    if(profile)captureTimes.push(performance.now()-captureStarted);
   }
-  if(encoder){encoder.stdin.end();await encodeResult;}
-  if(audio&&!jpg){
+  let replayFailures=0;
+  if(replay){
+    let replayScreenshots=0;
+    for(const original of [...fingerprints].reverse()){
+      const time=from+original.index/fps;
+      await page.evaluate(t=>window.renderFrame(t),time);
+      if(errors.length)throw Error(errors.join('\n'));
+      const hash=await fingerprint(),boxes=await page.evaluate(()=>window.layoutSnapshot?.());
+      const issues=[];
+      if(hash!==original.hash)issues.push({code:'R01',ids:['canvas'],message:'Pixels changed when re-seeking the same time',expected:original.hash,actual:hash});
+      if(JSON.stringify(boxes)!==original.layout)issues.push({code:'R02',ids:['layout'],message:'Layout capture changed when re-seeking the same time'});
+      if(issues.length){
+        replayFailures++;
+        const image=replayScreenshots<6?`replay-frame-${original.index}.png`:null;
+        auditFrames.push({frame:Math.round(from*fps)+original.index,time,issues,boxes,image});
+        if(image){await page.locator('canvas').screenshot({path:path.join(out,image)});replayScreenshots++;}
+      }
+    }
+  }
+  if(audit){
+    auditFrames.sort((a,b)=>a.frame-b.frame);
+    const status=!captured?'incomplete':auditFrames.length?'fail':'pass';
+    await writeFile(path.join(out,'report.json'),JSON.stringify({version:1,status,fps,from,to,every,scale,browser:browser.version(),
+      sampling:every===1?'all frames':'sampled; brief collisions can be missed',capturedText:captured,
+      replay:{status:!replay?'not-requested':replayFailures?'fail':fingerprints.length?'pass':'incomplete',
+        checkedFrames:fingerprints.length,failedFrames:replayFailures,order:'reverse of inspected frames',hash:'SHA-256 of canvas-size RGBA'},
+      limitations:'Conservative ink AABBs; no clipping/occlusion or readability inference. Offscreen canvas/raster text is not captured.',frames:auditFrames},null,2));
+    if(status!=='pass')throw Error(`Layout audit ${status}; see ${path.join(out,'report.json')}`);
+    console.log('Layout audit PASS');
+  }
+  if(encoder){const finishStarted=profile?performance.now():0;encoder.stdin.end();await encodeResult;if(profile)encoderFinalizeMs=performance.now()-finishStarted;}
+  if(audio&&!jpg&&!audit){
     const dur=await probeDuration(audio);
     if(dur!==null&&Math.abs(dur-to)>0.15)console.warn(
       `!! audio is ${dur.toFixed(2)}s but the render window ends at ${to.toFixed(2)}s — `
       +'the reel must be exactly the VO length (python3 tools/vo_length.py <vo>)');
   }
-  console.log(`Rendered ${count} frames at ${fps} fps${jpg?'':audio?' with audio':' (silent; supply --audio for sound)'}`);
+  if(profile){
+    const summary=values=>{if(!values.length)return null;const sorted=[...values].sort((a,b)=>a-b),quantile=q=>sorted[Math.min(sorted.length-1,Math.ceil(q*sorted.length)-1)];return {mean:values.reduce((a,b)=>a+b,0)/values.length,p50:quantile(.5),p95:quantile(.95),max:sorted.at(-1)};};
+    await writeFile(path.join(out,'render-profile.json'),JSON.stringify({version:2,frames:profileTimes.length,motionMode,initMs,frameEvaluateMs:summary(profileTimes),captureAndWriteMs:summary(captureTimes),encoderFinalizeMs,wallMs:performance.now()-invocationStarted,audit,scope:'Frame evaluation includes IPC; capture/write includes browser data URL, decode and disk or encoder backpressure; FFmpeg overlaps capture. Finalize measures remaining flush only. Replay/audit work included only in wall; not GPU instrumentation.'},null,2),{flag:'wx'});
+  }
+  if(!audit)console.log(`Rendered ${count} frames at ${fps} fps${jpg?'':audio?' with audio':' (silent; supply --audio for sound)'}`);
+  completed=true;
 }finally{
+  let cleanupError;
+  if(page&&!page.isClosed())try{await page.evaluate(()=>window.closeScenes?.());}catch(e){cleanupError=e;console.error('Scene resource cleanup failed:',e.message);}
   if(encoder&&encoder.exitCode===null)encoder.kill();
   if(browser)await browser.close();
   await new Promise(resolve=>server.close(resolve));
+  if(cleanupError&&completed)throw cleanupError;
 }

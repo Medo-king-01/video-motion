@@ -6,6 +6,7 @@ import path from 'node:path';
 import process from 'node:process';
 import {validateTextDirection} from '../src/lib/text-direction.js';
 
+const invocationStarted = process.hrtime.bigint();
 const project = process.cwd();
 const args = process.argv.slice(2);
 const value = (name, fallback) => {
@@ -15,10 +16,14 @@ const value = (name, fallback) => {
 const flag = (name) => args.includes(name);
 const audioArg = value('--audio', null);
 const silent = flag('--silent');
+const motionMode = value('--motion-mode', process.env.MEDO_MOTION_MODE || 'normal');
+if(!['normal','reduced'].includes(motionMode)){console.error('motion-mode must be normal or reduced');process.exit(2);}
 const fromFrame = Number(value('--from-frame', 0));
 const toFrameArg = value('--to-frame', null);
 const toFrame = toFrameArg === null ? null : Number(toFrameArg);
 const output = path.resolve(project, value('--out', 'out/remotion.mp4'));
+const profilePath = `${output}.profile.json`;
+const profile = flag('--profile');
 const beatsPath = path.join(project, 'plan', 'beats.json');
 
 function fail(message) {
@@ -84,8 +89,9 @@ if (dataSource !== null) {
 }
 if (!audioArg && !silent) fail('pass --audio out/vo24.wav, or explicitly use --silent for a visual-only render');
 if (existsSync(output)) fail(`output already exists: ${output}; choose a new --out path/version`);
+if (profile && existsSync(profilePath)) fail(`profile already exists: ${profilePath}`);
 
-let props = {audioFile: null, previewOnly: false};
+let props = {audioFile: null, previewOnly: false, motionMode};
 if (audioArg) {
   const audioPath = path.resolve(project, audioArg);
   const audio = await readFile(audioPath).catch(() => null);
@@ -103,7 +109,7 @@ if (audioArg) {
   const publicAudio = path.join(project, 'public', 'vo.wav');
   await mkdir(path.dirname(publicAudio), {recursive: true});
   await copyFile(audioPath, publicAudio);
-  props = {audioFile: 'vo.wav', previewOnly: false};
+  props = {audioFile: 'vo.wav', previewOnly: false, motionMode};
 }
 
 await mkdir(path.dirname(output), {recursive: true});
@@ -116,7 +122,10 @@ const renderArgs = [
   `--props=${propsFile}`, '--codec=h264', '--crf=13', '--pixel-format=yuv420p',
 ];
 if (fromFrame !== 0 || endFrame !== Math.round(duration * fps)) renderArgs.push(`--frames=${fromFrame}-${endFrame - 1}`);
+const renderStarted = process.hrtime.bigint();
 const result = spawnSync(process.execPath, renderArgs, {cwd: project, stdio: 'inherit'});
+const renderMs = Number(process.hrtime.bigint()-renderStarted)/1e6;
 if (result.error) fail(result.error.message);
 if (result.status !== 0) process.exit(result.status ?? 1);
+if(profile)await writeFile(profilePath,JSON.stringify({version:1,engine:'R',motionMode,frames:endFrame-fromFrame,renderMs,wallMs:Number(process.hrtime.bigint()-invocationStarted)/1e6,scope:'Render subprocess includes Remotion bundle, browser, capture and encode; no independent frame or GPU timing.'},null,2)+'\n',{flag:'wx'});
 console.log(`Rendered ${output} · ${duration.toFixed(3)}s · ${Math.round(duration * fps)} frames @ ${fps}fps`);
