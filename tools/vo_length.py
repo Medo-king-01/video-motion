@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import shutil
 import subprocess
 import sys
 import wave
@@ -25,8 +24,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
-FFPROBE = shutil.which("ffprobe") or "ffprobe"
-FFMPEG = shutil.which("ffmpeg") or "ffmpeg"
+sys.path.insert(0, str(ROOT / "tools" / "lib"))
+from media_bin import ffmpeg, ffprobe  # noqa: E402
+
+FFPROBE = ffprobe() or "ffprobe"     # the shim/PATH/bundled rule lives in tools/lib/media_bin.py
+FFMPEG = ffmpeg() or "ffmpeg"
 
 
 # ---------------------------------------------------------------- measurement

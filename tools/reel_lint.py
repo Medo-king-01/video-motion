@@ -200,86 +200,129 @@ def lint_timeline(rep: Report, plan: dict, bpm: float, tol: float) -> list[tuple
 
 
 # ---- copy ------------------------------------------------------------------------------------
+def _fragment_errors(rep: Report, fragment: dict, pace: str, known: set[int]) -> tuple[dict, list[str]] | None:
+    """Checks that need one fragment on its own. Returns (fragment, words) or None when unusable."""
+    text = fragment.get("text", "")
+    words_in_text = words(text)
+    start, end = float(fragment.get("start", 0.0)), float(fragment.get("end", 0.0))
+    where = f"scene {fragment.get('scene', '?')} “{text[:32]}”"
+    scene = fragment.get("scene")
+    if scene and scene not in known:
+        rep.error("C10", f"{where}: scene {scene} is not in plan/beats.json")
+    if not words_in_text:
+        rep.error("C01", f"{where}: no words")
+        return None
+    limit = WORDS_PER_FRAGMENT[pace]
+    if len(words_in_text) > limit:
+        rep.error("C01", f"{where}: {len(words_in_text)} words in one fragment (max {limit} when {pace}) — "
+                         f"split it, copy arrives in pieces")
+    if len(words_in_text) > 6 and re.search(r"[.!؟?]$", text.strip()):
+        rep.error("C08", f"{where}: a whole sentence arrives at once — chain it in fragments")
+    # The user owns the name/title/episode slot: words he supplied are not this studio's
+    # defaults, so C07 only guards copy the plan claims is the studio's own choice.
+    banned = () if fragment.get("approvedByUser") is True else BANNED_WORDS
+    for phrase in banned:
+        if phrase in text.lower():
+            rep.error("C07", f"{where}: “{phrase}” is on the banned-words list")
+    if end <= start:
+        rep.error("C09", f"{where}: end {end:g} s is not after start {start:g} s")
+        return None
+    return {"fragment": fragment, "where": where, "start": start, "end": end, "words": words_in_text}, words_in_text
+
+
+def _fragment_timing_warnings(rep: Report, item: dict, bpm: float) -> None:
+    """Dwell, short-shot and grid checks: a fragment that cannot be read in time."""
+    shown = item["end"] - item["start"]
+    count = len(item["words"])
+    needed = max(DWELL_FLOOR, DWELL_PER_WORD * count)
+    where = item["where"]
+    if shown < needed * 0.75:
+        rep.error("C03", f"{where}: on screen {shown:.2f} s for {count} words — "
+                         f"needs {needed:.2f} s ({DWELL_PER_WORD:g} s per word, floor {DWELL_FLOOR:g} s)")
+    elif shown < needed:
+        rep.warn("C03", f"{where}: {shown:.2f} s is under the {needed:.2f} s read pace")
+    if item["fragment"].get("scene") and shown < SHORT_SHOT and count > 2:
+        rep.warn("S03", f"{where}: {count} words in {shown:.2f} s — under {SHORT_SHOT} s the eye "
+                        f"registers punctuation, not words")
+    if bpm:
+        drift = off_grid(item["start"], bpm)
+        if drift > GRID_TOL:
+            rep.warn("C11", f"{where}: arrives {drift * 1000:.0f} ms off the {bpm:g} BPM grid")
+
+
+def _visible_words_worst_case(items: list[dict], pace: str) -> tuple[int, float]:
+    """Peak number of words on screen and when, sampled on every fragment edge."""
+    edges = sorted({round(t, 3) for item in items for t in (item["start"], item["end"])})
+    worst = (0, 0.0)
+    for moment in edges:
+        live = [i for i in items if i["start"] <= moment < i["end"]]
+        count = sum(len(i["words"]) for i in live)
+        if count > worst[0]:
+            worst = (count, moment)
+        limit = REPLACE_VISIBLE if any(i["fragment"].get("mode") == "replace" for i in live) else VISIBLE_AT_ONCE[pace]
+        if count > limit:
+            return count, moment
+    return worst
+
+
+def _merge_spans(spans: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    merged: list[tuple[float, float]] = []
+    for start, end in sorted(spans):
+        if merged and start <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+        else:
+            merged.append((start, end))
+    return merged
+
+
+def _longest_gap(spans: list[tuple[float, float]], start: float, end: float) -> float:
+    """Longest stretch without copy inside [start, end]."""
+    cursor, best = start, 0.0
+    for span_start, span_end in spans:
+        if span_end <= cursor or span_start >= end:
+            continue
+        best = max(best, max(0.0, span_start - cursor))
+        cursor = max(cursor, span_end)
+    return max(best, end - cursor)
+
+
 def lint_copy(rep: Report, copy: dict, dur: float, pace: str, bpm: float, scenes: list[dict]) -> None:
-    items = copy.get("copy") or []
-    if not items:
+    """Readability gates for what appears on screen: words, dwell, density, coverage."""
+    fragments = copy.get("copy") or []
+    if not fragments:
         state = "plan/copy.json lists no fragments yet" if copy else "no plan/copy.json"
         rep.warn("C00", f"{state} — nothing checks what appears on screen "
                         f"(words per fragment, dwell, coverage)")
         return
     pace = copy.get("pace", pace)
-    limit = WORDS_PER_FRAGMENT[pace]
-    visible_limit = VISIBLE_AT_ONCE[pace]
-    known = {s["index"] for s in scenes}
+    known = {scene["index"] for scene in scenes}
 
-    pairs: list[tuple[dict, tuple[float, float]]] = []
-    for c in items:
-        text = c.get("text", "")
-        ws = words(text)
-        start, end = float(c.get("start", 0.0)), float(c.get("end", 0.0))
-        where = f"scene {c.get('scene', '?')} “{text[:32]}”"
-        if c.get("scene") and c["scene"] not in known:
-            rep.error("C10", f"{where}: scene {c['scene']} is not in plan/beats.json")
-        if not ws:
-            rep.error("C01", f"{where}: no words")
+    measured: list[dict] = []
+    for fragment in fragments:                      # document order, so the report reads in order
+        checked = _fragment_errors(rep, fragment, pace, known)
+        if not checked:
             continue
-        if len(ws) > limit:
-            rep.error("C01", f"{where}: {len(ws)} words in one fragment (max {limit} when {pace}) — "
-                             f"split it, copy arrives in pieces")
-        if len(ws) > 6 and re.search(r"[.!؟?]$", text.strip()):
-            rep.error("C08", f"{where}: a whole sentence arrives at once — chain it in fragments")
-        # The user owns the name/title/episode slot: words he supplied are not this studio's
-        # defaults, so C07 only guards copy the plan claims is the studio's own choice.
-        user_words = c.get("approvedByUser") is True
-        for bad in () if user_words else BANNED_WORDS:
-            if bad in text.lower():
-                rep.error("C07", f"{where}: “{bad}” is on the banned-words list")
-        if end <= start:
-            rep.error("C09", f"{where}: end {end:g} s is not after start {start:g} s")
-            continue
-        need = max(DWELL_FLOOR, DWELL_PER_WORD * len(ws))
-        shown = end - start
-        if shown < need * 0.75:
-            rep.error("C03", f"{where}: on screen {shown:.2f} s for {len(ws)} words — "
-                             f"needs {need:.2f} s (0.4 s per word, floor 0.5 s)")
-        elif shown < need:
-            rep.warn("C03", f"{where}: {shown:.2f} s is under the {need:.2f} s read pace")
-        if c.get("scene") and shown < SHORT_SHOT and len(ws) > 2:
-            rep.warn("S03", f"{where}: {shown:.2f} s carries no copy — under 0.45 s the eye "
-                            f"registers punctuation, not words")
-        if bpm:
-            d = off_grid(start, bpm)
-            if d > GRID_TOL:
-                rep.warn("C11", f"{where}: arrives {d * 1000:.0f} ms off the {bpm:g} BPM grid")
-        pairs.append((c, (start, end)))
+        _fragment_timing_warnings(rep, checked[0], bpm)
+        measured.append(checked[0])
 
-    spans = [span for _, span in pairs]
-    # visible at once, sampled on every fragment edge
-    edges = sorted({round(t, 3) for _, (s, e) in pairs for t in (s, e)})
-    worst = (0, 0.0)
-    for t in edges:
-        live = [c for c, (s, e) in pairs if s <= t < e]
-        n = sum(len(words(c.get("text", ""))) for c in live)
-        lim = REPLACE_VISIBLE if any(c.get("mode") == "replace" for c in live) else visible_limit
-        if n > worst[0]:
-            worst = (n, t)
-        if n > lim:
-            rep.error("C02", f"{n} words on screen at {t:.2f} s (max {lim}) — remove the weakest one")
-            break
-    if worst[0] and not any(i["code"] == "C02" and i["level"] == "error" for i in rep.items):
-        rep.ok("C02", f"peak {worst[0]} words on screen at {worst[1]:.2f} s")
+    count, moment = _visible_words_worst_case(measured, pace)
+    crowded = any(item["fragment"].get("mode") == "replace" for item in measured)
+    visible_limit = REPLACE_VISIBLE if crowded else VISIBLE_AT_ONCE[pace]
+    if count > visible_limit:
+        rep.error("C02", f"{count} words on screen at {moment:.2f} s (max {visible_limit}) — remove the weakest one")
+    elif count:
+        rep.ok("C02", f"peak {count} words on screen at {moment:.2f} s")
 
-    total_words = sum(len(words(c.get("text", ""))) for c in items)
+    total_words = sum(len(item["words"]) for item in measured)
     rate = total_words / dur if dur else 0.0
-    lo, hi = COPY_RATE
-    if not lo <= rate <= hi:
-        rep.warn("C04", f"{rate:.2f} on-screen words per second — the read range is "
-                        f"{lo:g}–{hi:g}/s")
+    low, high = COPY_RATE
+    if not low <= rate <= high:
+        rep.warn("C04", f"{rate:.2f} on-screen words per second — the read range is {low:g}–{high:g}/s")
     else:
         rep.ok("C04", f"{total_words} words, {rate:.2f}/s")
 
-    merged = union(spans)
-    covered = sum(e - s for s, e in merged if e > s)
+    merged = _merge_spans([(item["start"], item["end"]) for item in measured])
+    covered = sum(end - start for start, end in merged if end > start)
     share = covered / dur if dur else 0.0
     limit_share = COPY_COVERAGE[pace]
     if share > limit_share:
@@ -288,17 +331,17 @@ def lint_copy(rep: Report, copy: dict, dur: float, pace: str, bpm: float, scenes
     else:
         rep.ok("C05", f"copy covers {share:.0%}")
 
-    worst_free, worst_at = (99.0, 0.0)
+    worst_free, worst_at = 99.0, 0.0
     if dur >= WINDOW + 1.0:
-        t = 0.0
-        while t + WINDOW <= dur + 1e-9:
-            free = longest_free(merged, t, t + WINDOW)
+        moment = 0.0
+        while moment + WINDOW <= dur + 1e-9:
+            free = _longest_gap(merged, moment, moment + WINDOW)
             if free < worst_free:
-                worst_free, worst_at = free, t
-            t += 1.0
+                worst_free, worst_at = free, moment
+            moment += 1.0
     if worst_free < FREE_STRETCH:
         rep.warn("C06", f"only {worst_free:.2f} s without copy in the window at "
-                        f"{worst_at:.1f} s — every 10 s wants 1.5 s of pure picture")
+                        f"{worst_at:.1f} s — every 10 s wants {FREE_STRETCH:g} s of pure picture")
     else:
         rep.ok("C06", f"{worst_free:.2f} s of text-free picture in the tightest 10 s window")
 

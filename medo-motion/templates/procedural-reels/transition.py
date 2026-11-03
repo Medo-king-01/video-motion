@@ -71,88 +71,148 @@ def _rect(x: float, y: float, w: float, h: float, dx: float = 0.0, dy: float = 0
     return {"x": x, "y": y, "w": w, "h": h, "dx": dx, "dy": dy}
 
 
+# Kinds that paint the incoming frame through a mask. An empty mask means "nothing revealed
+# yet", never "blend everything" — that distinction is what keeps a masked transition exact.
+MASKED_KINDS = frozenset({"reveal", "circle", "slide", "blinds", "checker", "bands", "slices"})
+
+# Fraction of the progress window each slat/cell/band may start late. Kept here so the
+# stagger is visible in one place instead of being buried in the geometry.
+_BLINDS_STAGGER = 0.35
+_CHECKER_STAGGER = 0.5
+_CHECKER_RAMP = 0.2
+_CHECKER_LEAD = 0.8
+_BANDS_STAGGER = 0.05
+_BANDS_RAMP = 0.7
+_DIAGONAL_STAGGER = 0.5
+_DIAGONAL_OVERSHOOT = 1.5
+_IRIS_RADIUS = 1.7
+_ZOOM_FROM = 1.12
+_ZOOM_RANGE = 0.12
+_GLITCH_LEAD = 1.15
+_GLITCH_JITTER = 0.22
+_FLASH_HALF = 0.5
+_FLASH_PEAK = 0.85
+_PAPER = (243, 242, 241)
+
+
+def _layer_state(name: str, kind: str) -> dict:
+    """The neutral description every transition starts from and then fills in."""
+    return {"name": name, "p": 0.0, "rects": [], "circles": [], "alpha": 1.0, "scaleB": 1.0,
+            "aDx": 0.0, "aDy": 0.0, "invert": False, "paperFlash": 0.0,
+            "masked": kind in MASKED_KINDS}
+
+
+def _build_reveal(out: dict, e: float, prm: dict) -> None:
+    """Wipe in one direction: a full-height band, a bottom-up band, or a column stagger."""
+    direction = prm.get("dir", "right")
+    if direction == "up":
+        out["rects"] = [_rect(0.0, 1.0 - e, 1.0, e)]
+        return
+    if direction != "diagonal":
+        out["rects"] = [_rect(0.0, 0.0, e, 1.0)]
+        return
+    cols = int(prm.get("cols", 12))
+    for i in range(cols):
+        height = _clamp(e * _DIAGONAL_OVERSHOOT - (i / cols) * _DIAGONAL_STAGGER)
+        if height > 0:
+            out["rects"].append(_rect(i / cols, 0.0, 1.0 / cols, height))
+
+
+def _build_circle(out: dict, e: float, prm: dict) -> None:
+    out["circles"] = [{"cx": 0.5, "cy": 0.5, "r": e * _IRIS_RADIUS, "dx": 0.0, "dy": 0.0}]
+    out["invert"] = prm.get("mode") == "close"
+
+
+def _build_slide(out: dict, e: float, prm: dict) -> None:
+    # The incoming frame only exists where it has arrived; the rest keeps the outgoing frame.
+    out["rects"] = [_rect(1.0 - e, 0.0, e, 1.0, dx=1.0 - e)]
+    out["aDx"] = -e if prm.get("push", True) else 0.0
+
+
+def _build_blinds(out: dict, e: float, prm: dict) -> None:
+    """Vertical slats opening from alternating top/bottom edges (bands is the horizontal cousin)."""
+    bars = int(prm.get("bars", 8))
+    width = 1.0 / bars
+    for i in range(bars):
+        delay = (i / bars) * _BLINDS_STAGGER
+        height = _clamp((e - delay) / (1.0 - delay))
+        if height > 0:
+            y = 0.0 if i % 2 == 0 else 1.0 - height
+            out["rects"].append(_rect(i * width, y, width, height))
+
+
+def _build_checker(out: dict, e: float, prm: dict) -> None:
+    cols, rows = int(prm.get("cols", 6)), int(prm.get("rows", 10))
+    for row in range(rows):
+        for col in range(cols):
+            delay = (col / cols) * _CHECKER_STAGGER + (row / rows) * _CHECKER_STAGGER
+            cell = _clamp((e - delay * _CHECKER_LEAD) / _CHECKER_RAMP)
+            if cell > 0:
+                out["rects"].append(_rect(col / cols, row / rows, cell / cols, 1.0 / rows))
+
+
+def _build_bands(out: dict, e: float, prm: dict) -> None:
+    bands = int(prm.get("bands", 6))
+    height = 1.0 / bands
+    for i in range(bands):
+        width = _clamp((e - i * _BANDS_STAGGER) / _BANDS_RAMP)
+        if width > 0:
+            x = 0.0 if i % 2 == 0 else 1.0 - width
+            out["rects"].append(_rect(x, i * height, width, height))
+
+
+def _build_fade(out: dict, e: float, prm: dict) -> None:
+    out["alpha"] = e
+
+
+def _build_zoom(out: dict, e: float, prm: dict) -> None:
+    out["alpha"] = e
+    out["scaleB"] = _ZOOM_FROM - _ZOOM_RANGE * e
+
+
+def _build_slices(out: dict, e: float, prm: dict) -> None:
+    """Deterministic glitch: horizontal slices arrive in a hashed order with a shrinking jitter."""
+    count = int(prm.get("slices", 12))
+    height = 1.0 / count
+    for i in range(count):
+        if e * _GLITCH_LEAD <= hash01(i) * 0.9:
+            continue
+        jitter = (hash01(i + 977) - 0.5) * _GLITCH_JITTER * (1.0 - e)
+        out["rects"].append(_rect(0.0, i * height, 1.0, height, dx=jitter))
+
+
+def _build_flash(out: dict, e: float, prm: dict) -> None:
+    out["alpha"] = 1.0 if e > _FLASH_HALF else 0.0
+    out["paperFlash"] = math.sin(math.pi * e) * _FLASH_PEAK
+
+
+# One entry per `kind` in motion/transitions.json. Adding a transition kind = adding a builder
+# plus its spec; `layer()` never grows again.
+_KIND_BUILDERS = {
+    "reveal": _build_reveal,
+    "circle": _build_circle,
+    "slide": _build_slide,
+    "blinds": _build_blinds,
+    "checker": _build_checker,
+    "bands": _build_bands,
+    "fade": _build_fade,
+    "zoom": _build_zoom,
+    "slices": _build_slices,
+    "flash": _build_flash,
+}
+
+
 def layer(name: str, p: float) -> dict:
     """Mask + transform for `name` at raw progress `p` (0 → outgoing frame, 1 → incoming)."""
     spec = TRANSITIONS.get(name) or TRANSITIONS.get("wipe") or {"kind": "reveal", "ease": "easeInOut", "params": {}}
-    e = ease(spec.get("ease", "easeInOut"), _clamp(p))
     kind = spec.get("kind", "reveal")
-    prm = spec.get("params") or {}
-    out = {"name": name, "p": e, "rects": [], "circles": [], "alpha": 1.0, "scaleB": 1.0,
-           "aDx": 0.0, "aDy": 0.0, "invert": False, "paperFlash": 0.0,
-           # a masked transition with an empty mask means "nothing revealed yet", not "blend all"
-           "masked": kind in {"reveal", "circle", "slide", "blinds", "checker", "bands", "slices"}}
-
-    if kind == "reveal":
-        direction = prm.get("dir", "right")
-        cols = int(prm.get("cols", 12))
-        if direction == "up":
-            out["rects"] = [_rect(0.0, 1.0 - e, 1.0, e)]
-        elif direction == "diagonal":
-            for i in range(cols):
-                h = _clamp(e * 1.5 - (i / cols) * 0.5)
-                if h > 0:
-                    out["rects"].append(_rect(i / cols, 0.0, 1.0 / cols, h))
-        else:
-            out["rects"] = [_rect(0.0, 0.0, e, 1.0)]
-
-    elif kind == "circle":
-        r = e * 1.7
-        out["circles"] = [{"cx": 0.5, "cy": 0.5, "r": r, "dx": 0.0, "dy": 0.0}]
-        out["invert"] = prm.get("mode") == "close"
-
-    elif kind == "slide":
-        # the incoming frame only exists where it has arrived; the rest keeps the outgoing frame
-        out["rects"] = [_rect(1.0 - e, 0.0, e, 1.0, dx=1.0 - e)]
-        out["aDx"] = -e if prm.get("push", True) else 0.0
-
-    elif kind == "blinds":
-        # vertical slats opening from alternating top/bottom edges (bands is the horizontal cousin)
-        bars = int(prm.get("bars", 8))
-        wid = 1.0 / bars
-        for i in range(bars):
-            start = (i / bars) * 0.35
-            h = _clamp((e - start) / (1.0 - start))
-            if h > 0:
-                y = 0.0 if i % 2 == 0 else 1.0 - h
-                out["rects"].append(_rect(i * wid, y, wid, h))
-
-    elif kind == "checker":
-        cols, rows = int(prm.get("cols", 6)), int(prm.get("rows", 10))
-        for j in range(rows):
-            for i in range(cols):
-                delay = (i / cols) * 0.5 + (j / rows) * 0.5
-                u = _clamp((e - delay * 0.8) / 0.2)
-                if u > 0:
-                    out["rects"].append(_rect(i / cols, j / rows, u / cols, 1.0 / rows))
-
-    elif kind == "bands":
-        bands = int(prm.get("bands", 6))
-        hgt = 1.0 / bands
-        for i in range(bands):
-            w = _clamp((e - i * 0.05) / 0.7)
-            if w > 0:
-                x = 0.0 if i % 2 == 0 else 1.0 - w
-                out["rects"].append(_rect(x, i * hgt, w, hgt))
-
-    elif kind == "fade":
-        out["alpha"] = e
-
-    elif kind == "zoom":
-        out["alpha"] = e
-        out["scaleB"] = 1.12 - 0.12 * e
-
-    elif kind == "slices":
-        n = int(prm.get("slices", 12))
-        hgt = 1.0 / n
-        for i in range(n):
-            if e * 1.15 > hash01(i) * 0.9:
-                jitter = (hash01(i + 977) - 0.5) * 0.22 * (1.0 - e)
-                out["rects"].append(_rect(0.0, i * hgt, 1.0, hgt, dx=jitter))
-
-    elif kind == "flash":
-        out["alpha"] = 1.0 if e > 0.5 else 0.0
-        out["paperFlash"] = math.sin(math.pi * e) * 0.85
-
+    builder = _KIND_BUILDERS.get(kind)
+    if builder is None:  # an unknown kind is a catalogue bug, not something to render silently
+        raise ValueError(f"transition {name!r}: unknown kind {kind!r} — known: {sorted(_KIND_BUILDERS)}")
+    out = _layer_state(name, kind)
+    eased = ease(spec.get("ease", "easeInOut"), _clamp(p))
+    out["p"] = eased
+    builder(out, eased, spec.get("params") or {})
     return out
 
 
@@ -209,35 +269,46 @@ def _mask(lay: dict, w: int, h: int) -> np.ndarray:
     return m
 
 
+def _blend(base: np.ndarray, incoming: np.ndarray, coverage: np.ndarray, alpha: float) -> np.ndarray:
+    """Lay `incoming` over `base` where `coverage` is set, at the layer's global `alpha`."""
+    weight = coverage[..., None] * alpha
+    return base * (1.0 - weight) + incoming * weight
+
+
+def _composite_masked(out_a: np.ndarray, bimg: np.ndarray, lay: dict, w: int, h: int) -> np.ndarray:
+    """Apply each rect/circle mask separately, so the incoming frame can shift per shape."""
+    out = out_a
+    full = _mask({"rects": [{"x": 0, "y": 0, "w": 1, "h": 1}], "circles": [], "invert": False}, w, h)
+    for rect in lay["rects"]:
+        local = _mask({"rects": [rect], "circles": [], "invert": False}, w, h)
+        if lay["invert"]:
+            local = full - local
+        source = _shift(bimg, rect["dx"], rect["dy"]) if (rect["dx"] or rect["dy"]) else bimg
+        out = _blend(out, source.astype(np.float32), local > 0, lay["alpha"])
+    if lay["circles"]:
+        coverage = _mask({"rects": [], "circles": lay["circles"], "invert": lay["invert"]}, w, h)
+        out = _blend(out, bimg.astype(np.float32), coverage, lay["alpha"])
+    return out
+
+
 def composite(a: np.ndarray, b: np.ndarray, name: str, p: float) -> np.ndarray:
     """Blend frame `a` into frame `b` through transition `name` at progress `p`."""
     lay = layer(name, p)
     h, w = a.shape[:2]
     out_a = a.astype(np.float32)
     if lay["aDx"] or lay["aDy"]:
-        out_a = _shift(out_a.astype(np.uint8), lay["aDx"], lay["aDy"]).astype(np.float32)
+        out_a = _shift(a, lay["aDx"], lay["aDy"]).astype(np.float32)
 
-    bimg = _scale(b.astype(np.uint8), lay["scaleB"])
-    if not lay["masked"]:
+    bimg = _scale(b, lay["scaleB"])
+    if lay["masked"]:
+        out = _composite_masked(out_a, bimg, lay, w, h)
+    else:
         alpha = lay["alpha"]
         out = out_a * (1.0 - alpha) + bimg.astype(np.float32) * alpha
-    else:
-        out = out_a.copy()
-        full = _mask({"rects": [{"x": 0, "y": 0, "w": 1, "h": 1}], "circles": [], "invert": False}, w, h)
-        for r in lay["rects"]:
-            local = _mask({"rects": [r], "circles": [], "invert": False}, w, h)
-            if lay["invert"]:
-                local = full - local
-            src = _shift(bimg, r["dx"], r["dy"]).astype(np.float32) if (r["dx"] or r["dy"]) else bimg.astype(np.float32)
-            m = (local > 0)[..., None]
-            out = np.where(m, out * (1.0 - lay["alpha"]) + src * lay["alpha"], out)
-        if lay["circles"]:
-            local = _mask({"rects": [], "circles": lay["circles"], "invert": lay["invert"]}, w, h)[..., None]
-            out = out * (1.0 - local * lay["alpha"]) + bimg.astype(np.float32) * (local * lay["alpha"])
 
-    if lay["paperFlash"]:
-        f = lay["paperFlash"]
-        out = out * (1.0 - f) + np.array((243, 242, 241), np.float32) * f
+    flash = lay["paperFlash"]
+    if flash:
+        out = out * (1.0 - flash) + np.array(_PAPER, np.float32) * flash
     return np.clip(out, 0, 255).astype(np.uint8)
 
 

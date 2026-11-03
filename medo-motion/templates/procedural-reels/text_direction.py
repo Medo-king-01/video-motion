@@ -47,6 +47,154 @@ def _long(value) -> bool:
     return isinstance(value, str) and len(value.strip()) >= MIN_REASON
 
 
+def _scene_style_errors(index: int, scene: dict) -> list[str]:
+    """The caption choice and the per-role text styles for one scene."""
+    errors = []
+    if not is_text_style(scene.get("captionStyle")):
+        errors.append(f"scene {index}: captionStyle must be an explicit caption-safe style")
+    if not _long(scene.get("captionWhy")):
+        errors.append(f"scene {index}: captionWhy must justify the caption style (>= {MIN_REASON} chars)")
+    styles = scene.get("textStyles")
+    if not isinstance(styles, dict):
+        return errors + [f"scene {index}: textStyles must be an object keyed by text role"]
+    for role, style in styles.items():
+        if role not in TEXT_ROLES:
+            errors.append(f"scene {index}: unknown text role '{role}'")
+        if not is_text_style(style):
+            errors.append(f"scene {index}: textStyles.{role} must be an explicit caption-safe style")
+    if styles and not _long(scene.get("textWhy")):
+        errors.append(f"scene {index}: textWhy must justify the on-screen text styles")
+    return errors
+
+
+def _scene_text_element_errors(index: int, scene: dict) -> list[str]:
+    """Per-element motion overrides: an explicit style and a reason, or nothing."""
+    elements = scene.get("textElements") or {}
+    if not isinstance(elements, dict):
+        return [f"scene {index}: textElements must be an object keyed by element id"]
+    errors = []
+    for element_id, element in elements.items():
+        if not isinstance(element, dict):
+            errors.append(f"scene {index}: textElements.{element_id} must be an object")
+            continue
+        if element.get("role") not in TEXT_ROLES:
+            errors.append(f"scene {index}: textElements.{element_id} has an unknown role")
+        if not is_text_style(element.get("style")):
+            errors.append(f"scene {index}: textElements.{element_id}.style must be an explicit caption-safe style")
+        if not _long(element.get("why")):
+            errors.append(f"scene {index}: textElements.{element_id}.why must justify this element's motion")
+    return errors
+
+
+def _scene_font_style_errors(index: int, scene: dict, fonts) -> list[str]:
+    """The agent's face choice per role — no creative default, validated against the manifest."""
+    styles = scene.get("fontStyles") or {}
+    if not isinstance(styles, dict):
+        return [f"scene {index}: fontStyles must be an object keyed by text role"]
+    errors = []
+    for role, entry in styles.items():
+        if role not in TEXT_ROLES:
+            errors.append(f"scene {index}: unknown font role '{role}'")
+        if not _font_entry_ok(entry, fonts):
+            errors.append(f"scene {index}: fontStyles.{role} must name an allowed family + available weight")
+    if styles and not _long(scene.get("fontWhy")):
+        errors.append(f"scene {index}: fontWhy must justify the chosen faces")
+    return errors
+
+
+def _scene_font_element_errors(index: int, scene: dict, fonts) -> list[str]:
+    elements = scene.get("fontElements") or {}
+    if not isinstance(elements, dict):
+        return [f"scene {index}: fontElements must be an object keyed by element id"]
+    errors = []
+    for element_id, entry in elements.items():
+        if not isinstance(entry, dict):
+            errors.append(f"scene {index}: fontElements.{element_id} must be an object")
+            continue
+        if entry.get("role") not in TEXT_ROLES:
+            errors.append(f"scene {index}: fontElements.{element_id} has an unknown role")
+        if not _font_entry_ok(entry, fonts):
+            errors.append(f"scene {index}: fontElements.{element_id} must name an allowed family + available weight")
+        if not _long(entry.get("why")):
+            errors.append(f"scene {index}: fontElements.{element_id}.why must justify this element's face")
+    return errors
+
+
+def _index_scenes(scenes: list, errors: list[str]) -> dict[int, dict]:
+    """One entry per scene index, collecting duplicates and bad indices in document order."""
+    by_index: dict[int, dict] = {}
+    for scene in scenes:
+        if not isinstance(scene, dict) or not isinstance(scene.get("scene"), int):
+            errors.append("each text-direction scene needs an integer 'scene' index")
+            continue
+        index = scene["scene"]
+        if index in by_index:
+            errors.append(f"duplicate text-direction scene {index}")
+        by_index[index] = scene
+    return by_index
+
+
+def _scene_coverage_errors(by_index: dict[int, dict], beats: dict) -> list[str]:
+    """Every measured scene needs direction, and no direction may point at a missing scene."""
+    wanted = {_scene_index(scene, position) for position, scene in enumerate(beats["scenes"])}
+    errors = []
+    missing = sorted(wanted - set(by_index))
+    extra = sorted(set(by_index) - wanted)
+    if missing:
+        errors.append(f"text-direction missing scenes: {missing}")
+    if extra:
+        errors.append(f"text-direction has scenes not in the timeline: {extra}")
+    return errors
+
+
+def _font_for_label(scene: dict, role: str, element_id, fonts) -> dict | None:
+    """Element override first, then the scene's role face — the same precedence the renderers use."""
+    override = (scene.get("fontElements") or {}).get(element_id) if element_id else None
+    if _font_entry_ok(override, fonts):
+        return override
+    return (scene.get("fontStyles") or {}).get(role)
+
+
+def _copy_errors(copy: dict, by_index: dict[int, dict], fonts) -> list[str]:
+    """Every visible fragment must resolve to an explicit style AND font."""
+    errors = []
+    for position, item in enumerate(copy["copy"]):
+        if not isinstance(item, dict):
+            errors.append(f"copy[{position}] must be an object")
+            continue
+        scene_index = item.get("scene")
+        role = item.get("role")
+        label = item.get("id") or f"copy[{position}]"
+        scene = by_index.get(scene_index)
+        if scene is None:
+            errors.append(f"{label}: scene {scene_index} has no text direction")
+            continue
+        if role not in TEXT_ROLES:
+            errors.append(f"{label}: every on-screen text fragment needs a known role (got {role!r})")
+            continue
+        elements = scene.get("textElements") or {}
+        element_id = item.get("id")
+        if element_id and element_id in elements:
+            element = elements[element_id]
+            if element.get("role") != role:
+                errors.append(f"{label}: textElements role does not match the copy role")
+            if not is_text_style(element.get("style")):
+                errors.append(f"{label}: no explicit style for this text element")
+        elif not is_text_style((scene.get("textStyles") or {}).get(role)):
+            errors.append(f"{label}: scene {scene_index} has no textStyles.{role} "
+                          f"(or textElements.{element_id}) for this text")
+        # Font coverage + script: Arabic text needs an Arabic-capable family.
+        if fonts is None:
+            continue
+        entry = _font_for_label(scene, role, element_id, fonts)
+        if not _font_entry_ok(entry, fonts):
+            errors.append(f"{label}: scene {scene_index} has no explicit font for role '{role}' "
+                          f"(fontStyles/fontElements)")
+        elif has_arabic(item.get("text")) and fonts[entry["family"]].get("script") != "arabic":
+            errors.append(f"{label}: Arabic text needs an Arabic-capable family (got {entry['family']})")
+    return errors
+
+
 def validate(direction, beats=None, copy=None, fonts=None) -> dict:
     """Return {'errors': [...], 'warnings': [...]}. Errors block a render/lint.
 
@@ -55,9 +203,10 @@ def validate(direction, beats=None, copy=None, fonts=None) -> dict:
     `fonts` is the manifest's `families` map; when supplied, font choices are
     checked against the allowed set (family, weight, Arabic coverage).
     """
-    errors, warnings = [], []
     if not isinstance(direction, dict):
         return {"errors": ["plan/text-direction.json must be an object"], "warnings": []}
+
+    errors: list[str] = []
     if direction.get("version") != VERSION:
         errors.append(f"text-direction version must be {VERSION}")
     if direction.get("status") != "directed":
@@ -69,124 +218,27 @@ def validate(direction, beats=None, copy=None, fonts=None) -> dict:
 
     scenes = direction.get("scenes")
     if not isinstance(scenes, list):
-        errors.append("text-direction scenes must be a list")
-        return {"errors": errors, "warnings": warnings}
+        return {"errors": errors + ["text-direction scenes must be a list"], "warnings": []}
 
-    by_index = {}
-    for sc in scenes:
-        if not isinstance(sc, dict) or not isinstance(sc.get("scene"), int):
-            errors.append("each text-direction scene needs an integer 'scene' index")
-            continue
-        idx = sc["scene"]
-        if idx in by_index:
-            errors.append(f"duplicate text-direction scene {idx}")
-        by_index[idx] = sc
-        if not is_text_style(sc.get("captionStyle")):
-            errors.append(f"scene {idx}: captionStyle must be an explicit caption-safe style")
-        if not _long(sc.get("captionWhy")):
-            errors.append(f"scene {idx}: captionWhy must justify the caption style (>= {MIN_REASON} chars)")
-        ts = sc.get("textStyles")
-        if not isinstance(ts, dict):
-            errors.append(f"scene {idx}: textStyles must be an object keyed by text role")
-        else:
-            for role, style in ts.items():
-                if role not in TEXT_ROLES:
-                    errors.append(f"scene {idx}: unknown text role '{role}'")
-                if not is_text_style(style):
-                    errors.append(f"scene {idx}: textStyles.{role} must be an explicit caption-safe style")
-            if ts and not _long(sc.get("textWhy")):
-                errors.append(f"scene {idx}: textWhy must justify the on-screen text styles")
-        elements = sc.get("textElements") or {}
-        if not isinstance(elements, dict):
-            errors.append(f"scene {idx}: textElements must be an object keyed by element id")
-        else:
-            for eid, el in elements.items():
-                if not isinstance(el, dict):
-                    errors.append(f"scene {idx}: textElements.{eid} must be an object")
-                    continue
-                if el.get("role") not in TEXT_ROLES:
-                    errors.append(f"scene {idx}: textElements.{eid} has an unknown role")
-                if not is_text_style(el.get("style")):
-                    errors.append(f"scene {idx}: textElements.{eid}.style must be an explicit caption-safe style")
-                if not _long(el.get("why")):
-                    errors.append(f"scene {idx}: textElements.{eid}.why must justify this element's motion")
-        # Font direction: the agent picks the face per role/element (no creative default).
-        fs = sc.get("fontStyles") or {}
-        if not isinstance(fs, dict):
-            errors.append(f"scene {idx}: fontStyles must be an object keyed by text role")
-        else:
-            for role, entry in fs.items():
-                if role not in TEXT_ROLES:
-                    errors.append(f"scene {idx}: unknown font role '{role}'")
-                if not _font_entry_ok(entry, fonts):
-                    errors.append(f"scene {idx}: fontStyles.{role} must name an allowed family + available weight")
-            if fs and not _long(sc.get("fontWhy")):
-                errors.append(f"scene {idx}: fontWhy must justify the chosen faces")
-        fe = sc.get("fontElements") or {}
-        if not isinstance(fe, dict):
-            errors.append(f"scene {idx}: fontElements must be an object keyed by element id")
-        else:
-            for eid, entry in fe.items():
-                if not isinstance(entry, dict):
-                    errors.append(f"scene {idx}: fontElements.{eid} must be an object")
-                    continue
-                if entry.get("role") not in TEXT_ROLES:
-                    errors.append(f"scene {idx}: fontElements.{eid} has an unknown role")
-                if not _font_entry_ok(entry, fonts):
-                    errors.append(f"scene {idx}: fontElements.{eid} must name an allowed family + available weight")
-                if not _long(entry.get("why")):
-                    errors.append(f"scene {idx}: fontElements.{eid}.why must justify this element's face")
+    by_index = _index_scenes(scenes, errors)
+    for index, scene in by_index.items():
+        errors += _scene_style_errors(index, scene)
+        errors += _scene_text_element_errors(index, scene)
+        errors += _scene_font_style_errors(index, scene, fonts)
+        errors += _scene_font_element_errors(index, scene, fonts)
 
     if beats and isinstance(beats.get("scenes"), list):
-        wanted = {_scene_index(s, i) for i, s in enumerate(beats["scenes"])}
-        missing = sorted(wanted - set(by_index))
-        extra = sorted(set(by_index) - wanted)
-        if missing:
-            errors.append(f"text-direction missing scenes: {missing}")
-        if extra:
-            errors.append(f"text-direction has scenes not in the timeline: {extra}")
+        errors += _scene_coverage_errors(by_index, beats)
 
-    # Every visible non-caption fragment must resolve to an explicit choice.
     if copy and isinstance(copy.get("copy"), list):
-        for i, item in enumerate(copy["copy"]):
-            if not isinstance(item, dict):
-                errors.append(f"copy[{i}] must be an object")
-                continue
-            scene = item.get("scene")
-            role = item.get("role")
-            label = item.get("id") or f"copy[{i}]"
-            sc = by_index.get(scene)
-            if sc is None:
-                errors.append(f"{label}: scene {scene} has no text direction")
-                continue
-            if role not in TEXT_ROLES:
-                errors.append(f"{label}: every on-screen text fragment needs a known role (got {role!r})")
-                continue
-            elements = sc.get("textElements") or {}
-            eid = item.get("id")
-            if eid and eid in elements:
-                el = elements[eid]
-                if el.get("role") != role:
-                    errors.append(f"{label}: textElements role does not match the copy role")
-                if not is_text_style(el.get("style")):
-                    errors.append(f"{label}: no explicit style for this text element")
-            elif not is_text_style((sc.get("textStyles") or {}).get(role)):
-                errors.append(f"{label}: scene {scene} has no textStyles.{role} (or textElements.{eid}) for this text")
-            # Font coverage + script: Arabic text needs an Arabic-capable family.
-            if fonts is not None:
-                fe = sc.get("fontElements") or {}
-                entry = fe.get(eid) if eid else None
-                if not _font_entry_ok(entry, fonts):
-                    entry = (sc.get("fontStyles") or {}).get(role)
-                if not _font_entry_ok(entry, fonts):
-                    errors.append(f"{label}: scene {scene} has no explicit font for role '{role}' (fontStyles/fontElements)")
-                elif has_arabic(item.get("text")) and fonts[entry["family"]].get("script") != "arabic":
-                    errors.append(f"{label}: Arabic text needs an Arabic-capable family (got {entry['family']})")
+        errors += _copy_errors(copy, by_index, fonts)
 
     # Variety is advisory: a repeated motif is allowed when it is explained.
-    styles = [sc.get("captionStyle") for sc in scenes if is_text_style(sc.get("captionStyle"))]
+    warnings: list[str] = []
+    styles = [scene.get("captionStyle") for scene in scenes if is_text_style(scene.get("captionStyle"))]
     if len(styles) >= 3 and len(set(styles)) == 1 and not direction.get("motifReason"):
-        warnings.append("every scene uses the same captionStyle — vary it per scene, or add motifReason to justify a deliberate motif")
+        warnings.append("every scene uses the same captionStyle — vary it per scene, or add motifReason "
+                        "to justify a deliberate motif")
     return {"errors": errors, "warnings": warnings}
 
 

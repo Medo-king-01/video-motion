@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased — 2026-11-03 (refactor pass)
+
+Structure-only: **no rendered pixel, lint verdict or CLI output changed**. Every claim below is
+pinned by a test (`tests/test_refactor_contracts.py`) and was checked against golden snapshots of
+the previous behaviour (transition geometry ×14 kinds ×51 steps, `composite` pixels, lint reports
+for the good/bad fixtures, scaffold tree, doctor report).
+
+- `transition.py`: the 83-line / 11-deep `layer()` is now a dispatch table of one builder per kind
+  (`_build_reveal`, `_build_blinds`, …); magic numbers are named constants; an unknown `kind` now
+  raises instead of silently rendering an empty mask. `composite()` reuses one `_blend()` helper.
+- `tools/lib/media_bin.py` (new): one precedence rule for ffmpeg/ffprobe (`*_BIN` → PATH → bundled
+  static → installed shim) replaces four different lookups across seven files.
+- `doctor.py`: module-level script → importable checks returning `Finding` records, with a pure
+  `verdict()`/`render()`; one failing capability can no longer abort the report, and silent
+  `except: pass` blocks are gone.
+- `new_project.py`: 138-line / depth-6 `main()` split into `slugify`, `resolve_target`,
+  `write_plan_files`, `copy_assets`, `install_engine`, `scaffold`.
+- `text_direction.validate()` (141 lines → 45) and `visual_direction._validate()` (112/depth-6 → 47)
+  split per concern (caption/style/element/font/coverage), each returning error strings.
+- `reel_lint.lint_copy()` split into fragment/timing/visibility/coverage checks; `scenes.py` and
+  the S03 lint message is fixed (it no longer claims "carries no copy" for a fragment that has copy).
+- `_common.append_asset_entry()` replaces the duplicated manifest writer in `get_fonts.py` and
+  `openverse_sfx.py`; `render_hybrid.executable()` no longer hides a bad override.
+- Removed dead code: an always-false palette assertion in `brand_check.py` and a tautological
+  `or` in `test_transitions.py`.
+
 ## Unreleased — 2026-11-03 (studio scope)
 
 - **The studio is a tool, not a video archive.** `projects/*` is now ignored by Git (only

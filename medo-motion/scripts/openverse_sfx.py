@@ -16,6 +16,9 @@ for _s in (sys.stdout, sys.stderr):
     except Exception: pass
 
 API = 'https://api.openverse.org/v1/audio/'
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from _common import append_asset_entry  # noqa: E402
+
 SAFE = {'cc0', 'pdm', 'by'}
 MAX_BYTES = 50 * 1024 * 1024
 
@@ -66,17 +69,8 @@ def slug(text):
     return (s or 'sound')[:50]
 
 def update_manifest(manifest, entry):
-    if not manifest.exists():
-        manifest.write_text('[]\n', encoding='utf-8')
-    data = json.loads(manifest.read_text(encoding='utf-8-sig') or '[]')
-    items = data if isinstance(data, list) else data.get('assets') if isinstance(data, dict) else None
-    if not isinstance(items, list):
-        return 'manifest format not recognised; add the entry by hand'
-    if any(isinstance(i, dict) and i.get('path') == entry['path'] for i in items):
-        return 'manifest already lists it'
-    items.append(entry)
-    manifest.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    return 'manifest updated'
+    return append_asset_entry(manifest, entry)
+
 
 def get(a):
     if not re.fullmatch(r'[0-9a-fA-F-]{36}', a.id):

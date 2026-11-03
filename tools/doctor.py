@@ -8,6 +8,10 @@ One command any agent can run before starting work:
 
 Prints READY / DEGRADED / BLOCKED with a reason per capability, then a verdict.
 Read-only apart from a Chromium launch and one temporary 64×64 PNG.
+
+Every check is a small function returning a `Finding`, so the report can be tested
+(`tests/test_doctor.py` drives the parsing and verdict rules without depending on the
+machine's packages) and one broken capability can never abort the whole report.
 """
 from __future__ import annotations
 
@@ -17,180 +21,265 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
+import wave
+from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILL = ROOT / "medo-motion"
-FAST = "--fast" in sys.argv
-rows: list[tuple[str, str, str]] = []          # (capability, state, detail)
+ENGINE_P = SKILL / "templates" / "procedural-reels"
+TMP_ROOT = Path(tempfile.gettempdir()).resolve()
+
+OK, DEGRADED, MISSING, BLOCKED, FAIL, SKIP = "OK", "DEGRADED", "MISSING", "BLOCKED", "FAIL", "SKIP"
+# States that make the machine unusable for a reel (MISSING is a subset of blocked work).
+BLOCKING_STATES = frozenset({BLOCKED, MISSING, FAIL})
+SOFT_STATES = frozenset({"WARN", DEGRADED, SKIP})
+
+PYTHON_PACKAGES = (
+    ("PIL", "Pillow", "pillow"),
+    ("numpy", "numpy", "numpy"),
+    ("scipy", "scipy", "scipy"),
+    ("cv2", "OpenCV", "opencv-python-headless"),
+    ("av", "PyAV", "av"),
+    ("uharfbuzz", "HarfBuzz", "uharfbuzz"),
+    ("freetype", "FreeType", "freetype-py"),
+)
+MIN_NODE = (20, 11)   # the toolkit's package-lock engines field
 
 
-def add(cap, state, detail=""):
-    rows.append((cap, state, detail))
+@dataclass(frozen=True)
+class Finding:
+    """One capability, its state, and the sentence explaining that state."""
+
+    capability: str
+    state: str
+    detail: str = ""
 
 
-def have(mod):
+# ------------------------------------------------------------------ helpers
+def run(argv, timeout: int = 60, env: dict | None = None) -> tuple[int, str]:
+    """Run a command and return (exit code, combined output); never raises."""
     try:
-        m = __import__(mod)
-    except Exception:
+        completed = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
+                                   env=env or os.environ)
+    except (OSError, subprocess.SubprocessError) as error:
+        return 127, str(error)
+    return completed.returncode, (completed.stdout or "") + (completed.stderr or "")
+
+
+def module_version(module: str) -> str | None:
+    """The installed version string, or None when the import fails for any reason."""
+    try:
+        imported = __import__(module)
+    except ImportError:
         return None
-    return str(getattr(m, "__version__", "") or "installed")
+    except Exception:  # noqa: BLE001 - a package can import-and-crash; that is still "unusable"
+        return None
+    return str(getattr(imported, "__version__", "") or "installed")
 
 
-def run(cmd, timeout=60, env=None):
+def _probe_duration(probe: str, media: Path) -> float | None:
+    code, out = run([probe, "-v", "error", "-show_entries", "format=duration", "-of", "json", str(media)], 20)
+    if code != 0:
+        return None
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
-                           env=env or os.environ)
-        return r.returncode, (r.stdout or "") + (r.stderr or "")
-    except Exception as e:
-        return 127, str(e)
+        return float(json.loads(out)["format"]["duration"])
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+        return None
 
 
-# ------------------------------------------------------------------ python stack
-for mod, label in [("PIL", "Pillow"), ("numpy", "numpy"), ("scipy", "scipy"),
-                   ("cv2", "OpenCV"), ("av", "PyAV"), ("uharfbuzz", "HarfBuzz"),
-                   ("freetype", "FreeType")]:
-    v = have(mod)
-    add(label, "OK" if v else "MISSING", v if v else "pip install " + {
-        "PIL": "pillow", "cv2": "opencv-python-headless", "av": "av",
-        "uharfbuzz": "uharfbuzz", "freetype": "freetype-py"}.get(mod, mod))
+def _write_silence(path: Path, seconds: float = 0.1, rate: int = 24000) -> None:
+    with wave.open(str(path), "wb") as handle:
+        handle.setnchannels(1)
+        handle.setsampwidth(2)
+        handle.setframerate(rate)
+        handle.writeframes(b"\0\0" * int(rate * seconds))
 
-# ------------------------------------------------------------------ arabic shaping
-backend = "none"
-detail = ""
-try:
-    from PIL import features
-    if features.check("raqm"):
-        backend, detail = "raqm", "Pillow RAQM layout"
-except Exception:
-    pass
-if backend == "none":
+
+# ------------------------------------------------------------------ checks
+def check_python_stack() -> list[Finding]:
+    findings = []
+    for module, label, package in PYTHON_PACKAGES:
+        version = module_version(module)
+        findings.append(Finding(label, OK if version else MISSING,
+                                version or f"pip install {package}"))
+    return findings
+
+
+def check_arabic_shaping() -> tuple[Finding, str]:
+    """Return the shaping-backend finding and the backend name the rest of the report reuses."""
     try:
-        sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
-        import arabic_shape  # noqa: PLC0415 — path is injected right above                                        # noqa: F401
-        backend = "harfbuzz-fallback"
-        detail = "Pillow has no libraqm; arabic_shape.py (HarfBuzz+FreeType) used"
-    except Exception as e:
-        backend, detail = "none", f"no shaping backend: {e}"
-add("Arabic shaping", "OK" if backend != "none" else "BLOCKED", f"{backend} — {detail}")
-
-# real render check: shape one Arabic word and require ink
-# the type system: manifest first, then the brand file (Cairo 800 preferred — see docs/fonts.md)
-try:
-    _sys_fams = json.loads((ROOT / "assets" / "fonts" / "fonts.json").read_text(encoding="utf-8"))["families"]
-    from fonts_install import FAMILIES, check_type_system
-    _font_problems = check_type_system()
-    add("Type system", "BLOCKED" if _font_problems else "OK",
-        "; ".join(_font_problems) if _font_problems else f"{len(FAMILIES)} free families (OFL), files verified")
-except Exception as e:
-    _sys_fams = {}
-    add("Type system", "DEGRADED", f"no assets/fonts/fonts.json ({e}) — run: make fonts")
-_cairo = sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*800*.ttf")) \
-    or sorted((ROOT / "assets" / "fonts" / "Cairo").glob("*.ttf"))
-font = next(iter(_cairo), None)
-if font and backend != "none":
-    try:
-        sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
-        import arabic_shape  # noqa: PLC0415 — path is injected right above
-        spr = arabic_shape.text_sprite(str(font), "مرحبا", 48, (255, 255, 255), True, 0)
-        ink = float((spr[..., 3] > 0).mean())
-        add("Arabic render smoke", "OK" if ink > 0.02 else "FAIL", f"ink coverage {ink:.0%} with {font.name}")
-    except Exception as e:
-        add("Arabic render smoke", "FAIL", str(e))
-else:
-    add("Arabic render smoke", "SKIP" if not font else "BLOCKED",
-        "no Cairo font in assets/fonts/Cairo" if not font else "no backend")
-
-# ------------------------------------------------------------------ ffmpeg
-ff = shutil.which("ffmpeg")
-if ff:
-    code, out = run([ff, "-version"], 20)
-    ver = out.splitlines()[0] if code == 0 else "unknown"
-    enc = run([ff, "-hide_banner", "-encoders"], 20)[1]
-    x264 = "libx264" in enc
-    add("ffmpeg", "OK" if x264 else "DEGRADED", f"{ver} · libx264 {'yes' if x264 else 'NO'}")
-    add("drawtext filter", "OK" if "drawtext" in run([ff, "-hide_banner", "-filters"], 20)[1] else "WARN",
-        "optional: contact-sheet timestamps fall back to ImageMagick")
-else:
-    add("ffmpeg", "BLOCKED", "not on PATH — bash tools/setup.sh")
-
-fprobe = shutil.which("ffprobe")
-if fprobe:
-    # A non-zero exit is NOT proof of a working shim: probe a real file and require a real duration.
-    import tempfile
-    import wave
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tw:
-        wv = wave.open(tw, "wb")
-        wv.setnchannels(1); wv.setsampwidth(2); wv.setframerate(24000)
-        wv.writeframes(b"\0\0" * 2400)          # 0.1 s of silence
-        wv.close()
-        probe_file = tw.name
-    code, out = run([fprobe, "-v", "error", "-show_entries", "format=duration", "-of", "json", probe_file], 20)
-    os.unlink(probe_file)
-    dur = None
-    try:
-        dur = float(json.loads(out)["format"]["duration"])
-    except Exception:
+        from PIL import features  # noqa: PLC0415 - optional until Pillow is installed
+        if features.check("raqm"):
+            return Finding("Arabic shaping", OK, "raqm — Pillow RAQM layout"), "raqm"
+    except ImportError:
         pass
-    if code == 0 and dur is not None and abs(dur - 0.1) < 0.01:
-        ver = run([fprobe, "-version"], 20)[1]
-        add("ffprobe", "OK", "shim (tools/ffprobe_shim.py)" if "shim" in ver.lower() else "native")
-    else:
-        add("ffprobe", "BLOCKED", f"present but not functional (exit {code}, duration={dur}) — "
-                                  f"reinstall the shim: bash tools/setup.sh")
-else:
-    add("ffprobe", "BLOCKED", "not on PATH — needed for duration/loudness checks")
+    sys.path.insert(0, str(ENGINE_P))
+    try:
+        import arabic_shape  # noqa: F401,PLC0415 - probing the module is the point
+    except ImportError as error:
+        return Finding("Arabic shaping", BLOCKED, f"none — no shaping backend: {error}"), "none"
+    return Finding("Arabic shaping", OK,
+                   "harfbuzz-fallback — Pillow has no libraqm; arabic_shape.py (HarfBuzz+FreeType) used"), "harfbuzz-fallback"
 
-# ------------------------------------------------------------------ node + browser
-node = shutil.which("node")
-if node:
-    ver = run([node, "--version"], 20)[1].strip()
-    m = re.match(r"v(\d+)\.(\d+)", ver)
-    new_enough = bool(m) and (int(m.group(1)), int(m.group(2))) >= (20, 11)   # package-lock engines
-    add("node", "OK" if new_enough else "DEGRADED",
-        f"{ver} — toolkit deps need >=20.11 (package-lock engines)" if not new_enough
-        else f"{ver} (>=20.11 as the toolkit lockfile requires)")
-else:
-    add("node", "BLOCKED", "install Node 20.11+")
-toolkit = ROOT / "tools" / "toolkit" / "node_modules"
-add("playwright-core", "OK" if (toolkit / "playwright-core").exists() else "MISSING",
-    "tools/toolkit — npm install" if not (toolkit / "playwright-core").exists() else "")
 
-if node and (toolkit / "playwright-core").exists() and not FAST:
-    code, out = run([node, str(ROOT / "tools" / "chromium.mjs"), "--check"], 120)
-    good = "CHROMIUM_OK" in out
-    add("Chromium (engines K/R)", "OK" if good else "BLOCKED",
-        out.strip().splitlines()[-1] if out.strip() else "no output")
-elif FAST:
-    add("Chromium (engines K/R)", "SKIP", "--fast")
+def check_type_system() -> Finding:
+    """The full 21-family manifest and every declared weight must be on disk."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        from fonts_install import FAMILIES, check_type_system  # noqa: PLC0415
+    except ImportError as error:
+        return Finding("Type system", DEGRADED, f"fonts_install unavailable ({error}) — run: make fonts")
+    problems = check_type_system()
+    if problems:
+        return Finding("Type system", BLOCKED, "; ".join(problems))
+    return Finding("Type system", OK, f"{len(FAMILIES)} free families (OFL), files verified")
 
-# ------------------------------------------------------------------ brand + templates
-add("brand lock", "OK" if (SKILL / "brand" / "brand.json").is_file() else "BLOCKED",
-    str((SKILL / "brand" / "brand.json").relative_to(ROOT)))
-add("engine P template", "OK" if (SKILL / "templates" / "procedural-reels" / "scenes.py").is_file() else "BLOCKED")
-add("engine K template", "OK" if (SKILL / "templates" / "render" / "render.js").is_file() else "BLOCKED")
-remotion_template = SKILL / "templates" / "remotion"
-remotion_ready = all((remotion_template / f).is_file() for f in ("package.json", "src/index.ts", "src/Root.tsx"))
-add("engine R template", "OK" if remotion_ready else "BLOCKED",
-    "Remotion scaffold; install its pinned npm deps in each R project" if remotion_ready else "template files missing")
-add("Cairo font", "OK" if font else "BLOCKED", str(font.name) if font else "python3 tools/setup.sh")
+
+def brand_font() -> Path | None:
+    """Cairo ExtraBold when present, otherwise any Cairo face: the system-chrome fallback."""
+    directory = ROOT / "assets" / "fonts" / "Cairo"
+    return next(iter(sorted(directory.glob("*800*.ttf")) or sorted(directory.glob("*.ttf"))), None)
+
+
+def check_arabic_render(font: Path | None, backend: str) -> Finding:
+    """Shape one Arabic word and require real ink — a font file alone proves nothing."""
+    if font is None:
+        return Finding("Arabic render smoke", BLOCKED, "no Cairo font in assets/fonts/Cairo")
+    if backend == "none":
+        return Finding("Arabic render smoke", BLOCKED, "no backend")
+    sys.path.insert(0, str(ENGINE_P))
+    try:
+        import arabic_shape  # noqa: PLC0415
+        sprite = arabic_shape.text_sprite(str(font), "مرحبا", 48, (255, 255, 255), True, 0)
+    except Exception as error:  # noqa: BLE001 - any failure here is the finding
+        return Finding("Arabic render smoke", FAIL, str(error))
+    ink = float((sprite[..., 3] > 0).mean())
+    return Finding("Arabic render smoke", OK if ink > 0.02 else FAIL, f"ink coverage {ink:.0%} with {font.name}")
+
+
+def check_ffmpeg() -> list[Finding]:
+    sys.path.insert(0, str(ROOT / "tools" / "lib"))
+    from media_bin import ffmpeg  # noqa: PLC0415 - shared precedence rule, see the module docstring
+
+    binary = ffmpeg()
+    if not binary:
+        return [Finding("ffmpeg", BLOCKED, "not on PATH — bash tools/setup.sh")]
+    code, out = run([binary, "-version"], 20)
+    version = out.splitlines()[0] if code == 0 and out.strip() else "unknown"
+    has_x264 = "libx264" in run([binary, "-hide_banner", "-encoders"], 20)[1]
+    has_drawtext = "drawtext" in run([binary, "-hide_banner", "-filters"], 20)[1]
+    return [
+        Finding("ffmpeg", OK if has_x264 else DEGRADED, f"{version} · libx264 {'yes' if has_x264 else 'NO'}"),
+        Finding("drawtext filter", OK if has_drawtext else "WARN",
+                "optional: contact-sheet timestamps fall back to ImageMagick"),
+    ]
+
+
+def check_ffprobe() -> Finding:
+    """A present binary is not proof: probe a real file and require the real duration."""
+    sys.path.insert(0, str(ROOT / "tools" / "lib"))
+    from media_bin import ffprobe  # noqa: PLC0415
+
+    probe = ffprobe()
+    if not probe:
+        return Finding("ffprobe", BLOCKED, "not on PATH — needed for duration/loudness checks")
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as handle:
+        probe_file = Path(handle.name)
+    try:
+        _write_silence(probe_file)
+        duration = _probe_duration(probe, probe_file)
+    finally:
+        probe_file.unlink(missing_ok=True)
+    if duration is None or abs(duration - 0.1) >= 0.01:
+        return Finding("ffprobe", BLOCKED,
+                       f"present but not functional (duration={duration}) — reinstall: bash tools/setup.sh")
+    version = run([probe, "-version"], 20)[1]
+    return Finding("ffprobe", OK, "shim (tools/ffprobe_shim.py)" if "shim" in version.lower() else "native")
+
+
+def check_node(toolkit: Path) -> Finding:
+    node = shutil.which("node")
+    if not node:
+        return Finding("node", BLOCKED, "install Node 20.11+")
+    version = run([node, "--version"], 20)[1].strip()
+    match = re.match(r"v(\d+)\.(\d+)", version)
+    if match and (int(match.group(1)), int(match.group(2))) >= MIN_NODE:
+        return Finding("node", OK, f"{version} (>={MIN_NODE[0]}.{MIN_NODE[1]} as the toolkit lockfile requires)")
+    return Finding("node", DEGRADED, f"{version} — toolkit deps need >={MIN_NODE[0]}.{MIN_NODE[1]} (package-lock engines)")
+
+
+def check_chromium(toolkit: Path, fast: bool) -> Finding:
+    if fast:
+        return Finding("Chromium (engines K/R)", SKIP, "--fast")
+    if not shutil.which("node") or not (toolkit / "playwright-core").exists():
+        return Finding("Chromium (engines K/R)", SKIP, "node + toolkit deps are missing (checked above)")
+    code, out = run(["node", str(ROOT / "tools" / "chromium.mjs"), "--check"], 120)
+    lines = out.strip().splitlines()
+    return Finding("Chromium (engines K/R)", OK if "CHROMIUM_OK" in out else BLOCKED,
+                   lines[-1] if lines else "no output")
+
+
+def check_templates(font: Path | None) -> list[Finding]:
+    remotion = SKILL / "templates" / "remotion"
+    remotion_ready = all((remotion / name).is_file() for name in ("package.json", "src/index.ts", "src/Root.tsx"))
+    return [
+        Finding("brand lock", OK if (SKILL / "brand" / "brand.json").is_file() else BLOCKED,
+                str((SKILL / "brand" / "brand.json").relative_to(ROOT))),
+        Finding("engine P template", OK if (SKILL / "templates" / "procedural-reels" / "scenes.py").is_file() else BLOCKED),
+        Finding("engine K template", OK if (SKILL / "templates" / "render" / "render.js").is_file() else BLOCKED),
+        Finding("engine R template", OK if remotion_ready else BLOCKED,
+                "Remotion scaffold; install its pinned npm deps in each R project" if remotion_ready
+                else "template files missing"),
+        Finding("Cairo font", OK if font else BLOCKED, font.name if font else "python3 tools/setup.sh"),
+    ]
+
+
+def collect(fast: bool = False) -> tuple[list[Finding], str]:
+    """Run every check and return the findings plus the active Arabic backend."""
+    toolkit = ROOT / "tools" / "toolkit" / "node_modules"
+    shaping, backend = check_arabic_shaping()
+    font = brand_font()
+    findings: list[Finding] = [*check_python_stack(), shaping, check_type_system(),
+                               check_arabic_render(font, backend), *check_ffmpeg(), check_ffprobe(),
+                               check_node(toolkit),
+                               Finding("playwright-core", OK if (toolkit / "playwright-core").exists() else MISSING,
+                                       "" if (toolkit / "playwright-core").exists() else "tools/toolkit — npm install"),
+                               check_chromium(toolkit, fast), *check_templates(font)]
+    return findings, backend
+
 
 # ------------------------------------------------------------------ report
-width = max(len(r[0]) for r in rows) + 2
-print("medo-motion doctor\n" + "-" * (width + 46))
-for cap, state, detail in rows:
-    colour = {"OK": "\033[32m", "WARN": "\033[33m", "SKIP": "\033[90m"}.get(state, "\033[31m")
-    print(f"{cap:<{width}}{colour}{state:<10}\033[0m {detail[:70]}")
-print("-" * (width + 46))
+def verdict(findings: list[Finding]) -> str:
+    blocked = [f.capability for f in findings if f.state in BLOCKING_STATES]
+    soft = [f.capability for f in findings if f.state in SOFT_STATES and f.state != SKIP]
+    if blocked:
+        return f"BLOCKED — {len(blocked)} item(s): " + ", ".join(blocked)
+    if soft:
+        return "DEGRADED — usable, but check: " + ", ".join(soft)
+    return "READY — P/K templates and the R scaffold are present; install Remotion deps per R project"
 
-blocked = [r for r in rows if r[1] in ("BLOCKED", "MISSING", "FAIL")]
-degraded = [r for r in rows if r[1] in ("WARN", "DEGRADED")]
-if blocked:
-    verdict = f"BLOCKED — {len(blocked)} item(s): " + ", ".join(r[0] for r in blocked)
-elif degraded:
-    verdict = "DEGRADED — usable, but check: " + ", ".join(r[0] for r in degraded)
-else:
-    verdict = "READY — P/K templates and the R scaffold are present; install Remotion deps per R project"
-print(verdict)
-print(f"\nArabic backend: {backend} · project scaffold: python3 tools/new_project.py <slug>")
-sys.exit(1 if blocked else 0)
+
+def render(findings: list[Finding], backend: str) -> str:
+    width = max(len(f.capability) for f in findings) + 2
+    rule = "-" * (width + 46)
+    colours = {OK: "\033[32m", "WARN": "\033[33m", SKIP: "\033[90m"}
+    lines = ["medo-motion doctor", rule]
+    for finding in findings:
+        colour = colours.get(finding.state, "\033[31m")
+        lines.append(f"{finding.capability:<{width}}{colour}{finding.state:<10}\033[0m {finding.detail[:70]}")
+    lines += [rule, verdict(findings),
+              f"\nArabic backend: {backend} · project scaffold: python3 tools/new_project.py <slug>"]
+    return "\n".join(lines)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = sys.argv[1:] if argv is None else argv
+    findings, backend = collect(fast="--fast" in args)
+    print(render(findings, backend))
+    return 1 if any(f.state in BLOCKING_STATES for f in findings) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

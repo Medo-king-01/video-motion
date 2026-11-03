@@ -35,7 +35,7 @@ def test_embedded_catalogue_matches_the_spec():
         assert EMBEDDED[name]["sfx"] == spec["sfx"]
         assert EMBEDDED[name]["params"] == spec.get("params", {})
         assert name in JS, f"{name} missing from lib/transition.js"
-        assert f"ease: '{spec['ease']}'" in JS or f"ease: '{spec['ease']}'" in JS, name
+        assert f"ease: '{spec['ease']}'" in JS, name
 
 
 def test_every_transition_has_a_sound_and_a_known_easing():

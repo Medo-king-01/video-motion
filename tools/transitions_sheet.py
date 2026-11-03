@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 import glob
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -24,7 +23,9 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 P_DIR = ROOT / "medo-motion" / "templates" / "procedural-reels"
 sys.path.insert(0, str(P_DIR))
+sys.path.insert(0, str(ROOT / "tools" / "lib"))
 
+from media_bin import ffmpeg as find_ffmpeg  # noqa: E402
 from transition import NAMES, composite, sfx_for  # noqa: E402
 
 W, H = 1080, 1920
@@ -95,7 +96,7 @@ def contact_sheet(names: list[str], out: Path, cols: int = 7, p: float = 0.45) -
 def video(names: list[str], out: Path, hold: float = 0.25, trans: float = 0.6, fps: int = 30,
           width: int = 540, with_sfx: bool = True) -> Path:
     """Preview clip of every transition, cut to the sound each one declares in transitions.json."""
-    ff = os.environ.get("FFMPEG_BIN") or "ffmpeg"
+    ff = find_ffmpeg() or "ffmpeg"
     h = int(width * H / W)
     a = np.asarray(Image.fromarray(frame_a()).resize((width, h), Image.LANCZOS))
     b = np.asarray(Image.fromarray(frame_b()).resize((width, h), Image.LANCZOS))

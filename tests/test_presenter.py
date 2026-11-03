@@ -231,5 +231,6 @@ def test_scenes_and_project_template_are_wired():
     assert "loadPoses" in text and "PoseTrack" in text
     data = (SKILL / "templates" / "render" / "data.js").read_text(encoding="utf-8")
     assert "presenter-example" in data
+    # The scaffold must copy the pose library AND its manifest (the slug list the engines read).
     np_ = (ROOT / "tools" / "new_project.py").read_text(encoding="utf-8")
-    assert "poses_src" in np_, "new projects must receive the pose library"
+    assert '"poses"' in np_ and '"poses.json"' in np_, "new projects must receive the pose library"
