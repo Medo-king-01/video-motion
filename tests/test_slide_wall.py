@@ -41,7 +41,7 @@ def spec_fixture() -> dict:
         "slides": [
             {"id": "a"},
             {"id": "b"},
-            {"id": "c", "position": [5, -1, 0.3], "rotation": [0.2, -0.35, 0.15]},
+            {"id": "c", "position": [6, -1, 0.3], "rotation": [0.2, -0.35, 0.15]},
         ],
         "timeline": [
             {"mode": "overview", "start": 0, "end": 1},
@@ -53,6 +53,25 @@ def spec_fixture() -> dict:
             {"mode": "slide", "slide": "c", "start": 4, "end": 5},
             {"mode": "move", "from": {"type": "slide", "slide": "c"}, "to": {"type": "overview"},
              "start": 5, "end": 6, "ease": "sineInOut"},
+        ],
+    }
+
+
+def opposite_camera_spec(rotation: float = math.pi) -> dict:
+    return {
+        "version": 1,
+        "id": "opposite-camera",
+        "canvas": {"w": 90, "h": 160, "fps": 30},
+        "camera": {"fov": 32, "overview": {
+            "position": [0, 0, 12], "target": [0, 0, 0], "up": [0, 1, 0], "roll": 0,
+        }},
+        "layout": {"slideSize": [3, 4]},
+        "slides": [{"id": "a", "position": [0, 0, 0], "rotation": [0, 0, rotation]}],
+        "timeline": [
+            {"mode": "overview", "start": 0, "end": 0.25},
+            {"mode": "move", "from": {"type": "overview"}, "to": {"type": "slide", "slide": "a"},
+             "start": 0.25, "end": 1.25, "ease": "linear", "lift": 0.3},
+            {"mode": "slide", "slide": "a", "start": 1.25, "end": 1.5},
         ],
     }
 
@@ -97,6 +116,35 @@ def test_validation_rejects_xy_overlap_and_explicitly_permits_stacks() -> None:
     assert any("overlap" in error for error in slide_wall.validate_slide_wall_spec(spec))
     spec["layout"]["preventOverlap"] = False
     assert slide_wall.validate_slide_wall_spec(spec) == []
+
+
+def test_rotation_aware_overlap_and_js_validation_parity() -> None:
+    def fixture(rotation: float, prevent_overlap: bool = True) -> dict:
+        spec = spec_fixture()
+        spec["layout"]["preventOverlap"] = prevent_overlap
+        spec["slides"] = [
+            {"id": "a", "size": [2, 2], "position": [0, 0, 0], "rotation": [0, 0, rotation]},
+            {"id": "b", "size": [2, 2], "position": [2.2, 0.8, 3], "rotation": [0, 0, rotation]},
+        ]
+        spec["timeline"] = [{"mode": "overview", "start": 0, "end": 6}]
+        return spec
+
+    separated = fixture(math.pi / 4)
+    separated["slides"][1]["position"] = [4.5, 0.8, 3]
+    cases = [fixture(0), fixture(math.pi / 4), separated, fixture(math.pi / 4, prevent_overlap=False)]
+    expected = [False, True, False, False]  # before rotation, after rotation, separate, intentional stack
+    actual = [any("overlap" in error for error in slide_wall.validate_slide_wall_spec(spec)) for spec in cases]
+    assert actual == expected
+
+    module = (K / "lib" / "slide-wall.js").as_uri()
+    script = f"""
+      import {{validateSlideWallSpec}} from {json.dumps(module)};
+      const cases=JSON.parse(process.argv[1]);
+      console.log(JSON.stringify(cases.map(spec=>validateSlideWallSpec(spec).some(e=>e.includes('overlap')))));
+    """
+    result = subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(cases)],
+                            capture_output=True, text=True, check=True, timeout=60)
+    assert json.loads(result.stdout) == expected
 
 
 @pytest.mark.parametrize(
@@ -145,6 +193,32 @@ def test_overview_contains_all_slide_faces_and_repeat_evaluation_is_pure() -> No
     assert np.array_equal(np.asarray(state["slides"][0]["front"]), np.asarray(again["slides"][0]["front"]))
 
 
+def test_visible_slide_aabb_is_finite_positive_and_matches_js() -> None:
+    spec = spec_fixture()
+    state = slide_wall.slide_wall_state_at(spec, 0.5)
+    python_boxes = {}
+    for item in state["slides"]:
+        assert item["visible"]
+        box = item["aabb"]
+        assert all(math.isfinite(box[key]) for key in ("x", "y", "w", "h"))
+        assert box["w"] > 0 and box["h"] > 0
+        python_boxes[item["slide"]["id"]] = box
+
+    module = (K / "lib" / "slide-wall.js").as_uri()
+    script = f"""
+      import {{slideWallStateAt}} from {json.dumps(module)};
+      const state=slideWallStateAt(JSON.parse(process.argv[1]),0.5);
+      console.log(JSON.stringify(Object.fromEntries(state.slides.map(item=>[item.slide.id,item.aabb]))));
+    """
+    result = subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(spec)],
+                            capture_output=True, text=True, check=True, timeout=60)
+    js_boxes = json.loads(result.stdout)
+    assert js_boxes.keys() == python_boxes.keys()
+    for slide_id, python_box in python_boxes.items():
+        for key in ("x", "y", "w", "h"):
+            assert js_boxes[slide_id][key] == pytest.approx(python_box[key], abs=1e-9)
+
+
 def test_eased_move_endpoints_lift_and_reduced_motion_cut() -> None:
     spec = spec_fixture()
     before = slide_wall.slide_wall_state_at(spec, 1)
@@ -161,6 +235,74 @@ def test_eased_move_endpoints_lift_and_reduced_motion_cut() -> None:
     assert reduced["progress"] == 1
     for key in ("pos", "fwd", "right", "up"):
         assert np.allclose(reduced["camera"][key], hold["camera"][key], atol=1e-8)
+
+
+def test_opposite_camera_orientations_slerp_with_js_parity() -> None:
+    """180-degree orientation move; Python/JS camera parity tolerance is 1e-8."""
+    spec = opposite_camera_spec()
+    fractions = [0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 0.999]
+    times = [0, 0.25, *[0.25 + fraction for fraction in fractions], 1.25, 1.5]
+    states = [slide_wall.slide_wall_state_at(spec, t) for t in times]
+    source, target = states[0]["camera"], states[-1]["camera"]
+    keys = ("pos", "fwd", "right", "up", "target", "roll")
+    for endpoint, expected in ((states[1]["camera"], source), (states[-2]["camera"], target)):
+        for key in keys:
+            assert np.allclose(endpoint[key], expected[key], atol=1e-12)
+
+    for fraction, state in zip(fractions, states[2:-2], strict=True):
+        camera = state["camera"]
+        basis = np.asarray([camera["right"], camera["up"], camera["fwd"]], dtype=float)
+        assert np.isfinite(basis).all()
+        assert np.allclose(np.linalg.norm(basis, axis=1), 1, atol=1e-8)
+        assert np.allclose(basis @ basis.T, np.eye(3), atol=1e-8)
+        expected_pos = (1 - fraction) * np.asarray(source["pos"]) + fraction * np.asarray(target["pos"])
+        expected_pos[2] += math.sin(math.pi * fraction) * 0.3
+        assert np.allclose(camera["pos"], expected_pos, atol=1e-8)
+
+    module = (K / "lib" / "slide-wall.js").as_uri()
+    script = f"""
+      import {{slideWallStateAt}} from {json.dumps(module)};
+      const spec=JSON.parse(process.argv[1]), times=JSON.parse(process.argv[2]);
+      console.log(JSON.stringify(times.map(t=>{{const c=slideWallStateAt(spec,t).camera;
+        return Object.fromEntries(['pos','fwd','right','up','target','roll'].map(k=>[k,c[k]]));}})));
+    """
+    result = subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(spec), json.dumps(times)],
+                            capture_output=True, text=True, check=True, timeout=60)
+    for js_camera, state in zip(json.loads(result.stdout), states, strict=True):
+        for key in keys:
+            assert np.allclose(js_camera[key], state["camera"][key], atol=1e-8)
+
+
+def test_small_rotation_move_preserves_legacy_normalized_lerp_path() -> None:
+    spec = opposite_camera_spec(rotation=0.04)  # near-aligned poses retain normalized vector lerp
+    norm = slide_wall.normalize_slide_wall(spec)
+    source = slide_wall._overview_state(norm, norm["viewport"])
+    target = slide_wall._focus_state(norm, "a", norm["viewport"])
+    for fraction in (0.1, 0.25, 0.5, 0.75, 0.9):
+        legacy = {key: [source[key][i] + (target[key][i] - source[key][i]) * fraction for i in range(3)]
+                  for key in ("position", "target", "up")}
+        expected = slide_wall.space3d.look_camera(
+            legacy["position"], legacy["target"], norm["camera"]["fov"], 0, legacy["up"],
+        )
+        expected["pos"] = (*expected["pos"][:2], expected["pos"][2] + math.sin(math.pi * fraction) * 0.3)
+        actual = slide_wall.slide_wall_state_at(norm, 0.25 + fraction)["camera"]
+        for key in ("pos", "fwd", "right", "up", "target", "roll"):
+            assert np.allclose(actual[key], expected[key], atol=1e-9)
+
+
+def test_opposite_camera_midpoint_p_adapter_render_smoke() -> None:
+    spec = opposite_camera_spec()
+
+    def texture(slide, width, height):
+        del slide
+        rgba = np.full((height, width, 4), [243, 242, 241, 255], dtype=np.uint8)
+        rgba[4:10, 4:-4] = [203, 39, 27, 255]
+        return rgba
+
+    wall = slide_wall.create_slide_wall(spec, texture, texture_width=32)
+    frame = wall["render"](0.75)
+    assert frame.shape == (160, 90, 3) and frame.dtype == np.uint8
+    assert np.isfinite(frame).all() and frame.std() > 20
 
 
 def test_homography_maps_all_source_corners() -> None:

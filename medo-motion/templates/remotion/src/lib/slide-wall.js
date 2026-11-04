@@ -29,6 +29,12 @@ export function slideMesh(slide, depth) {
   return transform(box(slide.size[0], slide.size[1], depth), { rx, ry, rz, move: slide.position });
 }
 
+function slideXYAabb(slide, depth) {
+  const verts = slideMesh(slide, depth).verts;
+  const xs = verts.map((v) => v[0]), ys = verts.map((v) => v[1]);
+  return [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+}
+
 /** Return every configuration/timing error without requiring a renderer. */
 export function validateSlideWallSpec(input, duration = null) {
   const errors = [];
@@ -141,11 +147,13 @@ export function validateSlideWallSpec(input, duration = null) {
     }
   }
   if (layout.preventOverlap ?? true) {
+    const overlapDepth = finite(depth) && depth > 0 ? depth : 0.08;
+    const footprints = slides.map((slide) => slideXYAabb(slide, overlapDepth));
     for (let i = 0; i < slides.length; i++) for (let j = i + 1; j < slides.length; j++) {
-      const a = slides[i], b = slides[j];
-      // Deliberate conservative contract: XY footprints must be disjoint regardless of z/rotation.
-      if (Math.abs(a.position[0] - b.position[0]) < (a.size[0] + b.size[0]) / 2 - EPS
-        && Math.abs(a.position[1] - b.position[1]) < (a.size[1] + b.size[1]) / 2 - EPS) {
+      const a = slides[i], b = slides[j], aa = footprints[i], bb = footprints[j];
+      // Conservative transformed-slab XY AABBs include rotation/depth; touching edges are allowed.
+      if (aa[0] < bb[1] - EPS && bb[0] < aa[1] - EPS
+        && aa[2] < bb[3] - EPS && bb[2] < aa[3] - EPS) {
         errors.push(`slides ${a.id} and ${b.id} overlap in the required XY separation contract`);
       }
     }
@@ -306,9 +314,91 @@ function segmentAt(spec, t) {
     : [spec.timeline.length - 1, spec.timeline.at(-1)];
 }
 
+function cameraQuaternion(camera) {
+  // Right-handed matrix columns are right, up and back=-forward.
+  const r = camera.right, u = camera.up, b = camera.fwd.map((v) => -v);
+  const m00 = r[0], m01 = u[0], m02 = b[0];
+  const m10 = r[1], m11 = u[1], m12 = b[1];
+  const m20 = r[2], m21 = u[2], m22 = b[2];
+  const trace = m00 + m11 + m22;
+  let q;
+  if (trace > 0) {
+    const s = Math.sqrt(trace + 1) * 2;
+    q = [s / 4, (m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s];
+  } else if (m00 > m11 && m00 > m22) {
+    const s = Math.sqrt(1 + m00 - m11 - m22) * 2;
+    q = [(m21 - m12) / s, s / 4, (m01 + m10) / s, (m02 + m20) / s];
+  } else if (m11 > m22) {
+    const s = Math.sqrt(1 + m11 - m00 - m22) * 2;
+    q = [(m02 - m20) / s, (m01 + m10) / s, s / 4, (m12 + m21) / s];
+  } else {
+    const s = Math.sqrt(1 + m22 - m00 - m11) * 2;
+    q = [(m10 - m01) / s, (m02 + m20) / s, (m12 + m21) / s, s / 4];
+  }
+  const length = Math.sqrt(q.reduce((sum, v) => sum + v * v, 0));
+  return q.map((v) => v / length);
+}
+
+function quaternionSlerp(a, b, t) {
+  let dot = a.reduce((sum, v, i) => sum + v * b[i], 0);
+  if (dot < 0) { b = b.map((v) => -v); dot = -dot; }
+  dot = Math.max(-1, Math.min(1, dot));
+  let q;
+  if (dot > 0.9995) q = a.map((v, i) => v + (b[i] - v) * t);
+  else {
+    const theta = Math.acos(dot), sinTheta = Math.sin(theta);
+    const wa = Math.sin((1 - t) * theta) / sinTheta, wb = Math.sin(t * theta) / sinTheta;
+    q = a.map((v, i) => wa * v + wb * b[i]);
+  }
+  const length = Math.sqrt(q.reduce((sum, v) => sum + v * v, 0));
+  return q.map((v) => v / length);
+}
+
+function quaternionRotate(q, v) {
+  const [w, x, y, z] = q;
+  const t = [2 * (y * v[2] - z * v[1]), 2 * (z * v[0] - x * v[2]), 2 * (x * v[1] - y * v[0])];
+  return [
+    v[0] + w * t[0] + y * t[2] - z * t[1],
+    v[1] + w * t[1] + z * t[0] - x * t[2],
+    v[2] + w * t[2] + x * t[1] - y * t[0],
+  ];
+}
+
+function interpolateCamera(from, to, progress, fov) {
+  // Keep near-aligned legacy moves; SLERP larger orientations independently of position/target.
+  const fromCamera = lookCamera(from.position, from.target, fov, 0, from.up);
+  const toCamera = lookCamera(to.position, to.target, fov, 0, to.up);
+  const fromQ = cameraQuaternion(fromCamera), toQ = cameraQuaternion(toCamera);
+  const deltaRoll = Math.atan2(Math.sin(to.roll - from.roll), Math.cos(to.roll - from.roll));
+  const roll = from.roll + deltaRoll * progress;
+  const alignment = Math.abs(fromQ.reduce((sum, v, i) => sum + v * toQ[i], 0));
+  if (alignment > 0.9995) {
+    const state = {};
+    ['position', 'target', 'up'].forEach((key) => {
+      state[key] = from[key].map((v, i) => v + (to[key][i] - v) * progress);
+    });
+    return lookCamera(state.position, state.target, fov, roll, state.up);
+  }
+  const q = quaternionSlerp(fromQ, toQ, progress);
+  let right = quaternionRotate(q, [1, 0, 0]), up = quaternionRotate(q, [0, 1, 0]);
+  const back = quaternionRotate(q, [0, 0, 1]);
+  if (roll) {
+    const c = Math.cos(roll), s = Math.sin(roll);
+    const nextRight = right.map((v, i) => v * c + up[i] * s);
+    const nextUp = right.map((v, i) => -v * s + up[i] * c);
+    right = nextRight;
+    up = nextUp;
+  }
+  return {
+    pos: from.position.map((v, i) => v + (to.position[i] - v) * progress),
+    fwd: back.map((v) => -v), right, up, fov: fov * Math.PI / 180,
+    target: from.target.map((v, i) => v + (to.target[i] - v) * progress), roll,
+  };
+}
+
 function cameraAt(spec, t, motionMode, viewport) {
   const [index, segment] = segmentAt(spec, t);
-  let state, progress = 0;
+  let state, camera = null, progress = 0;
   if (segment.mode === 'overview') state = overviewState(spec, viewport);
   else if (segment.mode === 'slide') state = focusState(spec, segment.slide, viewport);
   else {
@@ -319,16 +409,12 @@ function cameraAt(spec, t, motionMode, viewport) {
     else if (raw >= 1) { state = to; progress = 1; }
     else {
       progress = ease(segment.ease, raw);
-      state = {};
-      ['position', 'target', 'up'].forEach((key) => {
-        state[key] = from[key].map((v, i) => v + (to[key][i] - v) * progress);
-      });
-      const deltaRoll = Math.atan2(Math.sin(to.roll - from.roll), Math.cos(to.roll - from.roll));
-      state.roll = from.roll + deltaRoll * progress;
-      state.position[2] += Math.sin(Math.PI * raw) * segment.lift;
+      camera = interpolateCamera(from, to, progress, spec.camera.fov);
+      camera.pos[2] += Math.sin(Math.PI * raw) * segment.lift;
     }
   }
-  return [lookCamera(state.position, state.target, spec.camera.fov, state.roll, state.up), index, segment.mode, progress];
+  if (!camera) camera = lookCamera(state.position, state.target, spec.camera.fov, state.roll, state.up);
+  return [camera, index, segment.mode, progress];
 }
 
 /** Pure absolute-time evaluation: camera + sorted projected slides, with no global state. */
@@ -356,7 +442,7 @@ export function slideWallStateAt(input, t, { motionMode = 'normal', viewport = n
     });
     return {
       slide, mesh: wallMesh, projected, front, visible, depth, faces,
-      aabb: visible ? { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(ys) } : null,
+      aabb: visible ? { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) } : null,
     };
   }).sort((a, b) => b.depth - a.depth);
   return { time: t, camera, segmentIndex, mode, progress, viewport: win, slides };

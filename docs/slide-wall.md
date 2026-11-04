@@ -83,7 +83,7 @@
 - `position = [x,y,z]` بوحدات world، و`rotation = [rx,ry,rz]` بالراديان، و`size = [width,height]` كاملين. `depth` سماكة كل slab وليس موضع z.
 - عند حذف `position` يتولد grid متمركز حتميًا من ترتيب المصفوفة و`gridColumns` و`gap` و`origin`. التطبيع يحفظ الموضع الناتج؛ لا randomness ولا وقت نظام.
 - `bounds`، إن وجد، يُختبر على **الزوايا الثماني المحوّلة** لكل slab. يجب أن يكون `min < max` في كل محور.
-- عقد الفصل الافتراضي `preventOverlap=true` محافظ عمدًا: مساحات XY لأحجام الشرائح يجب ألا تتداخل، بصرف النظر عن z أو rotation. للتكديس المتعمد استخدم `preventOverlap=false`.
+- عقد الفصل الافتراضي `preventOverlap=true` محافظ عمدًا: تؤخذ الزوايا الثماني المحوّلة لكل slab (بما فيها `rotation` و`depth`)، ثم يُختبر تداخل **XY AABB** لكل زوج. لذلك قد يرفض مضلعين منفصلين فعليًا إذا تداخل صندوقاهما المحافظان، لكنه لا يتجاهل اتساعًا ناتجًا عن الدوران. ملامسة الحواف مسموحة، ولا يُستخدم z للسماح بالتداخل. للتكديس المتعمد استخدم `preventOverlap=false`.
 - `surfaceRole` و`edgeRole` و`accentRole` و`backgroundRole` أسماء أدوار brand فقط؛ الألوان الخام مرفوضة.
 - `viewport` الافتراضي هو كامل canvas. عند Fixed Stage مرّر `stageState.win` في كل evaluation بدل الافتراضي الثابت.
 
@@ -98,6 +98,8 @@
 3. `move`: انتقال بين endpointين مختلفين. يجب أن يساوي `from` نهاية ما قبله، و`to` بداية ما بعده.
 
 الـeasing المسموح من مفردات `motion` الحالية: `linear`, `cubicInOut`, `cubicOut`, `quintOut`, `sineInOut`, `expoInOut`. النهايتان `u=0/1` ترجعان endpoint حرفيًا بلا easing drift. `lift >= 0` يضيف `sin(πu) * lift` إلى z للكاميرا، والـroll يسلك أقصر قوس.
+
+أثناء `move` يُستخرج quaternion من basis الكاميرا المتعامدة `(right, up, -forward)` بلا roll. الحركات غير شبه المتطابقة تستخدم shortest-arc **SLERP** للاتجاه، بينما تحتفظ الحركات الصغيرة شبه المتطابقة بمسار normalized linear interpolation السابق حرفيًا لضمان التوافق. في مسار SLERP يتحرك موضع الكاميرا وtarget metadata خطيًا وبشكل مستقل، ثم يُطبق roll الأقصر والـlift كما كانا. لذلك لا ينهار `up` عند دوران 180°، وتبقى النهايتان والـeasing وreduced-motion cut كما هي.
 
 `camera.overview` اختياري. بدونه تُحسب مسافة تتسع للزوايا كلها مع هامش 15%. لأن الحساب يستخدم viewport الحالي، استخدم `overview` الصريح إذا أردت تكوينًا ثابتًا بينما Fixed Stage نفسه يتحرك.
 
@@ -136,6 +138,8 @@
 - المثال صامت ومدته 6 ثوانٍ للاختبار فقط. الإنتاج يجب أن يشتق `beats.json` ونهاية timeline من VO مقاس فعلًا، ولا يستخدم مدة المثال كنص بديل.
 
 ## الاختبارات
+
+حد التسامح الموثق لاختبار parity الكاميرا بين Python وJavaScript، بما فيه حالة دوران 180°، هو `1e-8`؛ وتظل مقارنة projection/homography وAABB ضمن `1e-9` في fixtures الحتمية. لا يعني ذلك تطابق pixels بين المحركات.
 
 ```bash
 # Fast unit/parity/adapter/layout checks (the real render smokes remain skipped).

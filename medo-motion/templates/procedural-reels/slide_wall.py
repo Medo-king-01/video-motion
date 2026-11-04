@@ -200,12 +200,14 @@ def validate_slide_wall_spec(spec: dict, duration: float | None = None) -> list[
             if any(any(v[i] < lo[i] - _EPS or v[i] > hi[i] + _EPS for i in range(3)) for v in mesh["verts"]):
                 errors.append(f"slide {slide['id']}: transformed slab leaves layout.bounds")
     if layout.get("preventOverlap", True):
+        footprints = [_slide_xy_aabb(slide, depth) for slide in slides]
         for i, a in enumerate(slides):
-            for b in slides[i + 1:]:
-                # The chosen separation contract is deliberately conservative: XY footprints must
-                # be disjoint regardless of depth/rotation. Set preventOverlap=false for stacks.
-                if (abs(a["position"][0] - b["position"][0]) < (a["size"][0] + b["size"][0]) / 2 - _EPS
-                        and abs(a["position"][1] - b["position"][1]) < (a["size"][1] + b["size"][1]) / 2 - _EPS):
+            for j, b in enumerate(slides[i + 1:], start=i + 1):
+                # Conservative transformed-slab XY AABBs: rotation and depth are included, and
+                # touching edges are allowed. Set preventOverlap=false for intentional stacks.
+                aa, bb = footprints[i], footprints[j]
+                if (aa[0] < bb[1] - _EPS and bb[0] < aa[1] - _EPS
+                        and aa[2] < bb[3] - _EPS and bb[2] < aa[3] - _EPS):
                     errors.append(f"slides {a['id']} and {b['id']} overlap in the required XY separation contract")
 
     camera = spec.get("camera", {})
@@ -368,6 +370,12 @@ def _slide_mesh(slide: dict, depth: float):
     return space3d.transform(space3d.box(w, h, depth), rx=rx, ry=ry, rz=rz, move=slide["position"])
 
 
+def _slide_xy_aabb(slide: dict, depth: float):
+    verts = _slide_mesh(slide, depth)["verts"]
+    xs, ys = [v[0] for v in verts], [v[1] for v in verts]
+    return min(xs), max(xs), min(ys), max(ys)
+
+
 def _window(spec, viewport):
     return clamp_window_box(viewport or spec["viewport"], spec["canvas"])
 
@@ -427,9 +435,91 @@ def _segment_at(spec, t):
     return (0, spec["timeline"][0]) if t < spec["timeline"][0]["start"] else (len(spec["timeline"]) - 1, spec["timeline"][-1])
 
 
+def _camera_quaternion(camera):
+    """Unit quaternion for the right-handed camera basis (right, up, back=-forward)."""
+    right, up = camera["right"], camera["up"]
+    back = [-v for v in camera["fwd"]]
+    m00, m01, m02 = right[0], up[0], back[0]
+    m10, m11, m12 = right[1], up[1], back[1]
+    m20, m21, m22 = right[2], up[2], back[2]
+    trace = m00 + m11 + m22
+    if trace > 0:
+        s = math.sqrt(trace + 1.0) * 2
+        q = (s / 4, (m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s)
+    elif m00 > m11 and m00 > m22:
+        s = math.sqrt(1.0 + m00 - m11 - m22) * 2
+        q = ((m21 - m12) / s, s / 4, (m01 + m10) / s, (m02 + m20) / s)
+    elif m11 > m22:
+        s = math.sqrt(1.0 + m11 - m00 - m22) * 2
+        q = ((m02 - m20) / s, (m01 + m10) / s, s / 4, (m12 + m21) / s)
+    else:
+        s = math.sqrt(1.0 + m22 - m00 - m11) * 2
+        q = ((m10 - m01) / s, (m02 + m20) / s, (m12 + m21) / s, s / 4)
+    length = math.sqrt(sum(v * v for v in q))
+    return tuple(v / length for v in q)
+
+
+def _quaternion_slerp(a, b, t):
+    """Shortest-arc SLERP; normalized lerp avoids sin(theta) loss when nearly aligned."""
+    dot = sum(x * y for x, y in zip(a, b, strict=True))
+    if dot < 0:
+        b = tuple(-v for v in b)
+        dot = -dot
+    dot = max(-1.0, min(1.0, dot))
+    if dot > 0.9995:
+        q = tuple(x + (y - x) * t for x, y in zip(a, b, strict=True))
+    else:
+        theta = math.acos(dot)
+        sin_theta = math.sin(theta)
+        wa, wb = math.sin((1 - t) * theta) / sin_theta, math.sin(t * theta) / sin_theta
+        q = tuple(wa * x + wb * y for x, y in zip(a, b, strict=True))
+    length = math.sqrt(sum(v * v for v in q))
+    return tuple(v / length for v in q)
+
+
+def _quaternion_rotate(q, v):
+    w, x, y, z = q
+    t = (2 * (y * v[2] - z * v[1]), 2 * (z * v[0] - x * v[2]), 2 * (x * v[1] - y * v[0]))
+    return (
+        v[0] + w * t[0] + y * t[2] - z * t[1],
+        v[1] + w * t[1] + z * t[0] - x * t[2],
+        v[2] + w * t[2] + x * t[1] - y * t[0],
+    )
+
+
+def _interpolate_camera(source, target, progress, fov):
+    """Preserve near-aligned legacy moves; SLERP larger orientations independently of position."""
+    source_camera = space3d.look_camera(source["position"], source["target"], fov, 0, source["up"])
+    target_camera = space3d.look_camera(target["position"], target["target"], fov, 0, target["up"])
+    source_q, target_q = _camera_quaternion(source_camera), _camera_quaternion(target_camera)
+    delta_roll = math.atan2(math.sin(target["roll"] - source["roll"]), math.cos(target["roll"] - source["roll"]))
+    roll = source["roll"] + delta_roll * progress
+    if abs(sum(a * b for a, b in zip(source_q, target_q, strict=True))) > 0.9995:
+        state = {key: [source[key][i] + (target[key][i] - source[key][i]) * progress for i in range(3)]
+                 for key in ("position", "target", "up")}
+        return space3d.look_camera(state["position"], state["target"], fov, roll, state["up"])
+    q = _quaternion_slerp(source_q, target_q, progress)
+    right = _quaternion_rotate(q, (1, 0, 0))
+    up = _quaternion_rotate(q, (0, 1, 0))
+    back = _quaternion_rotate(q, (0, 0, 1))
+    if roll:
+        c, s = math.cos(roll), math.sin(roll)
+        right, up = (
+            tuple(right[i] * c + up[i] * s for i in range(3)),
+            tuple(-right[i] * s + up[i] * c for i in range(3)),
+        )
+    return {
+        "pos": tuple(source["position"][i] + (target["position"][i] - source["position"][i]) * progress for i in range(3)),
+        "fwd": tuple(-v for v in back), "right": right, "up": up, "fov": math.radians(fov),
+        "target": tuple(source["target"][i] + (target["target"][i] - source["target"][i]) * progress for i in range(3)),
+        "roll": roll,
+    }
+
+
 def _camera_at(spec, t, motion_mode, viewport):
     index, segment = _segment_at(spec, t)
     mode = segment["mode"]
+    camera = None
     if mode == "overview":
         state = _overview_state(spec, viewport)
         progress = 0.0
@@ -448,12 +538,10 @@ def _camera_at(spec, t, motion_mode, viewport):
             state, progress = target, 1.0
         else:
             progress = motion.ease(segment["ease"], raw)
-            state = {key: [source[key][i] + (target[key][i] - source[key][i]) * progress for i in range(3)]
-                     for key in ("position", "target", "up")}
-            delta_roll = math.atan2(math.sin(target["roll"] - source["roll"]), math.cos(target["roll"] - source["roll"]))
-            state["roll"] = source["roll"] + delta_roll * progress
-            state["position"][2] += math.sin(math.pi * raw) * segment["lift"]
-    camera = space3d.look_camera(state["position"], state["target"], spec["camera"]["fov"], state["roll"], state["up"])
+            camera = _interpolate_camera(source, target, progress, spec["camera"]["fov"])
+            camera["pos"] = (*camera["pos"][:2], camera["pos"][2] + math.sin(math.pi * raw) * segment["lift"])
+    if camera is None:
+        camera = space3d.look_camera(state["position"], state["target"], spec["camera"]["fov"], state["roll"], state["up"])
     return camera, index, mode, progress
 
 
