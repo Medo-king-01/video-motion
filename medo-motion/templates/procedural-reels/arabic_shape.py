@@ -33,10 +33,15 @@ import functools
 import re
 import unicodedata
 
-import freetype
 import numpy as np
-import uharfbuzz as hb
 from PIL import Image
+
+try:
+    import freetype
+    import uharfbuzz as hb
+except ImportError:  # pragma: no cover - RAQM-only installs still use pure-Unicode helpers
+    freetype = None  # type: ignore[assignment]
+    hb = None  # type: ignore[assignment]
 
 __all__ = [
     'text_sprite', 'draw', 'measure', 'LAYOUT_NAME',
@@ -270,10 +275,12 @@ def stretch_kashida(
     max_tatweels: int = 16,
     max_scale_x: float = 1.06,
     stroke: int = 0,
+    measure_fn=None,
 ) -> dict:
     """Measure and stretch `text` toward `target_width` using valid tatweels + gentle residual scale_x."""
     raw = str(text)
-    nat_w = float(measure(font_path, raw, size, rtl=True, stroke=stroke)[0])
+    width_of = measure_fn or (lambda s: float(measure(font_path, s, size, rtl=True, stroke=stroke)[0]))
+    nat_w = float(width_of(raw))
     if target_width <= nat_w or nat_w <= 0:
         return {'text': raw, 'natural_width': nat_w, 'width': nat_w, 'scale_x': 1.0, 'tatweels': 0}
     best_text = raw
@@ -283,7 +290,7 @@ def stretch_kashida(
         cand = insert_kashida(raw, c)
         if cand == best_text:
             break
-        w = float(measure(font_path, cand, size, rtl=True, stroke=stroke)[0])
+        w = float(width_of(cand))
         if w <= target_width:
             best_text, best_w, best_c = cand, w, c
         else:
@@ -316,6 +323,8 @@ def fix_ruqaa_taa_marbuta(text: str) -> str:
 # ---------------------------------------------------------------- shaping engine
 @functools.lru_cache(maxsize=32)
 def _font(path: str, size: int):
+    if hb is None or freetype is None:
+        raise RuntimeError('Arabic shaping backend missing: python -m pip install uharfbuzz freetype-py')
     with open(path, 'rb') as fh:
         data = fh.read()
     hb_face = hb.Face(data)

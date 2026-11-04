@@ -241,18 +241,25 @@ def draw_kashida(fr, txt, cx, cy, size, target_width, *, progress=1.0, color=WHI
                  stroke=0, scolor=BLACK, family=None, weight=800, alpha=1.0,
                  max_tatweels=16, max_scale_x=1.06, box_id='kashida', zone='content'):
     """Draw stretched Arabic text using Unicode-safe tatweels + gentle residual scale_x."""
-    shaper = _shaper()
+    import arabic_shape as _kashida_ar  # noqa: PLC0415
+
     path = font_file(family, weight) or FONT
-    nat_spr = text_sprite(txt, size, color, True, stroke, scolor, family, weight)
-    nat_w = float(nat_spr.shape[1])
+
+    def width_of(s):
+        return float(text_sprite(s, size, color, True, stroke, scolor, family, weight).shape[1])
+
+    nat_w = width_of(txt)
     desired = nat_w + max(0.0, float(target_width) - nat_w) * clamp(progress, 0.0, 1.0)
-    res = shaper.stretch_kashida(path, txt, size, desired, max_tatweels=max_tatweels,
-                                 max_scale_x=max_scale_x, stroke=stroke)
+    res = _kashida_ar.stretch_kashida(
+        path, txt, size, desired,
+        max_tatweels=max_tatweels, max_scale_x=max_scale_x, stroke=stroke,
+        measure_fn=width_of,
+    )
     spr = text_sprite(res['text'], size, color, True, stroke, scolor, family, weight)
     sx = float(res['scale_x'])
     paste(fr, spr, cx, cy, scale=sx, sy=1.0, alpha=alpha)
     try:
-        import layout_p as _lp
+        import layout_p as _lp  # noqa: PLC0415
         if _lp.is_capturing():
             box = _lp.sprite_aabb(spr, cx, cy, scale=sx, sy=1.0)
             _lp.record_text(res['text'], box, box_id=box_id, zone=zone, alpha=alpha)

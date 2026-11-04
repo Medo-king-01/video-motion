@@ -291,6 +291,28 @@ def test_phrase_caption_chunks_and_engine_p_rendering():
     assert any(b["zone"] == "caption" for b in boxes)
     assert layout_p.audit_layout(boxes) == []
 
+    # Regression guard: when Pillow ships with libraqm (`HAS_RAQM=True`), `lib._ar` is None;
+    # `draw_kashida` must never depend on `lib._shaper()`.
+    import lib as _lib_mod  # noqa: PLC0415
+    saved_ar, saved_raqm = _lib_mod._ar, _lib_mod.HAS_RAQM
+    try:
+        if saved_raqm:
+            _lib_mod._ar = None
+            k_raqm = draw_kashida(fr, "تصميم", 540, 420, 72, 360, progress=0.8)
+            assert k_raqm["tatweels"] >= 1
+        else:
+            # Prime text_sprite cache for the tatweel variants, then null `_ar` to prove
+            # `draw_kashida` never calls `_shaper()` directly.
+            for c in range(17):
+                import arabic_shape as _as  # noqa: PLC0415
+                _lib_mod.text_sprite(_as.insert_kashida("تصميم", c), 72, _lib_mod.WHITE, True, 0, _lib_mod.BLACK, None, 800)
+            _lib_mod._ar = None
+            k_no_ar = draw_kashida(fr, "تصميم", 540, 420, 72, 360, progress=0.8)
+            assert k_no_ar["tatweels"] >= 1
+    finally:
+        _lib_mod._ar = saved_ar
+        _lib_mod.HAS_RAQM = saved_raqm
+
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
 def test_js_phrase_captions_and_slot_ticker():
