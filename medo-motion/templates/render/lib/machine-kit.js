@@ -481,17 +481,23 @@ export function validateMachineSpec(spec, { fps = 30 } = {}) {
     const anc = step.anchor;
     if (!anc || typeof anc !== 'object' || !Number.isInteger(anc.word) || anc.word < 0 || !nonEmpty(anc.text)) {
       errors.push(`${step.id}: anchor requires {word: non-negative int, text: non-empty string}`);
-    } else if (finite(anc.wordStart) && finite(anc.wordEnd)) {
-      const leadMax = 6 / Math.max(1, fps) + 1e-8;
-      if (step.timing === 'lead' && !(anc.wordStart - step.start >= -1e-9 && anc.wordStart - step.start <= leadMax)) {
-        errors.push(`${step.id}: lead may precede its word by at most 6 frames at ${fps}fps`);
-      } else if (step.timing === 'sync' && Math.abs(step.start - anc.wordStart) > 1e-6) {
-        errors.push(`${step.id}: sync must start exactly at anchor word start`);
-      } else if (step.timing === 'reveal' && step.start < anc.wordStart - 1e-9) {
-        errors.push(`${step.id}: reveal cannot appear before its anchor word`);
-      }
-      if (step.end < anc.wordEnd - 1e-9) {
-        errors.push(`${step.id}: step must survive through the end of its anchor word`);
+    } else if ('wordStart' in anc || 'wordEnd' in anc) {
+      if (!finite(anc.wordStart) || !finite(anc.wordEnd) || anc.wordStart < 0 || anc.wordEnd <= anc.wordStart) {
+        errors.push(
+          `${step.id}: anchor wordStart/wordEnd must be finite non-boolean numbers with 0 <= wordStart < wordEnd`,
+        );
+      } else if (finite(step.start) && finite(step.end)) {
+        const leadMax = 6 / Math.max(1, fps) + 1e-8;
+        if (step.timing === 'lead' && !(anc.wordStart - step.start >= -1e-9 && anc.wordStart - step.start <= leadMax)) {
+          errors.push(`${step.id}: lead may precede its word by at most 6 frames at ${fps}fps`);
+        } else if (step.timing === 'sync' && Math.abs(step.start - anc.wordStart) > 1e-6) {
+          errors.push(`${step.id}: sync must start exactly at anchor word start`);
+        } else if (step.timing === 'reveal' && step.start < anc.wordStart - 1e-9) {
+          errors.push(`${step.id}: reveal cannot appear before its anchor word`);
+        }
+        if (step.end < anc.wordEnd - 1e-9) {
+          errors.push(`${step.id}: step must survive through the end of its anchor word`);
+        }
       }
     }
 

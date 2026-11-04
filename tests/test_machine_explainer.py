@@ -263,6 +263,161 @@ def test_x02_mandatory_measured_words_rejects_missing_scene_empty_words_and_bad_
     assert any(code == "X02" and "!= measured word" in msg for code, msg in r_txt["errors"])
 
 
+def test_x02_rejects_nan_infinity_non_numeric_bool_and_inverted_bounds_across_start_and_end(tmp_path: Path):
+    import machine_explainer as me  # noqa: PLC0415
+
+    def assert_x02_failure(report: dict, context: str) -> None:
+        assert report["ok"] is False, f"Expected X02 failure for {context}, got ok=True"
+        if "errors" in report:
+            assert any(code == "X02" for code, _ in report["errors"]), (context, report["errors"])
+            for m in report.get("machines", []):
+                assert any(
+                    f["level"] == "error" and f["code"] == "X02" for f in m.get("findings", [])
+                ), (context, m)
+        else:
+            assert any(
+                f["level"] == "error" and f["code"] == "X02" for f in report.get("findings", [])
+            ), (context, report)
+
+    invalid_scalars = [
+        ("NaN", float("nan")),
+        ("Infinity", float("inf")),
+        ("-Infinity", float("-inf")),
+        ("str", "4.3"),
+        ("None", None),
+        ("list", [4.3]),
+        ("True", True),
+        ("False", False),
+    ]
+
+    # 1. Measured word `start` and `end` in `plan/word-timings.json` (must work WITHOUT `plan/visual-direction.json`)
+    _write_project_fixture(tmp_path, _sample_nvme_vo_spec())
+    assert not (tmp_path / "plan" / "visual-direction.json").exists()
+    wt_path = tmp_path / "plan" / "word-timings.json"
+    base_wt = json.loads(wt_path.read_text(encoding="utf-8"))
+
+    for field in ("start", "end"):
+        for label, bad_val in invalid_scalars:
+            wt_doc = json.loads(json.dumps(base_wt))
+            wt_doc["scenes"][1]["words"][1][field] = bad_val
+            # `json.dumps(..., allow_nan=True)` writes literal NaN / Infinity / -Infinity on disk!
+            wt_path.write_text(json.dumps(wt_doc, ensure_ascii=False, allow_nan=True), encoding="utf-8")
+            assert not (tmp_path / "plan" / "visual-direction.json").exists()
+            assert_x02_failure(me.check_project(tmp_path), f"word-timings.{field}={label}")
+
+    # Empty (`end == start`) and inverted (`end < start`) measured word intervals in `word-timings.json`
+    for bad_s, bad_e, desc in ((4.3, 4.3, "equal"), (4.95, 4.3, "inverted")):
+        wt_doc = json.loads(json.dumps(base_wt))
+        wt_doc["scenes"][1]["words"][1]["start"] = bad_s
+        wt_doc["scenes"][1]["words"][1]["end"] = bad_e
+        wt_path.write_text(json.dumps(wt_doc, ensure_ascii=False), encoding="utf-8")
+        assert_x02_failure(me.check_project(tmp_path), f"word-timings interval {desc}")
+
+    # Also verify `caption_align` list-format `word-timings.json` rejects bool/NaN/Infinity/end<=start
+    for label, bad_scene_start, bad_w_start, bad_w_end in (
+        ("scene_start_bool", True, 1.3, 1.95),
+        ("scene_start_nan", float("nan"), 1.3, 1.95),
+        ("word_start_bool", 3.0, True, 1.95),
+        ("word_end_inf", 3.0, 1.3, float("inf")),
+        ("word_inverted", 3.0, 1.95, 1.3),
+    ):
+        local_wt = [
+            {"index": 1, "start": 0.0, "final": [{"text": "ليه", "start": 0.4, "end": 0.9}]},
+            {
+                "index": 2,
+                "start": bad_scene_start,
+                "final": [
+                    {"text": "بيدخل", "start": 0.8, "end": 1.25},
+                    {"text": "الكنترولر", "start": bad_w_start, "end": bad_w_end},
+                    {"text": "ويوزع", "start": 2.3, "end": 2.9},
+                    {"text": "طبقات", "start": 3.05, "end": 3.65},
+                ],
+            },
+        ]
+        wt_path.write_text(json.dumps(local_wt, ensure_ascii=False, allow_nan=True), encoding="utf-8")
+        assert_x02_failure(me.check_project(tmp_path), f"caption_align list {label}")
+
+    # Restore valid `word-timings.json` before testing `beats.json` and machine spec bounds
+    _write_project_fixture(tmp_path, _sample_nvme_vo_spec())
+
+    # 2. Scene `start` and `end` in `plan/beats.json` (including literal NaN / ±Infinity on disk)
+    beats_path = tmp_path / "plan" / "beats.json"
+    base_beats = json.loads(beats_path.read_text(encoding="utf-8"))
+    for field in ("start", "end"):
+        for label, bad_val in invalid_scalars:
+            b_doc = json.loads(json.dumps(base_beats))
+            b_doc["scenes"][1][field] = bad_val
+            beats_path.write_text(json.dumps(b_doc, ensure_ascii=False, allow_nan=True), encoding="utf-8")
+            assert_x02_failure(me.check_project(tmp_path), f"beats.scene.{field}={label}")
+    for bad_s, bad_e, desc in ((5.0, 5.0, "equal"), (8.0, 3.0, "inverted")):
+        b_doc = json.loads(json.dumps(base_beats))
+        b_doc["scenes"][1]["start"] = bad_s
+        b_doc["scenes"][1]["end"] = bad_e
+        beats_path.write_text(json.dumps(b_doc, ensure_ascii=False), encoding="utf-8")
+        assert_x02_failure(me.check_project(tmp_path), f"beats.scene interval {desc}")
+
+    _write_project_fixture(tmp_path, _sample_nvme_vo_spec())
+    machine_json_path = tmp_path / "plan" / "machines" / "nvme-ssd.json"
+
+    # 3. Machine `spec.start`/`spec.end`, `revealWindow.start`/`end`, `step.start`/`end`,
+    #    and standalone `anchor.wordStart`/`wordEnd` (both in-memory and from raw JSON files with NaN/±Infinity)
+    for target_kind in ("spec", "revealWindow", "step", "anchor_word"):
+        for field in ("start", "end"):
+            for label, bad_val in invalid_scalars:
+                sp = _sample_nvme_vo_spec()
+                if target_kind == "spec":
+                    sp[field] = bad_val
+                elif target_kind == "revealWindow":
+                    sp["revealWindow"][field] = bad_val
+                elif target_kind == "step":
+                    sp["steps"][0]["id"] = "source-step"  # ensure step id with 'source' stays X02, not X01
+                    sp["steps"][0][field] = bad_val
+                else:
+                    sp["steps"][0]["anchor"] = {
+                        "word": 1,
+                        "text": "الكنترولر",
+                        "wordStart": bad_val if field == "start" else 4.3,
+                        "wordEnd": bad_val if field == "end" else 4.95,
+                    }
+                # Standalone audit (without project or visual-direction.json)
+                assert_x02_failure(
+                    me.audit_machine_spec(sp, project=None),
+                    f"standalone {target_kind}.{field}={label}",
+                )
+                # Disk JSON audit via `check_project` (testing Python `json.loads()` on NaN / ±Infinity)
+                machine_json_path.write_text(
+                    json.dumps(sp, indent=2, ensure_ascii=False, allow_nan=True),
+                    encoding="utf-8",
+                )
+                assert_x02_failure(
+                    me.check_project(tmp_path),
+                    f"disk-json {target_kind}.{field}={label}",
+                )
+
+        # Empty (`end == start`) and inverted (`end < start`) intervals on each target
+        for bad_s, bad_e, desc in ((4.5, 4.5, "equal"), (6.0, 4.3, "inverted")):
+            sp = _sample_nvme_vo_spec()
+            if target_kind == "spec":
+                sp["start"], sp["end"] = bad_s, bad_e
+            elif target_kind == "revealWindow":
+                sp["revealWindow"]["start"], sp["revealWindow"]["end"] = bad_s, bad_e
+            elif target_kind == "step":
+                sp["steps"][0]["start"], sp["steps"][0]["end"] = bad_s, bad_e
+            else:
+                sp["steps"][0]["anchor"] = {
+                    "word": 1,
+                    "text": "الكنترولر",
+                    "wordStart": bad_s,
+                    "wordEnd": bad_e,
+                }
+            assert_x02_failure(
+                me.audit_machine_spec(sp, project=None),
+                f"standalone {target_kind} interval {desc}",
+            )
+            machine_json_path.write_text(json.dumps(sp, indent=2, ensure_ascii=False), encoding="utf-8")
+            assert_x02_failure(me.check_project(tmp_path), f"disk-json {target_kind} interval {desc}")
+
+
 def test_x03_polygon_mask_occlusion_distinguishes_true_shape_from_aabb_and_honors_threshold():
     import machine_kit as mk  # noqa: PLC0415
 
@@ -830,26 +985,41 @@ def test_remotion_layout_audit_catches_multiline_arabic_overflow_and_right_rail(
         ],
     }
 
-    root_tsx = f"""import React, {{useEffect, useState}} from 'react';
+    root_tsx = f"""import React, {{useEffect, useLayoutEffect, useRef, useState}} from 'react';
 import {{AbsoluteFill, Composition, cancelRender, continueRender, delayRender, staticFile, useCurrentFrame, useVideoConfig}} from 'remotion';
 import {{BRAND, PALETTE}} from './brand';
 import {{MachineDiagram}} from './lib/MachineDiagram';
+import {{auditLayout, collectDomLayoutBoxes, ProtectBox}} from './lib/layout';
 
 const SPEC = {json.dumps(spec)};
 const TD = {json.dumps(td_doc)};
 
-type VariantProps = {{ mode?: 'safe_short' | 'wrap_overflow' | 'right_rail' | 'diagram_collide' | 'motion_shift' }};
+type VariantProps = {{ mode?: 'safe_short' | 'wrap_overflow' | 'right_rail' | 'diagram_collide' | 'motion_shift' | 'face_overlap' }};
 
 const GateComp: React.FC<VariantProps> = ({{mode = 'safe_short'}}) => {{
   const frame = useCurrentFrame();
   const {{fps}} = useVideoConfig();
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const [fontsReady, setFontsReady] = useState(false);
   const [fontGate] = useState(() => delayRender('Load Cairo font'));
   useEffect(() => {{
     new FontFace('Cairo', `url('${{staticFile('fonts/Cairo/Cairo_800ExtraBold.ttf')}}')`, {{weight: '800'}})
       .load()
-      .then((f) => {{ document.fonts.add(f); continueRender(fontGate); }})
+      .then((f) => {{ document.fonts.add(f); setFontsReady(true); continueRender(fontGate); }})
       .catch((e) => cancelRender(e));
   }}, [fontGate]);
+
+  useLayoutEffect(() => {{
+    if (mode !== 'face_overlap' || !fontsReady || !stageRef.current) return;
+    const issues = auditLayout(collectDomLayoutBoxes(stageRef.current), {{checkPlatformUi: true}});
+    if (issues.length > 0) {{
+      cancelRender(
+        new Error(
+          `Remotion layout audit failed: ${{issues.map((i) => `${{i.code}}: ${{i.message}}`).join('; ')}}`,
+        ),
+      );
+    }}
+  }}, [mode, fontsReady, frame]);
 
   const copyText =
     mode === 'wrap_overflow'
@@ -868,7 +1038,10 @@ const GateComp: React.FC<VariantProps> = ({{mode = 'safe_short'}}) => {{
         : {{textAlign: 'center'}};
 
   return (
-    <AbsoluteFill style={{{{background: PALETTE.ink}}}}>
+    <AbsoluteFill ref={{stageRef}} style={{{{background: PALETTE.ink}}}}>
+      {{mode === 'face_overlap' ? (
+        <ProtectBox id="presenter.face" kind="face" box={{{{x: 340, y: 1215, w: 400, h: 100}}}} />
+      ) : null}}
       <MachineDiagram
         spec={{SPEC}}
         time={{frame / fps}}
@@ -878,7 +1051,7 @@ const GateComp: React.FC<VariantProps> = ({{mode = 'safe_short'}}) => {{
         calloutY={{calloutY}}
         calloutStyle={{calloutStyle}}
         theme="dark"
-        strictLayout
+        strictLayout={{mode !== 'face_overlap'}}
       />
     </AbsoluteFill>
   );
@@ -939,6 +1112,16 @@ export const RemotionRoot: React.FC = () => (
     combined_shift = r_shift.stdout + "\n" + r_shift.stderr
     assert r_shift.returncode != 0
     assert "Remotion layout audit failed" in combined_shift and "L01" in combined_shift, combined_shift
+
+    # 6. Text overlapping a protected presenter `face` box -> FAIL L03 (face overlap, distinct from L02)!
+    r_face = run_mode("face_overlap")
+    combined_face = r_face.stdout + "\n" + r_face.stderr
+    assert r_face.returncode != 0
+    assert (
+        "Remotion layout audit failed" in combined_face
+        and "L03" in combined_face
+        and "presenter face box" in combined_face
+    ), combined_face
 
 
 def _archetype_scene_specs() -> list[dict]:

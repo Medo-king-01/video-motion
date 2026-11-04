@@ -14,7 +14,9 @@ Enforces:
 from __future__ import annotations
 
 import argparse
+import copy
 import json
+import math
 import os
 import re
 import sys
@@ -28,13 +30,105 @@ sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 
 import layout_p  # noqa: E402
 import machine_kit as mk  # noqa: E402
-import visual_direction as vd  # noqa: E402
 from _safe_paths import checked_path  # noqa: E402
 
 UNVERIFIED_SPEC_NUM_RE = re.compile(
     r"\b\d+(?:\.\d+)?\s*(?:GB/s|MB/s|TB|GB|MB|MHz|GHz|GT/s|MT/s|W|°C|nm|ns|RPM)\b",
     re.IGNORECASE,
 )
+
+
+def _is_finite_number(value: Any) -> bool:
+    """Return True iff `value` is a finite int/float and explicitly NOT a bool."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def _is_valid_interval(start: Any, end: Any, *, min_start: float | None = 0.0) -> bool:
+    """Return True iff `start` and `end` are finite non-boolean numbers with `end > start`."""
+    if not _is_finite_number(start) or not _is_finite_number(end):
+        return False
+    s_val = float(start)
+    e_val = float(end)
+    if min_start is not None and s_val < min_start:
+        return False
+    return e_val > s_val
+
+
+def _extract_measured_words(document: Any) -> dict[int, list[dict[str, Any]]]:
+    """Validate and normalize measured word timings independently of `visual-direction.json`.
+
+    Supports both canonical VO word-timing documents (`{"clock": "vo", "scenes": [...]}`)
+    and `caption_align` measurement lists (`[{"index": 1, "start": 0.0, "final": [...]}]`).
+    Raw `start`/`end` values are validated before adding any scene offset so `bool` values
+    (`True`/`False`), `NaN`, `±Infinity`, non-numbers, and `end <= start` never slip through.
+    """
+    if document is None:
+        return {}
+    is_local_list = isinstance(document, list)
+    if not is_local_list:
+        if not isinstance(document, dict):
+            raise ValueError("word timings must be a JSON object or scene list")
+        if document.get("clock") != "vo":
+            raise ValueError('word timings must declare clock="vo"')
+        scenes = document.get("scenes")
+        if not isinstance(scenes, list):
+            raise ValueError("word timings scenes must be a list")
+    else:
+        scenes = document
+
+    out: dict[int, list[dict[str, Any]]] = {}
+    for idx, sc in enumerate(scenes):
+        if not isinstance(sc, dict):
+            raise ValueError("each word-timing scene entry must be an object")
+        sc_num = sc.get("index", idx + 1) if is_local_list else sc.get("scene")
+        if not isinstance(sc_num, int) or isinstance(sc_num, bool) or sc_num < 1:
+            raise ValueError("each word-timing scene requires a positive integer scene index")
+        if sc_num in out:
+            raise ValueError(f"duplicate word-timing scene {sc_num}")
+
+        if is_local_list:
+            sc_start = sc.get("start")
+            if not _is_finite_number(sc_start) or float(sc_start) < 0.0:
+                raise ValueError(
+                    f"scene {sc_num}: scene start must be a finite non-boolean number >= 0 "
+                    f"(got {sc_start!r})"
+                )
+            if "end" in sc and not _is_valid_interval(sc_start, sc.get("end"), min_start=0.0):
+                raise ValueError(
+                    f"scene {sc_num}: scene start/end must be finite non-boolean numbers with "
+                    f"0 <= start < end (got start={sc_start!r}, end={sc.get('end')!r})"
+                )
+            offset = float(sc_start)
+            raw_words = sc.get("final")
+        else:
+            offset = 0.0
+            raw_words = sc.get("words")
+
+        if not isinstance(raw_words, list):
+            raise ValueError(f"scene {sc_num}: measured words must be a list")
+
+        normalized: list[dict[str, Any]] = []
+        for w_idx, word in enumerate(raw_words):
+            if not isinstance(word, dict):
+                raise ValueError(f"scene {sc_num} word {w_idx}: word entry must be an object")
+            w_text = word.get("text")
+            if not isinstance(w_text, str) or not w_text.strip():
+                raise ValueError(f"scene {sc_num} word {w_idx}: word text must be a non-empty string")
+            raw_s = word.get("start")
+            raw_e = word.get("end")
+            if not _is_valid_interval(raw_s, raw_e, min_start=0.0):
+                raise ValueError(
+                    f"scene {sc_num} word {w_idx} ({w_text!r}): start/end must be finite "
+                    f"non-boolean numbers with 0 <= start < end (got start={raw_s!r}, end={raw_e!r})"
+                )
+            normalized.append({
+                **word,
+                "text": w_text,
+                "start": float(raw_s) + offset,
+                "end": float(raw_e) + offset,
+            })
+        out[sc_num] = normalized
+    return out
 
 
 def _safe_file(path: Path, *, within: Path | None = None) -> Path:
@@ -112,7 +206,10 @@ def init_machine_draft(machine_id: str, archetype: str, *, scene: int = 1, start
 
 def _classify_spec_error(msg: str) -> str:
     low = msg.lower()
-    if any(k in low for k in ("source", "locator", "quote", "illustrative")):
+    if low.startswith('source "') or low.startswith("sources ") or low.startswith("each source "):
+        return "X01"
+    body = low.split(": ", 1)[1] if ": " in low else low
+    if any(k in body for k in ("sourceid", "evidence", "locator", "quote", "illustrative")):
         return "X01"
     return "X02"
 
@@ -153,8 +250,17 @@ def audit_machine_spec(
     # Project-level cross-checks (`beats.json`, `word-timings.json`, `copy.json`)
     if project is not None and not base_errors:
         proj = _safe_file(project)
-        beats = _load_json(proj / "plan" / "beats.json") or {}
-        copy_doc = _load_json(proj / "plan" / "copy.json") or {}
+        try:
+            beats = _load_json(proj / "plan" / "beats.json") or {}
+        except (OSError, json.JSONDecodeError) as exc:
+            fail("X02", f"{spec['id']}: invalid plan/beats.json ({exc})")
+            beats = {}
+        try:
+            copy_doc = _load_json(proj / "plan" / "copy.json") or {}
+        except (OSError, json.JSONDecodeError) as exc:
+            fail("X02", f"{spec['id']}: invalid plan/copy.json ({exc})")
+            copy_doc = {}
+
         scenes_by_idx = {
             s.get("index", idx + 1): s
             for idx, s in enumerate(beats.get("scenes") or [])
@@ -162,10 +268,19 @@ def audit_machine_spec(
         }
         sc_idx = spec.get("scene")
         beat = scenes_by_idx.get(sc_idx)
+        beat_bounds: tuple[float, float] | None = None
         if beat is None:
             fail("X02", f"{spec['id']}: scene {sc_idx} does not exist in plan/beats.json")
+        elif not _is_valid_interval(beat.get("start"), beat.get("end"), min_start=0.0):
+            fail(
+                "X02",
+                f"{spec['id']}: scene {sc_idx} in plan/beats.json requires finite non-boolean "
+                f"start/end bounds with 0 <= start < end "
+                f"(got start={beat.get('start')!r}, end={beat.get('end')!r})",
+            )
         else:
             b_start, b_end = float(beat["start"]), float(beat["end"])
+            beat_bounds = (b_start, b_end)
             if float(spec["start"]) < b_start - 1e-6 or float(spec["end"]) > b_end + 1e-6:
                 fail(
                     "X02",
@@ -186,7 +301,7 @@ def audit_machine_spec(
                     fail("X02", f"{spec['id']}: missing measured word timings at {wt_rel}")
                     words_by_scene = {}
                 else:
-                    words_by_scene = vd.measured_words(wt_doc)
+                    words_by_scene = _extract_measured_words(wt_doc)
                     words_loaded = True
             except (ValueError, OSError, KeyError, TypeError) as exc:
                 fail("X02", f"{spec['id']}: invalid wordTimings ({exc})")
@@ -197,6 +312,15 @@ def audit_machine_spec(
                 fail("X02", f"{spec['id']}: scene {sc_idx} is missing from measured wordTimings ({wt_rel})")
             elif len(words_by_scene[sc_idx]) == 0:
                 fail("X02", f"{spec['id']}: scene {sc_idx} has an empty measured word list in {wt_rel}")
+            elif beat_bounds is not None:
+                b_start, b_end = beat_bounds
+                for mw_i, mw in enumerate(words_by_scene[sc_idx]):
+                    if mw["start"] < b_start - 1e-6 or mw["end"] > b_end + 1e-6:
+                        fail(
+                            "X02",
+                            f"{spec['id']}: measured word {mw_i} ({mw['text']!r}) [{mw['start']}, {mw['end']}] "
+                            f"falls outside scene {sc_idx} [{b_start}, {b_end}]",
+                        )
 
         copies_by_id = {
             c["id"]: c
@@ -204,7 +328,7 @@ def audit_machine_spec(
             if isinstance(c, dict) and isinstance(c.get("id"), str)
         }
 
-        bound_spec = json.loads(json.dumps(spec))
+        bound_spec = copy.deepcopy(spec)
         scene_words = words_by_scene.get(sc_idx, [])
         for st in bound_spec.get("steps", []):
             stid = st["id"]
@@ -242,10 +366,12 @@ def audit_machine_spec(
                         "X02",
                         f"{spec['id']}.{stid}: anchor text {anc['text']!r} != measured word {measured_w.get('text')!r}",
                     )
-                elif not isinstance(measured_w.get("start"), (int, float)) or not isinstance(measured_w.get("end"), (int, float)):
+                elif not _is_valid_interval(measured_w.get("start"), measured_w.get("end"), min_start=0.0):
                     fail(
                         "X02",
-                        f"{spec['id']}.{stid}: measured word {w_idx} in scene {sc_idx} lacks finite start/end bounds",
+                        f"{spec['id']}.{stid}: measured word {w_idx} in scene {sc_idx} requires finite "
+                        f"non-boolean start/end bounds with 0 <= start < end "
+                        f"(got start={measured_w.get('start')!r}, end={measured_w.get('end')!r})",
                     )
                 else:
                     anc["wordStart"] = float(measured_w["start"])
@@ -339,7 +465,11 @@ def main(argv: list[str] | None = None) -> int:
         beats = _load_json(proj / "plan" / "beats.json") or {}
         start, end = 0.0, 4.0
         for idx, sc in enumerate(beats.get("scenes") or []):
-            if isinstance(sc, dict) and sc.get("index", idx + 1) == args.scene:
+            if (
+                isinstance(sc, dict)
+                and sc.get("index", idx + 1) == args.scene
+                and _is_valid_interval(sc.get("start"), sc.get("end"), min_start=0.0)
+            ):
                 start, end = float(sc["start"]), float(sc["end"])
                 break
         draft = init_machine_draft(mid, args.archetype, scene=args.scene, start=start, end=end)
@@ -350,8 +480,13 @@ def main(argv: list[str] | None = None) -> int:
 
     target = _safe_file(args.target)
     if target.is_file():
-        doc = json.loads(target.read_text(encoding="utf-8"))
-        res = audit_machine_spec(doc, project=None, max_occlusion=args.max_occlusion)
+        try:
+            doc = json.loads(target.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            msg = f"{target.name}: invalid JSON ({exc})"
+            res = {"id": target.stem, "ok": False, "findings": [{"level": "error", "code": "X02", "message": msg}]}
+        else:
+            res = audit_machine_spec(doc, project=None, max_occlusion=args.max_occlusion)
         payload = {"ok": res["ok"], "machines": [res], "errors": [(f["code"], f["message"]) for f in res["findings"]]}
     elif target.is_dir():
         payload = check_project(target, max_occlusion=args.max_occlusion)

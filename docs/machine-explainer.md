@@ -53,7 +53,7 @@
 | `X02` | إلزامية وجود كلمات مقاسة غير فارغة للمشهد ومطابقة كل `anchor` لـ`plan/word-timings.json`، وحدة `revealWindow` الصريحة، حدود المشهد في `plan/beats.json`، وربط `copyIds` بـ`plan/copy.json` |
 | `X03` | **Occlusion Audit هندسي فعلي**: إسقاط مضلعات الأوجه ثنائية الأبعاد بترتيب الرسام `(layer, depth, seq)` وحساب نفاذية الطبقات الأمامية لكل بكسل `∏(1 - α_fg)` لكل `activeTag`، مع عتبة قابلة للضبط (`--max-occlusion` أو `qa.maxOcclusion` أو `step.maxOcclusion`، الافتراضي `0.35`) |
 | `X04` | اشتقاق منطقة الأمان ديناميكيًا من `layout_p.safe_envelope()` / `layout.js:safeEnvelope()` / `layout.tsx:safeEnvelope()` (`brand.json`) وفحص كل خطوة خلال فترة نشاطها شاملة الأوجه والأسلاك وسماكات الخطوط ومسارات وجسيمات `packets` وتيارات وحبيبات `airflow` وريش الدوران `spin` ضد حدود الأمان وشريط `PLATFORM_RIGHT_RAIL` |
-| `L00`–`L04` | تدقيق صناديق الرسم وأسطر النص العربي الملتفة بعد التحويلات الحركية في **P** (`layout_p.py`) و**K** (`layout.js`) و**R** (`remotion/src/lib/layout.tsx` مع `strictLayout` لإيقاف الرندر عند أي خرق) |
+| `L00`–`L04` | تدقيق صناديق الإحاطة المحافظة (AABBs) بعد التفاف الأسطر والتحويلات الحركية في **P** (`layout_p.py`) و**K** (`layout.js`) و**R** (`remotion/src/lib/layout.tsx` مع `strictLayout`): `L00` صندوق غير صالح أو منطقة غير معروفة، `L01` خروج النص عن المنطقة الآمنة، `L02` تداخل نص مع نص آخر أو مع صندوق `keep` محمي (مثل حدود الرسم الهندسي)، `L03` تداخل النص مع منطقة وجه محمية `face`، و`L04` تداخل النص مع `PLATFORM_RIGHT_RAIL` (الفحص يعتمد على صناديق الإحاطة AABBs ولا يجري كشفًا مستقلًا لقصّ النص أو اقتطاعه بالبكسل) |
 
 ---
 

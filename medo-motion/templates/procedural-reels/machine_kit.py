@@ -624,18 +624,28 @@ def validate_machine_spec(spec: Any, *, fps: int | None = None) -> list[str]:
             or not _non_empty(anc.get("text"))
         ):
             errors.append(f"{stid}: anchor requires {{word: non-negative int, text: non-empty string}}")
-        elif _finite(anc.get("wordStart")) and _finite(anc.get("wordEnd")) and _finite(s_start) and _finite(s_end):
-            ws, we = float(anc["wordStart"]), float(anc["wordEnd"])
-            ss, se = float(s_start), float(s_end)
-            lead_max = 6.0 / max(1, resolved_fps) + 1e-8
-            if timing == "lead" and not (-1e-9 <= ws - ss <= lead_max):
-                errors.append(f"{stid}: lead may precede its word by at most 6 frames at {resolved_fps}fps")
-            elif timing == "sync" and abs(ss - ws) > 1e-6:
-                errors.append(f"{stid}: sync must start exactly at anchor word start")
-            elif timing == "reveal" and ss < ws - 1e-9:
-                errors.append(f"{stid}: reveal cannot appear before its anchor word")
-            if se < we - 1e-9:
-                errors.append(f"{stid}: step must survive through the end of its anchor word")
+        elif "wordStart" in anc or "wordEnd" in anc:
+            if (
+                not _finite(anc.get("wordStart"))
+                or not _finite(anc.get("wordEnd"))
+                or float(anc["wordStart"]) < 0
+                or float(anc["wordEnd"]) <= float(anc["wordStart"])
+            ):
+                errors.append(
+                    f"{stid}: anchor wordStart/wordEnd must be finite non-boolean numbers with 0 <= wordStart < wordEnd"
+                )
+            elif _finite(s_start) and _finite(s_end):
+                ws, we = float(anc["wordStart"]), float(anc["wordEnd"])
+                ss, se = float(s_start), float(s_end)
+                lead_max = 6.0 / max(1, resolved_fps) + 1e-8
+                if timing == "lead" and not (-1e-9 <= ws - ss <= lead_max):
+                    errors.append(f"{stid}: lead may precede its word by at most 6 frames at {resolved_fps}fps")
+                elif timing == "sync" and abs(ss - ws) > 1e-6:
+                    errors.append(f"{stid}: sync must start exactly at anchor word start")
+                elif timing == "reveal" and ss < ws - 1e-9:
+                    errors.append(f"{stid}: reveal cannot appear before its anchor word")
+                if se < we - 1e-9:
+                    errors.append(f"{stid}: step must survive through the end of its anchor word")
 
         tags = step.get("activeTags")
         if not isinstance(tags, list) or not tags or any(not _non_empty(t) for t in tags):

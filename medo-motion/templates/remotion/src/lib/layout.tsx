@@ -1,3 +1,17 @@
+/**
+ * Screen-space layout box capture and audit for Engine R (Remotion).
+ *
+ * Mirrors the conservative AABB contract of `procedural-reels/layout_p.py` (P)
+ * and `render/lib/layout.js` (K):
+ * - `L00`: invalid/missing registered box or unknown text zone
+ * - `L01`: text ink outside its brand safe zone (`content`, `caption`, `hud`)
+ * - `L02`: text box overlaps another text box or a protected `keep` box
+ * - `L03`: text box overlaps a protected presenter `face` box
+ * - `L04`: non-`hud` text box overlaps `PLATFORM_RIGHT_RAIL` (x940..1080, y1100..1500)
+ *
+ * Boxes are conservative post-line-wrap, post-transform screen-space AABBs;
+ * this module does not perform independent pixel-level text clipping/truncation detection.
+ */
 import React from 'react';
 import {BRAND} from '../brand';
 
@@ -128,10 +142,11 @@ export function auditLayout(
       const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
       const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
       if (ox >= minOverlap && oy >= minOverlap) {
+        const isFaceOverlap = a.kind === 'face' || b.kind === 'face';
         issues.push({
-          code: a.kind === 'face' || b.kind === 'face' ? 'L03' : 'L02',
+          code: isFaceOverlap ? 'L03' : 'L02',
           ids: [a.id, b.id],
-          message: 'Overlapping protected ink/box',
+          message: isFaceOverlap ? 'Text overlaps protected presenter face box' : 'Overlapping protected ink/box',
         });
       }
     }
