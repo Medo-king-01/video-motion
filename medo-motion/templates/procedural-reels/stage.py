@@ -1408,8 +1408,6 @@ def _load_project_stage_cached(
     if not is_stage_enabled(raw_stage):
         return None
     norm_spec = {**normalize_stage_spec(raw_stage), "_normalized": True}
-    if not norm_spec["autoWrap"]:
-        return None
 
     duration: float | None = None
     scenes_meta: list[dict[str, Any]] = []
@@ -1459,8 +1457,16 @@ def _load_project_stage_cached(
     }
 
 
-def load_project_stage(project_dir: str | os.PathLike[str] | None = None) -> dict[str, Any] | None:
-    """Load `<project_dir>/plan/stage.json` + companion plan files when enabled (`enabled !== false`)."""
+def load_project_stage(
+    project_dir: str | os.PathLike[str] | None = None,
+    *,
+    include_manual: bool = False,
+) -> dict[str, Any] | None:
+    """Load `<project_dir>/plan/stage.json` + companion plan files when enabled (`enabled !== false`).
+
+    By default (`include_manual=False`), returns `None` when `autoWrap` is `False` so the
+    default `scenes.py` runtime skips automatic wrapping while preserving manual scene control.
+    """
     root = Path(project_dir or os.environ.get("REEL_DIR") or Path.cwd()).resolve()
     plan_dir = root / "plan"
     stage_path = plan_dir / "stage.json"
@@ -1473,5 +1479,10 @@ def load_project_stage(project_dir: str | os.PathLike[str] | None = None) -> dic
         if p.is_file():
             st = p.stat()
             sig.append((name, st.st_mtime_ns, st.st_size))
-    return _load_project_stage_cached(str(root), tuple(sig))
+    bundle = _load_project_stage_cached(str(root), tuple(sig))
+    if bundle is None:
+        return None
+    if not include_manual and not bundle["spec"]["autoWrap"]:
+        return None
+    return bundle
 

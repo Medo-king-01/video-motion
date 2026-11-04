@@ -179,14 +179,15 @@ win(spec, t) -> { x, y, w, h, r }
 يدعم النظام نمطين متكاملين فوق النواة نفسها دون أي ازدواجية:
 
 ### أ) التفعيل التلقائي من إعدادات المشروع (`plan/stage.json`)
-- ينشئ `tools/new_project.py` ملف `plan/stage.json` تلقائيًا في كل مشروع جديد مع `"enabled": false` افتراضيًا (بحيث يعمل المشروع العادي بملء الشاشة دون أي تغيير).
+- ينشئ `tools/new_project.py` ملف `plan/stage.json` تلقائيًا في كل مشروع جديد مع `"enabled": false` افتراضيًا (بحيث يحافظ المشروع الجديد على السلوك السابق حرفيًا بملء الشاشة دون أي تغيير).
+- المشاريع القديمة التي لا تحتوي أصلًا على `plan/stage.json` تعمل تلقائيًا بآلية التراجع الآمن (`fallback` إلى الوضع غير المفعّل) عبر المحركات الثلاثة — بما في ذلك التحميل الاختياري في `RemotionRoot.tsx` — دون الحاجة لأي خطوة ترحيل (`migration`).
 - بمجرد ضبط `"enabled": true` داخل `plan/stage.json` وتجهيز `plan/beats.json` و`plan/copy.json` و`plan/text-direction.json`، تقرأ مسارات التشغيل الافتراضية في المحركات الثلاثة الإعداد وتطبّق المسرح الثابت تلقائيًا دون الحاجة لإعادة كتابة ملفات التشغيل:
   - **المحرك `P` (`scenes.py` / `render_frame`):** يستدعي `stage.load_project_stage()` ويغلف رسم المشهد والانتقالات داخل `render_fixed_stage`، كما تدخل ملفات `plan/*.json` ضمن بصمة التجزئة في `chunk_utils.build_signature`.
   - **المحرك `K` (`src/main.js`):** يجلب `/plan/stage.json` وملفات الخطة المرافقة ويغلف `scene.draw(...)` تلقائيًا عبر `renderFixedStage`.
   - **المحرك `R` (`src/RemotionRoot.tsx` + `scripts/render.mjs`):** يتحقق من `plan/stage.json` ويغلف محتوى `MotionReel` داخل `<FixedStage>` تلقائيًا.
 
-### ب) الاستخدام البرمجي المباشر داخل مشاهد مخصّصة
-عند بناء مشهد مخصّص يستدعي الـAPI يدويًا مع وجود `plan/stage.json`، يمكن ضبط `"autoWrap": false` في `plan/stage.json` (أو تصدير `export const manualFixedStage = true;` في مشهد محرك `K`):
+### ب) الاستخدام البرمجي المباشر داخل مشاهد مخصّصة (`autoWrap: false`)
+عند بناء مشهد مخصّص يستدعي الـAPI يدويًا مع وجود `plan/stage.json` مفعّل، يُضبط `"autoWrap": false` في `plan/stage.json` (أو يُصدَّر `export const manualFixedStage = true;` في مشهد محرك `K`) فيمتنع مسار التشغيل الافتراضي في `P` و`K` و`R` عن التغليف التلقائي منعًا لأي تغليف مزدوج مع استمرار التحقق من صحة `plan/stage.json`:
 
 #### محرك `P` (`scenes.py`)
 ```python

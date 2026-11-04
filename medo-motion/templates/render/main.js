@@ -55,6 +55,7 @@ async function fetchOptionalJson(url) {
 }
 
 let direction = null;
+let loadedStageSpec = null;
 let autoStage = null;
 let stageCopyById = {};
 let stageDuration = scenes.at(-1)?.end ?? null;
@@ -67,36 +68,45 @@ try {
   direction = await fetchOptionalJson('/plan/text-direction.json');
   const stageRes = await fetch('/plan/stage.json').catch(() => null);
   if (stageRes && stageRes.ok) {
-    const rawStage = await stageRes.json();
-    if (isStageEnabled(rawStage) && rawStage.autoWrap !== false) {
-      autoStage = normalizeStageSpec(rawStage);
-      const [copyDoc, beatsDoc, wtDoc] = await Promise.all([
-        fetchOptionalJson('/plan/copy.json'),
-        fetchOptionalJson('/plan/beats.json'),
-        fetchOptionalJson('/plan/word-timings.json'),
-      ]);
-      if (copyDoc && Array.isArray(copyDoc.copy)) {
-        for (const item of copyDoc.copy) {
-          if (item && typeof item.id === 'string' && typeof item.text === 'string') {
-            stageCopyById[item.id] = item.text;
-          }
-        }
-      }
-      if (beatsDoc && Number.isFinite(Number(beatsDoc.duration)) && Number(beatsDoc.duration) > 0) {
-        stageDuration = Number(beatsDoc.duration);
-      }
-      if (wtDoc && Array.isArray(wtDoc.scenes)) {
-        for (const sc of wtDoc.scenes) {
-          for (const w of sc?.words || []) {
-            if (w && Number.isFinite(w.start) && Number.isFinite(w.end)) {
-              stageWords.push({ text: String(w.text ?? ''), start: Number(w.start), end: Number(w.end) });
+    const rawText = await stageRes.text();
+    const trimmed = rawText.trimStart();
+    // Ignore SPA dev-server HTML 404 fallbacks when plan/stage.json does not exist;
+    // still fail fast on invalid JSON or invalid stage schema when a real file is present.
+    if (trimmed && !trimmed.startsWith('<')) {
+      const rawStage = JSON.parse(rawText);
+      if (isStageEnabled(rawStage)) {
+        loadedStageSpec = normalizeStageSpec(rawStage);
+        const [copyDoc, beatsDoc, wtDoc] = await Promise.all([
+          fetchOptionalJson('/plan/copy.json'),
+          fetchOptionalJson('/plan/beats.json'),
+          fetchOptionalJson('/plan/word-timings.json'),
+        ]);
+        if (copyDoc && Array.isArray(copyDoc.copy)) {
+          for (const item of copyDoc.copy) {
+            if (item && typeof item.id === 'string' && typeof item.text === 'string') {
+              stageCopyById[item.id] = item.text;
             }
           }
         }
-      }
-      if (direction && autoStage.over.header.slots.length > 0) {
-        const hdrScenes = [...new Set(autoStage.over.header.slots.map((sl) => sl.scene))];
-        await Promise.all(hdrScenes.map((scNum) => useDirectedFonts(direction, scNum)));
+        if (beatsDoc && Number.isFinite(Number(beatsDoc.duration)) && Number(beatsDoc.duration) > 0) {
+          stageDuration = Number(beatsDoc.duration);
+        }
+        if (wtDoc && Array.isArray(wtDoc.scenes)) {
+          for (const sc of wtDoc.scenes) {
+            for (const w of sc?.words || []) {
+              if (w && Number.isFinite(w.start) && Number.isFinite(w.end)) {
+                stageWords.push({ text: String(w.text ?? ''), start: Number(w.start), end: Number(w.end) });
+              }
+            }
+          }
+        }
+        if (direction && loadedStageSpec.over.header.slots.length > 0) {
+          const hdrScenes = [...new Set(loadedStageSpec.over.header.slots.map((sl) => sl.scene))];
+          await Promise.all(hdrScenes.map((scNum) => useDirectedFonts(direction, scNum)));
+        }
+        if (loadedStageSpec.autoWrap !== false) {
+          autoStage = loadedStageSpec;
+        }
       }
     }
   }
@@ -197,7 +207,7 @@ window.renderFrame = async (t) => {
         t,
         scene: s,
         direction,
-        stageSpec: autoStage,
+        stageSpec: loadedStageSpec,
         copyById: stageCopyById,
         motionMode,
         resources: scopes[i],

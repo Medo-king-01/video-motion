@@ -1440,6 +1440,532 @@ def test_e3_scaffolded_projects_auto_apply_plan_stage_json_without_rewriting_ent
     assert int(r_im_framed[115:160, 260:820].max()) > 200
 
 
+def test_e4_autowrap_false_prevents_double_wrapping_and_preserves_manual_stage_p_k_r(
+    tmp_path: Path, _remotion_runtime
+):
+    """Explicitly verify `autoWrap: false` across Engines P, K, and R:
+    1) Default runtime entrypoints do NOT auto-wrap when `plan/stage.json` sets `enabled: true, autoWrap: false`.
+    2) Manual Fixed Stage invocation works cleanly with ZERO double-wrapping (verified geometrically via
+       a wider manual window `x=80..1000` vs `plan/stage.json`'s narrower `x=220..860` window).
+    """
+    modules_dir, env = _remotion_runtime
+    td_doc = _sample_direction()
+    beats_doc = {
+        "duration": 1.0,
+        "fps": 30,
+        "frames": 30,
+        "bounds": [0.0, 1.0],
+        "scenes": [{"index": 1, "start": 0.0, "end": 1.0, "dur": 1.0, "frames": 30, "theme": "light"}],
+    }
+    copy_doc = {
+        "pace": "calm",
+        "bpm": 100,
+        "copy": [
+            {"id": "manual-title", "scene": 1, "role": "title", "text": "تحكم يدوي بدون تغليف مزدوج", "start": 0.0, "end": 1.0}
+        ],
+    }
+    # Narrow box in plan/stage.json (x=220..860) with enabled=true, autoWrap=false
+    plan_stage_no_autowrap = {
+        "version": 1,
+        "enabled": True,
+        "autoWrap": False,
+        "id": "plan-narrow-no-autowrap",
+        "clock": "vo",
+        "mode": "framed",
+        "theme": "dark",
+        "defaultFramedBox": {"x": 220, "y": 360, "w": 640, "h": 900, "r": 40},
+        "under": {"surfaceRole": "ink_shadow", "background": None, "frame": {"enabled": False}},
+    }
+    # Wider box used by manual Fixed Stage invocation (x=80..1000)
+    manual_wider_stage = {
+        "version": 1,
+        "enabled": True,
+        "id": "manual-wider-stage",
+        "clock": "vo",
+        "mode": "framed",
+        "theme": "dark",
+        "defaultFramedBox": {"x": 80, "y": 240, "w": 920, "h": 1060, "r": 40},
+        "under": {"surfaceRole": "ink_shadow", "background": None, "frame": {"enabled": False}},
+        "over": {"progressBar": {"enabled": False}, "header": {"enabled": False}, "captions": {"enabled": False}},
+    }
+
+    # --- 1. Engine P ---
+    p_proj = tmp_path / "autowrap_p"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "autowrap-p", "--engine", "p", "--out", str(p_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    (p_proj / "plan" / "beats.json").write_text(json.dumps(beats_doc), encoding="utf-8")
+    (p_proj / "plan" / "copy.json").write_text(json.dumps(copy_doc, ensure_ascii=False), encoding="utf-8")
+    (p_proj / "plan" / "text-direction.json").write_text(json.dumps(td_doc), encoding="utf-8")
+    (p_proj / "plan" / "stage.json").write_text(json.dumps(plan_stage_no_autowrap), encoding="utf-8")
+
+    assert stage.load_project_stage(p_proj) is None
+    manual_bundle = stage.load_project_stage(p_proj, include_manual=True)
+    assert manual_bundle is not None
+    assert manual_bundle["spec"]["autoWrap"] is False
+    assert manual_bundle["spec"]["defaultFramedBox"]["x"] == 220.0
+
+    # 1a. Unedited scenes.py does NOT auto-wrap when autoWrap=False
+    p_unwrapped_png = p_proj / "p_unwrapped.png"
+    p_res1 = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; from PIL import Image; import scenes; "
+            f"Image.fromarray(scenes.render_frame(0.5)).save({str(p_unwrapped_png)!r})",
+        ],
+        cwd=p_proj,
+        env={**env, "REEL_DIR": str(p_proj)},
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert p_res1.returncode == 0, p_res1.stdout + "\n" + p_res1.stderr
+    p_im_unwrapped = np.asarray(Image.open(p_unwrapped_png).convert("RGB"))
+    assert int(p_im_unwrapped[10, 10].min()) > 200  # light scene1 corner, NOT #030303
+
+    # 1b. Manual Fixed Stage wrapper around scenes.render_frame(t) applies wider box once (no double-wrap!)
+    p_manual_png = p_proj / "p_manual.png"
+    p_res2 = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import json; from PIL import Image; import scenes, stage; "
+            f"ms = json.loads({json.dumps(manual_wider_stage)!r}); "
+            "fr = stage.render_fixed_stage(ms, 0.5, lambda ts, _st: scenes.render_frame(ts)); "
+            f"Image.fromarray(fr).save({str(p_manual_png)!r})",
+        ],
+        cwd=p_proj,
+        env={**env, "REEL_DIR": str(p_proj)},
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert p_res2.returncode == 0, p_res2.stdout + "\n" + p_res2.stderr
+    p_im_manual = np.asarray(Image.open(p_manual_png).convert("RGB"))
+    assert tuple(p_im_manual[700, 40]) == (3, 3, 3)  # Outside manual box (x=40 < 80) -> #030303
+    assert int(p_im_manual[700, 140].max()) > 180  # Inside manual box (80 < 140 < 220), NOT clipped to #030303!
+
+    # --- 2. Engine K ---
+    k_proj = tmp_path / "autowrap_k"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "autowrap-k", "--engine", "k", "--out", str(k_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    (k_proj / "plan" / "beats.json").write_text(json.dumps(beats_doc), encoding="utf-8")
+    (k_proj / "plan" / "copy.json").write_text(json.dumps(copy_doc, ensure_ascii=False), encoding="utf-8")
+    (k_proj / "plan" / "text-direction.json").write_text(json.dumps(td_doc), encoding="utf-8")
+    (k_proj / "plan" / "stage.json").write_text(json.dumps(plan_stage_no_autowrap), encoding="utf-8")
+    (k_proj / "src" / "data.js").write_text(
+        "export const W = 1080, H = 1920, FPS = 30;\n"
+        "export const scenes = [{ id: 's1', start: 0, end: 1.0 }];\n"
+        "export const DURATION = 1.0;\n",
+        encoding="utf-8",
+    )
+
+    # 2a. Scene WITHOUT manualFixedStage does NOT get auto-wrapped when autoWrap=false
+    (k_proj / "src" / "scenes" / "s1.js").write_text(
+        """import { PALETTE } from '../lib/brand.js';
+export const supportsReducedMotion = true;
+export async function draw(ctx, _lt, { W, H, stageSpec }) {
+  if (!stageSpec || stageSpec.defaultFramedBox.x !== 220) {
+    throw new Error('Expected loaded stageSpec with x=220 to be passed to manual scene');
+  }
+  ctx.fillStyle = PALETTE.paper;
+  ctx.fillRect(0, 0, W, H);
+}
+""",
+        encoding="utf-8",
+    )
+    k_unwrap_out = k_proj / "cache" / "k_unwrapped"
+    k_res1 = subprocess.run(
+        ["node", "src/render.js", "--from", "0", "--to", "0.2", "--fps", "30", "--jpg", "--out", str(k_unwrap_out)],
+        cwd=k_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert k_res1.returncode == 0, k_res1.stdout + "\n" + k_res1.stderr
+    k_im_unwrap = np.asarray(Image.open(k_unwrap_out / "00003.jpg").convert("RGB"))
+    assert int(k_im_unwrap[10, 10].min()) > 220
+
+    # 2b. Manual Fixed Stage inside s1.js (STILL without `manualFixedStage = true`!) works with zero double-wrapping
+    (k_proj / "src" / "scenes" / "s1.js").write_text(
+        f"""import {{ renderFixedStage }} from '../lib/stage-canvas.js';
+import {{ drawDirectedText, useDirectedFonts }} from '../lib/captions.js';
+import {{ PALETTE }} from '../lib/brand.js';
+
+export const supportsReducedMotion = true;
+const MANUAL_SPEC = {json.dumps(manual_wider_stage)};
+
+export async function init() {{
+  const r = await fetch('/plan/text-direction.json');
+  await useDirectedFonts(await r.json(), 1);
+}}
+
+export async function draw(ctx, localT, {{ W, H, t, direction, copyById, motionMode }}) {{
+  await renderFixedStage(ctx, MANUAL_SPEC, t, {{
+    duration: 1.0,
+    direction,
+    copyById,
+    motionMode,
+    drawContent: (c) => {{
+      c.fillStyle = PALETTE.paper;
+      c.fillRect(0, 0, W, H);
+      drawDirectedText(c, copyById['manual-title'], {{
+        direction, scene: 1, role: 'title', elementId: 'manual-title',
+        time: localT, start: 0, end: 1.0, x: 540, y: 740, size: 48,
+        color: PALETTE.ink, theme: 'light', shadow: 'transparent',
+      }});
+    }},
+  }});
+}}
+""",
+        encoding="utf-8",
+    )
+    k_audit_out = k_proj / "cache" / "k_manual_audit"
+    k_audit = subprocess.run(
+        ["node", "src/render.js", "--from", "0", "--to", "0.4", "--fps", "30", "--audit", "--replay", "--out", str(k_audit_out)],
+        cwd=k_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert k_audit.returncode == 0, k_audit.stdout + "\n" + k_audit.stderr
+
+    k_manual_out = k_proj / "cache" / "k_manual_frames"
+    k_res2 = subprocess.run(
+        ["node", "src/render.js", "--from", "0", "--to", "0.2", "--fps", "30", "--jpg", "--out", str(k_manual_out)],
+        cwd=k_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert k_res2.returncode == 0, k_res2.stdout + "\n" + k_res2.stderr
+    k_im_manual = np.asarray(Image.open(k_manual_out / "00003.jpg").convert("RGB"))
+    assert int(k_im_manual[700, 40].max()) <= 12  # Outside manual box -> #030303
+    assert int(k_im_manual[700, 140].min()) > 220  # Inside manual box (x=140), NOT clipped by plan/stage.json (x=220..860)!
+
+    # --- 3. Engine R ---
+    r_proj = tmp_path / "autowrap_r"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "autowrap-r", "--engine", "r", "--out", str(r_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    (r_proj / "node_modules").symlink_to(modules_dir, target_is_directory=True)
+    (r_proj / "plan" / "beats.json").write_text(json.dumps(beats_doc), encoding="utf-8")
+    (r_proj / "plan" / "copy.json").write_text(json.dumps(copy_doc, ensure_ascii=False), encoding="utf-8")
+    (r_proj / "plan" / "text-direction.json").write_text(json.dumps(td_doc), encoding="utf-8")
+    (r_proj / "plan" / "stage.json").write_text(json.dumps(plan_stage_no_autowrap), encoding="utf-8")
+
+    # Add a second composition `ManualStageReel` in Root.tsx that wraps `<MotionReel />` manually in `<FixedStage>`
+    (r_proj / "src" / "Root.tsx").write_text(
+        f"""import React from 'react';
+import {{Composition, useCurrentFrame, useVideoConfig}} from 'remotion';
+import {{BRAND}} from './brand';
+import {{DURATION_IN_FRAMES, DURATION_SECONDS, IS_PREVIEW_TIMELINE}} from './data';
+import {{MotionReel, STAGE_PLAN}} from './RemotionRoot';
+import {{FixedStage}} from './lib/FixedStage';
+
+const MANUAL_SPEC = {json.dumps(manual_wider_stage)};
+
+const ManualWrappedReel: React.FC = () => {{
+  const frame = useCurrentFrame();
+  const {{fps}} = useVideoConfig();
+  if (!STAGE_PLAN || STAGE_PLAN.defaultFramedBox?.x !== 220) {{
+    throw new Error('Expected STAGE_PLAN with x=220 to remain accessible');
+  }}
+  return (
+    <FixedStage spec={{MANUAL_SPEC}} time={{frame / fps}} duration={{DURATION_SECONDS}}>
+      <MotionReel />
+    </FixedStage>
+  );
+}};
+
+export const RemotionRoot: React.FC = () => (
+  <>
+    <Composition
+      id="MedoReel"
+      component={{MotionReel}}
+      durationInFrames={{DURATION_IN_FRAMES}}
+      fps={{BRAND.fps}}
+      width={{BRAND.width}}
+      height={{BRAND.height}}
+      defaultProps={{{{audioFile: null, previewOnly: IS_PREVIEW_TIMELINE, motionMode: 'normal'}}}}
+    />
+    <Composition
+      id="ManualStageReel"
+      component={{ManualWrappedReel}}
+      durationInFrames={{DURATION_IN_FRAMES}}
+      fps={{BRAND.fps}}
+      width={{BRAND.width}}
+      height={{BRAND.height}}
+    />
+  </>
+);
+""",
+        encoding="utf-8",
+    )
+
+    tsc_r = subprocess.run(
+        ["node", "node_modules/typescript/bin/tsc", "--noEmit"],
+        cwd=r_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert tsc_r.returncode == 0, tsc_r.stdout + "\n" + tsc_r.stderr
+
+    for comp_id, out_name in (("MedoReel", "r_unwrapped.png"), ("ManualStageReel", "r_manual.png")):
+        st_res = subprocess.run(
+            [
+                "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
+                comp_id, str(r_proj / out_name), "--frame=10", "--log=error",
+            ],
+            cwd=r_proj,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        assert st_res.returncode == 0, st_res.stdout + "\n" + st_res.stderr
+
+    r_im_unwrap = np.asarray(Image.open(r_proj / "r_unwrapped.png").convert("RGB"))
+    r_im_manual = np.asarray(Image.open(r_proj / "r_manual.png").convert("RGB"))
+    assert int(r_im_unwrap[10, 10].min()) > 230  # Default MotionReel NOT wrapped when autoWrap=false
+    assert tuple(r_im_manual[700, 40]) == (3, 3, 3)  # Manual FixedStage IS active outside x=80..1000
+    assert int(r_im_manual[700, 140].max()) > 180  # Inside manual box (x=140), NOT double-wrapped to #030303!
+
+
+def test_e5_legacy_projects_without_stage_json_and_enabled_false_equivalence(
+    tmp_path: Path, _remotion_runtime
+):
+    """Verify two critical backward-compatibility guarantees across P, K, R, and reel_lint.py:
+    1) Legacy projects that do NOT have `plan/stage.json` at all work out-of-the-box with zero migration
+       (including Engine R `tsc --noEmit` and `@remotion/bundler` compilation).
+    2) New projects with `plan/stage.json` set to `enabled: false` produce 100% pixel-identical output
+       to legacy projects without `plan/stage.json`.
+    """
+    modules_dir, env = _remotion_runtime
+    td_doc = _sample_direction()
+    beats_doc = {
+        "duration": 1.0,
+        "fps": 30,
+        "frames": 30,
+        "bounds": [0.0, 1.0],
+        "scenes": [{"index": 1, "start": 0.0, "end": 1.0, "dur": 1.0, "frames": 30, "theme": "light"}],
+    }
+    copy_doc = {
+        "pace": "calm",
+        "bpm": 100,
+        "copy": [
+            {"id": "leg-title", "scene": 1, "role": "title", "text": "توافق المشاريع القديمة والجديدة", "start": 0.0, "end": 1.0}
+        ],
+    }
+
+    # --- 0. reel_lint.py on legacy fixture (no stage.json) vs enabled:false ---
+    lint_legacy = tmp_path / "lint_legacy"
+    shutil.copytree(ROOT / "tests" / "fixtures" / "reel" / "good", lint_legacy)
+    assert not (lint_legacy / "plan" / "stage.json").exists()
+    lint_res_leg = subprocess.run(
+        [sys.executable, str(TOOLS / "reel_lint.py"), str(lint_legacy)],
+        capture_output=True,
+        text=True,
+    )
+    assert lint_res_leg.returncode == 0, lint_res_leg.stdout + "\n" + lint_res_leg.stderr
+
+    # --- 1. Engine P: enabled:false == legacy missing plan/stage.json ---
+    p_proj = tmp_path / "compat_p"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "compat-p", "--engine", "p", "--out", str(p_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    # Even if mode is changed to 'framed', enabled: false must preserve 100% legacy behavior!
+    p_stage_doc = json.loads((p_proj / "plan" / "stage.json").read_text(encoding="utf-8"))
+    assert p_stage_doc["enabled"] is False
+    p_stage_doc["mode"] = "framed"
+    (p_proj / "plan" / "stage.json").write_text(json.dumps(p_stage_doc), encoding="utf-8")
+
+    p_disabled_png = p_proj / "p_disabled.png"
+    p_legacy_png = p_proj / "p_legacy.png"
+    for target_png, remove_stage in ((p_disabled_png, False), (p_legacy_png, True)):
+        if remove_stage:
+            (p_proj / "plan" / "stage.json").unlink()
+            assert not (p_proj / "plan" / "stage.json").exists()
+        res = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from PIL import Image; import scenes; "
+                f"Image.fromarray(scenes.render_frame(0.4)).save({str(target_png)!r})",
+            ],
+            cwd=p_proj,
+            env={**env, "REEL_DIR": str(p_proj)},
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert res.returncode == 0, res.stdout + "\n" + res.stderr
+
+    p_arr_disabled = np.asarray(Image.open(p_disabled_png).convert("RGB"))
+    p_arr_legacy = np.asarray(Image.open(p_legacy_png).convert("RGB"))
+    assert np.array_equal(p_arr_disabled, p_arr_legacy)
+    assert int(p_arr_legacy[10, 10].min()) > 200
+
+    # --- 2. Engine K: enabled:false == legacy missing plan/stage.json (+ --audit passes without 404) ---
+    k_proj = tmp_path / "compat_k"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "compat-k", "--engine", "k", "--out", str(k_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    (k_proj / "plan" / "beats.json").write_text(json.dumps(beats_doc), encoding="utf-8")
+    (k_proj / "plan" / "copy.json").write_text(json.dumps(copy_doc, ensure_ascii=False), encoding="utf-8")
+    (k_proj / "plan" / "text-direction.json").write_text(json.dumps(td_doc), encoding="utf-8")
+    (k_proj / "src" / "data.js").write_text(
+        "export const W = 1080, H = 1920, FPS = 30;\n"
+        "export const scenes = [{ id: 's1', start: 0, end: 1.0 }];\n"
+        "export const DURATION = 1.0;\n",
+        encoding="utf-8",
+    )
+    (k_proj / "src" / "scenes" / "s1.js").write_text(
+        """import { drawDirectedText, useDirectedFonts } from '../lib/captions.js';
+import { PALETTE } from '../lib/brand.js';
+export const supportsReducedMotion = true;
+export async function init() {
+  const r = await fetch('/plan/text-direction.json');
+  await useDirectedFonts(await r.json(), 1);
+}
+export async function draw(ctx, localT, { W, H, direction }) {
+  ctx.fillStyle = PALETTE.paper;
+  ctx.fillRect(0, 0, W, H);
+  drawDirectedText(ctx, 'توافق المشاريع القديمة والجديدة', {
+    direction, scene: 1, role: 'title', elementId: 'leg-title',
+    time: localT, start: 0, end: 1.0, x: 540, y: 740, size: 48,
+    color: PALETTE.ink, theme: 'light', shadow: 'transparent',
+  });
+}
+""",
+        encoding="utf-8",
+    )
+
+    k_dis_out = k_proj / "cache" / "k_disabled"
+    k_dis_res = subprocess.run(
+        ["node", "src/render.js", "--from", "0", "--to", "0.2", "--fps", "30", "--jpg", "--out", str(k_dis_out)],
+        cwd=k_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert k_dis_res.returncode == 0, k_dis_res.stdout + "\n" + k_dis_res.stderr
+
+    # Delete plan/stage.json to simulate legacy Engine K project
+    (k_proj / "plan" / "stage.json").unlink()
+    k_leg_audit = subprocess.run(
+        ["node", "src/render.js", "--from", "0", "--to", "0.2", "--fps", "30", "--audit", "--out", str(k_proj / "cache" / "k_leg_audit")],
+        cwd=k_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert k_leg_audit.returncode == 0, k_leg_audit.stdout + "\n" + k_leg_audit.stderr
+
+    k_leg_out = k_proj / "cache" / "k_legacy"
+    k_leg_res = subprocess.run(
+        ["node", "src/render.js", "--from", "0", "--to", "0.2", "--fps", "30", "--jpg", "--out", str(k_leg_out)],
+        cwd=k_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert k_leg_res.returncode == 0, k_leg_res.stdout + "\n" + k_leg_res.stderr
+    assert (k_dis_out / "00003.jpg").read_bytes() == (k_leg_out / "00003.jpg").read_bytes()
+
+    # --- 3. Engine R: enabled:false == legacy missing plan/stage.json (tsc + bundler + pixel equality!) ---
+    r_proj = tmp_path / "compat_r"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "compat-r", "--engine", "r", "--out", str(r_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    (r_proj / "node_modules").symlink_to(modules_dir, target_is_directory=True)
+    (r_proj / "plan" / "beats.json").write_text(json.dumps(beats_doc), encoding="utf-8")
+    (r_proj / "plan" / "copy.json").write_text(json.dumps(copy_doc, ensure_ascii=False), encoding="utf-8")
+    (r_proj / "plan" / "text-direction.json").write_text(json.dumps(td_doc), encoding="utf-8")
+
+    # 3a. With scaffolded plan/stage.json (enabled: false)
+    tsc_dis = subprocess.run(
+        ["node", "node_modules/typescript/bin/tsc", "--noEmit"],
+        cwd=r_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert tsc_dis.returncode == 0, tsc_dis.stdout + "\n" + tsc_dis.stderr
+    st_dis = subprocess.run(
+        [
+            "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
+            "MedoReel", str(r_proj / "r_disabled.png"), "--frame=10", "--log=error",
+        ],
+        cwd=r_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    assert st_dis.returncode == 0, st_dis.stdout + "\n" + st_dis.stderr
+
+    # 3b. Delete plan/stage.json completely -> legacy Engine R project without plan/stage.json!
+    (r_proj / "plan" / "stage.json").unlink()
+    assert not (r_proj / "plan" / "stage.json").exists()
+
+    tsc_leg = subprocess.run(
+        ["node", "node_modules/typescript/bin/tsc", "--noEmit"],
+        cwd=r_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert tsc_leg.returncode == 0, tsc_leg.stdout + "\n" + tsc_leg.stderr
+    st_leg = subprocess.run(
+        [
+            "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
+            "MedoReel", str(r_proj / "r_legacy.png"), "--frame=10", "--log=error",
+        ],
+        cwd=r_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    assert st_leg.returncode == 0, st_leg.stdout + "\n" + st_leg.stderr
+
+    r_arr_dis = np.asarray(Image.open(r_proj / "r_disabled.png").convert("RGB"))
+    r_arr_leg = np.asarray(Image.open(r_proj / "r_legacy.png").convert("RGB"))
+    assert np.array_equal(r_arr_dis, r_arr_leg)
+    assert int(r_arr_leg[10, 10].min()) > 230
+
+
 # ===========================================================================
 # F. Determinism, Reverse-Seek & Engine P Chunked Rendering Tests
 # ===========================================================================
@@ -1718,6 +2244,7 @@ def test_f3_engine_r_persistent_browser_reverse_and_random_seek_determinism(
     scrub_mjs = proj / "scrub_verify.mjs"
     scrub_mjs.write_text(
         """import crypto from 'node:crypto';
+import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import {bundle} from '@remotion/bundler';
@@ -1762,7 +2289,11 @@ try {
   console.log(JSON.stringify({forward, reverse, shuffled}));
 } finally {
   await puppeteerInstance.close({silent: true});
+  try {
+    fs.rmSync(serveUrl, {recursive: true, force: true});
+  } catch {}
 }
+process.exit(0);
 """,
         encoding="utf-8",
     )

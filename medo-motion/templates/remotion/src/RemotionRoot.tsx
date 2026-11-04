@@ -12,12 +12,42 @@ import {
 import {BRAND, PALETTE} from './brand';
 import {DURATION_SECONDS, IS_PREVIEW_TIMELINE, STORY, TIMELINE} from './data';
 import DIRECTION from '../plan/text-direction.json';
-import COPY_PLAN from '../plan/copy.json';
-import STAGE_PLAN from '../plan/stage.json';
 import FONTS from '../assets/fonts/fonts.json';
 import {DirectedText} from './lib/DirectedText';
 import {FixedStage} from './lib/FixedStage';
 import {isStageEnabled, validateStageSpec} from './lib/stage.js';
+
+declare const require: {
+  context: (
+    directory: string,
+    useSubdirectories?: boolean,
+    regExp?: RegExp,
+  ) => {
+    keys(): string[];
+    (id: string): any;
+  };
+};
+
+// Optional plan JSON loader: legacy Engine R projects without plan/stage.json (or
+// optional copy.json) fall back cleanly to null with zero migration required.
+function loadOptionalPlanJson(
+  relName: './stage.json' | './copy.json',
+): Record<string, any> | null {
+  try {
+    const ctx = require.context('../plan', false, /^\.\/(stage|copy)\.json$/);
+    if (ctx.keys().includes(relName)) {
+      const mod = ctx(relName);
+      const unwrapped = mod && typeof mod === 'object' && 'default' in mod ? mod.default : mod;
+      return unwrapped ?? null;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+export const STAGE_PLAN = loadOptionalPlanJson('./stage.json');
+const COPY_PLAN = loadOptionalPlanJson('./copy.json');
 
 // Every manifest face is available to the agent's direction; @font-face is generated
 // from the same fonts.json the other engines read (no hardcoded creative default).
@@ -34,15 +64,16 @@ const USED_FONTS = (() => {
   return [...seen.values()];
 })();
 
-const STAGE_ERRORS = validateStageSpec(STAGE_PLAN);
+const STAGE_ERRORS = STAGE_PLAN === null ? [] : validateStageSpec(STAGE_PLAN);
 const AUTO_STAGE_ACTIVE =
+  STAGE_PLAN !== null &&
   STAGE_ERRORS.length === 0 &&
   isStageEnabled(STAGE_PLAN) &&
-  (STAGE_PLAN as any)?.autoWrap !== false;
+  STAGE_PLAN.autoWrap !== false;
 
-const COPY_BY_ID: Record<string, string> = (() => {
+export const COPY_BY_ID: Record<string, string> = (() => {
   const out: Record<string, string> = {};
-  const list = Array.isArray((COPY_PLAN as any)?.copy) ? (COPY_PLAN as any).copy : [];
+  const list = Array.isArray(COPY_PLAN?.copy) ? COPY_PLAN.copy : [];
   for (const item of list) {
     if (item && typeof item.id === 'string' && typeof item.text === 'string') {
       out[item.id] = item.text;
@@ -117,6 +148,8 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       overflow: 'hidden',
       direction: 'rtl',
     }}>
+      {!AUTO_STAGE_ACTIVE && fontStyleSheet}
+
       {/* Decorative palette disc: generated from the locked brand, never a logo placeholder. */}
       <div style={{
         position: 'absolute', width: 850, height: 850, borderRadius: '50%',
@@ -163,6 +196,7 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       </DirectedText>
 
       {!AUTO_STAGE_ACTIVE && previewBadge}
+      {!AUTO_STAGE_ACTIVE && (audioFile ? <Audio src={staticFile(audioFile)} /> : null)}
     </AbsoluteFill>
   );
 
@@ -171,7 +205,7 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       <AbsoluteFill style={{fontFamily: 'Cairo, sans-serif', overflow: 'hidden', direction: 'rtl'}}>
         {fontStyleSheet}
         <FixedStage
-          spec={STAGE_PLAN}
+          spec={STAGE_PLAN as Record<string, any>}
           time={absSeconds}
           duration={DURATION_SECONDS}
           direction={DIRECTION}
@@ -186,11 +220,5 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
     );
   }
 
-  return (
-    <AbsoluteFill style={{overflow: 'hidden', direction: 'rtl'}}>
-      {fontStyleSheet}
-      {sceneBody}
-      {audioFile ? <Audio src={staticFile(audioFile)} /> : null}
-    </AbsoluteFill>
-  );
+  return sceneBody;
 };
