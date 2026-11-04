@@ -104,6 +104,7 @@
 [التفاصيل والحدود والأدلة القابلة للإعادة](docs/visual-data-qa.md).
 استمرارية shell واحدة في K/R عبر `shared-element.js` و`drawSharedPanel`/`SharedPanel`،
 مع فحص `--replay` للبكسلات وبيانات التخطيط عند seek عكسي: [الشرح والانتقاء](docs/charlie-motion-review.md).
+مخططات القطع الأيزومترية (`iso_kit.py` / `iso-kit.js`)، بلاطات الشرح المجسمة ثلاثية الأبعاد للأيقونات (`tile3d.py` / `tile3d.js` / `three-tile3d.js`)، وبلور الغالق الزمني (`shutter-blur.js` / `lib.render_shutter_blur`) متاحة عبر المحركات الثلاثة: [التقييم والتنفيذ](docs/video-ad-editor-fit.md).
 
 
 **مش component library موحّدة بنفس الـAPI عبر المحركات.** فيه helpers ونماذج، لكن التغطية
@@ -141,8 +142,8 @@
   - T06: كل fragment بيسمّي لونه بيعدّي WCAG على أرضية مشهده (٤.٥:١ جسم · ٣:١ عند ≥٧٦px)،
     والأزواج اللي `brand.json → text_contrast.forbidden_on_theme` بتمنعها بتفشل مهما كان الحجم.
   - S06: الفريم صفر مش خلفية فاضية — هو الـthumbnail في مشغلات السوشيال.
-- بوابات الرندر في P/K/R بترفض خطة ناقصة، و`tools/layout_audit.mjs` (K) و`tools/layout_audit_p.py` (P) يفحصان تصادم النصوص والوجوه وثبات الإطارات (`L00`–`L03` + `R01`/`R02`).
-- `tools/media_qa.py` يفحص الـMP4 النهائي بعد الرندر (`Q00`–`Q05`: `faststart`، تزامن الـVO، bitrate، فريم `0`، عدم الثبات، و`-14.5 ± 0.3 LUFS` / `≤ -1.5 dBTP`)، و`tools/stage_gate.py` يجمع بوابات المراحل ووعد التسليم (`G01`–`G06`).
+- بوابات الرندر في P/K/R بترفض خطة ناقصة، و`tools/layout_audit.mjs` (K) و`tools/layout_audit_p.py` (P) يفحصان تصادم النصوص والوجوه وثبات الإطارات (`L00`–`L03` + `L04` الاختياري لأزرار المنصات بـ`--platform-ui` + `R01`/`R02`).
+- `tools/media_qa.py` يفحص الـMP4 النهائي بعد الرندر (`Q00`–`Q05`: `faststart`، تزامن الـVO، bitrate، فريم `0`، عدم الثبات، و`-14.5 ± 0.3 LUFS` / `≤ -1.5 dBTP`)، `tools/phone_preview.py` يولّد شيت معاينة شبكة الموبايل وأزرار المنصات، `tools/asr_check.py` يفحص هلوسات وفجوات الـASR، و`tools/stage_gate.py` يجمع بوابات المراحل ووعد التسليم (`G01`–`G06`).
 - `tests/`: تشكيل عربي، براند، خطوط، حركة، لينت، تخطيط K/P، فحص الماستر، scaffold، selftest.
 - `tools/ci.sh` و`tools/selftest.py` هما بوابة الدمج.
 

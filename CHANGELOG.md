@@ -1,5 +1,37 @@
 # Changelog
 
+## Unreleased — 2026-11-04 (Arabic kashida & mixed-run typography, phrase captions, isometric cutaway kit, shutter blur & mobile/ASR QA)
+
+Native clean-room studio upgrades distilled from the MIT-licensed `majedphotos/video-ad-editor`
+(`v6.3.0`) review (`docs/video-ad-editor-fit.md`, attributed in `assets/CREDITS.md`, zero third-party
+runtime dependencies added):
+
+- **Unicode-safe Arabic kashida, mixed RTL/LTR phrase order & slot ticker (`lib/arabic.js`, `arabic_shape.py`)**:
+  fixes multi-word English/number run reversal inside RTL sentences (`visualWordOrder` / `visual_word_order`
+  and UAX #9 `N1` neutral-run merging in `arabic_shape.py:_runs`), adds `kashidaSlots` / `insertKashida` /
+  `stretchKashida` / `drawKashida` (`K`) and `kashida_slots` / `insert_kashida` / `stretch_kashida` /
+  `draw_kashida` (`P`) respecting right-only letters, harakat clusters, and `لا` ligatures, plus
+  `fixRuqaaTaaMarbuta` and vertical masked `drawTextSlot` / `draw_text_slot`.
+- **Phrase-chunk captions (`lib/captions.js`, `procedural-reels/captions.py`)**: `groupCaptionChunks` /
+  `group_caption_chunks` groups measured VO words into `2–4` word unboxed RTL phrases without orphaning
+  Arabic glue particles (`في`, `من`, `على`, `مش`, `اللي`...), rendered via `drawPhraseCaption` /
+  `draw_phrase_caption` with active-word brand highlight, calm `still` mode, and `hideRanges` hero-text
+  suppression windows.
+- **Brand-locked Isometric Cutaway "How It Works" Kit (`iso_kit.py` + byte-identical `iso-kit.js` for K/R)**,
+  **3D Extruded Explainer Icon/Symbol Tiles (`tile3d.py` + byte-identical `tile3d.js` & `three-tile3d.js` for K/R)**,
+  and **Temporal Shutter Motion Blur (`lib.py:shutter_blur` + byte-identical `shutter-blur.js` for K/R)**:
+  deterministic 3-layer cutaway hardware/system diagrams (`slab`, `cylinder`, `ring`, `coil`, `wire`),
+  perspective-warped 3D beveled icon/symbol tiles with animated diagonal specular gloss sweeps, and
+  windowed sub-frame shutter averaging.
+- **Repository-only visual header (`docs/assets/studio-banner.svg`, `docs/assets/studio-mark.svg`)**:
+  aesthetic GitHub documentation emblem crafted strictly from the locked 12-colour v2.6 palette (never
+  stamped onto rendered videos).
+- **`tools/phone_preview.py` (`make phone-preview`), opt-in `L04` (`--platform-ui`), and `tools/asr_check.py`
+  (`make asr-check` + `stage_gate.py` `G02`)**: renders a 4-panel mobile preview sheet (`9:16` Reels/TikTok
+  HUD + right-rail buttons, `3:4` profile grid, `1:1` square, and `13.5%` real grid tile), audits right-rail
+  RTL text collisions (`x940..1080, y1100..1500`), and catches Whisper hallucinations, stutter loops, bad
+  word bounds, and untranscribed voiced speech gaps.
+
 ## Unreleased — 2026-11-04 (post-render media QA, Engine P layout audit, stage gates & doctor JSON)
 
 Clean-room post-render verification and stage-gate capabilities inspired by the architecture review of

@@ -65,8 +65,24 @@ import { loadFont, setArabic, layoutWords, wipeReveal } from './lib/arabic.js';
 setArabic(ctx, { family: 'Kufam', size: 140, weight: 900 });
 const words = layoutWords(ctx, 'صوّر خام والباقي علينا', { x: W / 2, y: H * 0.45, maxWidth: W * 0.8, lineHeight: 1.5 });
 words.forEach((w, i) => {
-  const p = clamp01((t - i * 0.1) / 0.25);               // whole-word timing
+  const p = clamp01((t - w.logicalIndex * 0.1) / 0.25);   // spoken-order timing even with embedded English
   ctx.globalAlpha = p; ctx.fillText(w.text, w.x, w.y + 24 * (1 - easeOut(p)));
 });
 wipeReveal(ctx, () => ctx.fillText('خام', W / 2, H * 0.6), bbox, progress);   // right→left typewriter
 ```
+
+## 6. Unicode-Safe Kashida, Mixed English Runs & Phrase Chunks
+
+1. **Kashida (`ـ` U+0640) follows Unicode `ArabicShaping` joining grammar (`kashidaSlots`, `drawKashida` in `lib/arabic.js`; `kashida_slots`, `draw_kashida` in `arabic_shape.py` / `lib.py`):**
+   - Insert tatweel **only** after a dual-joining letter (`ب ت ث ج ح خ س ش ص ض ط ظ ع غ ف ق ك ل م ن ه ي ئ`) when followed by a right-capable letter.
+   - **Never** insert after right-only letters (`ا أ إ آ د ذ ر ز و ؤ ة ء ى`) — `تحرّـــك` detaches; `تحـــرّك` joins cleanly.
+   - **Never** split a base letter from its harakat/shadda (`[\u064B-\u065F\u0670]`) — place tatweel **after** the diacritic cluster.
+   - **Never** insert between `ل` and `ا/أ/إ/آ/ٱ` (breaks the mandatory `لا` ligature).
+   - Combine integer tatweel steps with a capped residual `scaleX <= 1.06` so animated kashida stretches never snap visibly between glyph counts.
+2. **Multi-word English/number phrases inside RTL lines (`visualWordOrder` / `visual_word_order`):**
+   - Contiguous Latin/numeric tokens (`"Claude Code 2.0"`, `"DDR5 16GB"`, `"VS Code"`) must stay left-to-right visually inside an RTL sentence while preserving `logicalIndex` for spoken-order staggers.
+3. **Phrase-chunk captions (`drawPhraseCaption` / `draw_phrase_caption`):**
+   - Group measured VO words into `2–4` word single-line RTL phrases (`groupCaptionChunks` / `group_caption_chunks`), never orphaning Arabic glue particles (`في`, `من`, `على`, `إلى`, `عن`, `مع`, `مش`, `اللي`...) at a chunk boundary.
+   - Pass `hideRanges` (`[[start, end], ...]`) whenever hero kinetic typography already displays the spoken words on screen so captions never duplicate hero text.
+   - Keep right-aligned Arabic clear of the social right-rail action column (`x: 940..1080, y: 1100..1500`; opt-in `L04` via `--platform-ui` or `tools/phone_preview.py`).
+

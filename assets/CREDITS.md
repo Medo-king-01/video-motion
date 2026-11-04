@@ -28,6 +28,7 @@
 | أيقونات itshover (263 أيقونة) | https://itshover.com · https://github.com/itshover/itshover | **Apache-2.0** | 2026-11-01 | `medo-motion/icons/itshover/tsx/` — مولّد منها أيقونات المحركين. نص الترخيص في `medo-motion/icons/itshover/LICENSE` |
 
 | منهج الحرفة + مكتبة الحركات (مُعاد كتابتها) | https://github.com/Leonxlnx/cinetic | **MIT** | 2026-11-01 | `assets/techniques.json` + `docs/craft.md`, `docs/techniques.md`: أرقام المونتاج/النص مقاسة من فيلم‑فيلم، ومكتبة ٤١ حركة **اتعادت كتابتها** على primitives الاستوديو (مفيش React/Remotion/GSAP ولا كود منسوخ؛ `tests/test_techniques.py` بيمنع الرجوع ليهم). الأصل MIT © 2026 Leonxlnx |
+| خوارزميات الكشيدة العربية وترتيب الجمل المختلطة والبلاطات المجسّمة 3D وفحص الموبايل والـASR ورسم القطع الأيزومتري (مُعاد كتابتها أصليًا) | https://github.com/majedphotos/video-ad-editor · https://github.com/wheresryan22/anatomy | **MIT** | 2026-11-04 | `lib/arabic.js`, `arabic_shape.py`, `captions.{js,py}`, `iso-kit.js` / `iso_kit.py`, `tile3d.js` / `three-tile3d.js` / `tile3d.py`, `shutter-blur.js`, `tools/phone_preview.py`, `tools/asr_check.py`, `docs/video-ad-editor-fit.md`: أُعيدت كتابتها بالكامل على هوية وعقد المحركات P/K/R (بدون تثبيت الإضافة أو أي كود تحت Remotion/Hippocratic). الأصل MIT © 2026 Majed Alzaabi (وهندسة الإسقاط الأيزومتري مستلهمة من `wheresryan22/anatomy` MIT) |
 
 ## Type system — `assets/fonts/` (21 families, SIL OFL 1.1)
 كل العيلات من Google Fonts، اتسحبت كـTTF من حزم npm `@expo-google-fonts/*` بـ`tools/fonts_install.py`،

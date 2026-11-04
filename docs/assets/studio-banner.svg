@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="video-motion — Vertical Reel Motion Studio">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A0A0A"/>
+      <stop offset="100%" stop-color="#030303"/>
+    </linearGradient>
+    <radialGradient id="redAura" cx="19%" cy="50%" r="44%">
+      <stop offset="0%" stop-color="#CB271B" stop-opacity="0.22"/>
+      <stop offset="65%" stop-color="#9F0803" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#030303" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="engGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#C9C5C2" stroke-opacity="0.07" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Canvas & locked v2.6 grid -->
+  <rect x="2" y="2" width="1196" height="296" rx="28" fill="url(#bgGrad)" stroke="#71717A" stroke-opacity="0.4" stroke-width="2"/>
+  <rect x="2" y="2" width="1196" height="296" rx="28" fill="url(#engGrid)"/>
+  <rect x="2" y="2" width="1196" height="296" rx="28" fill="url(#redAura)"/>
+
+  <!-- Studio registration crop marks -->
+  <g fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round">
+    <path d="M28 48 V28 H48"/>
+    <path d="M1152 28 H1172 V48"/>
+    <path d="M28 252 V272 H48"/>
+    <path d="M1152 272 H1172 V252"/>
+  </g>
+
+  <!-- Left: 3D 9:16 Reel Mark -->
+  <g transform="translate(88, 34)">
+    <rect x="0" y="0" width="232" height="232" rx="46" fill="#0A0A0A" stroke="#71717A" stroke-opacity="0.5" stroke-width="2"/>
+    <!-- Tilted background card for 3D depth -->
+    <rect x="54" y="24" width="108" height="184" rx="16" transform="rotate(-6 108 116)" fill="#9F0803" fill-opacity="0.38" stroke="#D97F68" stroke-opacity="0.45" stroke-width="1.5"/>
+    <!-- Front 9:16 Reel Frame -->
+    <rect x="64" y="22" width="108" height="188" rx="17" fill="#030303" stroke="#F3F2F1" stroke-width="3.5"/>
+    <!-- Top HUD progress -->
+    <line x1="80" y1="40" x2="156" y2="40" stroke="#71717A" stroke-width="3" stroke-linecap="round"/>
+    <line x1="118" y1="40" x2="156" y2="40" stroke="#D97F68" stroke-width="3" stroke-linecap="round"/>
+    <!-- 3D Extruded Play Prism -->
+    <polygon points="100,74 92,80 92,138 100,132" fill="#9F0803"/>
+    <polygon points="92,138 142,110 150,104 100,132" fill="#9F0803"/>
+    <polygon points="100,74 150,103 100,132" fill="#CB271B"/>
+    <polyline points="100,74 150,103 100,132" fill="none" stroke="#D97F68" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- VO Waveform -->
+    <g stroke-linecap="round" stroke-width="4">
+      <line x1="86"  y1="170" x2="86"  y2="182" stroke="#D5AEA6"/>
+      <line x1="99"  y1="162" x2="99"  y2="186" stroke="#F3F2F1"/>
+      <line x1="112" y1="154" x2="112" y2="188" stroke="#D97F68"/>
+      <line x1="125" y1="164" x2="125" y2="184" stroke="#F3F2F1"/>
+      <line x1="138" y1="158" x2="138" y2="187" stroke="#CB271B"/>
+      <line x1="151" y1="169" x2="151" y2="182" stroke="#D5AEA6"/>
+    </g>
+  </g>
+
+  <!-- Right: Studio Typography & Spec Pills -->
+  <g transform="translate(364, 0)">
+    <!-- Eyebrow label -->
+    <circle cx="8" cy="76" r="5" fill="#CB271B"/>
+    <text x="24" y="81" fill="#D97F68" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="14" font-weight="700" letter-spacing="2.5">AGENT-AGNOSTIC VERTICAL REEL FACTORY</text>
+
+    <!-- Main Wordmark -->
+    <text x="0" y="148" fill="#F3F2F1" font-family="system-ui, -apple-system, 'Segoe UI', Inter, sans-serif" font-size="64" font-weight="900" letter-spacing="-1.5">video-motion</text>
+
+    <!-- Subtitle -->
+    <text x="2" y="185" fill="#BFBAB7" font-family="system-ui, -apple-system, 'Segoe UI', Inter, sans-serif" font-size="16.5" font-weight="500">Deterministic 1080×1920 @ 30fps · VO-Measured Timing · HarfBuzz Arabic Typography</text>
+
+    <!-- Spec Pills -->
+    <g transform="translate(0, 212)" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13" font-weight="700">
+      <rect x="0" y="0" width="136" height="34" rx="17" fill="#0A0A0A" stroke="#CB271B" stroke-width="1.5"/>
+      <text x="68" y="22" text-anchor="middle" fill="#F3F2F1">P · PROCEDURAL</text>
+
+      <rect x="150" y="0" width="124" height="34" rx="17" fill="#0A0A0A" stroke="#D97F68" stroke-width="1.5"/>
+      <text x="212" y="22" text-anchor="middle" fill="#F3F2F1">K · CANVAS</text>
+
+      <rect x="288" y="0" width="134" height="34" rx="17" fill="#0A0A0A" stroke="#D5AEA6" stroke-width="1.5"/>
+      <text x="355" y="22" text-anchor="middle" fill="#F3F2F1">R · REMOTION</text>
+
+      <rect x="436" y="0" width="168" height="34" rx="17" fill="#0A0A0A" stroke="#71717A" stroke-width="1.5"/>
+      <text x="520" y="22" text-anchor="middle" fill="#A3A2A0">PALETTE v2.6 · 12</text>
+
+      <rect x="618" y="0" width="142" height="34" rx="17" fill="#0A0A0A" stroke="#71717A" stroke-width="1.5"/>
+      <text x="689" y="22" text-anchor="middle" fill="#A3A2A0">-14.5 LUFS QA</text>
+    </g>
+  </g>
+</svg>

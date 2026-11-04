@@ -41,7 +41,8 @@ export function captureLayout(ctx) {
   }
   return state;
 }
-export function auditLayout(boxes,{minOverlap=2}={}) {
+export const PLATFORM_RIGHT_RAIL = Object.freeze({ x: 940, y: 1100, w: 140, h: 400 });
+export function auditLayout(boxes,{minOverlap=2,checkPlatformUi=false}={}) {
   if(!Array.isArray(boxes))throw Error('Layout capture is missing');
   const issues=[];
   for(const b of boxes) {
@@ -54,6 +55,12 @@ export function auditLayout(boxes,{minOverlap=2}={}) {
     if(!['content','caption','hud'].includes(zone))issues.push({code:'L00',ids:[b.id],message:'Unknown text zone'});
     if(b.x<BRAND.safe.margin||b.x+b.w>BRAND.W-BRAND.safe.margin||b.y<range[0]||b.y+b.h>range[1])
       issues.push({code:'L01',ids:[b.id],message:`Ink outside ${zone} safe zone`});
+    if(checkPlatformUi&&zone!=='hud') {
+      const rx=Math.min(b.x+b.w,PLATFORM_RIGHT_RAIL.x+PLATFORM_RIGHT_RAIL.w)-Math.max(b.x,PLATFORM_RIGHT_RAIL.x);
+      const ry=Math.min(b.y+b.h,PLATFORM_RIGHT_RAIL.y+PLATFORM_RIGHT_RAIL.h)-Math.max(b.y,PLATFORM_RIGHT_RAIL.y);
+      if(rx>=minOverlap&&ry>=minOverlap)
+        issues.push({code:'L04',ids:[b.id],message:'Ink overlaps social right-rail UI zone (x940..1080 y1100..1500)'});
+    }
   }
   for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++) {
     const a=boxes[i],b=boxes[j];

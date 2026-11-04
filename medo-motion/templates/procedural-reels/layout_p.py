@@ -266,7 +266,15 @@ def _is_finite(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
 
 
-def audit_layout(boxes: Any, *, min_overlap: float = 2.0) -> list[dict[str, Any]]:
+PLATFORM_RIGHT_RAIL = (940.0, 1100.0, 1080.0, 1500.0)
+
+
+def audit_layout(
+    boxes: Any,
+    *,
+    min_overlap: float = 2.0,
+    check_platform_ui: bool = False,
+) -> list[dict[str, Any]]:
     """Audit one frame's captured boxes against brand safe zones and collision rules."""
     if not isinstance(boxes, list):
         raise ValueError("Layout capture is missing")
@@ -298,6 +306,16 @@ def audit_layout(boxes: Any, *, min_overlap: float = 2.0) -> list[dict[str, Any]
         x, y, w, h = float(box["x"]), float(box["y"]), float(box["w"]), float(box["h"])
         if x < MARGIN or x + w > W - MARGIN or y < bounds[0] or y + h > bounds[1]:
             issues.append({"code": "L01", "ids": [box["id"]], "message": f"Ink outside {zone} safe zone"})
+        if check_platform_ui and zone != "hud":
+            rx0, ry0, rx1, ry1 = PLATFORM_RIGHT_RAIL
+            ox = min(x + w, rx1) - max(x, rx0)
+            oy = min(y + h, ry1) - max(y, ry0)
+            if ox >= min_overlap and oy >= min_overlap:
+                issues.append({
+                    "code": "L04",
+                    "ids": [box["id"]],
+                    "message": "Ink overlaps social right-rail UI zone (x940..1080 y1100..1500)",
+                })
 
     for i in range(len(boxes)):
         if not valid_flags[i]:
