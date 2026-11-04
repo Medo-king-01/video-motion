@@ -418,6 +418,142 @@ def test_x02_rejects_nan_infinity_non_numeric_bool_and_inverted_bounds_across_st
             assert_x02_failure(me.check_project(tmp_path), f"disk-json {target_kind} interval {desc}")
 
 
+def test_x02_rejects_huge_integers_without_overflow_error_in_memory_json_and_cli(tmp_path: Path):
+    import machine_explainer as me  # noqa: PLC0415
+    import machine_kit as mk  # noqa: PLC0415
+
+    huge_pos = 10**1000
+    huge_neg = -(10**1000)
+
+    # 1. Direct helper checks: huge ints, NaN, ±Infinity, bool, and non-numbers return False without OverflowError
+    for fn in (me._is_finite_number, mk._finite):
+        for bad in (huge_pos, huge_neg, float("nan"), float("inf"), float("-inf"), True, False, "4.3", None, [1]):
+            assert fn(bad) is False, f"{fn.__name__}({type(bad)}) must return False"
+        for good in (0, 3, -5, 4.35, 1e308, -1e308):
+            assert fn(good) is True, f"{fn.__name__}({good!r}) must return True"
+
+    def assert_clean_x02(report: dict, ctx: str) -> None:
+        assert report["ok"] is False, f"Expected X02 failure for {ctx}"
+        if "errors" in report:
+            assert any(code == "X02" for code, _ in report["errors"]), (ctx, report["errors"])
+            for m in report.get("machines", []):
+                assert any(f["level"] == "error" and f["code"] == "X02" for f in m.get("findings", [])), (ctx, m)
+        else:
+            assert any(f["level"] == "error" and f["code"] == "X02" for f in report.get("findings", [])), (ctx, report)
+
+    def assert_cli_x02(target_path: Path, ctx: str) -> None:
+        proc = subprocess.run(
+            [sys.executable, str(TOOLS / "machine_explainer.py"), str(target_path), "--check"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert proc.returncode == 1, f"CLI expected exit 1 for {ctx}, got {proc.returncode}: {proc.stdout}\n{proc.stderr}"
+        assert "!! X02" in proc.stdout, (ctx, proc.stdout, proc.stderr)
+        assert "Traceback" not in proc.stderr and "OverflowError" not in proc.stderr, proc.stderr
+
+    # 2. In-memory + JSON disk round-trip + CLI check across spec, revealWindow, step, and anchor.wordStart/wordEnd
+    _write_project_fixture(tmp_path, _sample_nvme_vo_spec())
+    machine_json_path = tmp_path / "plan" / "machines" / "nvme-ssd.json"
+
+    for target_kind in ("spec", "revealWindow", "step", "anchor_word"):
+        for field in ("start", "end"):
+            for label, huge_val in (("10**1000", huge_pos), ("-(10**1000)", huge_neg)):
+                sp = _sample_nvme_vo_spec()
+                if target_kind == "spec":
+                    sp[field] = huge_val
+                elif target_kind == "revealWindow":
+                    sp["revealWindow"][field] = huge_val
+                elif target_kind == "step":
+                    sp["steps"][0][field] = huge_val
+                else:
+                    sp["steps"][0]["anchor"] = {
+                        "word": 1,
+                        "text": "الكنترولر",
+                        "wordStart": huge_val if field == "start" else 4.3,
+                        "wordEnd": huge_val if field == "end" else 4.95,
+                    }
+                # Direct in-memory audit (both standalone and project-bound)
+                assert_clean_x02(
+                    me.audit_machine_spec(sp, project=None),
+                    f"in-memory standalone {target_kind}.{field}={label}",
+                )
+                assert_clean_x02(
+                    me.audit_machine_spec(sp, project=tmp_path),
+                    f"in-memory project {target_kind}.{field}={label}",
+                )
+                # Actual JSON file write + read via `json.loads()` on disk
+                machine_json_path.write_text(json.dumps(sp, indent=2, ensure_ascii=False), encoding="utf-8")
+                parsed_back = json.loads(machine_json_path.read_text(encoding="utf-8"))
+                assert isinstance(
+                    parsed_back[field]
+                    if target_kind == "spec"
+                    else parsed_back["revealWindow"][field]
+                    if target_kind == "revealWindow"
+                    else parsed_back["steps"][0][field]
+                    if target_kind == "step"
+                    else parsed_back["steps"][0]["anchor"]["wordStart" if field == "start" else "wordEnd"],
+                    int,
+                )
+                assert_clean_x02(me.check_project(tmp_path), f"disk-json {target_kind}.{field}={label}")
+
+    # Verify CLI (`machine_explainer.py --check` + `make machine-check`) on huge integer in spec JSON
+    sp_cli = _sample_nvme_vo_spec()
+    sp_cli["end"] = huge_pos
+    machine_json_path.write_text(json.dumps(sp_cli, indent=2, ensure_ascii=False), encoding="utf-8")
+    assert_cli_x02(tmp_path, "project machine spec.end=10**1000")
+    assert_cli_x02(machine_json_path, "standalone machine spec.end=10**1000")
+    if shutil.which("make") is not None:
+        mk_proc = subprocess.run(
+            ["make", "machine-check", f"PY={sys.executable}", f"P={tmp_path}"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert mk_proc.returncode != 0
+        combined_mk = mk_proc.stdout + "\n" + mk_proc.stderr
+        assert "!! X02" in combined_mk
+        assert "Traceback" not in combined_mk and "OverflowError" not in combined_mk
+
+    # 3. Project scene bounds (`plan/beats.json`) and measured words (`plan/word-timings.json`)
+    _write_project_fixture(tmp_path, _sample_nvme_vo_spec())
+    beats_path = tmp_path / "plan" / "beats.json"
+    base_beats = json.loads(beats_path.read_text(encoding="utf-8"))
+    for field in ("start", "end"):
+        for label, huge_val in (("10**1000", huge_pos), ("-(10**1000)", huge_neg)):
+            b_doc = json.loads(json.dumps(base_beats))
+            b_doc["scenes"][1][field] = huge_val
+            beats_path.write_text(json.dumps(b_doc, ensure_ascii=False), encoding="utf-8")
+            assert_clean_x02(me.check_project(tmp_path), f"beats.scene.{field}={label}")
+    assert_cli_x02(tmp_path, "CLI beats.scene.end=-(10**1000)")
+
+    _write_project_fixture(tmp_path, _sample_nvme_vo_spec())
+    wt_path = tmp_path / "plan" / "word-timings.json"
+    base_wt = json.loads(wt_path.read_text(encoding="utf-8"))
+    for field in ("start", "end"):
+        for label, huge_val in (("10**1000", huge_pos), ("-(10**1000)", huge_neg)):
+            wt_doc = json.loads(json.dumps(base_wt))
+            wt_doc["scenes"][1]["words"][1][field] = huge_val
+            # Direct in-memory `_extract_measured_words` check
+            with pytest.raises(ValueError, match="finite non-boolean"):
+                me._extract_measured_words(wt_doc)
+            # Disk JSON check via `check_project`
+            wt_path.write_text(json.dumps(wt_doc, ensure_ascii=False), encoding="utf-8")
+            assert_clean_x02(me.check_project(tmp_path), f"word-timings.{field}={label}")
+    assert_cli_x02(tmp_path, "CLI word-timings.end=-(10**1000)")
+
+    # Also check `caption_align` list-format `scene.start` with `10**1000` and `-(10**1000)`
+    for label, huge_val in (("10**1000", huge_pos), ("-(10**1000)", huge_neg)):
+        local_wt = [
+            {"index": 1, "start": 0.0, "final": [{"text": "ليه", "start": 0.4, "end": 0.9}]},
+            {"index": 2, "start": huge_val, "final": [{"text": "الكنترولر", "start": 1.3, "end": 1.95}]},
+        ]
+        wt_path.write_text(json.dumps(local_wt, ensure_ascii=False), encoding="utf-8")
+        assert_clean_x02(me.check_project(tmp_path), f"caption_align scene.start={label}")
+
+
 def test_x03_polygon_mask_occlusion_distinguishes_true_shape_from_aabb_and_honors_threshold():
     import machine_kit as mk  # noqa: PLC0415
 

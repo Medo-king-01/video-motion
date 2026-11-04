@@ -159,7 +159,12 @@ SUPPORTED_ARCHETYPES = ("nvme_ssd", "cpu_package", "ram_dimm", "cooling_system",
 
 
 def _finite(n: Any) -> bool:
-    return isinstance(n, (int, float)) and not isinstance(n, bool) and math.isfinite(float(n))
+    if isinstance(n, bool) or not isinstance(n, (int, float)):
+        return False
+    try:
+        return math.isfinite(float(n))
+    except (OverflowError, TypeError, ValueError):
+        return False
 
 
 def _non_empty(s: Any) -> bool:

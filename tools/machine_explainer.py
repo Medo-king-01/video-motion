@@ -39,8 +39,20 @@ UNVERIFIED_SPEC_NUM_RE = re.compile(
 
 
 def _is_finite_number(value: Any) -> bool:
-    """Return True iff `value` is a finite int/float and explicitly NOT a bool."""
-    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+    """Return True iff `value` is an int/float representable as a finite float (excluding `bool`)."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except (OverflowError, TypeError, ValueError):
+        return False
+
+
+def _short_repr(value: Any) -> str:
+    if isinstance(value, int) and not isinstance(value, bool) and abs(value) >= 10**50:
+        sign = "-" if value < 0 else ""
+        return f"<{sign}int ({value.bit_length()} bits)>"
+    return repr(value)
 
 
 def _is_valid_interval(start: Any, end: Any, *, min_start: float | None = 0.0) -> bool:
@@ -91,12 +103,12 @@ def _extract_measured_words(document: Any) -> dict[int, list[dict[str, Any]]]:
             if not _is_finite_number(sc_start) or float(sc_start) < 0.0:
                 raise ValueError(
                     f"scene {sc_num}: scene start must be a finite non-boolean number >= 0 "
-                    f"(got {sc_start!r})"
+                    f"(got {_short_repr(sc_start)})"
                 )
             if "end" in sc and not _is_valid_interval(sc_start, sc.get("end"), min_start=0.0):
                 raise ValueError(
                     f"scene {sc_num}: scene start/end must be finite non-boolean numbers with "
-                    f"0 <= start < end (got start={sc_start!r}, end={sc.get('end')!r})"
+                    f"0 <= start < end (got start={_short_repr(sc_start)}, end={_short_repr(sc.get('end'))})"
                 )
             offset = float(sc_start)
             raw_words = sc.get("final")
@@ -119,13 +131,20 @@ def _extract_measured_words(document: Any) -> dict[int, list[dict[str, Any]]]:
             if not _is_valid_interval(raw_s, raw_e, min_start=0.0):
                 raise ValueError(
                     f"scene {sc_num} word {w_idx} ({w_text!r}): start/end must be finite "
-                    f"non-boolean numbers with 0 <= start < end (got start={raw_s!r}, end={raw_e!r})"
+                    f"non-boolean numbers with 0 <= start < end "
+                    f"(got start={_short_repr(raw_s)}, end={_short_repr(raw_e)})"
+                )
+            adj_s = float(raw_s) + offset
+            adj_e = float(raw_e) + offset
+            if not _is_valid_interval(adj_s, adj_e, min_start=0.0):
+                raise ValueError(
+                    f"scene {sc_num} word {w_idx} ({w_text!r}): shifted start/end overflowed finite float bounds"
                 )
             normalized.append({
                 **word,
                 "text": w_text,
-                "start": float(raw_s) + offset,
-                "end": float(raw_e) + offset,
+                "start": adj_s,
+                "end": adj_e,
             })
         out[sc_num] = normalized
     return out
@@ -276,7 +295,7 @@ def audit_machine_spec(
                 "X02",
                 f"{spec['id']}: scene {sc_idx} in plan/beats.json requires finite non-boolean "
                 f"start/end bounds with 0 <= start < end "
-                f"(got start={beat.get('start')!r}, end={beat.get('end')!r})",
+                f"(got start={_short_repr(beat.get('start'))}, end={_short_repr(beat.get('end'))})",
             )
         else:
             b_start, b_end = float(beat["start"]), float(beat["end"])
@@ -371,7 +390,7 @@ def audit_machine_spec(
                         "X02",
                         f"{spec['id']}.{stid}: measured word {w_idx} in scene {sc_idx} requires finite "
                         f"non-boolean start/end bounds with 0 <= start < end "
-                        f"(got start={measured_w.get('start')!r}, end={measured_w.get('end')!r})",
+                        f"(got start={_short_repr(measured_w.get('start'))}, end={_short_repr(measured_w.get('end'))})",
                     )
                 else:
                     anc["wordStart"] = float(measured_w["start"])
