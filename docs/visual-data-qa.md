@@ -194,6 +194,17 @@ drawPresenter(ctx, pose, localSeconds, {faceBox: {x: /* fraction */, y: /* fract
 `R01` اختلاف بكسلات، و`R02` اختلاف snapshot؛ الفشل يمنع PASS، وغياب الطلب يسجل `not-requested`.
 هذا ليس فحص loop seam أو ضمانًا عبر المتصفحات. [شرح الاستمرارية والفحص وحدودهما](charlie-motion-review.md).
 
+### مكافئ محرك P وفحص الماستر النهائي
+
+لمشاريع محرك `P`، يوفّر `tools/layout_audit_p.py` نفس أكواد التصادم والأمان (`L00`–`L03`) وفحص `--replay` (`R01`/`R02`) وصور الحدود الحمراء `#CB271B` وتقرير `report.json`:
+
+```bash
+python3 tools/layout_audit_p.py --project projects/my-reel \
+  --out projects/my-reel/cache/layout-p --replay
+```
+
+وبعد إخراج الـMP4 النهائي، يفحص `tools/media_qa.py` الحاوية والـ`faststart` والتزامن والـbitrate والفريم الأول والثبات والـEBU R128 LUFS، بينما يجمع `tools/stage_gate.py` بوابات المراحل ووعد التسليم (`G01`–`G06`). التفاصيل في [`openmontage-fit.md`](openmontage-fit.md).
+
 ## ٤. إعادة إنتاج الأدلة
 
 ```bash

@@ -143,6 +143,59 @@ def test_doctor_report_renders_findings():
     assert "Arabic backend: harfbuzz-fallback" in report
 
 
+def test_doctor_json_envelope_per_engine():
+    base = [
+        doctor.Finding("Pillow", doctor.OK),
+        doctor.Finding("numpy", doctor.OK),
+        doctor.Finding("scipy", doctor.OK),
+        doctor.Finding("OpenCV", doctor.OK),
+        doctor.Finding("PyAV", doctor.OK),
+        doctor.Finding("HarfBuzz", doctor.OK),
+        doctor.Finding("FreeType", doctor.OK),
+        doctor.Finding("Arabic shaping", doctor.OK),
+        doctor.Finding("Arabic render smoke", doctor.OK),
+        doctor.Finding("Type system", doctor.OK),
+        doctor.Finding("Cairo font", doctor.OK),
+        doctor.Finding("ffmpeg", doctor.OK),
+        doctor.Finding("ffprobe", doctor.OK),
+        doctor.Finding("brand lock", doctor.OK),
+        doctor.Finding("engine P template", doctor.OK),
+        doctor.Finding("engine K template", doctor.OK),
+        doctor.Finding("engine R template", doctor.OK),
+        doctor.Finding("node", doctor.OK),
+        doctor.Finding("playwright-core", doctor.OK),
+        doctor.Finding("Chromium (engines K/R)", doctor.OK),
+    ]
+    ready = doctor.envelope(base, "harfbuzz-fallback")
+    assert ready["status"] == "READY"
+    assert ready["engines"] == {"P": "READY", "K": "READY", "R": "READY", "Hybrid": "READY"}
+
+    no_chromium = [
+        doctor.Finding("Chromium (engines K/R)", doctor.BLOCKED) if f.capability.startswith("Chromium") else f
+        for f in base
+    ]
+    partial = doctor.envelope(no_chromium, "harfbuzz-fallback")
+    assert partial["status"] == "BLOCKED"
+    assert partial["engines"]["P"] == "READY"
+    assert partial["engines"]["K"] == "BLOCKED"
+    assert partial["engines"]["R"] == "BLOCKED"
+    assert partial["engines"]["Hybrid"] == "BLOCKED"
+
+
+def test_doctor_cli_json_output():
+    import json
+
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "doctor.py"), "--json", "--fast"],
+        cwd=str(ROOT), capture_output=True, text=True, check=False,
+    )
+    payload = json.loads(result.stdout)
+    assert payload["version"] == 1
+    assert payload["status"] in ("READY", "DEGRADED", "BLOCKED")
+    assert set(payload["engines"]) == {"P", "K", "R", "Hybrid"}
+    assert isinstance(payload["findings"], list) and payload["findings"]
+
+
 # ---------------------------------------------------------------- scaffold
 @pytest.mark.parametrize("raw,expected", [("My Reel!", "my-reel"), ("  Laptop  EP1  ", "laptop-ep1"),
                                           ("a_b__c", "a_b__c"), ("مرحبا", "")])

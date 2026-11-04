@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased — 2026-11-04 (post-render media QA, Engine P layout audit, stage gates & doctor JSON)
+
+Clean-room post-render verification and stage-gate capabilities inspired by the architecture review of
+`calesthio/openmontage` (`docs/openmontage-fit.md`, zero external code or dependencies added):
+
+- **`tools/media_qa.py` + `make qa` + `render_hybrid.py --qa`**: single post-render MP4/AAC acceptance
+  gate enforcing `AGENTS.md §7` on real encoded media (`Q00` container/codec/`yuv420p`/`moov < mdat`
+  faststart, `Q01` `1080×1920 @ 30fps` + VO/beats duration & frame sync, `Q02` master bitrate floor,
+  `Q03` non-blank frame `0` & black-frame dropout scan, `Q04` `> 2.5s` static-hold freeze detection,
+  `Q05` AAC + EBU R128 `-14.5 ± 0.3 LUFS` / `TP <= -1.5 dBTP` / PCM clipping / dead silence, plus
+  contact-sheet export via `--sheet`). `render_hybrid.py --qa` validates the assembled temporary MP4
+  before atomically publishing it.
+- **`templates/procedural-reels/layout_p.py` + `tools/layout_audit_p.py` + `make layout-p`**: brings
+  Engine K's `L00`–`L03` safe-zone, text-collision, presenter face-box protection (`face_box` /
+  `face_boxes` across `presenter.draw` and `PoseTrack.draw`), camera-zoom box projection, `#CB271B`
+  annotated failure PNGs, and `--replay` (`R01`/`R02`) reverse-order determinism audit to Engine P.
+- **`tools/stage_gate.py` + `make gate`**: cumulative stage checkpoints (`intake → plan → render →
+  deliver`, `G01`–`G06`) with content-addressed SHA-256 staleness verification in
+  `<project>/cache/stage-gate.json`, external asset attribution check against `CREDITS.md`, and
+  unapproved `CHIP`/series guard.
+- **`tools/doctor.py --json`**: deterministic JSON capability envelope reporting `READY` / `DEGRADED` /
+  `BLOCKED` overall and per engine (`P`, `K`, `R`, `Hybrid`) alongside active Arabic shaping backend.
+
 ## Unreleased — 2026-11-03 (animated backgrounds)
 
 Twelve animated backgrounds, re-coloured to the brand, now live in all three engines.

@@ -5,6 +5,7 @@ One command any agent can run before starting work:
 
     python3 tools/doctor.py            # full check (launches Chromium once)
     python3 tools/doctor.py --fast     # skip the browser launch
+    python3 tools/doctor.py --json     # structured capability envelope for agents
 
 Prints READY / DEGRADED / BLOCKED with a reason per capability, then a verdict.
 Read-only apart from a Chromium launch and one temporary 64×64 PNG.
@@ -261,6 +262,54 @@ def verdict(findings: list[Finding]) -> str:
     return "READY — P/K templates and the R scaffold are present; install Remotion deps per R project"
 
 
+def _engine_state(by_name: dict[str, str], required: tuple[str, ...]) -> str:
+    states = [by_name.get(name, MISSING) for name in required]
+    if any(state in BLOCKING_STATES for state in states):
+        return BLOCKED
+    if any(state == SKIP for state in states):
+        return DEGRADED
+    if any(state in SOFT_STATES for state in states):
+        return DEGRADED
+    return "READY"
+
+
+def envelope(findings: list[Finding], backend: str) -> dict:
+    """Machine-readable capability report so agents do not scrape ANSI output."""
+    blocked = [f.capability for f in findings if f.state in BLOCKING_STATES]
+    soft = [f.capability for f in findings if f.state in SOFT_STATES and f.state != SKIP]
+    status = BLOCKED if blocked else (DEGRADED if soft else "READY")
+    by_name = {f.capability: f.state for f in findings}
+    p_req = ("Pillow", "numpy", "scipy", "OpenCV", "PyAV", "HarfBuzz", "FreeType",
+             "Arabic shaping", "Type system", "Arabic render smoke", "ffmpeg", "ffprobe",
+             "brand lock", "engine P template", "Cairo font")
+    k_req = ("Type system", "ffmpeg", "ffprobe", "node", "playwright-core",
+             "Chromium (engines K/R)", "brand lock", "engine K template")
+    r_req = ("Type system", "ffmpeg", "ffprobe", "node",
+             "Chromium (engines K/R)", "brand lock", "engine R template")
+    engines = {
+        "P": _engine_state(by_name, p_req),
+        "K": _engine_state(by_name, k_req),
+        "R": _engine_state(by_name, r_req),
+    }
+    engines["Hybrid"] = (
+        BLOCKED if BLOCKED in engines.values()
+        else (DEGRADED if DEGRADED in engines.values() else "READY")
+    )
+    return {
+        "version": 1,
+        "status": status,
+        "verdict": verdict(findings),
+        "arabic_backend": backend,
+        "engines": engines,
+        "blocked": blocked,
+        "warnings": soft,
+        "findings": [
+            {"capability": f.capability, "state": f.state, "detail": f.detail}
+            for f in findings
+        ],
+    }
+
+
 def render(findings: list[Finding], backend: str) -> str:
     width = max(len(f.capability) for f in findings) + 2
     rule = "-" * (width + 46)
@@ -277,7 +326,10 @@ def render(findings: list[Finding], backend: str) -> str:
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     findings, backend = collect(fast="--fast" in args)
-    print(render(findings, backend))
+    if "--json" in args:
+        print(json.dumps(envelope(findings, backend), indent=2))
+    else:
+        print(render(findings, backend))
     return 1 if any(f.state in BLOCKING_STATES for f in findings) else 0
 
 
