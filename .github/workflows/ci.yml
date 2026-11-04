@@ -1,0 +1,85 @@
+name: Fast CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fast-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality (Python 3.12)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            tools/requirements*.txt
+            tools/constraints.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: tools/toolkit/package-lock.json
+
+      - name: Install quality dependencies
+        run: |
+          python -m pip install -r tools/requirements-dev.txt
+          python -m pip check
+          npm ci --prefix tools/toolkit
+
+      - name: Run the complete fast quality gate once
+        run: |
+          set -o pipefail
+          bash tools/ci.sh 2>&1 | tee "$RUNNER_TEMP/quality.log"
+
+      - name: Upload quality log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-python-3.12
+          path: ${{ runner.temp }}/quality.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+  python-310-compatibility:
+    name: Python 3.10 compatibility
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: |
+            tools/requirements*.txt
+            tools/constraints.txt
+
+      - name: Install runtime and test dependencies
+        run: |
+          python -m pip install -r tools/requirements-dev.txt
+          python -m pip check
+
+      - name: Verify Python 3.10 syntax compatibility
+        run: python -m compileall -q tools medo-motion tests
