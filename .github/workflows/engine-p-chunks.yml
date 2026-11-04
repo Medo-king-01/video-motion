@@ -75,6 +75,7 @@ jobs:
             -of csv=p=0 out/video_only.mp4
 
       - name: Render selected ranges across all six scene transitions
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
           REEL_DIR: ${{ github.workspace }}
         run: |
