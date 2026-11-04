@@ -30,12 +30,14 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 import contrast  # noqa: E402
 import machine_explainer as me  # noqa: E402
+import stage as stage_mod  # noqa: E402
 import text_direction as td  # noqa: E402
 import visual_direction as vd  # noqa: E402
 
@@ -523,6 +525,121 @@ def lint_code(rep: Report, project: Path) -> None:
         rep.ok("T04", f"all scene text goes through the directed helpers ({len(scene_files)} file(s))")
 
 
+# ---- optional Fixed Stage plan check (plan/stage.json) ---------------------------------------
+def _load_strict_json(path: Path) -> Any:
+    def _bad_const(val: str) -> None:
+        raise ValueError(f"non-finite JSON constant {val!r} is forbidden")
+
+    return json.loads(path.read_text(encoding="utf-8"), parse_constant=_bad_const)
+
+
+def _scene_words_map(project: Path) -> dict[int, list[dict]]:
+    wt_path = project / "plan" / "word-timings.json"
+    if not wt_path.is_file():
+        return {}
+    try:
+        doc = _load_strict_json(wt_path)
+    except Exception:
+        return {}
+    out: dict[int, list[dict]] = {}
+    if isinstance(doc, dict):
+        for sc in doc.get("scenes") or []:
+            if isinstance(sc, dict) and isinstance(sc.get("scene"), int):
+                out[sc["scene"]] = list(sc.get("words") or [])
+    return out
+
+
+def lint_stage(rep: Report, project: Path, plan: dict, copy: dict) -> None:
+    stage_path = project / "plan" / "stage.json"
+    if not stage_path.is_file():
+        return
+    try:
+        stage_doc = _load_strict_json(stage_path)
+    except Exception as exc:
+        rep.error("F01", f"plan/stage.json invalid JSON: {exc}")
+        return
+
+    spec_errors = stage_mod.validate_stage_spec(stage_doc)
+    for err in spec_errors:
+        rep.error("F01", f"plan/stage.json: {err}")
+    if spec_errors:
+        return
+
+    norm = stage_mod.normalize_stage_spec(stage_doc)
+    dur = plan.get("duration")
+    has_dur = isinstance(dur, (int, float)) and not isinstance(dur, bool) and float(dur) > 0
+    scene_ids = {
+        s.get("index", idx + 1)
+        for idx, s in enumerate(plan.get("scenes") or [])
+        if isinstance(s, dict)
+    }
+    copy_map = {
+        c.get("id"): c
+        for c in (copy.get("copy") or [])
+        if isinstance(c, dict) and isinstance(c.get("id"), str)
+    }
+    direction = td.load(project)
+    words_by_scene = _scene_words_map(project)
+    stage_had_error = False
+
+    if stage_doc.get("timeline") is not None and has_dur:
+        for idx, seg in enumerate(norm["segments"]):
+            if seg["end"] > float(dur) + 1e-6:
+                rep.error("F02", f"plan/stage.json timeline[{idx}] ends at {seg['end']:g}s past VO duration {float(dur):g}s")
+                stage_had_error = True
+            anc = seg.get("anchor")
+            if anc and words_by_scene:
+                sc_words = words_by_scene.get(anc["scene"])
+                if not sc_words or anc["word"] >= len(sc_words):
+                    rep.error("F04", f"plan/stage.json timeline[{idx}].anchor word {anc['word']} missing in scene {anc['scene']}")
+                    stage_had_error = True
+                else:
+                    w_obj = sc_words[anc["word"]]
+                    if "text" in anc and anc["text"] not in str(w_obj.get("text", "")):
+                        rep.error("F04", f"plan/stage.json timeline[{idx}].anchor text {anc['text']!r} != {w_obj.get('text')!r}")
+                        stage_had_error = True
+                    elif abs(seg["start"] - float(w_obj["start"])) > 0.35:
+                        rep.error(
+                            "F04",
+                            f"plan/stage.json timeline[{idx}] start {seg['start']:g}s drifts >0.35s from anchored word onset {float(w_obj['start']):g}s",
+                        )
+                        stage_had_error = True
+
+    for slot in norm["over"]["header"]["slots"]:
+        if has_dur and slot["end"] > float(dur) + 1e-6:
+            rep.error("F02", f"plan/stage.json header slot {slot['id']!r} ends at {slot['end']:g}s past VO duration {float(dur):g}s")
+            stage_had_error = True
+        if scene_ids and slot["scene"] not in scene_ids:
+            rep.error("F03", f"plan/stage.json header slot {slot['id']!r} references missing scene {slot['scene']}")
+            stage_had_error = True
+        frag = copy_map.get(slot["copyId"])
+        if frag is None or not str(frag.get("text") or "").strip():
+            rep.error("F03", f"plan/stage.json header slot {slot['id']!r} copyId {slot['copyId']!r} not found in plan/copy.json")
+            stage_had_error = True
+        if not direction:
+            rep.error("F03", f"plan/stage.json header slot {slot['id']!r} requires plan/text-direction.json")
+            stage_had_error = True
+        else:
+            try:
+                td.text_style_for(direction, slot["scene"], slot["role"], slot["copyId"])
+                td.font_for(direction, slot["scene"], slot["role"], slot["copyId"])
+            except ValueError as exc:
+                rep.error("F03", f"plan/stage.json header slot {slot['id']!r}: {exc}")
+                stage_had_error = True
+        anc = slot.get("anchor")
+        if anc and words_by_scene:
+            sc_words = words_by_scene.get(anc["scene"])
+            if not sc_words or anc["word"] >= len(sc_words):
+                rep.error("F04", f"plan/stage.json header slot {slot['id']!r} anchor word {anc['word']} missing in scene {anc['scene']}")
+                stage_had_error = True
+
+    if not stage_had_error:
+        rep.ok(
+            "F00",
+            f"fixed stage: {len(norm['segments'])} segment(s) · {len(norm['over']['header']['slots'])} header slot(s) verified",
+        )
+
+
 # ---- cli -------------------------------------------------------------------------------------
 def main() -> int:
     ap = argparse.ArgumentParser(description="Lint a reel plan against the measured craft norms.")
@@ -568,6 +685,8 @@ def main() -> int:
                 rep.error(code, msg)
         elif m_res['machines']:
             rep.ok('X00', f"machine explainer: {len(m_res['machines'])} spec(s) verified (X01–X04)")
+    if (a.project / 'plan/stage.json').is_file():
+        lint_stage(rep, a.project, plan, copy)
     if a.scan_code:
         lint_code(rep, a.project)
 

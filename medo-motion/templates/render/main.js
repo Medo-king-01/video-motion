@@ -17,6 +17,7 @@ const auditing = new URLSearchParams(location.search).has('audit');
 const ctx = canvas.getContext('2d', auditing ? {willReadFrequently:true} : {});
 const layout = auditing ? captureLayout(ctx) : null;
 window.layoutSnapshot = () => layout ? layout.snapshot() : null;
+window.stageWindowSnapshot = () => layout ? layout.stageWindow() : null;
 const mods = await Promise.all(scenes.map(s => import(`./scenes/${s.id}.js`)));
 const scopes=mods.map(()=>createResourceScope());
 window.closeScenes=async()=>{

@@ -156,6 +156,7 @@ def _run_in_project(args: argparse.Namespace) -> int:
                 except BaseException:
                     layout_p.end_frame()
                     raise
+                stage_win = layout_p.stage_window()
                 boxes = layout_p.end_frame()
                 dtype_name = getattr(getattr(image, "dtype", None), "name", None)
                 if getattr(image, "shape", None) != (1920, 1080, 3) or dtype_name != "uint8":
@@ -166,9 +167,9 @@ def _run_in_project(args: argparse.Namespace) -> int:
                     fingerprints.append({
                         "index": i,
                         "hash": hashlib.sha256(image.tobytes()).hexdigest(),
-                        "layout": json.dumps(boxes, sort_keys=True, ensure_ascii=False),
+                        "layout": json.dumps({"boxes": boxes, "stageWin": stage_win}, sort_keys=True, ensure_ascii=False),
                     })
-                issues = layout_p.audit_layout(boxes, check_platform_ui=args.platform_ui)
+                issues = layout_p.audit_layout(boxes, check_platform_ui=args.platform_ui, stage_win=stage_win)
                 if issues:
                     image_name = f"frame-{i}.png" if screenshots < 12 else None
                     audit_frames.append({
@@ -194,9 +195,10 @@ def _run_in_project(args: argparse.Namespace) -> int:
                     except BaseException:
                         layout_p.end_frame()
                         raise
+                    replay_win = layout_p.stage_window()
                     boxes = layout_p.end_frame()
                     digest = hashlib.sha256(image.tobytes()).hexdigest()
-                    layout_ser = json.dumps(boxes, sort_keys=True, ensure_ascii=False)
+                    layout_ser = json.dumps({"boxes": boxes, "stageWin": replay_win}, sort_keys=True, ensure_ascii=False)
                     r_issues: list[dict[str, Any]] = []
                     if digest != original["hash"]:
                         r_issues.append({

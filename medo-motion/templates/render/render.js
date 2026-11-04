@@ -91,10 +91,11 @@ const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript'
 const srcUrl='/'+path.relative(root,src).split(path.sep).join('/');
 const assetsRoot=path.resolve(setting('ASSETS_DIR')||path.join(root,'assets'));
 if(srcUrl.includes('..'))throw Error('Renderer must live inside the selected project');
+const ALLOWED_PLANS=['/plan/text-direction.json','/plan/stage.json','/plan/copy.json','/plan/word-timings.json'];
 const server=http.createServer(async (request,response)=>{
   try{
     const u=decodeURIComponent(new URL(request.url,'http://localhost').pathname);
-    if(u.split('/').some(s=>s.startsWith('.'))||![srcUrl+'/', '/assets/','/node_modules/','/plan/text-direction.json'].some(s=>u.startsWith(s)))throw Error('Forbidden');
+    if(u.split('/').some(s=>s.startsWith('.'))||(![srcUrl+'/', '/assets/','/node_modules/'].some(s=>u.startsWith(s))&&!ALLOWED_PLANS.includes(u)))throw Error('Forbidden');
     const asset=u.startsWith('/assets/');
     const base=asset?assetsRoot:root;
     const relative=asset?u.slice('/assets'.length):u;
@@ -116,7 +117,8 @@ try{
   if(audit){
     page.on('requestfailed',r=>errors.push('Resource failed: '+r.url()));
     page.on('response',r=>{
-      const optionalPlan=new URL(r.url()).pathname==='/plan/text-direction.json'&&!existsSync(path.join(root,'plan/text-direction.json'));
+      const reqPath=new URL(r.url()).pathname;
+      const optionalPlan=ALLOWED_PLANS.includes(reqPath)&&!existsSync(path.join(root,reqPath.slice(1)));
       if(r.status()>=400&&!optionalPlan)errors.push(`Resource HTTP ${r.status()}: ${r.url()}`);
     });
   }
@@ -151,11 +153,12 @@ try{
     if(errors.length)throw Error(errors.join('\n'));
     if(audit){
       const boxes=await page.evaluate(()=>window.layoutSnapshot?.());
-      const issues=auditLayout(boxes,{checkPlatformUi:platformUi});captured+=boxes.filter(b=>b.kind==='text').length;
-      if(replay)fingerprints.push({index:i,hash:await fingerprint(),layout:JSON.stringify(boxes)});
+      const stageWin=await page.evaluate(()=>window.stageWindowSnapshot?.()??null);
+      const issues=auditLayout(boxes,{checkPlatformUi:platformUi,stageWin});captured+=boxes.filter(b=>b.kind==='text').length;
+      if(replay)fingerprints.push({index:i,hash:await fingerprint(),layout:JSON.stringify({boxes,stageWin})});
       if(issues.length){
         const image=screenshots<12?`frame-${i}.png`:null;
-        auditFrames.push({frame:Math.round(from*fps)+i,time:from+i/fps,issues,boxes,image});
+        auditFrames.push({frame:Math.round(from*fps)+i,time:from+i/fps,issues,boxes,stageWin,image});
         if(image){
           await page.evaluate(({boxes,ids})=>{
             const c=document.getElementById('c'),ctx=c.getContext('2d');ctx.save();
@@ -182,9 +185,10 @@ try{
       await page.evaluate(t=>window.renderFrame(t),time);
       if(errors.length)throw Error(errors.join('\n'));
       const hash=await fingerprint(),boxes=await page.evaluate(()=>window.layoutSnapshot?.());
+      const stageWin=await page.evaluate(()=>window.stageWindowSnapshot?.()??null);
       const issues=[];
       if(hash!==original.hash)issues.push({code:'R01',ids:['canvas'],message:'Pixels changed when re-seeking the same time',expected:original.hash,actual:hash});
-      if(JSON.stringify(boxes)!==original.layout)issues.push({code:'R02',ids:['layout'],message:'Layout capture changed when re-seeking the same time'});
+      if(JSON.stringify({boxes,stageWin})!==original.layout)issues.push({code:'R02',ids:['layout'],message:'Layout capture changed when re-seeking the same time'});
       if(issues.length){
         replayFailures++;
         const image=replayScreenshots<6?`replay-frame-${original.index}.png`:null;
