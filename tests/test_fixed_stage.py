@@ -740,29 +740,127 @@ def _chromium_env():
     return chrom, env
 
 
+@pytest.fixture(autouse=True)
+def _cleanup_stage_tmp(request):
+    """Reclaim multi-hundred-MB scaffolded assets/fonts/bundles right after each test
+    so multi-pass CI jobs (`ci.sh` + `selftest.py --remotion --hybrid`) never hit ENOSPC."""
+    import tempfile  # noqa: PLC0415
+
+    tmp_root = Path(tempfile.gettempdir())
+    before_bundles = set(tmp_root.glob("remotion-webpack-bundle-*"))
+    yield
+    tp = request.node.funcargs.get("tmp_path")
+    if isinstance(tp, Path) and tp.is_dir():
+        for child in tp.iterdir():
+            if child.is_symlink():
+                child.unlink(missing_ok=True)
+            elif child.is_dir():
+                shutil.rmtree(child, ignore_errors=True)
+            else:
+                child.unlink(missing_ok=True)
+    for leaked in set(tmp_root.glob("remotion-webpack-bundle-*")) - before_bundles:
+        shutil.rmtree(leaked, ignore_errors=True)
+
+
 @pytest.fixture(scope="module")
 def _remotion_runtime(_chromium_env, tmp_path_factory):
     _chrom, env = _chromium_env
     env_mods = os.environ.get("MEDO_REMOTION_TEST_NODE_MODULES")
+    owned_deps_dir: Path | None = None
     if env_mods and Path(env_mods).is_dir():
         modules_dir = Path(env_mods).resolve()
     else:
         if shutil.which("npm") is None:
             pytest.skip("npm is not installed and MEDO_REMOTION_TEST_NODE_MODULES is unset")
-        deps_dir = tmp_path_factory.mktemp("remotion_stage_deps")
-        shutil.copy2(ENGINE_R / "package.json", deps_dir / "package.json")
-        shutil.copy2(ENGINE_R / "package-lock.json", deps_dir / "package-lock.json")
+        owned_deps_dir = tmp_path_factory.mktemp("remotion_stage_deps")
+        shutil.copy2(ENGINE_R / "package.json", owned_deps_dir / "package.json")
+        shutil.copy2(ENGINE_R / "package-lock.json", owned_deps_dir / "package-lock.json")
         ci_res = subprocess.run(
             ["npm", "ci", "--prefer-offline", "--no-audit", "--no-fund"],
-            cwd=deps_dir,
+            cwd=owned_deps_dir,
             capture_output=True,
             text=True,
             timeout=300,
         )
         if ci_res.returncode != 0:
+            shutil.rmtree(owned_deps_dir, ignore_errors=True)
             pytest.skip(f"Remotion npm ci unavailable offline: {ci_res.stderr[:240]}")
-        modules_dir = deps_dir / "node_modules"
-    return modules_dir, env
+        modules_dir = owned_deps_dir / "node_modules"
+    try:
+        yield modules_dir, env
+    finally:
+        if owned_deps_dir is not None:
+            shutil.rmtree(owned_deps_dir, ignore_errors=True)
+
+
+def _run_remotion_stills_batch(proj: Path, env: dict, tasks: list[dict]) -> dict[str, dict]:
+    """Bundle `src/index.ts` ONCE and render multiple stills/props in ONE persistent Chromium
+    instance (`@remotion/bundler` + `@remotion/renderer`), avoiding redundant Webpack builds."""
+    runner_js = """
+import fs from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
+import {bundle} from '@remotion/bundler';
+import {openBrowser, renderStill, selectComposition} from '@remotion/renderer';
+
+const tasks = JSON.parse(process.argv[1]);
+const entryPoint = path.resolve('src/index.ts');
+const browserExecutable = process.env.REMOTION_BROWSER_EXECUTABLE;
+const serveUrl = await bundle({entryPoint, onProgress: () => {}});
+const puppeteerInstance = await openBrowser('chrome', {
+  browserExecutable,
+  chromiumOptions: {disableWebSecurity: false},
+});
+const results = {};
+try {
+  for (const t of tasks) {
+    try {
+      const inputProps = t.props || {};
+      const composition = await selectComposition({
+        serveUrl,
+        id: t.compId,
+        puppeteerInstance,
+        inputProps,
+      });
+      await renderStill({
+        composition,
+        serveUrl,
+        frame: t.frame,
+        imageFormat: 'png',
+        output: t.outPath ? path.resolve(t.outPath) : null,
+        puppeteerInstance,
+        inputProps,
+      });
+      results[t.key] = {ok: true, error: null};
+    } catch (err) {
+      results[t.key] = {ok: false, error: String(err?.stack || err?.message || err)};
+    }
+  }
+  console.log('__BATCH_RESULTS__' + JSON.stringify(results));
+} finally {
+  process.on('unhandledRejection', () => {});
+  await new Promise((r) => setTimeout(r, 150));
+  try {
+    await puppeteerInstance.close({silent: true});
+  } catch {}
+  try {
+    fs.rmSync(serveUrl, {recursive: true, force: true});
+  } catch {}
+}
+process.exit(0);
+"""
+    res = subprocess.run(
+        ["node", "--input-type=module", "-e", runner_js, json.dumps(tasks)],
+        cwd=proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=240,
+    )
+    assert res.returncode == 0, res.stdout + "\n" + res.stderr
+    marker_lines = [ln for ln in res.stdout.splitlines() if ln.startswith("__BATCH_RESULTS__")]
+    assert marker_lines, res.stdout + "\n" + res.stderr
+    return json.loads(marker_lines[-1][len("__BATCH_RESULTS__"):])
 
 
 def test_e1_engine_k_real_chromium_render_and_audit_replay(tmp_path: Path, _chromium_env):
@@ -1136,29 +1234,21 @@ export const RemotionRoot: React.FC = () => (
     )
     assert tsc.returncode == 0, tsc.stdout + "\n" + tsc.stderr
 
-    def render_still(frame_idx: int, name: str, mode: str = "clean") -> subprocess.CompletedProcess:
-        return subprocess.run(
-            [
-                "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
-                "FixedStageRealTest", str(proj / name),
-                f"--frame={frame_idx}", f'--props={json.dumps({"mode": mode})}', "--log=error",
-            ],
-            cwd=proj,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=180,
-        )
-
-    # Frame 6 (t=0.20s, fullscreen passthrough): succeeds and fills extreme canvas corners with paper (#F3F2F1)
-    r_full = render_still(6, "full.png", "clean")
-    assert r_full.returncode == 0, r_full.stdout + "\n" + r_full.stderr
+    batch_e2 = _run_remotion_stills_batch(
+        proj,
+        env,
+        [
+            {"key": "full", "compId": "FixedStageRealTest", "frame": 6, "outPath": str(proj / "full.png"), "props": {"mode": "clean"}},
+            {"key": "framed", "compId": "FixedStageRealTest", "frame": 48, "outPath": str(proj / "framed.png"), "props": {"mode": "clean"}},
+            {"key": "l05", "compId": "FixedStageRealTest", "frame": 48, "outPath": str(proj / "bad_l05.png"), "props": {"mode": "outside_win"}},
+            {"key": "l06", "compId": "FixedStageRealTest", "frame": 48, "outPath": str(proj / "bad_l06.png"), "props": {"mode": "corner_clip"}},
+        ],
+    )
+    assert batch_e2["full"]["ok"], batch_e2["full"]["error"]
     im_full = np.asarray(Image.open(proj / "full.png").convert("RGB"))
     assert tuple(im_full[10, 10]) == (243, 242, 241)
 
-    # Frame 48 (t=1.60s, framed x=100..980, y=280..1280, r=100): succeeds, clips rounded corners, keeps OVER unclipped
-    r_framed = render_still(48, "framed.png", "clean")
-    assert r_framed.returncode == 0, r_framed.stdout + "\n" + r_framed.stderr
+    assert batch_e2["framed"]["ok"], batch_e2["framed"]["error"]
     im_framed = np.asarray(Image.open(proj / "framed.png").convert("RGB"))
     # Outside window & inside exterior rounded-corner lunas -> exact ink_shadow (#030303 -> RGB 3,3,3)
     assert tuple(im_framed[800, 50]) == (3, 3, 3)
@@ -1172,13 +1262,10 @@ export const RemotionRoot: React.FC = () => (
     assert int(im_framed[1420:1480, 260:820].max()) > 200
 
     # DOM Layout Audit in Chromium catches L05 (outside win(t)) and L06 (rounded-corner Arabic glyph clipping)
-    r_l05 = render_still(48, "bad_l05.png", "outside_win")
-    assert r_l05.returncode != 0
-    assert "L05" in (r_l05.stdout + "\n" + r_l05.stderr)
-
-    r_l06 = render_still(48, "bad_l06.png", "corner_clip")
-    assert r_l06.returncode != 0
-    assert "L06" in (r_l06.stdout + "\n" + r_l06.stderr)
+    assert not batch_e2["l05"]["ok"]
+    assert "L05" in batch_e2["l05"]["error"]
+    assert not batch_e2["l06"]["ok"]
+    assert "L06" in batch_e2["l06"]["error"]
 
 
 def test_e3_scaffolded_projects_auto_apply_plan_stage_json_without_rewriting_entrypoints(
@@ -1410,19 +1497,16 @@ def test_e3_scaffolded_projects_auto_apply_plan_stage_json_without_rewriting_ent
     )
     assert tsc_r.returncode == 0, tsc_r.stdout + "\n" + tsc_r.stderr
 
-    for f_idx, out_name in ((3, "r_auto_full.png"), (30, "r_auto_framed.png")):
-        st_run = subprocess.run(
-            [
-                "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
-                "MedoReel", str(r_proj / out_name), f"--frame={f_idx}", "--log=error",
-            ],
-            cwd=r_proj,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=180,
-        )
-        assert st_run.returncode == 0, st_run.stdout + "\n" + st_run.stderr
+    batch_e3 = _run_remotion_stills_batch(
+        r_proj,
+        env,
+        [
+            {"key": "full", "compId": "MedoReel", "frame": 3, "outPath": str(r_proj / "r_auto_full.png")},
+            {"key": "framed", "compId": "MedoReel", "frame": 30, "outPath": str(r_proj / "r_auto_framed.png")},
+        ],
+    )
+    assert batch_e3["full"]["ok"], batch_e3["full"]["error"]
+    assert batch_e3["framed"]["ok"], batch_e3["framed"]["error"]
 
     assert hashlib.sha256((r_proj / "src" / "RemotionRoot.tsx").read_bytes()).hexdigest() == r_root_before
     assert hashlib.sha256((r_proj / "src" / "Root.tsx").read_bytes()).hexdigest() == r_entry_before
@@ -1727,19 +1811,16 @@ export const RemotionRoot: React.FC = () => (
     )
     assert tsc_r.returncode == 0, tsc_r.stdout + "\n" + tsc_r.stderr
 
-    for comp_id, out_name in (("MedoReel", "r_unwrapped.png"), ("ManualStageReel", "r_manual.png")):
-        st_res = subprocess.run(
-            [
-                "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
-                comp_id, str(r_proj / out_name), "--frame=10", "--log=error",
-            ],
-            cwd=r_proj,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=180,
-        )
-        assert st_res.returncode == 0, st_res.stdout + "\n" + st_res.stderr
+    batch_e4 = _run_remotion_stills_batch(
+        r_proj,
+        env,
+        [
+            {"key": "unwrap", "compId": "MedoReel", "frame": 10, "outPath": str(r_proj / "r_unwrapped.png")},
+            {"key": "manual", "compId": "ManualStageReel", "frame": 10, "outPath": str(r_proj / "r_manual.png")},
+        ],
+    )
+    assert batch_e4["unwrap"]["ok"], batch_e4["unwrap"]["error"]
+    assert batch_e4["manual"]["ok"], batch_e4["manual"]["error"]
 
     r_im_unwrap = np.asarray(Image.open(r_proj / "r_unwrapped.png").convert("RGB"))
     r_im_manual = np.asarray(Image.open(r_proj / "r_manual.png").convert("RGB"))
@@ -1921,20 +2002,15 @@ export async function draw(ctx, localT, { W, H, direction }) {
         timeout=120,
     )
     assert tsc_dis.returncode == 0, tsc_dis.stdout + "\n" + tsc_dis.stderr
-    st_dis = subprocess.run(
-        [
-            "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
-            "MedoReel", str(r_proj / "r_disabled.png"), "--frame=10", "--log=error",
-        ],
-        cwd=r_proj,
-        env=env,
-        capture_output=True,
-        text=True,
-        timeout=180,
+    batch_dis = _run_remotion_stills_batch(
+        r_proj,
+        env,
+        [{"key": "dis", "compId": "MedoReel", "frame": 10, "outPath": str(r_proj / "r_disabled.png")}],
     )
-    assert st_dis.returncode == 0, st_dis.stdout + "\n" + st_dis.stderr
+    assert batch_dis["dis"]["ok"], batch_dis["dis"]["error"]
 
     # 3b. Delete plan/stage.json completely -> legacy Engine R project without plan/stage.json!
+    # Exercise `scripts/launch-remotion.mjs still` CLI end-to-end here too!
     (r_proj / "plan" / "stage.json").unlink()
     assert not (r_proj / "plan" / "stage.json").exists()
 
@@ -2288,7 +2364,11 @@ try {
   const shuffled = await renderOrder([15, 3, 30, 9, 21]);
   console.log(JSON.stringify({forward, reverse, shuffled}));
 } finally {
-  await puppeteerInstance.close({silent: true});
+  process.on('unhandledRejection', () => {});
+  await new Promise((r) => setTimeout(r, 150));
+  try {
+    await puppeteerInstance.close({silent: true});
+  } catch {}
   try {
     fs.rmSync(serveUrl, {recursive: true, force: true});
   } catch {}
