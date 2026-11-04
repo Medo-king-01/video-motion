@@ -84,7 +84,7 @@ python3 tools/selftest.py --remotion # كمان npm ci + typecheck + رندر ف
 python3 tools/selftest.py --hybrid   # رندر فعلي لمقاطع P + K + R وتجميعها مع مسار صوت
 ```
 
-أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=my-reel` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make fonts` · `make length VO=…` · `make techniques PLAN=…` · `make lint P=…`
+أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=my-reel` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make fonts` · `make length VO=…` · `make techniques PLAN=…` · `make lint P=…` · `make layout-p P=…` · `make qa MP4=…` · `make gate P=…`
 
 مشروع جديد:
 
@@ -114,7 +114,7 @@ cd projects/my-reel && npm ci && npm run studio
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
 assets/                ← مدخلات مشتركة: fonts/ (٢١ عيلة OFL) · poses/ · sfx/
 projects/<slug>/       ← مساحة شغل مؤقتة للفيديو (مستثناة من Git): BRIEF.md · STYLE.md · plan/ · assets/ · out/
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · layout_audit.mjs · layout_audit_p.py · media_qa.py · stage_gate.py · ffprobe_shim.py · chromium.mjs
                          · icons_sheet.py (مراجعة الأيقونات) · icons_preview.mjs
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
 docs/                  ← التحليل + قواعد الاتساق + مراجعة Skillry

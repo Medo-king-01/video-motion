@@ -58,6 +58,11 @@ def shake_flash(t):
             e=math.exp(-d*9); sx+=amp*e*math.sin(d*70); sy+=amp*0.6*e*math.cos(d*83); fl=max(fl,f*max(0,1-d/0.10))
     return sx,sy,fl
 def camera(fr,z,tx,ty):
+    try:
+        import layout_p as _lp
+        if _lp.is_capturing(): _lp.apply_camera(z,tx,ty)
+    except ImportError:
+        pass
     M=np.array([[z,0,W/2-z*W/2+tx],[0,z,H/2-z*H/2+ty]],np.float32)
     return cv2.warpAffine(fr,M,(W,H),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE)
 def speed_lines(fr,cx,cy,u,col):

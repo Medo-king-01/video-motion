@@ -188,7 +188,7 @@ Medo gives you words, timing, voice and poses. Everything visual and audible is 
 ```bash
 bash tools/setup.sh --dev    # Python >=3.10 + Node >=20.11 must already be installed; use a venv
                             # installs Python runtime/test deps, Node deps, ffmpeg shim, fonts, Chromium
-python3 tools/doctor.py      # prints READY / BLOCKED for every capability
+python3 tools/doctor.py      # prints READY / BLOCKED for every capability (--json for machine envelope)
 python3 tools/selftest.py    # doctor + unit tests + a few real frames (the real proof)
 ```
 
@@ -294,6 +294,8 @@ introduces no pre-render approval gate.
 - No series name, title, episode number or logo invented by you: on screen only if the user
   asked, worded by him
 - `python3 medo-motion/scripts/brand_check.py --project <project>` is clean
+- Layout audit passes for K (`node tools/layout_audit.mjs --project <project> --out <fresh-dir>`) or P (`python3 tools/layout_audit_p.py --project <project> --out <fresh-dir>`)
+- Final master passes `python3 tools/media_qa.py <master.mp4> --mode master --vo <project>/out/vo24.wav --beats <project>/plan/beats.json` (and cumulative `python3 tools/stage_gate.py <project> --stage deliver --media <master.mp4>`)
 - `python3 tools/selftest.py` still passes after your changes (regression net); when changing R, also run `python3 tools/selftest.py --remotion`
 
 ## 8. Delivery message
@@ -330,7 +332,7 @@ DESIGN_SYSTEM.md       ← unified design system reference
 README.md              ← Arabic overview
 assets/                ← shared inputs: fonts/, poses/, sfx/
 projects/<slug>/       ← scratch folder for one video (Git-ignored, not an archive)
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · media_qa.py · layout_audit.mjs · layout_audit_p.py · stage_gate.py · ffprobe_shim.py · chromium.mjs
 tests/                 ← pytest: Arabic shaping invariants, brand lock, scaffold, one real frame
 docs/                  ← analysis + conventions + Skillry fit review (docs/README.md)
 medo-motion/           ← the toolkit

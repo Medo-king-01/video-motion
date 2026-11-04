@@ -193,16 +193,20 @@ if a.project:
     else:
         print('  engine R: no src/brand.ts found (skipped)')
 
-    # any colour literal in engine P's python must be palette or derived too
+    # any colour literal in engine P's project scene code must be palette or derived too
     allowed = {tuple(v['rgb']) for v in d['palette'].values()} | {tuple(SHADOW)}
+    tpl_p = HERE / 'templates' / 'procedural-reels'
     off = set()
-    TUP = re.compile(r'(?<![\d.])(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?!\s*,\s*\d)')
+    TUP = re.compile(r'\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)')
     for f in sorted(root.glob('*.py')):
         if f.name in ('sfx.py', 'mix.py'):      # audio params, not colours
             continue
+        tpl_copy = tpl_p / f.name
+        if f.name != 'scenes.py' and tpl_copy.is_file() and f.read_bytes() == tpl_copy.read_bytes():
+            continue                            # unmodified toolkit runtime helper (lib.py tokens checked above)
         for m in TUP.finditer(f.read_text(encoding='utf-8')):
             tup = tuple(map(int, m.groups()))
-            if tup not in allowed:
+            if all(0 <= c <= 255 for c in tup) and tup not in allowed:
                 off.add((f.name, tup))
     if off:
         for name, t in sorted(off):

@@ -206,6 +206,10 @@ def main() -> int:
     parser.add_argument("--node", default=None)
     parser.add_argument("--python", default=None)
     parser.add_argument("--profile", action="store_true", help="write end-to-end segment/assembly timing")
+    parser.add_argument("--qa", action="store_true", help="run post-render Final Media QA before publishing output")
+    parser.add_argument("--qa-mode", choices=("master", "preview", "video-only"), default=None,
+                        help="media_qa mode when --qa is set (defaults to master with audio, video-only without)")
+    parser.add_argument("--qa-report", type=Path, default=None, help="fresh JSON path for the --qa report")
     parser.add_argument("--motion-mode", choices=("normal", "reduced"), default=os.environ.get("MEDO_MOTION_MODE", "normal"))
     args = parser.parse_args()
 
@@ -214,6 +218,9 @@ def main() -> int:
     output = (args.out or project / "out" / "hybrid.mp4").resolve()
     profile_path = output.with_name(output.name + ".profile.json")
     if args.profile and profile_path.exists(): raise RuntimeError(f"profile already exists: {profile_path}")
+    qa_report_path = args.qa_report.resolve() if args.qa_report else None
+    if qa_report_path is not None and qa_report_path.exists():
+        raise RuntimeError(f"QA report already exists: {qa_report_path}")
     if output.exists():
         raise RuntimeError(f"refusing to overwrite existing output: {output}; choose a new --out path")
     temp_out = output.with_name(output.stem + ".part.mp4")
@@ -303,6 +310,30 @@ def main() -> int:
             raise RuntimeError(f"final output violates timeline contract: {final}")
         if audio_path:
             verify_audio_stream(ffprobe, temp_out)
+        if args.qa or qa_report_path is not None:
+            sys.path.insert(0, str(ROOT / "tools"))
+            import media_qa  # noqa: PLC0415
+
+            qa_mode = args.qa_mode or ("master" if audio_path else "video-only")
+            beats_candidate = project / "plan" / "beats.json"
+            qa_report = media_qa.inspect_media(
+                temp_out,
+                mode=qa_mode,
+                vo_path=audio_path,
+                beats_path=beats_candidate if beats_candidate.is_file() else None,
+                expected_frames=plan["duration_frames"],
+            )
+            if qa_report_path is not None:
+                qa_report_path.parent.mkdir(parents=True, exist_ok=True)
+                with qa_report_path.open("x", encoding="utf-8") as stream:
+                    json.dump(qa_report, stream, indent=2, ensure_ascii=False)
+                    stream.write("\n")
+            if qa_report["status"] != "pass":
+                raise RuntimeError(
+                    f"post-render media QA {qa_report['status']}: "
+                    + "; ".join(f"{e['code']}: {e['msg']}" for e in qa_report.get("errors", []))
+                    + (f" ({'; '.join(qa_report.get('incomplete_reasons', []))})" if qa_report.get("incomplete_reasons") else "")
+                )
         os.replace(temp_out, output)
         if args.profile:
             report = {'version': 1, 'engine': 'Hybrid', 'motionMode': args.motion_mode, 'frames': plan['duration_frames'],

@@ -15,6 +15,11 @@ from caption_motion import caption_transform
 from lib import INK, WHITE, YEL, paste, text_sprite
 from text_direction import font_for, text_style_for
 
+try:
+    import layout_p as _layout_p
+except ImportError:  # pragma: no cover - standalone partial copy fallback
+    _layout_p = None
+
 
 def active_word_at(words, t):
     if not isinstance(words, (list, tuple)) or t is None:
@@ -78,6 +83,13 @@ def draw_word_caption(fr, t, words, *, style, size=76, y=1455, color=WHITE,
         k = max(1, int(round(m["blur"] * size)) | 1)
         spr = cv2.GaussianBlur(spr, (k, k), 0)
     paste(fr, spr, cx, cy, scale=m["scale"], rot=m["rotate"], alpha=m["opacity"])
+    if _layout_p is not None and _layout_p.is_capturing():
+        box = _layout_p.sprite_aabb(spr, cx, cy, scale=m["scale"], rot=m["rotate"])
+        _layout_p.record_text(
+            word["text"], box,
+            box_id=str(word.get("id") or f"caption@{word['start']:.2f}"),
+            zone="caption", alpha=m["opacity"],
+        )
 
     if m["underlineP"] > 0:
         tw = spr.shape[1] * m["scale"]
@@ -91,7 +103,7 @@ def draw_word_caption(fr, t, words, *, style, size=76, y=1455, color=WHITE,
 
 def draw_directed_text(fr, text, *, direction, scene, role, element_id=None,
                        t, start, end, cx, cy, size=64, color=WHITE,
-                       accent=YEL, theme="dark", rtl=True, stroke=0):
+                       accent=YEL, theme="dark", rtl=True, stroke=0, zone=None):
     """Draw ANY on-screen text (title, keyword, number, CTA, label, UI) using the
     agent's explicit motion choice from plan/text-direction.json. `text` may be a
     string or a list of lines. There is no default style: a missing direction or
@@ -106,6 +118,8 @@ def draw_directed_text(fr, text, *, direction, scene, role, element_id=None,
     m = caption_transform(style, elapsed, dur)
     line_h = size * 1.35
     top = cy - (len(lines) - 1) * line_h / 2
+    target_zone = zone or ("hud" if role == "hud" else "content")
+    base_id = element_id or f"s{scene}-{role}"
     for i, line in enumerate(lines):
         if not line:
             continue
@@ -119,6 +133,10 @@ def draw_directed_text(fr, text, *, direction, scene, role, element_id=None,
             k = max(1, int(round(m["blur"] * size)) | 1)
             spr = cv2.GaussianBlur(spr, (k, k), 0)
         paste(fr, spr, x, y, scale=m["scale"], rot=m["rotate"], alpha=m["opacity"])
+        if _layout_p is not None and _layout_p.is_capturing():
+            box = _layout_p.sprite_aabb(spr, x, y, scale=m["scale"], rot=m["rotate"])
+            line_id = base_id if len(lines) == 1 else f"{base_id}#{i + 1}"
+            _layout_p.record_text(line, box, box_id=line_id, zone=target_zone, alpha=m["opacity"])
         if m["underlineP"] > 0:
             tw = spr.shape[1] * m["scale"]
             uw = tw * m["underlineP"]

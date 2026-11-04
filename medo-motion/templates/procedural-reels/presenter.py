@@ -25,6 +25,11 @@ from functools import lru_cache
 
 import numpy as np
 
+try:
+    import layout_p as _layout_p
+except ImportError:  # pragma: no cover - standalone partial copy fallback
+    _layout_p = None
+
 W, H = 1080, 1920
 GROUND = 1390      # soles land here for full shots
 TOP_GUIDE = 190    # hair line for close-ups (the brand's content starts at 200)
@@ -217,9 +222,22 @@ def pulse(name: str, t: float) -> float:
     return 0.0
 
 
+def _validate_face_box(face: dict) -> None:
+    if not isinstance(face, dict):
+        raise ValueError("Invalid normalized presenter face_box")
+    for key in ("x", "y", "w", "h"):
+        val = face.get(key)
+        if not isinstance(val, (int, float)) or isinstance(val, bool) or not math.isfinite(float(val)):
+            raise ValueError("Invalid normalized presenter face_box")
+    fx, fy, fw, fh = (float(face[k]) for k in ("x", "y", "w", "h"))
+    if fx < 0 or fy < 0 or fw <= 0 or fh <= 0 or fx + fw > 1 or fy + fh > 1:
+        raise ValueError("Invalid normalized presenter face_box")
+
+
 def draw(fr: np.ndarray, name: str, t: float, x: float = 0.5, height: float = 0.62,
          ground: int = GROUND, top: int = TOP_GUIDE, alpha: float = 1.0, flip: bool = False,
-         idle: bool = True, scale: float | None = None) -> None:
+         idle: bool = True, scale: float | None = None,
+         face_box: dict | None = None, face_boxes: dict[str, dict] | None = None) -> None:
     """Composite a pose onto an RGB frame. `x` is the horizontal centre (0..1 of the width).
 
     Full shots are placed by their soles (`ground`); close-ups by their hair line (`top`), so a cut
@@ -237,10 +255,24 @@ def draw(fr: np.ndarray, name: str, t: float, x: float = 0.5, height: float = 0.
         cy = top + h / 2.0                  # close-up: the hair sits on the top guide
     else:
         cy = ground - (feet - 0.5) * h      # feet fraction → put the soles on the ground line
+    sc = breathe(t) if idle else 1.0
+    rot = lean(slug, t) if idle else 0.0
     if idle:
         cy -= bob(t) + pulse(slug, t)
         cx += sway(t)
-        paste(fr, spr, cx, cy, scale=breathe(t), rot=lean(slug, t), alpha=alpha, flipx=flip)
+    face = face_boxes.get(slug) if face_boxes else face_box
+    if face is not None:
+        _validate_face_box(face)
+    if _layout_p is not None and _layout_p.is_capturing() and alpha > 0.01:
+        if face is not None:
+            sh, sw = spr.shape[:2]
+            fbox = _layout_p.subrect_aabb(sw, sh, face, cx, cy, scale=sc, rot=rot, flipx=flip)
+            _layout_p.protect_box(f"face-{slug}", fbox, kind="face", alpha=alpha)
+        else:
+            _layout_p.protect_box(f"missing-faceBox-{slug}", {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0},
+                                  kind="face", alpha=alpha)
+    if idle:
+        paste(fr, spr, cx, cy, scale=sc, rot=rot, alpha=alpha, flipx=flip)
     else:
         paste(fr, spr, cx, cy, alpha=alpha, flipx=flip)
 

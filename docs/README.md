@@ -31,6 +31,7 @@
 | `remotion.md` | محرك R: إنشاء المشروع، الإعداد، preview/render، مشاركة الهوية والتوقيت، والحدود الحالية |
 | `hybrid.md` | مشروع P/K/R واحد: segments متتابعة، عقد الإطارات والصوت، scaffold واختبار end-to-end |
 | `hyperframes-fit.md` | مراجعة HyperFrames (HTML←فيديو): ما اتقاس فعليًا، ليه مش محرّكًا رابعًا، والفكرتان المأخوذتان منه (تباين WCAG وفريم أول غير فاضي) |
+| `openmontage-fit.md` | مراجعة OpenMontage النظيفة: إيه اللي كان عندنا، والأربع قدرات الأصلية الجديدة (`media_qa.py`، `layout_audit_p.py`، `stage_gate.py`، `doctor.py --json`)، واللي رفضناه |
 | `skillry-fit.md` | مراجعة صفحات Skillry العامة من زاوية استوديو ميدو |
 | `skill-packs-review.md` | مراجعة ساكنة لحزم Skills الثماني المرفوعة: الملاءمة، خطر حذف المخرجات، الاعتماديات، التراخيص، والأفكار القابلة للتكييف فقط |
 | `reference-workflow.md` | تحليل مرجع بصري محليًا وتحويل الملاحظات إلى `STYLE.md` بدون كسر هوية ميدو |
