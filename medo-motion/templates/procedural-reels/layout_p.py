@@ -19,6 +19,7 @@ from typing import Any
 import numpy as np
 
 W, H = 1080, 1920
+FPS = 30
 MARGIN = 40
 CONTENT_Y = (200, 1350)
 CAPTION_Y = (1350, 1500)
@@ -31,7 +32,7 @@ ZONES = {
 
 
 def _load_safe_zones() -> None:
-    global W, H, MARGIN, CONTENT_Y, CAPTION_Y, HUD_Y, ZONES
+    global W, H, FPS, MARGIN, CONTENT_Y, CAPTION_Y, HUD_Y, ZONES
     brand_path = Path(__file__).resolve().parents[2] / "brand" / "brand.json"
     if not brand_path.is_file():
         return
@@ -41,6 +42,7 @@ def _load_safe_zones() -> None:
         safe = data.get("safe_zone", {})
         W = int(canvas.get("w", W))
         H = int(canvas.get("h", H))
+        FPS = int(canvas.get("fps", FPS))
         MARGIN = int(safe.get("margin_px", MARGIN))
         cy = safe.get("content_y", list(CONTENT_Y))
         CONTENT_Y = (int(cy[0]), int(cy[1]))
@@ -267,6 +269,28 @@ def _is_finite(value: Any) -> bool:
 
 
 PLATFORM_RIGHT_RAIL = (940.0, 1100.0, 1080.0, 1500.0)
+
+
+def safe_envelope(zone: str = "content", *, check_platform_ui: bool = True) -> dict[str, Any]:
+    """Return dynamic canvas, FPS, margin, zone bounds, and social HUD rail from the layout contract."""
+    if zone not in ZONES:
+        raise ValueError(f"Unknown layout zone {zone!r}; expected one of {sorted(ZONES)}")
+    rx0, ry0, rx1, ry1 = PLATFORM_RIGHT_RAIL
+    return {
+        "w": W,
+        "h": H,
+        "fps": FPS,
+        "margin": MARGIN,
+        "zone": zone,
+        "x": (float(MARGIN), float(W - MARGIN)),
+        "y": (float(ZONES[zone][0]), float(ZONES[zone][1])),
+        "nothing_important_below_y": float(CAPTION_Y[1]),
+        "platform_right_rail": (
+            {"x": rx0, "y": ry0, "w": rx1 - rx0, "h": ry1 - ry0}
+            if check_platform_ui
+            else None
+        ),
+    }
 
 
 def audit_layout(

@@ -24,7 +24,9 @@ export const BRAND = {
   height: 1920,
   fps: 30,
   font: 'Cairo',
+  margin: 40,
   progressY: 64,
   contentY: [200, 1350] as const,
   captionY: 1455,
+  belowIsDead: 1560,
 } as const;
