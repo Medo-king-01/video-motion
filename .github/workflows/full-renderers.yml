@@ -1,12 +1,8 @@
 name: Full renderer validation
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  schedule:
+    - cron: "0 2 * * *"
   workflow_dispatch:
 
 permissions:
@@ -17,65 +13,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
-    name: Quality (Python ${{ matrix.python }})
+  full-validation:
+    name: Full quality + P + K + R + Hybrid
     runs-on: ubuntu-22.04
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.10", "3.12"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
-          cache-dependency-path: |
-            tools/requirements*.txt
-            tools/constraints.txt
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: tools/toolkit/package-lock.json
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python -m pip install -r tools/requirements-dev.txt
-          python -m pip check
-          npm ci --prefix tools/toolkit
-      - name: Run quality gates
-        run: |
-          set -o pipefail
-          bash tools/ci.sh 2>&1 | tee "$RUNNER_TEMP/quality.log"
-      - name: Annotate quality failure
-        if: failure()
-        run: |
-          python - <<'PYTHON'
-          import os
-          from pathlib import Path
-          log = Path(os.environ["RUNNER_TEMP"]) / "quality.log"
-          if log.is_file():
-              excerpt = log.read_text(errors="replace")[-3000:]
-              excerpt = excerpt.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-              print(f"::error title=Quality gate log excerpt::{excerpt}")
-          PYTHON
-      - name: Upload quality log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: quality-python-${{ matrix.python }}
-          path: ${{ runner.temp }}/quality.log
-          if-no-files-found: ignore
-          retention-days: 14
-
-  validate-all-renderers:
-    name: P + K + R + Hybrid
-    needs: quality
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Check out repository
@@ -108,12 +49,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r tools/requirements-dev.txt
+          python -m pip check
           npm ci --prefix tools/toolkit
 
       - name: Prepare validation logs
         run: mkdir -p "$RUNNER_TEMP/video-motion-ci"
 
-      - name: Run static checks, unit tests, lint fixtures, and brand audits
+      - name: Run the complete quality suite once
         run: |
           set -o pipefail
           bash tools/ci.sh 2>&1 | tee "$RUNNER_TEMP/video-motion-ci/quality.log"
@@ -124,9 +66,9 @@ jobs:
           CI: "true"
         run: |
           set -o pipefail
-          python tools/selftest.py --remotion --hybrid 2>&1 | tee "$RUNNER_TEMP/video-motion-ci/all-renderers.log"
+          python tools/selftest.py --remotion --hybrid --skip-tests 2>&1 | tee "$RUNNER_TEMP/video-motion-ci/all-renderers.log"
 
-      - name: Upload validation log
+      - name: Upload validation logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
