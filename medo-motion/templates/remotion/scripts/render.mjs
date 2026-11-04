@@ -5,6 +5,7 @@ import {copyFile, mkdir, readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import {validateTextDirection} from '../src/lib/text-direction.js';
+import {isStageEnabled, normalizeStageSpec, validateStageSpec} from '../src/lib/stage.js';
 
 const invocationStarted = process.hrtime.bigint();
 const project = process.cwd();
@@ -76,6 +77,22 @@ const fontsPath = path.join(project, 'assets', 'fonts', 'fonts.json');
 const fonts = existsSync(fontsPath) ? (JSON.parse(await readFile(fontsPath, 'utf8')).families || {}) : null;
 const dirReport = validateTextDirection(direction, beats, copy, fonts);
 if (dirReport.errors.length) fail('Text direction incomplete — the agent must choose styles per scene:\n' + dirReport.errors.join('\n'));
+
+const stagePath = path.join(project, 'plan', 'stage.json');
+if (existsSync(stagePath)) {
+  const stageDoc = JSON.parse(await readFile(stagePath, 'utf8'));
+  const stageErrors = validateStageSpec(stageDoc);
+  if (stageErrors.length) fail('Invalid plan/stage.json:\n' + stageErrors.join('\n'));
+  if (isStageEnabled(stageDoc)) {
+    const normStage = normalizeStageSpec(stageDoc);
+    const copyIds = new Set(((copy?.copy) || []).filter((c) => c && typeof c.id === 'string' && String(c.text || '').trim()).map((c) => c.id));
+    for (const slot of normStage.over.header.slots) {
+      if (!copyIds.has(slot.copyId)) {
+        fail(`plan/stage.json header slot "${slot.id}" references missing copyId "${slot.copyId}" in plan/copy.json`);
+      }
+    }
+  }
+}
 
 // Guard against shipping the template's placeholder copy: STORY must be replaced with the
 // approved per-scene text, one card per scene, before a final render.

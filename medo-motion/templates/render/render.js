@@ -91,7 +91,7 @@ const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript'
 const srcUrl='/'+path.relative(root,src).split(path.sep).join('/');
 const assetsRoot=path.resolve(setting('ASSETS_DIR')||path.join(root,'assets'));
 if(srcUrl.includes('..'))throw Error('Renderer must live inside the selected project');
-const ALLOWED_PLANS=['/plan/text-direction.json','/plan/stage.json','/plan/copy.json','/plan/word-timings.json'];
+const ALLOWED_PLANS=['/plan/text-direction.json','/plan/beats.json','/plan/stage.json','/plan/copy.json','/plan/word-timings.json'];
 const server=http.createServer(async (request,response)=>{
   try{
     const u=decodeURIComponent(new URL(request.url,'http://localhost').pathname);

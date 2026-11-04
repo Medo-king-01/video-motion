@@ -77,6 +77,7 @@ export const FixedStage: React.FC<FixedStageProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cw, ch);
     backgroundFrame(ctx, cw, ch, ambTime, norm.under.background);
   }, [ambTime, ch, cw, norm.under.background, state.isFullscreen]);
 

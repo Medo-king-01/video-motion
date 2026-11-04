@@ -10,10 +10,14 @@ import {
   useVideoConfig,
 } from 'remotion';
 import {BRAND, PALETTE} from './brand';
-import {IS_PREVIEW_TIMELINE, STORY, TIMELINE} from './data';
+import {DURATION_SECONDS, IS_PREVIEW_TIMELINE, STORY, TIMELINE} from './data';
 import DIRECTION from '../plan/text-direction.json';
+import COPY_PLAN from '../plan/copy.json';
+import STAGE_PLAN from '../plan/stage.json';
 import FONTS from '../assets/fonts/fonts.json';
 import {DirectedText} from './lib/DirectedText';
+import {FixedStage} from './lib/FixedStage';
+import {isStageEnabled, validateStageSpec} from './lib/stage.js';
 
 // Every manifest face is available to the agent's direction; @font-face is generated
 // from the same fonts.json the other engines read (no hardcoded creative default).
@@ -30,19 +34,39 @@ const USED_FONTS = (() => {
   return [...seen.values()];
 })();
 
+const STAGE_ERRORS = validateStageSpec(STAGE_PLAN);
+const AUTO_STAGE_ACTIVE =
+  STAGE_ERRORS.length === 0 &&
+  isStageEnabled(STAGE_PLAN) &&
+  (STAGE_PLAN as any)?.autoWrap !== false;
+
+const COPY_BY_ID: Record<string, string> = (() => {
+  const out: Record<string, string> = {};
+  const list = Array.isArray((COPY_PLAN as any)?.copy) ? (COPY_PLAN as any).copy : [];
+  for (const item of list) {
+    if (item && typeof item.id === 'string' && typeof item.text === 'string') {
+      out[item.id] = item.text;
+    }
+  }
+  return out;
+})();
+
 export type ReelProps = {audioFile?: string | null; previewOnly?: boolean; motionMode?: 'normal' | 'reduced'};
 
 export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly = IS_PREVIEW_TIMELINE, motionMode = 'normal'}) => {
-  if(motionMode!=='normal'&&motionMode!=='reduced')throw Error('invalid motion mode');
+  if (motionMode !== 'normal' && motionMode !== 'reduced') throw Error('invalid motion mode');
+  if (STAGE_ERRORS.length > 0) {
+    throw new Error(`Invalid plan/stage.json: ${STAGE_ERRORS.join('; ')}`);
+  }
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   const [fontHandle] = useState(() => delayRender('Loading agent-chosen fonts'));
+  const absSeconds = frame / fps;
   const sceneCount = TIMELINE.scenes?.length || 1;
   const sceneIndex = useMemo(() => {
-    const seconds = frame / fps;
-    const found = TIMELINE.scenes?.findIndex((scene) => seconds >= scene.start && seconds < scene.end) ?? -1;
+    const found = TIMELINE.scenes?.findIndex((scene) => absSeconds >= scene.start && absSeconds < scene.end) ?? -1;
     return Math.max(0, found);
-  }, [frame, fps]);
+  }, [absSeconds]);
   const scene = TIMELINE.scenes?.[sceneIndex];
   const localFrame = Math.max(0, frame - Math.round((scene?.start ?? 0) * fps));
   const localSeconds = localFrame / fps;
@@ -54,7 +78,7 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
   const primary = light ? PALETTE.ink : PALETTE.paper;
   const accent = light ? PALETTE.red : PALETTE.salmon;
   const progress = frame / Math.max(1, durationInFrames - 1);
-  const pulse = motionMode==='reduced' ? 1 : 1 + Math.sin((localSeconds * Math.PI * 2) / Math.max(duration, 1)) * 0.025;
+  const pulse = motionMode === 'reduced' ? 1 : 1 + Math.sin((localSeconds * Math.PI * 2) / Math.max(duration, 1)) * 0.025;
 
   useEffect(() => {
     const jobs = USED_FONTS.length
@@ -65,7 +89,27 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       .catch((error) => cancelRender(error));
   }, [fontHandle]);
 
-  return (
+  const fontStyleSheet = (
+    <style>{`
+      ${FONT_FACES.map((f) => `@font-face {
+        font-family: "${f.family}";
+        src: url('${staticFile(`fonts/${f.family}/${f.file}`)}') format('truetype');
+        font-weight: ${f.weight};
+        font-display: block;
+      }`).join('\n')}
+      * { box-sizing: border-box; }
+    `}</style>
+  );
+
+  const previewBadge = previewOnly ? (
+    <div style={{position: 'absolute', left: 40, bottom: 40, padding: '10px 18px',
+      border: `2px solid ${PALETTE.salmon}`, borderRadius: 12, color: PALETTE.salmon,
+      background: PALETTE.ink, fontSize: 22, fontFamily: 'Inter, sans-serif', direction: 'ltr'}}>
+      PREVIEW · VO TIMELINE NOT SET
+    </div>
+  ) : null;
+
+  const sceneBody = (
     <AbsoluteFill style={{
       background: `linear-gradient(180deg, ${bgTop} 0%, ${bgBottom} 100%)`,
       color: primary,
@@ -73,16 +117,6 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       overflow: 'hidden',
       direction: 'rtl',
     }}>
-      <style>{`
-        ${FONT_FACES.map((f) => `@font-face {
-          font-family: "${f.family}";
-          src: url('${staticFile(`fonts/${f.family}/${f.file}`)}') format('truetype');
-          font-weight: ${f.weight};
-          font-display: block;
-        }`).join('\n')}
-        * { box-sizing: border-box; }
-      `}</style>
-
       {/* Decorative palette disc: generated from the locked brand, never a logo placeholder. */}
       <div style={{
         position: 'absolute', width: 850, height: 850, borderRadius: '50%',
@@ -91,11 +125,13 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
         opacity: light ? 0.11 : 0.34,
       }} />
 
-      <div style={{position: 'absolute', top: BRAND.progressY, left: 40, right: 40, height: 8,
-        borderRadius: 8, background: `${primary}30`, overflow: 'hidden'}}>
-        <div style={{height: '100%', width: `${progress * 100}%`, background: PALETTE.red,
-          transformOrigin: 'right center'}} />
-      </div>
+      {!AUTO_STAGE_ACTIVE && (
+        <div style={{position: 'absolute', top: BRAND.progressY, left: 40, right: 40, height: 8,
+          borderRadius: 8, background: `${primary}30`, overflow: 'hidden'}}>
+          <div style={{height: '100%', width: `${progress * 100}%`, background: PALETTE.red,
+            transformOrigin: 'right center'}} />
+        </div>
+      )}
 
       <div style={{position: 'absolute', top: 310, right: 78, left: 78}}>
         <DirectedText direction={DIRECTION} scene={sceneIndex + 1} role="label"
@@ -126,14 +162,34 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
         <span>{String(sceneCount).padStart(2, '0')}</span>
       </DirectedText>
 
-      {previewOnly && (
-        <div style={{position: 'absolute', left: 40, bottom: 40, padding: '10px 18px',
-          border: `2px solid ${PALETTE.salmon}`, borderRadius: 12, color: PALETTE.salmon,
-          background: PALETTE.ink, fontSize: 22, fontFamily: 'Inter, sans-serif', direction: 'ltr'}}>
-          PREVIEW · VO TIMELINE NOT SET
-        </div>
-      )}
+      {!AUTO_STAGE_ACTIVE && previewBadge}
+    </AbsoluteFill>
+  );
 
+  if (AUTO_STAGE_ACTIVE) {
+    return (
+      <AbsoluteFill style={{fontFamily: 'Cairo, sans-serif', overflow: 'hidden', direction: 'rtl'}}>
+        {fontStyleSheet}
+        <FixedStage
+          spec={STAGE_PLAN}
+          time={absSeconds}
+          duration={DURATION_SECONDS}
+          direction={DIRECTION}
+          copyById={COPY_BY_ID}
+          motionMode={motionMode}
+          over={previewBadge}
+        >
+          {sceneBody}
+        </FixedStage>
+        {audioFile ? <Audio src={staticFile(audioFile)} /> : null}
+      </AbsoluteFill>
+    );
+  }
+
+  return (
+    <AbsoluteFill style={{overflow: 'hidden', direction: 'rtl'}}>
+      {fontStyleSheet}
+      {sceneBody}
       {audioFile ? <Audio src={staticFile(audioFile)} /> : null}
     </AbsoluteFill>
   );

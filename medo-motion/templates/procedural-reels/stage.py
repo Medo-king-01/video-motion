@@ -11,7 +11,10 @@ Implements Phase 2A — Fixed Stage under the authoritative VO Clock:
 from __future__ import annotations
 
 import functools
+import json
 import math
+import os
+from pathlib import Path
 from typing import Any, Callable
 
 import numpy as np
@@ -333,6 +336,12 @@ def validate_stage_spec(spec: Any) -> list[str]:
     version = spec.get("version", 1)
     if isinstance(version, bool) or not isinstance(version, int) or version != 1:
         errors.append("stage.version must be 1")
+
+    if "enabled" in spec and not isinstance(spec["enabled"], bool):
+        errors.append("stage.enabled must be a boolean")
+
+    if "autoWrap" in spec and not isinstance(spec["autoWrap"], bool):
+        errors.append("stage.autoWrap must be a boolean")
 
     stage_id = spec.get("id", "fixed-stage")
     if not isinstance(stage_id, str) or not stage_id.strip():
@@ -736,6 +745,8 @@ def normalize_stage_spec(spec: dict[str, Any]) -> dict[str, Any]:
 
     return {
         "version": 1,
+        "enabled": bool(spec.get("enabled", True)),
+        "autoWrap": bool(spec.get("autoWrap", True)),
         "id": spec.get("id", "fixed-stage").strip(),
         "clock": "vo",
         "theme": theme,
@@ -1364,3 +1375,103 @@ def render_fixed_stage(
         _paint_over()
 
     return np.clip(np.rint(stage_f32), 0, 255).astype(np.uint8)
+
+
+def is_stage_enabled(spec: Any) -> bool:
+    """Return True when `spec` is a valid, active Fixed Stage specification (`enabled !== false`)."""
+    if spec is None:
+        return False
+    errors = validate_stage_spec(spec)
+    if errors:
+        raise ValueError("; ".join(errors))
+    return bool(spec.get("enabled", True))
+
+
+def _load_strict_json(path: Path) -> Any:
+    def _forbid_const(val: str) -> None:
+        raise ValueError(f"Non-finite JSON constant {val!r} is forbidden in {path.name}")
+
+    return json.loads(path.read_text(encoding="utf-8"), parse_constant=_forbid_const)
+
+
+@functools.lru_cache(maxsize=32)
+def _load_project_stage_cached(
+    root_str: str,
+    sig: tuple[tuple[str, int, int], ...],
+) -> dict[str, Any] | None:
+    _ = sig
+    root = Path(root_str)
+    stage_path = root / "plan" / "stage.json"
+    if not stage_path.is_file():
+        return None
+    raw_stage = _load_strict_json(stage_path)
+    if not is_stage_enabled(raw_stage):
+        return None
+    norm_spec = {**normalize_stage_spec(raw_stage), "_normalized": True}
+    if not norm_spec["autoWrap"]:
+        return None
+
+    duration: float | None = None
+    scenes_meta: list[dict[str, Any]] = []
+    beats_path = root / "plan" / "beats.json"
+    if beats_path.is_file():
+        beats_doc = _load_strict_json(beats_path)
+        if isinstance(beats_doc, dict):
+            raw_dur = beats_doc.get("duration")
+            if _is_finite_number(raw_dur) and float(raw_dur) > 0.0:
+                duration = float(raw_dur)
+            if isinstance(beats_doc.get("scenes"), list):
+                scenes_meta = [s for s in beats_doc["scenes"] if isinstance(s, dict)]
+
+    copy_by_id: dict[str, str] = {}
+    copy_path = root / "plan" / "copy.json"
+    if copy_path.is_file():
+        copy_doc = _load_strict_json(copy_path)
+        if isinstance(copy_doc, dict) and isinstance(copy_doc.get("copy"), list):
+            for item in copy_doc["copy"]:
+                if isinstance(item, dict) and isinstance(item.get("id"), str) and isinstance(item.get("text"), str):
+                    copy_by_id[item["id"]] = item["text"]
+
+    direction = _td.load(root)
+
+    words: list[dict[str, Any]] = []
+    wt_path = root / "plan" / "word-timings.json"
+    if wt_path.is_file():
+        wt_doc = _load_strict_json(wt_path)
+        if isinstance(wt_doc, dict) and isinstance(wt_doc.get("scenes"), list):
+            for sc in wt_doc["scenes"]:
+                if isinstance(sc, dict) and isinstance(sc.get("words"), list):
+                    for w in sc["words"]:
+                        if isinstance(w, dict) and _is_finite_number(w.get("start")) and _is_finite_number(w.get("end")):
+                            words.append({
+                                "text": str(w.get("text", "")),
+                                "start": float(w["start"]),
+                                "end": float(w["end"]),
+                            })
+
+    return {
+        "spec": norm_spec,
+        "duration": duration,
+        "scenes": scenes_meta,
+        "copy_by_id": copy_by_id,
+        "direction": direction,
+        "words": words,
+    }
+
+
+def load_project_stage(project_dir: str | os.PathLike[str] | None = None) -> dict[str, Any] | None:
+    """Load `<project_dir>/plan/stage.json` + companion plan files when enabled (`enabled !== false`)."""
+    root = Path(project_dir or os.environ.get("REEL_DIR") or Path.cwd()).resolve()
+    plan_dir = root / "plan"
+    stage_path = plan_dir / "stage.json"
+    if not stage_path.is_file():
+        return None
+    tracked = ("stage.json", "beats.json", "copy.json", "text-direction.json", "word-timings.json")
+    sig: list[tuple[str, int, int]] = []
+    for name in tracked:
+        p = plan_dir / name
+        if p.is_file():
+            st = p.stat()
+            sig.append((name, st.st_mtime_ns, st.st_size))
+    return _load_project_stage_cached(str(root), tuple(sig))
+

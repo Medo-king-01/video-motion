@@ -159,6 +159,15 @@ def write_plan_files(project: Path) -> None:
         "copy.json": {"pace": "calm", "bpm": 100, "copy": [],
                       "note": "one entry per on-screen fragment: "
                               "{scene, text, start, end, mode: build|replace}"},
+        "stage.json": {
+            "version": 1,
+            "enabled": False,
+            "clock": "vo",
+            "mode": "fullscreen",
+            "theme": "dark",
+            "defaultFramedBox": {"x": 56, "y": 224, "w": 968, "h": 1096, "r": 36},
+            "note": "optional Fixed Stage: set enabled=true and configure timeline/under/over (see docs/fixed-stage.md)",
+        },
     }
     for name, document in plans.items():
         (project / "plan" / name).write_text(

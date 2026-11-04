@@ -566,6 +566,8 @@ def lint_stage(rep: Report, project: Path, plan: dict, copy: dict) -> None:
         return
 
     norm = stage_mod.normalize_stage_spec(stage_doc)
+    if not norm["enabled"]:
+        return
     dur = plan.get("duration")
     has_dur = isinstance(dur, (int, float)) and not isinstance(dur, bool) and float(dur) > 0
     scene_ids = {

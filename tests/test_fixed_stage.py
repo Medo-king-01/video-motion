@@ -245,10 +245,15 @@ def test_a2_radius_clamping_and_invalid_geometry_rejection():
         with pytest.raises(ValueError):
             stage.win(spec_huge_r, bad_t)
 
-    # Reject forbidden branding fields, raw hex colors, and hardcoded inline header text
+    # Reject forbidden branding fields, raw hex colors, non-boolean enabled, and hardcoded inline header text
     assert stage.validate_stage_spec({"version": 1, "logo": "brand.png"})
     assert stage.validate_stage_spec({"version": 1, "seriesName": "My Series"})
     assert stage.validate_stage_spec({"version": 1, "under": {"surfaceRole": "#123456"}})
+    assert stage.validate_stage_spec({"version": 1, "enabled": "yes"})
+    assert stage.is_stage_enabled(None) is False
+    assert stage.is_stage_enabled({"version": 1, "enabled": False}) is False
+    assert stage.is_stage_enabled({"version": 1, "enabled": True}) is True
+    assert stage.is_stage_enabled({"version": 1}) is True
     assert stage.validate_stage_spec({
         "version": 1,
         "over": {"header": {"enabled": True, "slots": [{"id": "h1", "scene": 1, "copyId": "c1", "text": "ممنوع", "start": 0, "end": 1}]}},
@@ -848,6 +853,7 @@ import {{ compositeTransition, makeLayer }} from '../lib/transition.js';
 import {{ PALETTE }} from '../lib/brand.js';
 
 export const supportsReducedMotion = true;
+export const manualFixedStage = true;
 let stageSpec = null;
 let copyMap = {{}};
 const WORDS = {words_js};
@@ -1175,6 +1181,265 @@ export const RemotionRoot: React.FC = () => (
     assert "L06" in (r_l06.stdout + "\n" + r_l06.stderr)
 
 
+def test_e3_scaffolded_projects_auto_apply_plan_stage_json_without_rewriting_entrypoints(
+    tmp_path: Path, _remotion_runtime
+):
+    """Scaffold fresh P, K, and R projects via `tools/new_project.py` and activate Fixed Stage
+    purely via project plan/data files — without modifying any engine runtime entrypoint."""
+    modules_dir, env = _remotion_runtime
+    ff = shutil.which("ffmpeg", path=env["PATH"])
+    assert ff is not None
+
+    # ---- 1. Engine P scaffolded project (scenes.py untouched!) ----
+    p_proj = tmp_path / "auto_p"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "auto-p", "--engine", "p", "--out", str(p_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    draft_stage = json.loads((p_proj / "plan" / "stage.json").read_text(encoding="utf-8"))
+    assert draft_stage["enabled"] is False
+    assert draft_stage["defaultFramedBox"] == {"x": 56, "y": 224, "w": 968, "h": 1096, "r": 36}
+
+    scenes_py_before = hashlib.sha256((p_proj / "scenes.py").read_bytes()).hexdigest()
+    from chunk_utils import build_signature  # noqa: PLC0415
+
+    sig_disabled = build_signature(p_proj, p_proj / "assets", 45, 15, [0.0, 1.5], 30, 1080, 1920)
+
+    p_beats = {
+        "duration": 1.5,
+        "fps": 30,
+        "frames": 45,
+        "bounds": [0.0, 1.5],
+        "scenes": [{"index": 1, "start": 0.0, "end": 1.5, "dur": 1.5, "frames": 45, "theme": "dark"}],
+    }
+    p_copy = {
+        "pace": "calm",
+        "bpm": 100,
+        "copy": [
+            {"id": "hdr-auto", "scene": 1, "role": "label", "text": "موضوع الحلقة: التفعيل التلقائي", "start": 0.5, "end": 1.45}
+        ],
+    }
+    p_td = _sample_direction()
+    # Engine K's example.js fills #030303, so UNDER="paper" (#F3F2F1) contrasts cleanly;
+    # Engine P's scene1 (THEME[0]==0) & Engine R's MotionReel scene 0 are light scenes, so UNDER="ink_shadow" (#030303) contrasts cleanly!
+    auto_stage_paper = {
+        "version": 1,
+        "enabled": True,
+        "id": "auto-stage-k",
+        "clock": "vo",
+        "theme": "light",
+        "defaultFramedBox": {"x": 56, "y": 224, "w": 968, "h": 1096, "r": 90},
+        "under": {
+            "surfaceRole": "paper",
+            "background": None,
+            "frame": {"enabled": False},
+        },
+        "timeline": [
+            {"mode": "fullscreen", "start": 0.0, "end": 0.3},
+            {"mode": "transition", "from": "fullscreen", "to": "framed", "start": 0.3, "end": 0.7, "ease": "cubicInOut"},
+            {"mode": "framed", "start": 0.7, "end": 1.5},
+        ],
+        "over": {
+            "progressBar": {"enabled": True, "y": 64, "height": 8, "marginX": 60, "trackRole": "ink", "trackAlpha": 0.18, "fillRole": "red"},
+            "header": {
+                "enabled": True,
+                "slots": [
+                    {
+                        "id": "hdr-auto-slot",
+                        "scene": 1,
+                        "copyId": "hdr-auto",
+                        "role": "label",
+                        "start": 0.5,
+                        "end": 1.45,
+                        "x": 540,
+                        "y": 136,
+                        "size": 38,
+                        "maxWidth": 880,
+                        "colorRole": "ink",
+                    }
+                ],
+            },
+            "captions": {"enabled": True, "y": 1455},
+        },
+    }
+    auto_stage_dark = {
+        **auto_stage_paper,
+        "id": "auto-stage-pr",
+        "theme": "dark",
+        "under": {"surfaceRole": "ink_shadow", "background": None, "frame": {"enabled": False}},
+        "over": {
+            "progressBar": {"enabled": True, "y": 64, "height": 8, "marginX": 60, "trackRole": "paper", "trackAlpha": 0.2, "fillRole": "red"},
+            "header": {
+                "enabled": True,
+                "slots": [
+                    {
+                        "id": "hdr-auto-dark",
+                        "scene": 1,
+                        "copyId": "hdr-auto",
+                        "role": "label",
+                        "start": 0.5,
+                        "end": 1.45,
+                        "x": 540,
+                        "y": 136,
+                        "size": 38,
+                        "maxWidth": 880,
+                        "colorRole": "paper",
+                    }
+                ],
+            },
+            "captions": {"enabled": False, "y": 1455},
+        },
+    }
+    (p_proj / "plan" / "beats.json").write_text(json.dumps(p_beats), encoding="utf-8")
+    (p_proj / "plan" / "copy.json").write_text(json.dumps(p_copy, ensure_ascii=False), encoding="utf-8")
+    (p_proj / "plan" / "text-direction.json").write_text(json.dumps(p_td), encoding="utf-8")
+    (p_proj / "plan" / "stage.json").write_text(json.dumps(auto_stage_dark), encoding="utf-8")
+
+    sig_enabled = build_signature(p_proj, p_proj / "assets", 45, 15, [0.0, 1.5], 30, 1080, 1920)
+    assert sig_enabled != sig_disabled, "Modifying plan/stage.json must invalidate Engine P chunk cache signature"
+    assert hashlib.sha256((p_proj / "scenes.py").read_bytes()).hexdigest() == scenes_py_before
+
+    p_seg = p_proj / "out" / "auto_p.mp4"
+    p_run = subprocess.run(
+        [
+            sys.executable, str(TOOLS / "render_p_segment.py"),
+            "--project", str(p_proj),
+            "--from-frame", "0", "--to-frame", "36",
+            "--out", str(p_seg),
+            "--ffmpeg", ff,
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    assert p_run.returncode == 0, p_run.stdout + "\n" + p_run.stderr
+    assert hashlib.sha256((p_proj / "scenes.py").read_bytes()).hexdigest() == scenes_py_before
+
+    import av  # noqa: PLC0415
+
+    with av.open(str(p_seg)) as container:
+        decoded_p = [f.to_ndarray(format="rgb24") for f in container.decode(video=0)]
+    assert len(decoded_p) == 36
+    # Frame 3 (t=0.10s, fullscreen): corner (10, 10) is scene1's light background (>190 luma)
+    assert int(decoded_p[3][10, 10].min()) > 190
+    # Frame 30 (t=1.00s, framed x=56..1024, y=224..1320, r=90): exterior (20, 700) & corner luna (62, 230) -> UNDER ink_shadow (<15)
+    assert int(decoded_p[30][700, 20].max()) < 15
+    assert int(decoded_p[30][230, 62].max()) < 15
+    # OVER progress bar (y=66, x=150) -> RED, and OVER header (y=115..160) has bright paper glyphs (>200) on dark UNDER!
+    assert int(decoded_p[30][66, 150, 0]) > 180 and int(decoded_p[30][66, 150, 2]) < 60
+    assert int(decoded_p[30][115:160, 260:820].max()) > 200
+
+    # ---- 2. Engine K scaffolded project (src/main.js, src/data.js & src/scenes/*.js ALL untouched!) ----
+    k_proj = tmp_path / "auto_k"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "auto-k", "--engine", "k", "--out", str(k_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    k_main_before = hashlib.sha256((k_proj / "src" / "main.js").read_bytes()).hexdigest()
+    k_data_before = hashlib.sha256((k_proj / "src" / "data.js").read_bytes()).hexdigest()
+    k_scene_before = hashlib.sha256((k_proj / "src" / "scenes" / "example.js").read_bytes()).hexdigest()
+
+    (k_proj / "plan" / "beats.json").write_text(json.dumps(p_beats), encoding="utf-8")
+    (k_proj / "plan" / "copy.json").write_text(json.dumps(p_copy, ensure_ascii=False), encoding="utf-8")
+    (k_proj / "plan" / "text-direction.json").write_text(json.dumps(p_td), encoding="utf-8")
+    (k_proj / "plan" / "stage.json").write_text(json.dumps(auto_stage_paper), encoding="utf-8")
+
+    k_frames = k_proj / "cache" / "auto-k-frames"
+    k_res = subprocess.run(
+        ["node", "src/render.js", "--from", "0", "--to", "1.2", "--fps", "30", "--jpg", "--out", str(k_frames)],
+        cwd=k_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert k_res.returncode == 0, k_res.stdout + "\n" + k_res.stderr
+    assert hashlib.sha256((k_proj / "src" / "main.js").read_bytes()).hexdigest() == k_main_before
+    assert hashlib.sha256((k_proj / "src" / "data.js").read_bytes()).hexdigest() == k_data_before
+    assert hashlib.sha256((k_proj / "src" / "scenes" / "example.js").read_bytes()).hexdigest() == k_scene_before
+
+    k_full = np.asarray(Image.open(k_frames / "00003.jpg").convert("RGB"))
+    k_framed = np.asarray(Image.open(k_frames / "00030.jpg").convert("RGB"))
+    # Frame 3 (t=0.10s, fullscreen): example.js fills #030303 -> corner (10, 10) is dark (<20)
+    assert int(k_full[10, 10].max()) < 20
+    # Frame 30 (t=1.00s, framed r=90): exterior (20, 700) & rounded-corner luna (62, 230) -> UNDER paper (>230), interior (540, 500) -> dark (<20)
+    assert int(k_framed[700, 20].min()) > 230
+    assert int(k_framed[230, 62].min()) > 230
+    assert int(k_framed[500, 540].max()) < 20
+    assert int(k_framed[66, 150, 0]) > 180 and int(k_framed[66, 150, 2]) < 50
+    assert int(k_framed[115:160, 260:820].min()) < 80
+
+    # ---- 3. Engine R scaffolded project (src/RemotionRoot.tsx, src/Root.tsx, src/index.ts untouched!) ----
+    r_proj = tmp_path / "auto_r"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "auto-r", "--engine", "r", "--out", str(r_proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    (r_proj / "node_modules").symlink_to(modules_dir, target_is_directory=True)
+    r_root_before = hashlib.sha256((r_proj / "src" / "RemotionRoot.tsx").read_bytes()).hexdigest()
+    r_entry_before = hashlib.sha256((r_proj / "src" / "Root.tsx").read_bytes()).hexdigest()
+
+    (r_proj / "plan" / "beats.json").write_text(json.dumps(p_beats), encoding="utf-8")
+    (r_proj / "plan" / "copy.json").write_text(json.dumps(p_copy, ensure_ascii=False), encoding="utf-8")
+    (r_proj / "plan" / "text-direction.json").write_text(json.dumps(p_td), encoding="utf-8")
+    (r_proj / "plan" / "stage.json").write_text(json.dumps(auto_stage_dark), encoding="utf-8")
+
+    # Replace data.ts placeholder copy cards (standard data configuration required by render.mjs)
+    data_ts = (r_proj / "src" / "data.ts").read_text(encoding="utf-8")
+    for old_s, new_s in (
+        ("اكتب عنوان المشهد", "عنوان المشهد الأول"),
+        ("حط هنا الجملة الأساسية اللي عايز المشاهد يفتكرها.", "جملة أساسية واضحة داخل النافذة."),
+    ):
+        data_ts = data_ts.replace(old_s, new_s)
+    (r_proj / "src" / "data.ts").write_text(data_ts, encoding="utf-8")
+
+    tsc_r = subprocess.run(
+        ["node", "node_modules/typescript/bin/tsc", "--noEmit"],
+        cwd=r_proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert tsc_r.returncode == 0, tsc_r.stdout + "\n" + tsc_r.stderr
+
+    for f_idx, out_name in ((3, "r_auto_full.png"), (30, "r_auto_framed.png")):
+        st_run = subprocess.run(
+            [
+                "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
+                "MedoReel", str(r_proj / out_name), f"--frame={f_idx}", "--log=error",
+            ],
+            cwd=r_proj,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        assert st_run.returncode == 0, st_run.stdout + "\n" + st_run.stderr
+
+    assert hashlib.sha256((r_proj / "src" / "RemotionRoot.tsx").read_bytes()).hexdigest() == r_root_before
+    assert hashlib.sha256((r_proj / "src" / "Root.tsx").read_bytes()).hexdigest() == r_entry_before
+
+    r_im_full = np.asarray(Image.open(r_proj / "r_auto_full.png").convert("RGB"))
+    r_im_framed = np.asarray(Image.open(r_proj / "r_auto_framed.png").convert("RGB"))
+    # Frame 3 (t=0.10s, fullscreen): corner (10, 10) is MotionReel's light paper gradient (>230)
+    assert int(r_im_full[10, 10].min()) > 230
+    # Frame 30 (t=1.00s, framed r=90): exterior (20, 700) & rounded-corner luna (62, 230) -> exact UNDER #030303 (3,3,3)!
+    assert tuple(r_im_framed[700, 20]) == (3, 3, 3)
+    assert tuple(r_im_framed[230, 62]) == (3, 3, 3)
+    # Interior (540, 300) has bright MotionReel content, and OVER progress bar + header are unclipped!
+    assert int(r_im_framed[300, 540].min()) > 200
+    assert tuple(r_im_framed[66, 150]) == (203, 39, 27)
+    assert int(r_im_framed[115:160, 260:820].max()) > 200
+
+
 # ===========================================================================
 # F. Determinism, Reverse-Seek & Engine P Chunked Rendering Tests
 # ===========================================================================
@@ -1374,6 +1639,149 @@ def render_frame(t):
         assert c_res.returncode == 0, c_res.stdout + "\n" + c_res.stderr
         chunk_mp4 = proj / "out" / f"c_{a:05d}_{b:05d}.mp4"
         assert is_valid_chunk(chunk_mp4, b - a, 1080, 1920)
+
+
+def test_f3_engine_r_persistent_browser_reverse_and_random_seek_determinism(
+    tmp_path: Path, _remotion_runtime
+):
+    """Verify Engine R reverse-seeking and random-timestamp scrubbing inside ONE persistent
+    Chromium browser instance (`openBrowser` + `renderStill`) across fullscreen, transition, and framed states."""
+    modules_dir, env = _remotion_runtime
+    proj = tmp_path / "r_reverse_seek"
+    subprocess.run(
+        [sys.executable, str(TOOLS / "new_project.py"), "r-reverse-seek", "--engine", "r", "--out", str(proj)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    (proj / "node_modules").symlink_to(modules_dir, target_is_directory=True)
+
+    beats = {
+        "duration": 1.5,
+        "fps": 30,
+        "frames": 45,
+        "bounds": [0.0, 1.5],
+        "scenes": [{"index": 1, "start": 0.0, "end": 1.5, "dur": 1.5, "frames": 45}],
+    }
+    copy_doc = {
+        "pace": "calm",
+        "bpm": 100,
+        "copy": [
+            {"id": "hdr-rev", "scene": 1, "role": "label", "text": "اختبار القفز العكسي في Remotion", "start": 0.25, "end": 1.45}
+        ],
+    }
+    td_doc = _sample_direction()
+    stage_spec = {
+        "version": 1,
+        "enabled": True,
+        "id": "r-reverse-stage",
+        "clock": "vo",
+        "theme": "dark",
+        "defaultFramedBox": {"x": 56, "y": 224, "w": 968, "h": 1096, "r": 72},
+        "under": {
+            "surfaceRole": "ink_shadow",
+            "background": {"id": "wash", "theme": "dark", "speed": 1.0},
+            "frame": {"enabled": True, "strokeRole": "red", "strokeWidth": 3, "matRole": "ink_shadow", "matAlpha": 0.36},
+        },
+        "timeline": [
+            {"mode": "fullscreen", "start": 0.0, "end": 0.2},
+            {"mode": "transition", "from": "fullscreen", "to": "framed", "start": 0.2, "end": 0.7, "ease": "cubicInOut"},
+            {"mode": "framed", "start": 0.7, "end": 1.5},
+        ],
+        "over": {
+            "progressBar": {"enabled": True, "y": 64, "height": 6, "marginX": 60, "trackRole": "paper", "trackAlpha": 0.18, "fillRole": "red"},
+            "header": {
+                "enabled": True,
+                "slots": [
+                    {
+                        "id": "hdr-rev-slot",
+                        "scene": 1,
+                        "copyId": "hdr-rev",
+                        "role": "label",
+                        "start": 0.25,
+                        "end": 1.45,
+                        "x": 540,
+                        "y": 136,
+                        "size": 38,
+                        "maxWidth": 880,
+                    }
+                ],
+            },
+        },
+    }
+    (proj / "plan" / "beats.json").write_text(json.dumps(beats), encoding="utf-8")
+    (proj / "plan" / "copy.json").write_text(json.dumps(copy_doc, ensure_ascii=False), encoding="utf-8")
+    (proj / "plan" / "text-direction.json").write_text(json.dumps(td_doc), encoding="utf-8")
+    (proj / "plan" / "stage.json").write_text(json.dumps(stage_spec), encoding="utf-8")
+
+    # Run a single persistent Chromium instance via @remotion/renderer and scrub forward, backward, and shuffled!
+    scrub_mjs = proj / "scrub_verify.mjs"
+    scrub_mjs.write_text(
+        """import crypto from 'node:crypto';
+import path from 'node:path';
+import process from 'node:process';
+import {bundle} from '@remotion/bundler';
+import {openBrowser, renderStill, selectComposition} from '@remotion/renderer';
+
+const entryPoint = path.resolve('src/index.ts');
+const browserExecutable = process.env.REMOTION_BROWSER_EXECUTABLE;
+const serveUrl = await bundle({entryPoint, onProgress: () => {}});
+const puppeteerInstance = await openBrowser('chrome', {
+  browserExecutable,
+  chromiumOptions: {disableWebSecurity: false},
+});
+
+try {
+  const composition = await selectComposition({
+    serveUrl,
+    id: 'MedoReel',
+    puppeteerInstance,
+    inputProps: {motionMode: 'normal'},
+  });
+
+  async function renderOrder(frames) {
+    const out = {};
+    for (const f of frames) {
+      const {buffer} = await renderStill({
+        composition,
+        serveUrl,
+        frame: f,
+        imageFormat: 'png',
+        scale: 0.5,
+        puppeteerInstance,
+        inputProps: {motionMode: 'normal'},
+      });
+      out[String(f)] = crypto.createHash('sha256').update(buffer).digest('hex');
+    }
+    return out;
+  }
+
+  const forward = await renderOrder([3, 9, 15, 21, 30]);
+  const reverse = await renderOrder([30, 21, 15, 9, 3]);
+  const shuffled = await renderOrder([15, 3, 30, 9, 21]);
+  console.log(JSON.stringify({forward, reverse, shuffled}));
+} finally {
+  await puppeteerInstance.close({silent: true});
+}
+""",
+        encoding="utf-8",
+    )
+
+    res = subprocess.run(
+        ["node", str(scrub_mjs)],
+        cwd=proj,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=240,
+    )
+    assert res.returncode == 0, res.stdout + "\n" + res.stderr
+    last_json = [ln for ln in res.stdout.strip().splitlines() if ln.strip().startswith("{")][-1]
+    digests = json.loads(last_json)
+    assert digests["forward"] == digests["reverse"], f"Engine R reverse-seek drift: {digests}"
+    assert digests["forward"] == digests["shuffled"], f"Engine R random-seek drift: {digests}"
+    # Distinct frames across fullscreen -> transition -> framed must not collapse to identical images
+    assert len(set(digests["forward"].values())) == 5
 
 
 # ===========================================================================

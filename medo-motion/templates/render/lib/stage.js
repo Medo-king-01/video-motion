@@ -332,6 +332,12 @@ export function validateStageSpec(spec) {
   if (!Number.isInteger(version) || version !== 1) {
     errors.push('stage.version must be 1');
   }
+  if (spec.enabled !== undefined && typeof spec.enabled !== 'boolean') {
+    errors.push('stage.enabled must be a boolean');
+  }
+  if (spec.autoWrap !== undefined && typeof spec.autoWrap !== 'boolean') {
+    errors.push('stage.autoWrap must be a boolean');
+  }
   const stageId = spec.id ?? 'fixed-stage';
   if (typeof stageId !== 'string' || !stageId.trim()) {
     errors.push('stage.id must be a non-empty string');
@@ -598,6 +604,21 @@ export function validateStageSpec(spec) {
 }
 
 /**
+ * Return true when `spec` is a valid, active Fixed Stage specification (`enabled !== false`).
+ * Throws if `spec` is non-null and invalid.
+ * @param {any} spec
+ * @returns {boolean}
+ */
+export function isStageEnabled(spec) {
+  if (spec === null || spec === undefined) return false;
+  const errors = validateStageSpec(spec);
+  if (errors.length > 0) {
+    throw new Error(errors.join('; '));
+  }
+  return spec.enabled !== false;
+}
+
+/**
  * Validate and normalize a Fixed Stage specification into canonical immutable structure.
  * @param {any} spec
  */
@@ -721,6 +742,8 @@ export function normalizeStageSpec(spec) {
   return {
     _normalized: true,
     version: 1,
+    enabled: spec.enabled ?? true,
+    autoWrap: spec.autoWrap ?? true,
     id: (spec.id ?? 'fixed-stage').trim(),
     clock: 'vo',
     theme,

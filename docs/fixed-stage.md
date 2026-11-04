@@ -26,6 +26,7 @@
 ```json
 {
   "version": 1,
+  "enabled": true,
   "id": "episode-stage",
   "clock": "vo",
   "theme": "dark",
@@ -173,9 +174,21 @@ win(spec, t) -> { x, y, w, h, r }
 
 ---
 
-## ٧) أمثلة الاستخدام في المحركات الثلاثة
+## ٧) التفعيل التلقائي عبر `plan/stage.json` والاستخدام البرمجي اليدوي
 
-### محرك `P` (`scenes.py`)
+يدعم النظام نمطين متكاملين فوق النواة نفسها دون أي ازدواجية:
+
+### أ) التفعيل التلقائي من إعدادات المشروع (`plan/stage.json`)
+- ينشئ `tools/new_project.py` ملف `plan/stage.json` تلقائيًا في كل مشروع جديد مع `"enabled": false` افتراضيًا (بحيث يعمل المشروع العادي بملء الشاشة دون أي تغيير).
+- بمجرد ضبط `"enabled": true` داخل `plan/stage.json` وتجهيز `plan/beats.json` و`plan/copy.json` و`plan/text-direction.json`، تقرأ مسارات التشغيل الافتراضية في المحركات الثلاثة الإعداد وتطبّق المسرح الثابت تلقائيًا دون الحاجة لإعادة كتابة ملفات التشغيل:
+  - **المحرك `P` (`scenes.py` / `render_frame`):** يستدعي `stage.load_project_stage()` ويغلف رسم المشهد والانتقالات داخل `render_fixed_stage`، كما تدخل ملفات `plan/*.json` ضمن بصمة التجزئة في `chunk_utils.build_signature`.
+  - **المحرك `K` (`src/main.js`):** يجلب `/plan/stage.json` وملفات الخطة المرافقة ويغلف `scene.draw(...)` تلقائيًا عبر `renderFixedStage`.
+  - **المحرك `R` (`src/RemotionRoot.tsx` + `scripts/render.mjs`):** يتحقق من `plan/stage.json` ويغلف محتوى `MotionReel` داخل `<FixedStage>` تلقائيًا.
+
+### ب) الاستخدام البرمجي المباشر داخل مشاهد مخصّصة
+عند بناء مشهد مخصّص يستدعي الـAPI يدويًا مع وجود `plan/stage.json`، يمكن ضبط `"autoWrap": false` في `plan/stage.json` (أو تصدير `export const manualFixedStage = true;` في مشهد محرك `K`):
+
+#### محرك `P` (`scenes.py`)
 ```python
 from stage import create_stage, render_fixed_stage
 
@@ -194,9 +207,11 @@ def render_frame(t: float):
     )
 ```
 
-### محرك `K` (`src/scenes/s1.js`)
+#### محرك `K` (`src/scenes/s1.js`)
 ```js
 import { renderFixedStage } from '../lib/stage-canvas.js';
+
+export const manualFixedStage = true;
 
 export async function draw(ctx, localT, { t, dur, direction }) {
   await renderFixedStage(ctx, STAGE_SPEC, t, {
@@ -208,7 +223,7 @@ export async function draw(ctx, localT, { t, dur, direction }) {
 }
 ```
 
-### محرك `R` (`RemotionRoot.tsx`)
+#### محرك `R` (`RemotionRoot.tsx`)
 ```tsx
 import {FixedStage} from './lib/FixedStage';
 
