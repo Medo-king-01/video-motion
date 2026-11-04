@@ -5,6 +5,7 @@
     python3 tools/selftest.py --fast          # skip the engine renders
     python3 tools/selftest.py --remotion      # also npm ci + R typecheck + 6-frame render
     python3 tools/selftest.py --hybrid        # end-to-end 18-frame P + K + R assembly
+    python3 tools/selftest.py --skip-tests     # skip pytest when tools/ci.sh already ran
     python3 tools/selftest.py --remotion --hybrid --reduced-motion  # explicit reduced-mode smoke
 
 Each step prints PASS / FAIL / SKIP. Exit code 1 if anything failed. The `--remotion`
@@ -28,6 +29,7 @@ ENGINE_P = SKILL / "templates" / "procedural-reels"
 ENGINE_K = SKILL / "templates" / "render"
 TOOLKIT = ROOT / "tools" / "toolkit"
 FAST = "--fast" in sys.argv
+SKIP_TESTS = "--skip-tests" in sys.argv
 WITH_REMOTION = "--remotion" in sys.argv
 WITH_HYBRID = "--hybrid" in sys.argv
 REDUCED = "--reduced-motion" in sys.argv or os.environ.get("MEDO_MOTION_MODE") == "reduced"
@@ -70,9 +72,10 @@ def step_doctor() -> bool:
 
 
 def step_tests() -> bool:
-    r = run([sys.executable, "-m", "pytest", "-q"], cwd=ROOT)
-    line = r.stdout.strip().splitlines()[-1] if r.stdout.strip() else r.stderr
-    return record("unit tests", 0 if r.returncode == 0 else 1, line)
+    # Stream pytest output so CI logs retain the actual failing test and traceback.
+    r = subprocess.run([sys.executable, "-m", "pytest", "-q"], cwd=ROOT, text=True)
+    return record("unit tests", 0 if r.returncode == 0 else 1,
+                  f"pytest exit code {r.returncode}")
 
 
 def step_engine_p(work: Path) -> bool:
@@ -262,7 +265,10 @@ def step_hybrid() -> bool:
 def main() -> int:
     print("Video Motion self-test\n")
     step_doctor()
-    step_tests()
+    if SKIP_TESTS:
+        record("unit tests", 2, "--skip-tests; run tools/ci.sh first")
+    else:
+        step_tests()
     if FAST:
         record("engine P render", 2, "--fast")
         record("engine K render", 2, "--fast")
