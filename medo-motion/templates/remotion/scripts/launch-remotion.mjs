@@ -4,6 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 import {validateTextDirection} from '../src/lib/text-direction.js';
 import {validateStageSpec} from '../src/lib/stage.js';
+import {validateSlideWallSpec} from '../src/lib/slide-wall.js';
 
 const project = process.cwd();
 const repoChromium = path.resolve(project, '../../tools/chromium.mjs');
@@ -31,6 +32,12 @@ if (existsSync(beatsPath)) {
     const stageDoc = JSON.parse(readFileSync(stagePath, 'utf8'));
     const stageErrors = validateStageSpec(stageDoc);
     if (stageErrors.length) fail('Invalid plan/stage.json:\n' + stageErrors.join('\n'));
+  }
+  const slideWallPath = path.join(project, 'plan', 'slide-wall.json');
+  if (existsSync(slideWallPath)) {
+    const wallDoc = JSON.parse(readFileSync(slideWallPath, 'utf8'));
+    const wallErrors = validateSlideWallSpec(wallDoc, Number.isFinite(beats.duration) ? beats.duration : null);
+    if (wallErrors.length) fail('Invalid plan/slide-wall.json:\n' + wallErrors.join('\n'));
   }
 }
 

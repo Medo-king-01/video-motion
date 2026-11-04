@@ -83,6 +83,29 @@ export function camera({ dist = 900, yaw = 0, pitch = 0, fov = 38, target = [0, 
   return { pos, fwd, right, up, fov: (fov * Math.PI) / 180, target };
 }
 
+/** Free pinhole camera with explicit position, target, up hint and roll (radians). */
+export function lookCamera(position = [0, 0, 900], target = [0, 0, 0], fov = 38, roll = 0, up = [0, 1, 0]) {
+  const pos = position.map(Number);
+  const tgt = target.map(Number);
+  const delta = sub(tgt, pos);
+  if (dot(delta, delta) <= 1e-18) throw new Error('lookCamera position and target must differ');
+  const forward = norm(delta);
+  const rightRaw = cross(forward, norm(up));
+  if (dot(rightRaw, rightRaw) <= 1e-18) {
+    throw new Error('lookCamera up hint must not be parallel to the viewing direction');
+  }
+  let right = norm(rightRaw);
+  let trueUp = norm(cross(right, forward));
+  if (roll) {
+    const c = Math.cos(roll), s = Math.sin(roll);
+    const nextRight = right.map((v, i) => v * c + trueUp[i] * s);
+    const nextUp = right.map((v, i) => -v * s + trueUp[i] * c);
+    right = nextRight;
+    trueUp = nextUp;
+  }
+  return { pos, fwd: forward, right, up: trueUp, fov: fov * Math.PI / 180, target: tgt, roll };
+}
+
 /** [[screen_x, screen_y, depth, scale]] — depth is view-space z (larger = farther). */
 export function project(points, cam, w, h) {
   const f = (h / 2) / Math.tan(cam.fov / 2);

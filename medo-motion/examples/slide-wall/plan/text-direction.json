@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "status": "directed",
+  "decidedBy": "agent",
+  "concept": "Stable numeric slide faces; camera motion carries the spatial transition",
+  "scenes": [
+    {
+      "scene": 1,
+      "captionStyle": "softfade",
+      "captionWhy": "Reserved for a real measured VO; this silent example has no captions",
+      "textStyles": { "number": "softfade" },
+      "textWhy": "Numbers stay static and readable while the shared VO camera timeline moves",
+      "fontStyles": { "number": { "family": "Cairo", "weight": 800 } },
+      "fontWhy": "The existing bundled Cairo face keeps numeric texture rendering consistent"
+    }
+  ]
+}

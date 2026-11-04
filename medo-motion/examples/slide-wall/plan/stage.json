@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "enabled": true,
+  "autoWrap": false,
+  "id": "slide-wall-fixed-stage",
+  "clock": "vo",
+  "theme": "dark",
+  "defaultFramedBox": { "x": 90, "y": 160, "w": 900, "h": 1200, "r": 48 },
+  "under": {
+    "surfaceRole": "ink_shadow",
+    "background": null,
+    "frame": { "enabled": true, "strokeRole": "gray_2", "strokeWidth": 3, "matRole": "ink", "matAlpha": 0.35 }
+  },
+  "timeline": [
+    { "mode": "fullscreen", "start": 0, "end": 0.6 },
+    { "mode": "transition", "from": "fullscreen", "to": "framed", "start": 0.6, "end": 1, "ease": "cubicInOut" },
+    { "mode": "framed", "start": 1, "end": 5.2 },
+    { "mode": "transition", "from": "framed", "to": "fullscreen", "start": 5.2, "end": 6, "ease": "cubicInOut" }
+  ],
+  "over": {
+    "progressBar": {
+      "enabled": true,
+      "y": 64,
+      "height": 8,
+      "marginX": 60,
+      "trackRole": "paper",
+      "trackAlpha": 0.2,
+      "fillRole": "red"
+    },
+    "header": { "enabled": false, "slots": [] },
+    "captions": { "enabled": false, "y": 1455 }
+  }
+}

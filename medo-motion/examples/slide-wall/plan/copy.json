@@ -1,0 +1,10 @@
+{
+  "pace": "calm",
+  "bpm": 100,
+  "copy": [
+    { "id": "slide-01", "scene": 1, "role": "number", "text": "01", "start": 0, "end": 6, "mode": "replace" },
+    { "id": "slide-02", "scene": 1, "role": "number", "text": "02", "start": 0, "end": 6, "mode": "replace" },
+    { "id": "slide-03", "scene": 1, "role": "number", "text": "03", "start": 0, "end": 6, "mode": "replace" },
+    { "id": "slide-04", "scene": 1, "role": "number", "text": "04", "start": 0, "end": 6, "mode": "replace" }
+  ]
+}

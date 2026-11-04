@@ -2,6 +2,8 @@
 
 يوفر نظام **Fixed Stage** إطار عرض مستمرًا وموحّدًا عبر المحركات الثلاثة (`P` Python/Pillow/OpenCV، و`K` Canvas2D/Chromium، و`R` React/Remotion) مع نافذة محتوى ديناميكية قابلة للتحريك والقصّ الحقيقي `win(t)` تحت سلطة **VO Clock** الكاملة.
 
+> **Phase 2B:** يمكن وضع `3D Slide Wall` داخل CONTENT فوق النوافذ نفسها، بلا Stage أو ساعة منافسة. راجع [`docs/slide-wall.md`](slide-wall.md) للعقد والمحولات والمثال الكامل.
+
 ---
 
 ## ١) البنية المعمارية (Architecture)

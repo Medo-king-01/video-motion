@@ -1,0 +1,9 @@
+{
+  "duration": 6,
+  "fps": 30,
+  "frames": 180,
+  "bounds": [0, 6],
+  "scenes": [
+    { "index": 1, "id": "slide-wall", "start": 0, "end": 6, "dur": 6, "frames": 180, "theme": "dark" }
+  ]
+}
