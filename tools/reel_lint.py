@@ -32,12 +32,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
+import contrast  # noqa: E402
+import machine_explainer as me  # noqa: E402
 import text_direction as td  # noqa: E402
 import visual_direction as vd  # noqa: E402
-
-sys.path.insert(0, str(ROOT / "tools"))
-import contrast  # noqa: E402
 
 # ---- measured norms (30 fps, 9:16) ------------------------------------------------------------
 WORDS_PER_FRAGMENT = {"calm": 4, "crisp": 5}
@@ -532,6 +532,7 @@ def main() -> int:
     ap.add_argument("--tol", type=float, default=GRID_TOL)
     ap.add_argument("--strict", action="store_true", help="warnings fail too")
     ap.add_argument("--scan-code", action="store_true")
+    ap.add_argument("--max-occlusion", type=float, default=None, help="override X03 max foreground occlusion (0..1)")
     ap.add_argument("--json", type=Path)
     a = ap.parse_args()
 
@@ -560,6 +561,13 @@ def main() -> int:
     if (a.project / 'plan/visual-direction.json').is_file():
         for error in vd.check_project(a.project)['errors']:
             rep.error('V01', error)
+    if (a.project / 'plan/machines').is_dir():
+        m_res = me.check_project(a.project, max_occlusion=a.max_occlusion)
+        if m_res['errors']:
+            for code, msg in m_res['errors']:
+                rep.error(code, msg)
+        elif m_res['machines']:
+            rep.ok('X00', f"machine explainer: {len(m_res['machines'])} spec(s) verified (X01–X04)")
     if a.scan_code:
         lint_code(rep, a.project)
 

@@ -77,6 +77,9 @@ phone-preview:   ## mobile grid & platform UI safe-zone sheet: make phone-previe
 asr-check:       ## audit word timings for hallucinations, loops & missed speech: make asr-check P=projects/x [STRICT=1]
 	$(PY) tools/asr_check.py $(or $(P),.) $(if $(VO),--vo $(VO),) $(if $(STRICT),--strict,)
 
+machine-check:   ## audit Machine Explainer specs (X01-X04): make machine-check P=projects/x [MAX_OCC=0.35]
+	$(PY) tools/machine_explainer.py $(or $(P),.) --check $(if $(MAX_OCC),--max-occlusion $(MAX_OCC),) $(if $(JSON),--json $(JSON),)
+
 backgrounds:     ## review every animated background (P) or check P↔K parity: make backgrounds [PARITY=1]
 	$(PY) tools/backgrounds_sheet.py $(if $(PARITY),--compare,)
 

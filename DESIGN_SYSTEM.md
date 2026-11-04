@@ -142,6 +142,7 @@
   - T06: كل fragment بيسمّي لونه بيعدّي WCAG على أرضية مشهده (٤.٥:١ جسم · ٣:١ عند ≥٧٦px)،
     والأزواج اللي `brand.json → text_contrast.forbidden_on_theme` بتمنعها بتفشل مهما كان الحجم.
   - S06: الفريم صفر مش خلفية فاضية — هو الـthumbnail في مشغلات السوشيال.
+  - X01–X04 (عند وجود `plan/machines/*.json`): مرجعية كل خطوة بـ`locator` مهيكل واقتباس (أو وضع `illustrative` موسوم بدون أرقام غير موثقة)، ربط `anchor` و`revealWindow` بـ`word-timings.json`، فحص حجب هندسي بالأقنعة المسقطة (`machine_explainer.py`)، والتزام حدود الأمان المشتقة من `brand.json`.
 - بوابات الرندر في P/K/R بترفض خطة ناقصة، و`tools/layout_audit.mjs` (K) و`tools/layout_audit_p.py` (P) يفحصان تصادم النصوص والوجوه وثبات الإطارات (`L00`–`L03` + `L04` الاختياري لأزرار المنصات بـ`--platform-ui` + `R01`/`R02`).
 - `tools/media_qa.py` يفحص الـMP4 النهائي بعد الرندر (`Q00`–`Q05`: `faststart`، تزامن الـVO، bitrate، فريم `0`، عدم الثبات، و`-14.5 ± 0.3 LUFS` / `≤ -1.5 dBTP`)، `tools/phone_preview.py` يولّد شيت معاينة شبكة الموبايل وأزرار المنصات، `tools/asr_check.py` يفحص هلوسات وفجوات الـASR، و`tools/stage_gate.py` يجمع بوابات المراحل ووعد التسليم (`G01`–`G06`).
 - `tests/`: تشكيل عربي، براند، خطوط، حركة، لينت، تخطيط K/P، فحص الماستر، scaffold، selftest.

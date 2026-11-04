@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased — 2026-11-04 (Native Machine Explainer workflow & X01–X04 geometric occlusion QA across P/K/R)
+
+Standalone Phase 1 native studio implementation (`docs/machine-explainer.md`, zero new dependencies):
+
+- **Machine Explainer core & 4 parametric hardware cutaway archetypes (`nvme_ssd`, `cpu_package`, `ram_dimm`, `cooling_system`, plus `custom`)**:
+  implemented natively in `procedural-reels/machine_kit.py` (Engine **P**), byte-identical shared
+  `render/lib/machine-kit.js` + `remotion/src/lib/machine-kit.js`, `render/lib/machine-visual.js`
+  (Engine **K** Canvas2D + `protectBox` + `drawDirectedText`), and `remotion/src/lib/MachineDiagram.tsx`
+  (Engine **R** `<svg>` + `<DirectedText>`) using only the locked 12-colour `brand.json` v2.6 palette,
+  pure deterministic `f(t)` state (`spin`, `packet_flow`, `heat_tint`, `airflow_stream`, `pulse`), and
+  dynamic safe envelopes (`layout_p.safe_envelope` / `layout.js:safeEnvelope` / `BRAND.margin`).
+- **Source locator, unified VO timing & polygon coverage-mask occlusion gates (`tools/machine_explainer.py`, `tools/reel_lint.py`, `make machine-check`)**:
+  enforces `X01` (verifiable `sources[]` + structured `locator: {kind, value}` + supporting quote, or
+  explicit `illustrative` disclaimer + on-screen label without unverified spec numbers), `X02` (unified
+  `visual_direction.measured_words` anchor + explicit `revealWindow.unit` `vo_seconds`/`scene_seconds`),
+  `X03` (painter-ordered 2D face-polygon coverage-mask occlusion with foreground alpha transmittance and
+  configurable `--max-occlusion` / `qa.maxOcclusion` / `step.maxOcclusion`), and `X04` (safe-zone &
+  `PLATFORM_RIGHT_RAIL` envelope check).
+
 ## Unreleased — 2026-11-04 (Arabic kashida & mixed-run typography, phrase captions, isometric cutaway kit, shutter blur & mobile/ASR QA)
 
 Native clean-room studio upgrades distilled from the MIT-licensed `majedphotos/video-ad-editor`

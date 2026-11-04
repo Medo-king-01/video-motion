@@ -42,6 +42,16 @@ export function captureLayout(ctx) {
   return state;
 }
 export const PLATFORM_RIGHT_RAIL = Object.freeze({ x: 940, y: 1100, w: 140, h: 400 });
+export function safeEnvelope(zone='content',{checkPlatformUi=true}={}) {
+  if(!['content','caption','hud'].includes(zone))throw Error(`Unknown layout zone: ${zone}`);
+  const y=zone==='caption'?[BRAND.safe.contentY[1],BRAND.safe.belowIsDead]:zone==='hud'?[0,BRAND.safe.contentY[0]]:BRAND.safe.contentY;
+  return {
+    w:BRAND.W,h:BRAND.H,fps:BRAND.FPS,margin:BRAND.safe.margin,zone,
+    x:[BRAND.safe.margin,BRAND.W-BRAND.safe.margin],y:[y[0],y[1]],
+    nothingImportantBelowY:BRAND.safe.belowIsDead,
+    platformRightRail:checkPlatformUi?{...PLATFORM_RIGHT_RAIL}:null,
+  };
+}
 export function auditLayout(boxes,{minOverlap=2,checkPlatformUi=false}={}) {
   if(!Array.isArray(boxes))throw Error('Layout capture is missing');
   const issues=[];
