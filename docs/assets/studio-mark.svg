@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="video-motion repository mark">
+  <defs>
+    <linearGradient id="vmBg" x1="0%" y1="0%" x2="18%" y2="100%">
+      <stop offset="0%" stop-color="#0A0A0A"/>
+      <stop offset="100%" stop-color="#030303"/>
+    </linearGradient>
+    <radialGradient id="vmGlow" cx="50%" cy="36%" r="58%">
+      <stop offset="0%" stop-color="#CB271B" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#030303" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="vmGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#C9C5C2" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Outer rounded studio tile -->
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#vmBg)" stroke="#71717A" stroke-opacity="0.45" stroke-width="2"/>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#vmGrid)"/>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#vmGlow)"/>
+
+  <!-- Registration corner ticks -->
+  <path d="M38 50 V38 H50 M206 38 H218 V50 M38 206 V218 H50 M206 218 H218 V206"
+        fill="none" stroke="#A3A2A0" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 9:16 vertical reel frame silhouette -->
+  <rect x="74" y="34" width="108" height="188" rx="18" fill="#0A0A0A" fill-opacity="0.72" stroke="#F3F2F1" stroke-width="4"/>
+
+  <!-- Top safe-zone progress bar -->
+  <line x1="90" y1="52" x2="166" y2="52" stroke="#71717A" stroke-width="3" stroke-linecap="round"/>
+  <line x1="126" y1="52" x2="166" y2="52" stroke="#D97F68" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Extruded 3D play prism (side depth + front face + rim highlight) -->
+  <polygon points="108,88 100,94 100,154 108,148" fill="#9F0803"/>
+  <polygon points="100,154 150,126 158,120 108,148" fill="#9F0803"/>
+  <polygon points="108,88 158,118 108,148" fill="#CB271B"/>
+  <polyline points="108,88 158,118 108,148" fill="none" stroke="#D97F68" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Measured VO waveform bars at caption safe zone -->
+  <g stroke-linecap="round" stroke-width="4.5">
+    <line x1="96"  y1="184" x2="96"  y2="194" stroke="#D5AEA6"/>
+    <line x1="109" y1="176" x2="109" y2="198" stroke="#F3F2F1"/>
+    <line x1="122" y1="170" x2="122" y2="200" stroke="#D97F68"/>
+    <line x1="135" y1="178" x2="135" y2="196" stroke="#F3F2F1"/>
+    <line x1="148" y1="173" x2="148" y2="199" stroke="#CB271B"/>
+    <line x1="161" y1="183" x2="161" y2="194" stroke="#D5AEA6"/>
+  </g>
+</svg>

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/studio-banner.svg" alt="video-motion — Vertical Reel Motion Studio" width="100%">
+</p>
+
 # video-motion — استوديو ريلز ميدو 🎬
 
 مستودع واحد فيه كل حاجة لصناعة **ريلز عمودي 1080×1920** من أوله لآخره:
@@ -24,8 +28,8 @@
 والباقي كله على الوكيل: الخلفيات والكروت والأجهزة والكابشن والحركة والمؤثرات والموسيقى
 والتوقيت وأي أصل خارجي (كود ← توليد AI ← بحث) مع تسجيل التراخيص.
 
-**مفيش لوجو، ومفيش اسم سلسلة افتراضي، ومفيش رقم حلقة.** ده استوديو إنتاج: إنت بتقول عايز إيه.
-لو عايز اسم أو عنوان أو رقم حلقة على الشاشة، إنت اللي بتقرره — الوكيل بينفّذه ومش بيقترحه.
+**مفيش لوجو قناة تلقائي جوه الفيديوهات، ومفيش اسم سلسلة افتراضي، ومفيش رقم حلقة.** ده استوديو إنتاج: إنت بتقول عايز إيه.
+لو عايز اسم أو عنوان أو رقم حلقة أو شعار شرح معيّن على الشاشة، إنت اللي بتقرره — الوكيل بينفّذه ومش بيقترحه (وبنر الريبو فوق `docs/assets/` تجميلي لواجهة GitHub بس ومش بيتحط على أي فيديو).
 
 **الاستوديو أداة، مش أرشيف فيديوهات:** مجلدات `projects/` مساحة شغل مؤقتة ومستثناة بالكامل من Git،
 والفيديو اللي بيخلص بيخرج مع مجلده — فيديوهاتك القديمة مش بتتخزن في المستودع ومش بتُستخدم كمرجع لفيديو جديد.
@@ -114,7 +118,7 @@ cd projects/my-reel && npm ci && npm run studio
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
 assets/                ← مدخلات مشتركة: fonts/ (٢١ عيلة OFL) · poses/ · sfx/
 projects/<slug>/       ← مساحة شغل مؤقتة للفيديو (مستثناة من Git): BRIEF.md · STYLE.md · plan/ · assets/ · out/
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · layout_audit.mjs · layout_audit_p.py · media_qa.py · stage_gate.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · layout_audit.mjs · layout_audit_p.py · media_qa.py · stage_gate.py · phone_preview.py · asr_check.py · ffprobe_shim.py · chromium.mjs
                          · icons_sheet.py (مراجعة الأيقونات) · icons_preview.mjs
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
 docs/                  ← التحليل + قواعد الاتساق + مراجعة Skillry

@@ -236,3 +236,60 @@ def bubble(w,h,color=(243,242,241),tail='bl',alpha=255,outline=None):
     elif tail=='br': d.poly([(w-70,10+h-4),(w-10,10+h+34),(w+0,10+h-4)],fill=color+(alpha,))
     elif tail=='bc': d.poly([(w/2-20,10+h-4),(w/2+20,10+h+34),(w/2+50,10+h-4)],fill=color+(alpha,))
     return d.done()
+
+def draw_kashida(fr, txt, cx, cy, size, target_width, *, progress=1.0, color=WHITE,
+                 stroke=0, scolor=BLACK, family=None, weight=800, alpha=1.0,
+                 max_tatweels=16, max_scale_x=1.06, box_id='kashida', zone='content'):
+    """Draw stretched Arabic text using Unicode-safe tatweels + gentle residual scale_x."""
+    shaper = _shaper()
+    path = font_file(family, weight) or FONT
+    nat_spr = text_sprite(txt, size, color, True, stroke, scolor, family, weight)
+    nat_w = float(nat_spr.shape[1])
+    desired = nat_w + max(0.0, float(target_width) - nat_w) * clamp(progress, 0.0, 1.0)
+    res = shaper.stretch_kashida(path, txt, size, desired, max_tatweels=max_tatweels,
+                                 max_scale_x=max_scale_x, stroke=stroke)
+    spr = text_sprite(res['text'], size, color, True, stroke, scolor, family, weight)
+    sx = float(res['scale_x'])
+    paste(fr, spr, cx, cy, scale=sx, sy=1.0, alpha=alpha)
+    try:
+        import layout_p as _lp
+        if _lp.is_capturing():
+            box = _lp.sprite_aabb(spr, cx, cy, scale=sx, sy=1.0)
+            _lp.record_text(res['text'], box, box_id=box_id, zone=zone, alpha=alpha)
+    except ImportError:
+        pass
+    return res
+
+def shutter_blur(render_at, t, *, fps=30.0, shutter=0.5, samples=5, duration=None, windows=None):
+    """Deterministic shutter-angle temporal supersampling around `t` (`[t-dt/2, t+dt/2]`).
+
+    If `windows` (`[(s, e), ...]`) is provided, only timestamps inside an active motion
+    window pay `samples` sub-frame evaluations; calm frames evaluate `render_at(t)` once.
+    """
+    n = max(1, int(samples))
+    sh = clamp(float(shutter), 0.0, 1.0)
+    if n <= 1 or sh <= 1e-4:
+        return render_at(float(t))
+    if windows is not None:
+        in_win = any(float(w[0]) <= t <= float(w[1]) for w in windows)
+        if not in_win:
+            return render_at(float(t))
+    span = sh / max(1.0, float(fps))
+    acc = None
+    src_dtype = None
+    for i in range(n):
+        frac = (i / (n - 1)) - 0.5
+        sub_t = max(0.0, float(t) + frac * span)
+        if duration is not None:
+            sub_t = min(float(duration), sub_t)
+        sub = render_at(sub_t)
+        if acc is None:
+            src_dtype = sub.dtype
+            acc = sub.astype(np.float32, copy=True)
+        else:
+            acc += sub.astype(np.float32, copy=False)
+    acc /= float(n)
+    if src_dtype is not None and src_dtype.name == 'uint8':
+        return np.clip(np.rint(acc), 0, 255).astype(np.uint8)
+    return acc
+

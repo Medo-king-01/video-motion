@@ -71,6 +71,12 @@ qa:              ## post-render Final Media QA on an MP4: make qa MP4=projects/x
 gate:            ## cumulative stage & delivery-promise gate: make gate P=projects/x [STAGE=plan] [MP4=...]
 	$(PY) tools/stage_gate.py $(or $(P),.) --stage $(or $(STAGE),plan) $(if $(MP4),--media $(MP4),) $(if $(LAYOUT),--layout-report $(LAYOUT),) $(if $(CKPT),--write-checkpoint,)
 
+phone-preview:   ## mobile grid & platform UI safe-zone sheet: make phone-preview MEDIA=out/master.mp4 [OUT=cache/phone-preview.png]
+	$(PY) tools/phone_preview.py $(MEDIA) --out $(or $(OUT),cache/phone-preview.png) $(if $(AT),--at $(AT),) $(if $(REPORT),--report $(REPORT),)
+
+asr-check:       ## audit word timings for hallucinations, loops & missed speech: make asr-check P=projects/x [STRICT=1]
+	$(PY) tools/asr_check.py $(or $(P),.) $(if $(VO),--vo $(VO),) $(if $(STRICT),--strict,)
+
 backgrounds:     ## review every animated background (P) or check P↔K parity: make backgrounds [PARITY=1]
 	$(PY) tools/backgrounds_sheet.py $(if $(PARITY),--compare,)
 

@@ -18,6 +18,7 @@ try {
   const browser=JSON.parse(config.stdout);
   const args=[join(project,'src/render.js'),'--audit','--out',out];
   if(a.includes('--replay'))args.push('--replay');
+  if(a.includes('--platform-ui'))args.push('--platform-ui');
   for(const k of ['from','to','every','motion-mode'])if(opt(k)!==null)args.push('--'+k,opt(k));
   const r=spawnSync(process.execPath,args,{cwd:project,stdio:'inherit',env:{...process.env,
     MEDO_TOOLKIT:join(root,'tools/toolkit'),MEDO_CHROMIUM:browser.executablePath,

@@ -25,7 +25,7 @@ if(!['normal','reduced'].includes(motionMode))throw Error('motion-mode must be n
 if(![from,to,fps,scale].every(Number.isFinite)||from<0||to<=from||fps<=0||scale<=0||scale>1)throw Error('Invalid range, fps or scale');
 if(!Number.isFinite(crf)||crf<0||crf>51)throw Error('Invalid crf');
 const count=Math.ceil((to-from)*fps-1e-8),out=path.resolve(opt('out','cache/smoke')),jpg=a.includes('--jpg');
-const audit=a.includes('--audit'), replay=a.includes('--replay'), profile=a.includes('--profile'), every=Number(opt('every',1));
+const audit=a.includes('--audit'), replay=a.includes('--replay'), platformUi=a.includes('--platform-ui'), profile=a.includes('--profile'), every=Number(opt('every',1));
 if(replay&&!audit)throw Error('--replay requires --audit');
 if(audit&&(!Number.isInteger(every)||every<1))throw Error('--every must be a positive frame stride');
 if(audit&&(fps!==30||to>DURATION+1e-8))throw Error('Audit requires native 30 fps and a range inside the timeline');
@@ -151,7 +151,7 @@ try{
     if(errors.length)throw Error(errors.join('\n'));
     if(audit){
       const boxes=await page.evaluate(()=>window.layoutSnapshot?.());
-      const issues=auditLayout(boxes);captured+=boxes.filter(b=>b.kind==='text').length;
+      const issues=auditLayout(boxes,{checkPlatformUi:platformUi});captured+=boxes.filter(b=>b.kind==='text').length;
       if(replay)fingerprints.push({index:i,hash:await fingerprint(),layout:JSON.stringify(boxes)});
       if(issues.length){
         const image=screenshots<12?`frame-${i}.png`:null;

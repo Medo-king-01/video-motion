@@ -168,7 +168,7 @@ def _run_in_project(args: argparse.Namespace) -> int:
                         "hash": hashlib.sha256(image.tobytes()).hexdigest(),
                         "layout": json.dumps(boxes, sort_keys=True, ensure_ascii=False),
                     })
-                issues = layout_p.audit_layout(boxes)
+                issues = layout_p.audit_layout(boxes, check_platform_ui=args.platform_ui)
                 if issues:
                     image_name = f"frame-{i}.png" if screenshots < 12 else None
                     audit_frames.append({
@@ -283,6 +283,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--fps", type=int, default=FPS_LOCKED)
     parser.add_argument("--every", type=int, default=1)
     parser.add_argument("--replay", action="store_true", help="re-evaluate inspected frames in reverse order")
+    parser.add_argument(
+        "--platform-ui",
+        action="store_true",
+        help="also flag L04 intrusions into the Reels/TikTok right-rail action zone (x940..1080 y1100..1500)",
+    )
     parser.add_argument(
         "--motion-mode",
         choices=("normal", "reduced"),

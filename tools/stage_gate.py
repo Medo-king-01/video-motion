@@ -37,6 +37,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(SKILL / "scripts"))
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
 
+import asr_check  # noqa: E402
 import media_qa  # noqa: E402
 import text_direction as td  # noqa: E402
 import visual_direction as vd  # noqa: E402
@@ -289,6 +290,22 @@ def evaluate_stage(
                 add("error", "G02", f"vo_length --check failed: {detail[0]}")
             else:
                 add("ok", "G02", "Scene timeline matches VO duration (vo_length --check)")
+
+        has_word_timings = (
+            (project / "plan" / "word-timings.json").is_file()
+            or (project / "cache" / "scene-measurements.json").is_file()
+        )
+        if has_word_timings:
+            try:
+                asr_rep = asr_check.audit_asr(project)
+                for err_item in asr_rep["errors"]:
+                    add("error", "G02", f"asr_check [{err_item['code']}]: {err_item['msg']}")
+                for warn_item in asr_rep["warnings"]:
+                    add("warning", "G02", f"asr_check [{warn_item['code']}]: {warn_item['msg']}")
+                if not asr_rep["errors"] and not asr_rep["warnings"]:
+                    add("ok", "G02", f"ASR word timings verified ({asr_rep['word_count']} word(s))")
+            except (OSError, ValueError, json.JSONDecodeError, wave.Error) as error:
+                add("error", "G02", f"asr_check failed: {error}")
 
         # G03: Copy, text direction, visual direction, techniques
         copy_path = project / "plan" / "copy.json"

@@ -32,6 +32,7 @@
 | `hybrid.md` | مشروع P/K/R واحد: segments متتابعة، عقد الإطارات والصوت، scaffold واختبار end-to-end |
 | `hyperframes-fit.md` | مراجعة HyperFrames (HTML←فيديو): ما اتقاس فعليًا، ليه مش محرّكًا رابعًا، والفكرتان المأخوذتان منه (تباين WCAG وفريم أول غير فاضي) |
 | `openmontage-fit.md` | مراجعة OpenMontage النظيفة: إيه اللي كان عندنا، والأربع قدرات الأصلية الجديدة (`media_qa.py`، `layout_audit_p.py`، `stage_gate.py`، `doctor.py --json`)، واللي رفضناه |
+| `video-ad-editor-fit.md` | مراجعة `majedphotos/video-ad-editor` (MIT): الكشيدة العربية الآمنة وترتيب العبارات المختلطة، كابشن الجُمل (`2–4` كلمات)، kit القطع الأيزومتري لـP/K/R، shutter blur، ومعاينة شبكة الموبايل وفحص الـASR |
 | `skillry-fit.md` | مراجعة صفحات Skillry العامة من زاوية استوديو ميدو |
 | `skill-packs-review.md` | مراجعة ساكنة لحزم Skills الثماني المرفوعة: الملاءمة، خطر حذف المخرجات، الاعتماديات، التراخيص، والأفكار القابلة للتكييف فقط |
 | `reference-workflow.md` | تحليل مرجع بصري محليًا وتحويل الملاحظات إلى `STYLE.md` بدون كسر هوية ميدو |
