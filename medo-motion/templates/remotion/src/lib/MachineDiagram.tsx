@@ -1,7 +1,16 @@
-import React from 'react';
-import {buildMachineScene, partialPolyline2d} from './machine-kit.js';
-import {DirectedText} from './DirectedText';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {cancelRender, continueRender, delayRender} from 'remotion';
 import {BRAND, PALETTE} from '../brand';
+import {DirectedText} from './DirectedText';
+import {
+  auditLayout,
+  collectDomLayoutBoxes,
+  type LayoutAuditReport,
+  type LayoutZone,
+  ProtectBox,
+  safeEnvelope,
+} from './layout';
+import {buildMachineScene, partialPolyline2d} from './machine-kit.js';
 
 export type MachineDiagramProps = {
   spec: any;
@@ -13,16 +22,24 @@ export type MachineDiagramProps = {
   originY?: number;
   scale?: number;
   theme?: 'dark' | 'light';
+  zone?: LayoutZone;
+  checkPlatformUi?: boolean;
   calloutY?: number;
   noteY?: number;
+  calloutStyle?: React.CSSProperties;
+  noteStyle?: React.CSSProperties;
+  audit?: boolean;
+  strictLayout?: boolean;
+  onLayoutAudit?: (report: LayoutAuditReport) => void;
 };
 
 const ptsAttr = (pts: number[][]) => pts.map(([x, y]) => `${x},${y}`).join(' ');
 
 /**
  * Engine R (Remotion) Machine Explainer renderer.
- * Consumes the exact deterministic scene graph from `machine-kit.js` (byte-identical to K)
- * and renders crisp SVG faces/strokes plus `DirectedText` callouts.
+ * Consumes the exact deterministic scene graph from `machine-kit.js` (byte-identical to K),
+ * renders crisp SVG faces/strokes plus `DirectedText` callouts, and registers/audits
+ * diagram + wrapped Arabic text layout boxes (`L00`–`L04`).
  */
 export const MachineDiagram: React.FC<MachineDiagramProps> = ({
   spec,
@@ -34,16 +51,127 @@ export const MachineDiagram: React.FC<MachineDiagramProps> = ({
   originY,
   scale,
   theme = 'dark',
+  zone,
+  checkPlatformUi,
   calloutY,
   noteY,
+  calloutStyle,
+  noteStyle,
+  audit = true,
+  strictLayout,
+  onLayoutAudit,
 }) => {
+  const qaCfg = spec?.qa && typeof spec.qa === 'object' ? spec.qa : {};
+  const resolvedZone: LayoutZone = zone || qaCfg.zone || 'content';
+  const resolvedCheckPlatform =
+    typeof checkPlatformUi === 'boolean' ? checkPlatformUi : qaCfg.checkPlatformUi !== false;
+  const resolvedStrict =
+    typeof strictLayout === 'boolean'
+      ? strictLayout
+      : Boolean(
+          qaCfg.strictLayout ||
+            (typeof globalThis !== 'undefined' && (globalThis as any).__MEDO_STRICT_LAYOUT__),
+        );
+
+  const env = safeEnvelope(resolvedZone, {checkPlatformUi: resolvedCheckPlatform});
   const graph = buildMachineScene(spec, time, {
     originX,
     originY,
     scale,
     theme,
-    fps: BRAND.fps,
+    fps: env.fps,
   });
+
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [auditHandle] = useState<number | null>(() =>
+    resolvedStrict ? delayRender(`MachineDiagram layout audit (${spec?.id || 'machine'})`) : null,
+  );
+  const handleSettledRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const readyPromise =
+      typeof document !== 'undefined' && document.fonts?.ready
+        ? document.fonts.ready
+        : Promise.resolve();
+    readyPromise
+      .then(() => {
+        if (!cancelled) setFontsLoaded(true);
+      })
+      .catch((err) => {
+        if (!handleSettledRef.current && auditHandle !== null) {
+          handleSettledRef.current = true;
+          cancelRender(err instanceof Error ? err : new Error(String(err)));
+        }
+      });
+    return () => {
+      cancelled = true;
+      if (!handleSettledRef.current && auditHandle !== null) {
+        handleSettledRef.current = true;
+        continueRender(auditHandle);
+      }
+    };
+  }, [auditHandle]);
+
+  useLayoutEffect(() => {
+    if (!fontsLoaded) return;
+    const settleOk = () => {
+      if (!handleSettledRef.current && auditHandle !== null) {
+        handleSettledRef.current = true;
+        continueRender(auditHandle);
+      }
+    };
+    const failAudit = (err: Error) => {
+      if (!handleSettledRef.current && auditHandle !== null) {
+        handleSettledRef.current = true;
+        cancelRender(err);
+      } else {
+        cancelRender(err);
+      }
+    };
+
+    if (!graph.state.active || (!audit && !resolvedStrict)) {
+      if (typeof window !== 'undefined' && !graph.state.active) {
+        (window as any).__MEDO_LAYOUT__ = {ok: true, boxes: [], issues: []};
+      }
+      settleOk();
+      return;
+    }
+    if (!rootRef.current) {
+      settleOk();
+      return;
+    }
+
+    const boxes = collectDomLayoutBoxes(rootRef.current, {width: env.w, height: env.h});
+    const issues = auditLayout(boxes, {checkPlatformUi: resolvedCheckPlatform});
+    const report: LayoutAuditReport = {ok: issues.length === 0, boxes, issues};
+    if (typeof window !== 'undefined') {
+      (window as any).__MEDO_LAYOUT__ = report;
+    }
+    onLayoutAudit?.(report);
+    if (resolvedStrict && issues.length > 0) {
+      const summary = issues
+        .map((item) => `${item.code}[${item.ids.join(',')}]: ${item.message}`)
+        .join('; ');
+      failAudit(new Error(`Remotion layout audit failed (${spec?.id || 'machine'}): ${summary}`));
+      return;
+    }
+    settleOk();
+  }, [
+    audit,
+    auditHandle,
+    env.h,
+    env.w,
+    fontsLoaded,
+    graph.state.active,
+    onLayoutAudit,
+    resolvedCheckPlatform,
+    resolvedStrict,
+    spec?.id,
+    time,
+  ]);
+
   if (!graph.state.active) return null;
 
   const svgNodes: React.ReactNode[] = [];
@@ -144,16 +272,16 @@ export const MachineDiagram: React.FC<MachineDiagramProps> = ({
   });
 
   const activeStep = graph.state.activeStep;
-  const contentMinY = BRAND.contentY[0];
-  const contentMaxY = BRAND.contentY[1];
-  const margin = BRAND.margin;
-  const boxWidth = BRAND.width - margin * 2;
-  const resolvedCalloutY = typeof calloutY === 'number'
-    ? calloutY
-    : Math.min(contentMaxY - 90, Math.max(contentMinY + 60, graph.bounds.y + graph.bounds.h + 62));
-  const resolvedNoteY = typeof noteY === 'number'
-    ? noteY
-    : Math.max(contentMinY + 24, graph.bounds.y - 84);
+  const contentMinY = env.y[0];
+  const contentMaxY = env.y[1];
+  const margin = env.margin;
+  const boxWidth = env.w - margin * 2;
+  const resolvedCalloutY =
+    typeof calloutY === 'number'
+      ? calloutY
+      : Math.min(contentMaxY - 90, Math.max(contentMinY + 60, graph.bounds.y + graph.bounds.h + 62));
+  const resolvedNoteY =
+    typeof noteY === 'number' ? noteY : Math.max(contentMinY + 24, graph.bounds.y - 84);
 
   const primaryId = activeStep?.copyIds?.[0];
   const primaryText = primaryId ? copyById[primaryId] : undefined;
@@ -161,7 +289,12 @@ export const MachineDiagram: React.FC<MachineDiagramProps> = ({
   const noteText = noteId ? copyById[noteId] : undefined;
 
   return (
-    <div style={{position: 'absolute', inset: 0, width: BRAND.width, height: BRAND.height, pointerEvents: 'none'}}>
+    <div
+      ref={rootRef}
+      data-medo-machine={spec.id}
+      style={{position: 'absolute', inset: 0, width: BRAND.width, height: BRAND.height, pointerEvents: 'none'}}
+    >
+      <ProtectBox id={`${spec.id}.diagram`} kind="keep" box={graph.bounds} />
       <svg width={BRAND.width} height={BRAND.height} style={{position: 'absolute', inset: 0}}>
         {svgNodes}
       </svg>
@@ -171,6 +304,7 @@ export const MachineDiagram: React.FC<MachineDiagramProps> = ({
           scene={scene}
           role="label"
           elementId={primaryId}
+          zone={resolvedZone}
           time={time}
           start={activeStep.start}
           end={activeStep.end}
@@ -184,6 +318,9 @@ export const MachineDiagram: React.FC<MachineDiagramProps> = ({
             width: boxWidth,
             textAlign: 'center',
             fontSize: 46,
+            lineHeight: 1.35,
+            wordBreak: 'break-word',
+            ...calloutStyle,
           }}
         >
           {primaryText}
@@ -195,6 +332,7 @@ export const MachineDiagram: React.FC<MachineDiagramProps> = ({
           scene={scene}
           role="label"
           elementId={noteId}
+          zone={resolvedZone}
           time={time}
           start={activeStep.start}
           end={activeStep.end}
@@ -208,6 +346,9 @@ export const MachineDiagram: React.FC<MachineDiagramProps> = ({
             width: boxWidth,
             textAlign: 'center',
             fontSize: 38,
+            lineHeight: 1.35,
+            wordBreak: 'break-word',
+            ...noteStyle,
           }}
         >
           {noteText}

@@ -21,8 +21,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "medo-motion" / "scripts"))
 sys.path.insert(0, str(ROOT / "tools"))
@@ -176,6 +174,7 @@ def audit_machine_spec(
                 )
 
         wt_rel = spec.get("wordTimings") or "plan/word-timings.json"
+        words_loaded = False
         if not isinstance(wt_rel, str) or Path(wt_rel).is_absolute():
             fail("X02", f"{spec['id']}: wordTimings must be a project-relative path")
             words_by_scene: dict[int, list[dict[str, Any]]] = {}
@@ -188,9 +187,16 @@ def audit_machine_spec(
                     words_by_scene = {}
                 else:
                     words_by_scene = vd.measured_words(wt_doc)
+                    words_loaded = True
             except (ValueError, OSError, KeyError, TypeError) as exc:
                 fail("X02", f"{spec['id']}: invalid wordTimings ({exc})")
                 words_by_scene = {}
+
+        if words_loaded:
+            if sc_idx not in words_by_scene:
+                fail("X02", f"{spec['id']}: scene {sc_idx} is missing from measured wordTimings ({wt_rel})")
+            elif len(words_by_scene[sc_idx]) == 0:
+                fail("X02", f"{spec['id']}: scene {sc_idx} has an empty measured word list in {wt_rel}")
 
         copies_by_id = {
             c["id"]: c
@@ -215,21 +221,35 @@ def audit_machine_spec(
                             f"({txt!r}) without a verifiable source+locator",
                         )
 
-            if scene_words:
-                anc = st["anchor"]
-                w_idx = anc["word"]
-                if not (0 <= w_idx < len(scene_words)):
-                    fail("X02", f"{spec['id']}.{stid}: anchor word index {w_idx} out of range for scene {sc_idx}")
+            anc = st["anchor"]
+            w_idx = anc["word"]
+            if not scene_words:
+                fail(
+                    "X02",
+                    f"{spec['id']}.{stid}: cannot verify anchor word {w_idx} ({anc['text']!r}) — "
+                    f"no measured words available for scene {sc_idx}",
+                )
+            elif not (0 <= w_idx < len(scene_words)):
+                fail(
+                    "X02",
+                    f"{spec['id']}.{stid}: anchor word index {w_idx} out of range for scene {sc_idx} "
+                    f"(0..{len(scene_words) - 1})",
+                )
+            else:
+                measured_w = scene_words[w_idx]
+                if anc["text"] != measured_w.get("text"):
+                    fail(
+                        "X02",
+                        f"{spec['id']}.{stid}: anchor text {anc['text']!r} != measured word {measured_w.get('text')!r}",
+                    )
+                elif not isinstance(measured_w.get("start"), (int, float)) or not isinstance(measured_w.get("end"), (int, float)):
+                    fail(
+                        "X02",
+                        f"{spec['id']}.{stid}: measured word {w_idx} in scene {sc_idx} lacks finite start/end bounds",
+                    )
                 else:
-                    measured_w = scene_words[w_idx]
-                    if anc["text"] != measured_w.get("text"):
-                        fail(
-                            "X02",
-                            f"{spec['id']}.{stid}: anchor text {anc['text']!r} != measured word {measured_w.get('text')!r}",
-                        )
-                    else:
-                        anc["wordStart"] = float(measured_w["start"])
-                        anc["wordEnd"] = float(measured_w["end"])
+                    anc["wordStart"] = float(measured_w["start"])
+                    anc["wordEnd"] = float(measured_w["end"])
 
         # Re-validate bound anchor timing laws (`lead` <= 6 frames @ 30fps, `sync`, `reveal`, survival)
         for err in mk.validate_machine_spec(bound_spec, fps=fps):
@@ -244,50 +264,15 @@ def audit_machine_spec(
         for err in occ_report["errors"]:
             fail("X03", f"{spec['id']}: {err}")
 
-        # X04: Dynamic safe-zone & platform right-rail envelope audit
-        sample_t = (float(spec["start"]) + float(spec["end"])) * 0.5
-        graph = mk.build_machine_scene(spec, sample_t, fps=fps, force_full_reveal=True)
-        verts = graph["vertices"]
-        if verts:
-            xs = [v[0] for v in verts]
-            ys = [v[1] for v in verts]
-            min_x, max_x = min(xs), max(xs)
-            min_y, max_y = min(ys), max(ys)
-            if (
-                min_x < env["x"][0] - 1e-3
-                or max_x > env["x"][1] + 1e-3
-                or min_y < env["y"][0] - 1e-3
-                or max_y > env["y"][1] + 1e-3
-            ):
-                fail(
-                    "X04",
-                    f"{spec['id']}: projected geometry [{min_x:.1f}..{max_x:.1f}, {min_y:.1f}..{max_y:.1f}] "
-                    f"exceeds dynamic {zone} safe zone [{env['x'][0]:.0f}..{env['x'][1]:.0f}, "
-                    f"{env['y'][0]:.0f}..{env['y'][1]:.0f}]",
-                )
-            if max_y > env["nothing_important_below_y"] + 1e-3:
-                fail(
-                    "X04",
-                    f"{spec['id']}: projected geometry crosses nothing_important_below_y "
-                    f"({max_y:.1f} > {env['nothing_important_below_y']:.0f})",
-                )
-
-            rail = env.get("platform_right_rail")
-            if rail is not None:
-                w, h = int(env["w"]), int(env["h"])
-                diagram_mask = np.zeros((h, w), dtype=np.uint8)
-                for op in graph["ops"]:
-                    if op["kind"] in ("solid", "wire"):
-                        diagram_mask |= mk._rasterize_op_mask(op, w, h)
-                rx0, ry0 = int(round(rail["x"])), int(round(rail["y"]))
-                rx1, ry1 = int(round(rail["x"] + rail["w"])), int(round(rail["y"] + rail["h"]))
-                rail_overlap_px = int(np.count_nonzero(diagram_mask[ry0:ry1, rx0:rx1]))
-                if rail_overlap_px >= 4:
-                    fail(
-                        "X04",
-                        f"{spec['id']}: projected polygon mask overlaps PLATFORM_RIGHT_RAIL "
-                        f"by {rail_overlap_px} px² (x={rx0}..{rx1}, y={ry0}..{ry1})",
-                    )
+        # X04: Dynamic safe-zone & platform right-rail envelope audit across all steps & motion trajectories
+        env_report = mk.compute_envelope_report(
+            spec,
+            zone=zone if zone in ("content", "caption", "hud") else "content",
+            check_platform_ui=check_platform,
+        )
+        bounds = env_report["bounds"]
+        for err in env_report["errors"]:
+            fail("X04", f"{spec['id']}: {err}")
 
     return {
         "id": spec.get("id", "machine"),

@@ -1,6 +1,7 @@
 import React from 'react';
 import {PALETTE} from '../brand';
 import {captionTransform} from './caption-motion.js';
+import type {LayoutZone} from './layout';
 import {textStyleFor, fontFor} from './text-direction.js';
 
 export type DirectedTextProps = {
@@ -11,6 +12,8 @@ export type DirectedTextProps = {
   role: string;
   /** Optional element id for a per-element override in textElements. */
   elementId?: string;
+  /** Layout safe-zone bucket (`content` | `caption` | `hud`, default `content`). */
+  zone?: LayoutZone;
   /** Absolute scene-local seconds. */
   time: number;
   /** Onset/offset of this text block (scene bounds or a measured copy event). */
@@ -32,7 +35,7 @@ export type DirectedTextProps = {
  * There is no default style: a missing direction/role throws before render.
  */
 export const DirectedText: React.FC<DirectedTextProps> = ({
-  direction, scene, role, elementId, time, start, end, children,
+  direction, scene, role, elementId, zone = 'content', time, start, end, children,
   size = 64, color = PALETTE.paper, accent = PALETTE.salmon, theme = 'dark', style,
 }) => {
   const resolved = textStyleFor(direction, scene, role, elementId ?? null);
@@ -54,22 +57,31 @@ export const DirectedText: React.FC<DirectedTextProps> = ({
       }
     : {color};
 
+  const motionTransform = `translate(${m.x * size}px, ${m.y * size}px) rotate(${m.rotate}deg) scale(${m.scale})`;
+  const combinedOpacity = typeof style?.opacity === 'number' ? style.opacity * m.opacity : m.opacity;
+  const combinedTransform = style?.transform ? `${style.transform} ${motionTransform}` : motionTransform;
+
   return (
     <div
+      data-medo-box="text"
+      data-medo-id={elementId || `${role}-s${scene}`}
+      data-medo-zone={zone}
+      data-medo-opacity={combinedOpacity.toFixed(4)}
       style={{
-        transform: `translate(${m.x * size}px, ${m.y * size}px) rotate(${m.rotate}deg) scale(${m.scale})`,
-        opacity: m.opacity,
         filter: m.blur * size > 0.2 ? `blur(${(m.blur * size).toFixed(2)}px)` : undefined,
         direction: 'rtl',
         fontFamily: `"${font.family}", sans-serif`,
         fontWeight: font.weight,
         ...textStyle,
         ...style,
+        transform: combinedTransform,
+        opacity: combinedOpacity,
       }}
     >
       {children}
       {m.underlineP > 0 && (
         <div
+          data-medo-underline="1"
           style={{
             height: Math.max(4, size * 0.07),
             width: `${Math.round(m.underlineP * 100)}%`,

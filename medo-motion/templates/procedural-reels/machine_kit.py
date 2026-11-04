@@ -1263,6 +1263,302 @@ def compute_occlusion_report(
     }
 
 
+def _pt_rect_dist_sq(px: float, py: float, rx0: float, ry0: float, rx1: float, ry1: float) -> float:
+    dx = max(rx0 - px, 0.0, px - rx1)
+    dy = max(ry0 - py, 0.0, py - ry1)
+    return dx * dx + dy * dy
+
+
+def _pt_seg_dist_sq(px: float, py: float, ax: float, ay: float, bx: float, by: float) -> float:
+    dx, dy = bx - ax, by - ay
+    len_sq = dx * dx + dy * dy
+    if len_sq <= 1e-12:
+        return (px - ax) ** 2 + (py - ay) ** 2
+    u = max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / len_sq))
+    cx, cy = ax + u * dx, ay + u * dy
+    return (px - cx) ** 2 + (py - cy) ** 2
+
+
+def _seg_intersects_rect(ax: float, ay: float, bx: float, by: float, rx0: float, ry0: float, rx1: float, ry1: float) -> bool:
+    dx, dy = bx - ax, by - ay
+    t0, t1 = 0.0, 1.0
+    for p, q in ((-dx, ax - rx0), (dx, rx1 - ax), (-dy, ay - ry0), (dy, ry1 - ay)):
+        if abs(p) <= 1e-12:
+            if q < 0.0:
+                return False
+        else:
+            r = q / p
+            if p < 0.0:
+                if r > t1:
+                    return False
+                if r > t0:
+                    t0 = r
+            else:
+                if r < t0:
+                    return False
+                if r < t1:
+                    t1 = r
+    return t0 <= t1
+
+
+def _dist_seg_to_rect(ax: float, ay: float, bx: float, by: float, rx0: float, ry0: float, rx1: float, ry1: float) -> float:
+    if _seg_intersects_rect(ax, ay, bx, by, rx0, ry0, rx1, ry1):
+        return 0.0
+    best_sq = min(
+        _pt_rect_dist_sq(ax, ay, rx0, ry0, rx1, ry1),
+        _pt_rect_dist_sq(bx, by, rx0, ry0, rx1, ry1),
+        _pt_seg_dist_sq(rx0, ry0, ax, ay, bx, by),
+        _pt_seg_dist_sq(rx1, ry0, ax, ay, bx, by),
+        _pt_seg_dist_sq(rx1, ry1, ax, ay, bx, by),
+        _pt_seg_dist_sq(rx0, ry1, ax, ay, bx, by),
+    )
+    return math.sqrt(max(0.0, best_sq))
+
+
+def _point_in_poly(px: float, py: float, poly: list[list[float]]) -> bool:
+    inside = False
+    n = len(poly)
+    if n < 3:
+        return False
+    j = n - 1
+    for i in range(n):
+        xi, yi = poly[i][0], poly[i][1]
+        xj, yj = poly[j][0], poly[j][1]
+        if ((yi > py) != (yj > py)) and (px < (xj - xi) * (py - yi) / ((yj - yi) or 1e-12) + xi):
+            inside = not inside
+        j = i
+    return inside
+
+
+def _polyline_overlaps_rect(pts: list[list[float]], rad: float, rx0: float, ry0: float, rx1: float, ry1: float) -> bool:
+    if not pts:
+        return False
+    if len(pts) == 1:
+        return _pt_rect_dist_sq(pts[0][0], pts[0][1], rx0, ry0, rx1, ry1) <= rad * rad
+    for i in range(len(pts) - 1):
+        if _dist_seg_to_rect(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], rx0, ry0, rx1, ry1) <= rad:
+            return True
+    return False
+
+
+def _poly_overlaps_rect(poly: list[list[float]], rad: float, rx0: float, ry0: float, rx1: float, ry1: float) -> bool:
+    if len(poly) < 3:
+        return _polyline_overlaps_rect(poly, rad, rx0, ry0, rx1, ry1)
+    r_sq = rad * rad
+    for vx, vy in poly:
+        if _pt_rect_dist_sq(vx, vy, rx0, ry0, rx1, ry1) <= r_sq:
+            return True
+    for qx, qy in (
+        (rx0, ry0),
+        (rx1, ry0),
+        (rx1, ry1),
+        (rx0, ry1),
+        ((rx0 + rx1) * 0.5, (ry0 + ry1) * 0.5),
+    ):
+        if _point_in_poly(qx, qy, poly):
+            return True
+    n = len(poly)
+    for i in range(n):
+        ax, ay = poly[i][0], poly[i][1]
+        bx, by = poly[(i + 1) % n][0], poly[(i + 1) % n][1]
+        if _dist_seg_to_rect(ax, ay, bx, by, rx0, ry0, rx1, ry1) <= rad:
+            return True
+    return False
+
+
+def compute_envelope_report(
+    spec: dict[str, Any],
+    *,
+    zone: str = "content",
+    check_platform_ui: bool = True,
+    origin_x: float | None = None,
+    origin_y: float | None = None,
+    scale: float | None = None,
+    theme: str = "dark",
+) -> dict[str, Any]:
+    """Conservative, deterministic X04 safe-zone & right-rail envelope check.
+
+    Audits static cutaway geometry AND every step across its active 30fps window
+    plus full swept trajectories for `packets` (path + dots + stroke), `airflow`
+    (all 3 streamlines + beads + stroke), `wire` (including active 1.25x width),
+    and rotating `bladeLines` (`spin`), without per-frame rasterization.
+    """
+    env = layout_p.safe_envelope(zone, check_platform_ui=check_platform_ui)
+    fps = int(env["fps"])
+    sx0, sx1 = float(env["x"][0]), float(env["x"][1])
+    sy0, sy1 = float(env["y"][0]), float(env["y"][1])
+    dead_y = float(env["nothing_important_below_y"])
+    rail = env.get("platform_right_rail")
+    rx0 = float(rail["x"]) if rail else 0.0
+    ry0 = float(rail["y"]) if rail else 0.0
+    rx1 = float(rail["x"] + rail["w"]) if rail else 0.0
+    ry1 = float(rail["y"] + rail["h"]) if rail else 0.0
+
+    min_x, min_y = float("inf"), float("inf")
+    max_x, max_y = float("-inf"), float("-inf")
+    rail_hits: list[tuple[str, str]] = []
+    safe_hits: list[tuple[str, str]] = []
+    seen_rail: set[tuple[str, str]] = set()
+    seen_safe: set[tuple[str, str]] = set()
+
+    def record_extent(scope: str, label: str, x0: float, y0: float, x1: float, y1: float) -> None:
+        nonlocal min_x, min_y, max_x, max_y
+        min_x = min(min_x, x0)
+        min_y = min(min_y, y0)
+        max_x = max(max_x, x1)
+        max_y = max(max_y, y1)
+        if (x0 < sx0 - 1e-3 or x1 > sx1 + 1e-3 or y0 < sy0 - 1e-3 or y1 > sy1 + 1e-3) and (scope, label) not in seen_safe:
+            seen_safe.add((scope, label))
+            safe_hits.append((
+                scope,
+                f"{label} [{x0:.1f}..{x1:.1f}, {y0:.1f}..{y1:.1f}] exceeds dynamic {zone} safe zone "
+                f"[{sx0:.0f}..{sx1:.0f}, {sy0:.0f}..{sy1:.0f}]",
+            ))
+        if y1 > dead_y + 1e-3 and (scope, f"{label}:dead") not in seen_safe:
+            seen_safe.add((scope, f"{label}:dead"))
+            safe_hits.append((
+                scope,
+                f"{label} crosses nothing_important_below_y ({y1:.1f} > {dead_y:.0f})",
+            ))
+
+    def record_rail(scope: str, label: str) -> None:
+        if rail is not None and (scope, label) not in seen_rail:
+            seen_rail.add((scope, label))
+            rail_hits.append((
+                scope,
+                f"{label} overlaps PLATFORM_RIGHT_RAIL (x={rx0:.0f}..{rx1:.0f}, y={ry0:.0f}..{ry1:.0f})",
+            ))
+
+    def inspect_ops(scope: str, ops: list[dict[str, Any]], *, include_swept_paths: bool) -> None:
+        for op in ops:
+            kind = op["kind"]
+            pid = op.get("partId") or kind
+            if kind == "solid":
+                r_stroke = max(0.0, float(op.get("lineWidth") or 0.0) * 0.5)
+                for face in op["faces"]:
+                    pts = face["points"]
+                    if not pts:
+                        continue
+                    xs = [p[0] for p in pts]
+                    ys = [p[1] for p in pts]
+                    record_extent(scope, f"solid {pid}", min(xs) - r_stroke, min(ys) - r_stroke, max(xs) + r_stroke, max(ys) + r_stroke)
+                    if rail is not None:
+                        hit = (
+                            _poly_overlaps_rect(pts, r_stroke, rx0, ry0, rx1, ry1)
+                            if face.get("close") and float(op.get("fillAlpha", 0.0)) > 0.01
+                            else _polyline_overlaps_rect(pts, r_stroke, rx0, ry0, rx1, ry1)
+                        )
+                        if hit:
+                            record_rail(scope, f"solid {pid}")
+                if op.get("bladeLines"):
+                    r_blade = max(0.5, float(op.get("lineWidth") or 2.6) * 1.15 * 0.5)
+                    for seg in op["bladeLines"]:
+                        xs = [p[0] for p in seg]
+                        ys = [p[1] for p in seg]
+                        record_extent(scope, f"blades {pid}", min(xs) - r_blade, min(ys) - r_blade, max(xs) + r_blade, max(ys) + r_blade)
+                        if rail is not None and _polyline_overlaps_rect(seg, r_blade, rx0, ry0, rx1, ry1):
+                            record_rail(scope, f"blades {pid}")
+            elif kind == "wire":
+                pts = op["points"]
+                if len(pts) >= 2:
+                    r_wire = max(0.5, float(op.get("lineWidth") or 3.2) * 0.5)
+                    xs = [p[0] for p in pts]
+                    ys = [p[1] for p in pts]
+                    record_extent(scope, f"wire {pid}", min(xs) - r_wire, min(ys) - r_wire, max(xs) + r_wire, max(ys) + r_wire)
+                    if rail is not None and _polyline_overlaps_rect(pts, r_wire, rx0, ry0, rx1, ry1):
+                        record_rail(scope, f"wire {pid}")
+            elif kind == "packets":
+                # Packet circle has radius `op["radius"]` (6px) + strokeWidth 2px (1px outward)
+                r_pkt = float(op.get("radius") or 6.0) + 1.0
+                if include_swept_paths and len(op.get("path") or []) >= 2:
+                    path_pts = op["path"]
+                    xs = [p[0] for p in path_pts]
+                    ys = [p[1] for p in path_pts]
+                    record_extent(scope, f"packet_flow path ({pid})", min(xs) - r_pkt, min(ys) - r_pkt, max(xs) + r_pkt, max(ys) + r_pkt)
+                    if rail is not None and _polyline_overlaps_rect(path_pts, r_pkt, rx0, ry0, rx1, ry1):
+                        record_rail(scope, f"packet_flow path ({pid})")
+                for dot in op.get("dots") or []:
+                    dx, dy = float(dot[0]), float(dot[1])
+                    record_extent(scope, f"packet particle ({pid})", dx - r_pkt, dy - r_pkt, dx + r_pkt, dy + r_pkt)
+                    if rail is not None and _pt_rect_dist_sq(dx, dy, rx0, ry0, rx1, ry1) <= r_pkt * r_pkt:
+                        record_rail(scope, f"packet_flow path ({pid})")
+            elif kind == "airflow":
+                # Airflow streamline has strokeWidth 2.4px (1.2px half) and moving bead radius 4.5px
+                r_stream = 1.2
+                r_bead = 4.5
+                r_swept = max(r_stream, r_bead)
+                for si, stream in enumerate(op.get("streams") or []):
+                    s_pts = stream.get("points") or []
+                    if include_swept_paths and len(s_pts) >= 2:
+                        xs = [p[0] for p in s_pts]
+                        ys = [p[1] for p in s_pts]
+                        record_extent(scope, f"airflow_stream[{si}] ({pid})", min(xs) - r_swept, min(ys) - r_swept, max(xs) + r_swept, max(ys) + r_swept)
+                        if rail is not None and _polyline_overlaps_rect(s_pts, r_swept, rx0, ry0, rx1, ry1):
+                            record_rail(scope, f"airflow_stream ({pid})")
+                    bead = stream.get("bead")
+                    if bead:
+                        bx, by = float(bead[0]), float(bead[1])
+                        record_extent(scope, f"airflow bead[{si}] ({pid})", bx - r_bead, by - r_bead, bx + r_bead, by + r_bead)
+                        if rail is not None and _pt_rect_dist_sq(bx, by, rx0, ry0, rx1, ry1) <= r_bead * r_bead:
+                            record_rail(scope, f"airflow_stream ({pid})")
+
+    # 1. Base static cutaway envelope
+    mid_t = (float(spec["start"]) + float(spec["end"])) * 0.5
+    base_graph = build_machine_scene(
+        spec, mid_t, origin_x=origin_x, origin_y=origin_y, scale=scale, theme=theme, fps=fps, force_full_reveal=True,
+    )
+    inspect_ops("base", base_graph["ops"], include_swept_paths=True)
+
+    # 2. Every step audited across its active window (analytical swept trajectory + 30fps grid samples)
+    for step in spec["steps"]:
+        sid = step["id"]
+        st_start = float(step["start"])
+        st_end = float(step["end"])
+        step_mid = (st_start + st_end) * 0.5
+
+        # Swept analytical check with force_full_reveal=True so motion paths are checked even during early reveal
+        swept_graph = build_machine_scene(
+            spec, step_mid, origin_x=origin_x, origin_y=origin_y, scale=scale, theme=theme, fps=fps, force_full_reveal=True,
+        )
+        inspect_ops(sid, swept_graph["ops"], include_swept_paths=True)
+
+        # Deterministic 30fps frame-grid sampling across the step's active window (covers spin angles & exact frame states)
+        f_first = int(math.ceil((st_start - 1e-9) * fps))
+        f_last = int(math.floor((st_end - 1e-6) * fps))
+        if f_last >= f_first:
+            total_frames = f_last - f_first + 1
+            stride = max(1, total_frames // 24)
+            frame_indices = sorted({*range(f_first, f_last + 1, stride), f_first, f_last})
+            for f_idx in frame_indices:
+                t_frame = f_idx / fps
+                fr_graph = build_machine_scene(
+                    spec, t_frame, origin_x=origin_x, origin_y=origin_y, scale=scale, theme=theme, fps=fps,
+                )
+                motion_ops = [
+                    op for op in fr_graph["ops"]
+                    if op["kind"] in ("packets", "airflow") or (op["kind"] == "solid" and op.get("bladeLines"))
+                ]
+                if motion_ops:
+                    inspect_ops(sid, motion_ops, include_swept_paths=False)
+
+    errors = [msg for _, msg in safe_hits] + [msg for _, msg in rail_hits]
+    bounds = (
+        {
+            "x": _round4(min_x),
+            "y": _round4(min_y),
+            "w": _round4(max(1.0, max_x - min_x)),
+            "h": _round4(max(1.0, max_y - min_y)),
+        }
+        if min_x < float("inf")
+        else base_graph["bounds"]
+    )
+    return {
+        "ok": len(errors) == 0,
+        "bounds": bounds,
+        "errors": errors,
+    }
+
+
 def _fill_poly_cv(fr: np.ndarray, pts: list[list[float]], hex_col: str, alpha: float) -> None:
     if alpha <= 0.004 or len(pts) < 3:
         return
