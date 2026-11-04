@@ -65,6 +65,17 @@ def build_signature(
     for path in source_files:
         _hash_file(hasher, path, f"code/{path.name}")
 
+    plan_root = assets_root.parent / "plan"
+    if not plan_root.is_dir():
+        plan_root = source_root / "plan"
+    if plan_root.is_dir():
+        plan_files = sorted(
+            (path for path in plan_root.iterdir() if path.is_file() and path.suffix.lower() == ".json"),
+            key=lambda path: path.name,
+        )
+        for path in plan_files:
+            _hash_file(hasher, path, f"plan/{path.name}")
+
     if assets_root.is_dir():
         asset_files = []
         for root, dirs, files in os.walk(assets_root):

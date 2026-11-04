@@ -384,7 +384,7 @@ export function drawDirectedText(ctx, text, {
   direction, scene, role, elementId = null,
   time, start, end, x, y, size = 64,
   color = PALETTE.paper, accent = PALETTE.salmon, shadow = 'rgba(0,0,0,.72)',
-  theme = 'dark', rtl = true, maxWidth,
+  theme = 'dark', rtl = true, maxWidth, zone = null,
 } = {}) {
   const style = textStyleFor(direction, scene, role, elementId);
   const font = fontFor(direction, scene, role, elementId);
@@ -420,7 +420,8 @@ export function drawDirectedText(ctx, text, {
     } else {
       ctx.fillStyle = color;
     }
-    withLayout(ctx,{id:`${elementId||role}-${i}`,zone:role==='caption'?'caption':'content'},()=>ctx.fillText(line, 0, ly, maxWidth));
+    const targetZone = zone || (role === 'caption' ? 'caption' : role === 'hud' ? 'hud' : 'content');
+    withLayout(ctx,{id:`${elementId||role}-${i}`,zone:targetZone},()=>ctx.fillText(line, 0, ly, maxWidth));
     if (m.underlineP > 0) {
       const tw = ctx.measureText(line).width;
       const uw = (maxWidth ? Math.min(tw, maxWidth) : tw) * m.underlineP;

@@ -3,6 +3,7 @@ import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import {validateTextDirection} from '../src/lib/text-direction.js';
+import {validateStageSpec} from '../src/lib/stage.js';
 
 const project = process.cwd();
 const repoChromium = path.resolve(project, '../../tools/chromium.mjs');
@@ -25,6 +26,12 @@ if (existsSync(beatsPath)) {
   const fonts = existsSync(fontsPath) ? (JSON.parse(readFileSync(fontsPath, 'utf8')).families || {}) : null;
   const {errors} = validateTextDirection(direction, beats, copy, fonts);
   if (errors.length) fail('Text direction incomplete — the agent must choose styles for every text element:\n' + errors.join('\n'));
+  const stagePath = path.join(project, 'plan', 'stage.json');
+  if (existsSync(stagePath)) {
+    const stageDoc = JSON.parse(readFileSync(stagePath, 'utf8'));
+    const stageErrors = validateStageSpec(stageDoc);
+    if (stageErrors.length) fail('Invalid plan/stage.json:\n' + stageErrors.join('\n'));
+  }
 }
 
 let browser = null;

@@ -417,7 +417,10 @@ def wipe(fr,t):
 def chip_spr(label):
     ts=text_sprite(label,34,WHITE,True); w=ts.shape[1]+70
     d=D(w,64); d.rrect((2,2,w-2,62),31,fill=(60,48,50,238)); b=d.done(); over(b,ts,(w-ts.shape[1])//2,(64-ts.shape[0])//2); return b
-def render_frame(t):
+import stage as _stage
+import text_direction as _td
+
+def _render_scene_content(t):
     k=max(0,min(6,int(np.searchsorted(B,t,side='right')-1))); dark=THEME[k]; T['dark']=bool(dark)
     ambient_t=decorative_time(t,MOTION_MODE)
     fr=bg_frame(k,ambient_t); dust(fr,ambient_t,dark)
@@ -427,6 +430,41 @@ def render_frame(t):
     sx,sy,fl=shake_flash(t)
     fr=camera(fr,z,14*math.sin(t*0.5+k)+sx,sy)
     if fl>0: fill_rect(fr,0,0,W,H,(243,242,241),fl)
+    return fr,dark
+
+def render_frame(t):
+    auto_stage=_stage.load_project_stage()
+    if auto_stage is not None:
+        dur=auto_stage['duration'] if auto_stage['duration'] is not None else B[-1]
+        cap_style=None
+        if auto_stage['words'] and auto_stage['direction']:
+            sc_num=1
+            for idx,sc in enumerate(auto_stage['scenes']):
+                if float(sc.get('start',0))<=t<float(sc.get('end',dur)):
+                    sc_num=int(sc.get('index',idx+1))
+                    break
+            cap_style=_td.caption_style_for(auto_stage['direction'],sc_num)
+        def _stage_content(ts,_st):
+            fr,_dark=_render_scene_content(ts)
+            wipe(fr,ts)
+            return np.clip(fr,0,255).astype(np.uint8)
+        def _stage_over(stage_f32,ts,_st):
+            if not auto_stage['words'] and auto_stage['spec']['over']['captions']['enabled']:
+                draw_caption(stage_f32,ts,cy=int(round(auto_stage['spec']['over']['captions']['y'])))
+            if CHIP: paste(stage_f32,chip_spr(CHIP),540,128,alpha=prog(ts,0.05,0.4))
+        return _stage.render_fixed_stage(
+            auto_stage['spec'],
+            t,
+            _stage_content,
+            over_fn=_stage_over,
+            duration=dur,
+            direction=auto_stage['direction'],
+            copy_by_id=auto_stage['copy_by_id'],
+            words=auto_stage['words'] or None,
+            caption_style=cap_style,
+            motion_mode=MOTION_MODE,
+        )
+    fr,dark=_render_scene_content(t)
     draw_caption(fr,t)
     if CHIP: paste(fr,chip_spr(CHIP),540,128,alpha=prog(t,0.05,0.4))
     fill_rect(fr,60,64,W-60,70,(243,242,241) if dark else (10,10,10),0.18); fill_rect(fr,60,64,60+(W-120)*t/B[-1],70,RED,1.0)
