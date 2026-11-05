@@ -104,7 +104,9 @@ def test_sections_fill_the_duration_and_keep_their_order():
         spans = info["sections"]
         assert spans[0]["start"] == 0.0
         assert spans[-1]["end"] == pytest.approx(20.0, abs=1e-6)
-        for a, b in zip(spans, spans[1:]):
+        # intentionally unequal: `spans` and `spans[1:]` are a sliding pairwise window, so the
+        # shorter side must simply stop (strict=False is the documented intent here)
+        for a, b in zip(spans, spans[1:], strict=False):
             assert a["end"] == pytest.approx(b["start"], abs=1e-6), f"{name}: gap between sections"
         order = [spans.index(s) for s in spans]
         assert order == sorted(order)

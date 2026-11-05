@@ -121,14 +121,16 @@ def preview(args) -> Path:
     chunks = []
     for name in music.preset_names():
         cfg = music.MusicConfig(preset=name, duration=args.duration, seed=args.seed, sr=args.sr)
-        bar = 240.0 / cfg.resolved()["bpm"]
         audio = music.render_music(cfg)
         chunks.append((name, audio))
         cues.append((t, name))
         t += len(audio) / cfg.sr + 0.35
     total = t
     out = np.zeros((int(total * args.sr) + 1, 2), np.float32)
-    for (name, audio), (start, _) in zip(chunks, cues):
+    # `chunks` and `cues` are appended in the same loop above, so the two lists are equal length
+    # by construction; strict=True makes that a guarantee instead of an assumption.
+    assert len(chunks) == len(cues)
+    for (_name, audio), (start, _label) in zip(chunks, cues, strict=True):
         ax.mix_into(out, audio, int(round(start * args.sr)), 0.85)
     dest = Path(args.preview)
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -151,7 +153,7 @@ def validate(args) -> int:
             continue
         if not meta.get("layers") and meta.get("density", 0) > 0:
             problems.append(f"section {section}: has density but no layers")
-    for name, preset in vocab["presets"].items():
+    for name in vocab["presets"]:
         try:
             cfg = music.MusicConfig(preset=name, duration=args.duration, sr=args.sr)
             audio = music.render_music(cfg)

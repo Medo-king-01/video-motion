@@ -179,9 +179,9 @@ def test_engine_has_no_module_level_rate_constant_in_filters():
 
 def test_cli_free_of_ffmpeg():
     """The DSP core must import and run with no ffmpeg binary on PATH (offline guarantee)."""
-    code = ("import sys; sys.path.insert(0, %r); import audio_engine as ax; "
-            "print(ax.lp(__import__('numpy').ones(1000), 1000, 44100).shape)"
-            % str(SKILL / "templates" / "procedural-reels"))
+    engine_dir = SKILL / "templates" / "procedural-reels"
+    code = (f"import sys; sys.path.insert(0, {str(engine_dir)!r}); import audio_engine as ax; "
+            "print(ax.lp(__import__('numpy').ones(1000), 1000, 44100).shape)")
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
                        env={"PATH": "/nonexistent", "HOME": str(ROOT)}, cwd=str(ROOT))
     assert r.returncode == 0, r.stderr

@@ -106,7 +106,10 @@ def click(seed=0, *, sr=SR):
 
 
 def zip_(seed=0, *, sr=SR):
-    r = R(seed); d = 0.24; t = tt(d, sr)
+    # `zip` is a pure sweep: no noise, so no RNG is drawn here. It used to build an RNG that was
+    # never used — removed after verifying the output is byte-identical (the sweep depends only on
+    # `d` and `sr`, so nothing downstream sees the missing draw).
+    d = 0.24; t = tt(d, sr)
     x = np.sin(2 * np.pi * np.cumsum(300 + 1800 * (t / d) ** 2) / sr)
     return nrm(x * np.minimum(1, t * 80) * np.exp(-t * 9))
 

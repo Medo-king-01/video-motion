@@ -37,7 +37,6 @@ sys.path.insert(0, str(P_DIR))
 sys.path.insert(0, str(ROOT / "tools" / "lib"))
 import audio_engine as ax  # noqa: E402
 import audio_mix as AM  # noqa: E402
-import music  # noqa: E402
 import sfx  # noqa: E402
 from media_bin import ffmpeg as find_ffmpeg  # noqa: E402
 
@@ -143,7 +142,6 @@ def main() -> int:
         wav.unlink(missing_ok=True)
 
     # ---- measure what was actually written (never trust the intent) ----
-    final, final_sr = ax.read_wav_mono(wav), None
     from scipy.io import wavfile
     final_sr, data = wavfile.read(str(wav))
     arr = np.asarray(data, np.float32) / 32768.0

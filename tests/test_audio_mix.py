@@ -88,7 +88,6 @@ def test_music_changes_restart_the_arrangement():
 
 
 def test_the_mix_is_complete_finite_and_in_spec(tmp_path):
-    import audio_engine as ax
     import audio_mix as AM
 
     vo = write_voice(tmp_path / "vo.wav")
@@ -236,8 +235,8 @@ def test_the_mixed_track_muxes_with_video(tmp_path):
     import audio_mix as AM
 
     sys.path.insert(0, str(ROOT / "tools" / "lib"))
-    from media_bin import ffprobe as find_ffprobe  # noqa: PLC0415
     from media_bin import ffmpeg as find_ffmpeg  # noqa: PLC0415
+    from media_bin import ffprobe as find_ffprobe  # noqa: PLC0415
 
     ff = find_ffmpeg()
     if not ff:
@@ -258,8 +257,8 @@ def test_the_mixed_track_muxes_with_video(tmp_path):
     from scipy.io import wavfile  # noqa: PLC0415
     sr, data = wavfile.read(wav)
     assert abs(data.shape[0] / sr - 3.0) <= 0.01
-    import subprocess as sp  # noqa: PLC0415
     import json as _json  # noqa: PLC0415
+    import subprocess as sp  # noqa: PLC0415
 
     probe = sp.run([find_ffprobe() or "ffprobe", "-v", "error", "-show_entries",
                     "stream=codec_type,duration", "-of", "json", str(muxed)],
