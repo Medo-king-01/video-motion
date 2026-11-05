@@ -35,7 +35,7 @@ function loadOptionalPlanJson(
   relName: './stage.json' | './copy.json' | './effects.json',
 ): Record<string, any> | null {
   try {
-    const ctx = require.context('../plan', false, /^\.\/(stage|copy)\.json$/);
+    const ctx = require.context('../plan', false, /^\.\/(stage|copy|effects)\.json$/);
     if (ctx.keys().includes(relName)) {
       const mod = ctx(relName);
       const unwrapped = mod && typeof mod === 'object' && 'default' in mod ? mod.default : mod;
