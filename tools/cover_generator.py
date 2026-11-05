@@ -17,7 +17,6 @@ import json
 import math
 import os
 import subprocess
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -243,9 +242,8 @@ def _draw_copy(canvas: Image.Image, *, title: str, subtitle: str | None, eyebrow
     title_font, lines, spacing = _fit_lines(title, family, weight, width, int(height * 0.72),
                                             int(width * 0.105), 32)
     line_height = title_font.size + spacing
-    total = len(lines) * title_font.size + max(0, len(lines) - 1) * spacing
     y = y0
-    for index, line in enumerate(lines):
+    for line in lines:
         color = colors["paper"] if style["theme"] == "dark" else colors["ink"]
         _draw_text(draw, (x1, y), line, title_font, fill=color, anchor="ra")
         y += line_height
