@@ -1,0 +1,92 @@
+[
+ {
+  "preset": "tech",
+  "changed": {
+   "hat": {
+    "from": 0.6,
+    "to": 0.78
+   },
+   "pluck": {
+    "from": 0.72,
+    "to": 0.224
+   }
+  },
+  "hi_before_pct": 2.57,
+  "hi_after_pct": 7.97,
+  "rms_before": -18.04,
+  "rms_after": -21.2
+ },
+ {
+  "preset": "minimal",
+  "changed": {
+   "pluck": {
+    "from": 0.28,
+    "to": 0.063
+   }
+  },
+  "hi_before_pct": 1.52,
+  "hi_after_pct": 2.52,
+  "rms_before": -18.73,
+  "rms_after": -20.62
+ },
+ {
+  "preset": "corporate",
+  "changed": {
+   "hat": {
+    "from": 0.42,
+    "to": 0.63
+   },
+   "pluck": {
+    "from": 0.62,
+    "to": 0.269
+   }
+  },
+  "hi_before_pct": 1.35,
+  "hi_after_pct": 5.72,
+  "rms_before": -18.72,
+  "rms_after": -21.45
+ },
+ {
+  "preset": "energetic",
+  "changed": {
+   "hat": {
+    "from": 0.78,
+    "to": 1.053
+   },
+   "pluck": {
+    "from": 0.8,
+    "to": 0.245
+   }
+  },
+  "hi_before_pct": 2.74,
+  "hi_after_pct": 11.01,
+  "rms_before": -17.03,
+  "rms_after": -20.56
+ },
+ {
+  "preset": "cinematic",
+  "changed": {
+   "pluck": {
+    "from": 0.16,
+    "to": 0.114
+   }
+  },
+  "hi_before_pct": 2.66,
+  "hi_after_pct": 2.66,
+  "rms_before": -18.91,
+  "rms_after": -18.92
+ },
+ {
+  "preset": "ambient",
+  "changed": {
+   "pluck": {
+    "from": 0.3,
+    "to": 0.139
+   }
+  },
+  "hi_before_pct": 6.26,
+  "hi_after_pct": 6.57,
+  "rms_before": -18.32,
+  "rms_after": -18.51
+ }
+]
