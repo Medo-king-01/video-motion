@@ -15,6 +15,7 @@ import DIRECTION from '../plan/text-direction.json';
 import FONTS from '../assets/fonts/fonts.json';
 import {DirectedText} from './lib/DirectedText';
 import {FixedStage} from './lib/FixedStage';
+import {SceneEffects} from './lib/SceneEffects';
 import {isStageEnabled, validateStageSpec} from './lib/stage.js';
 
 declare const require: {
@@ -31,7 +32,7 @@ declare const require: {
 // Optional plan JSON loader: legacy Engine R projects without plan/stage.json (or
 // optional copy.json) fall back cleanly to null with zero migration required.
 function loadOptionalPlanJson(
-  relName: './stage.json' | './copy.json',
+  relName: './stage.json' | './copy.json' | './effects.json',
 ): Record<string, any> | null {
   try {
     const ctx = require.context('../plan', false, /^\.\/(stage|copy)\.json$/);
@@ -48,6 +49,7 @@ function loadOptionalPlanJson(
 
 export const STAGE_PLAN = loadOptionalPlanJson('./stage.json');
 const COPY_PLAN = loadOptionalPlanJson('./copy.json');
+const EFFECTS_PLAN = loadOptionalPlanJson('./effects.json');
 
 // Every manifest face is available to the agent's direction; @font-face is generated
 // from the same fonts.json the other engines read (no hardcoded creative default).
@@ -99,6 +101,10 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
     return Math.max(0, found);
   }, [absSeconds]);
   const scene = TIMELINE.scenes?.[sceneIndex];
+  const effectScene = Array.isArray(EFFECTS_PLAN?.scenes)
+    ? EFFECTS_PLAN!.scenes.find((item: any) => item && item.scene === sceneIndex + 1)
+    : null;
+  const sceneEffects = effectScene?.effects;
   const localFrame = Math.max(0, frame - Math.round((scene?.start ?? 0) * fps));
   const localSeconds = localFrame / fps;
   const duration = Math.max(0.5, (scene?.end ?? durationInFrames / fps) - (scene?.start ?? 0));
@@ -200,6 +206,12 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
     </AbsoluteFill>
   );
 
+  const effectedSceneBody = (
+    <SceneEffects effects={sceneEffects} time={localSeconds} width={1080} height={1920}>
+      {sceneBody}
+    </SceneEffects>
+  );
+
   if (AUTO_STAGE_ACTIVE) {
     return (
       <AbsoluteFill style={{fontFamily: 'Cairo, sans-serif', overflow: 'hidden', direction: 'rtl'}}>
@@ -213,12 +225,12 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
           motionMode={motionMode}
           over={previewBadge}
         >
-          {sceneBody}
+          {effectedSceneBody}
         </FixedStage>
         {audioFile ? <Audio src={staticFile(audioFile)} /> : null}
       </AbsoluteFill>
     );
   }
 
-  return sceneBody;
+  return effectedSceneBody;
 };
