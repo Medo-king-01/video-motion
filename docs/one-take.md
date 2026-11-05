@@ -18,7 +18,7 @@
 
 لا توجد dependency إلزامية جديدة. وجود الملف يفعّل التحقق في lint وK/R launchers، لكنه **لا يستبدل scene dispatcher تلقائيًا**: مشهد P أو K أو composition في R يستدعي المحول صراحة. كذلك تدخل كل ملفات `plan/*.json` في توقيع P chunk cache الحالي.
 
-في P يقرأ `load_project_one_take` ملف `plan/beats.json` عند وجود One-Take، ويشترط `duration` موجبًا finite ومطابقًا تمامًا لمدة One-Take قبل إنشاء المحول أو أي frame. غياب One-Take يحافظ على `None` دون قراءة beats؛ أما غياب duration الصالح مع وجود One-Take فهو خطأ. القاعدة نفسها تمر في lint وK/R launchers.
+في P يقرأ `load_project_one_take` ملف `plan/beats.json` عند وجود One-Take، ويشترط `duration` موجبًا finite ومطابقًا تمامًا لمدة One-Take قبل إنشاء المحول أو أي frame. غياب One-Take يحافظ على `None` دون قراءة beats؛ أما غياب duration الصالح مع وجود One-Take فهو خطأ. القاعدة نفسها تمر في lint وK/R launchers. وفي K يجب أيضًا أن يساوي `data.js/DURATION` مدة beats، بينما يشتق مثال R عدد فريمات Composition من `beats.duration * fps` بدل قيمة ثابتة.
 
 ## عقد `plan/one-take.json`
 

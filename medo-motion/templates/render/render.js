@@ -62,6 +62,9 @@ if(existsSync(oneTakePath)){
   if(!Number.isFinite(beats.duration)||beats.duration<=0){
     throw Error('Invalid plan/one-take.json: plan/beats.json must contain a finite positive duration');
   }
+  if(Math.abs(DURATION-beats.duration)>1e-9){
+    throw Error(`Invalid plan/one-take.json: data.js DURATION ${DURATION} must equal plan/beats.json duration ${beats.duration}`);
+  }
   const errors=validateOneTakeSpec(spec,beats.duration);
   if(errors.length)throw Error('Invalid plan/one-take.json:\n'+errors.join('\n'));
 }

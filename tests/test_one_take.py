@@ -462,9 +462,32 @@ def test_k_and_r_launchers_reject_beats_mismatch_before_rendering(tmp_path: Path
                    ["node", "scripts/launch-remotion.mjs", "still", "src/index.ts", "OneTakeExample", "invalid.png"])
         result = subprocess.run(command, cwd=project, capture_output=True, text=True, timeout=60)
         assert result.returncode != 0, engine
-        assert "duration 8 must equal scene/VO duration 10" in result.stdout + result.stderr, engine
+        expected = ("data.js DURATION 8 must equal plan/beats.json duration 10" if engine == "k"
+                    else "duration 8 must equal scene/VO duration 10")
+        assert expected in result.stdout + result.stderr, engine
         assert not (project / "cache" / "invalid").exists()
         assert not (project / "invalid.png").exists()
+
+
+def test_k_rejects_data_duration_that_exceeds_matching_one_take_and_beats(tmp_path: Path) -> None:
+    project = _scaffold("k", tmp_path / "k-data-duration")
+    data_path = project / "src" / "data.js"
+    data_path.write_text(data_path.read_text().replace("export const DURATION = 8;", "export const DURATION = 10;"))
+    result = subprocess.run(
+        ["node", "src/render.js", "--from", "0", "--to", "0.1", "--jpg", "--out", "cache/invalid-data-duration"],
+        cwd=project, capture_output=True, text=True, timeout=60,
+    )
+    assert result.returncode != 0
+    assert "data.js DURATION 10 must equal plan/beats.json duration 8" in result.stdout + result.stderr
+    assert not (project / "cache" / "invalid-data-duration").exists()
+
+
+def test_r_composition_duration_is_derived_from_project_beats(tmp_path: Path) -> None:
+    project = _scaffold("r", tmp_path / "r-beats-duration")
+    root = (project / "src" / "Root.tsx").read_text()
+    assert "import beats from '../plan/beats.json';" in root
+    assert "durationInFrames={Math.round(beats.duration * BRAND.fps)}" in root
+    assert "durationInFrames={240}" not in root
 
 
 @pytest.mark.parametrize("beats", [None, {}, {"duration": None}, {"duration": 0}, {"duration": "2"}])
