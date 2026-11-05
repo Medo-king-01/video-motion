@@ -144,6 +144,49 @@ def preview(args) -> Path:
     return to_mp3(wav, dest) if dest.suffix.lower() == ".mp3" else dest
 
 
+# Musical role -> the level each layer should sit at relative to the whole bed (dB).
+# These are targets for the MIX, not for the generators: a kick owns the pulse, a pad supports it,
+# a pluck must not out-shout the drums. Measured with `--levels`; the numbers are the contract.
+LAYER_TARGETS = {
+    "kick": -5.0, "clap": -11.0, "hat": -9.0, "bass": -9.0,
+    "pad": -12.0, "pluck": -8.0, "melody": -14.0, "texture": -13.0,
+}
+
+
+def layer_balance(args) -> int:
+    """Measure every layer's real contribution and print the correction each one needs.
+
+    This exists because the layer gains inside `music.py` are baked into the arrangement, while the
+    *mix* balance is what a listener hears. Without this, a layer can sit 12 dB under the bed and
+    nobody notices until the track sounds dull (measured: hats were 90 % of the high end when soloed
+    but 12.5 dB under the bed, which left the whole bed with 3 % of its energy above 6 kHz).
+    """
+    import music as _music
+
+    preset = args.preset
+    dur = max(4.0, float(args.duration))
+    bed = _music.render_music(_music.MusicConfig(preset=preset, duration=dur, seed=args.seed, sr=args.sr))
+    bed_rms = float(np.sqrt(np.mean(bed.astype(np.float64) ** 2)))
+    print(f"layer balance for preset '{preset}' ({dur:g}s, seed {args.seed}), bed {ax.to_db(bed_rms):.1f} dBFS")
+    print(f"  {'layer':8s} {'level':>6s} {'solo rms':>9s} {'vs bed':>8s} {'target':>7s} {'fix':>7s}")
+    fixes = {}
+    for layer in _music.LAYERS:
+        solo = _music.render_music(_music.MusicConfig(
+            preset=preset, duration=dur, seed=args.seed, sr=args.sr,
+            layers={n: (1.0 if n == layer else 0.0) for n in _music.LAYERS}))
+        rel = ax.to_db(float(np.sqrt(np.mean(solo.astype(np.float64) ** 2))) / max(bed_rms, 1e-12))
+        target = LAYER_TARGETS[layer]
+        fix = target - rel
+        fixes[layer] = float(np.round(10 ** (fix / 20.0), 3))
+        current = _music.presets()[preset]["layers"].get(layer, 0.0)
+        flag = "  <-- off" if abs(fix) > 3.0 else ""
+        print(f"  {layer:8s} {current:6.2f} {ax.to_db(float(np.sqrt(np.mean(solo ** 2)))):8.1f} "
+              f"{rel:+7.1f} {target:+7.1f} {fix:+7.1f}{flag}")
+    if getattr(args, "json", False):
+        print(json.dumps(fixes, indent=2))
+    return 0
+
+
 def validate(args) -> int:
     """Data file sanity + every preset renders, is finite, bounded, stereo and the right length."""
     problems = []
@@ -186,6 +229,9 @@ def main() -> int:
                     help="audition every preset in sequence")
     ap.add_argument("--info", action="store_true", help="describe the bed without rendering audio")
     ap.add_argument("--validate", action="store_true", help="check the data file and every preset")
+    ap.add_argument("--levels", action="store_true",
+                    help="measure each layer's balance against its musical role and print the correction")
+    ap.add_argument("--json", action="store_true", help="machine-readable output for --levels/--info")
     ap.add_argument("--preset", default="tech")
     ap.add_argument("--duration", type=float, default=16.0)
     ap.add_argument("--bpm", type=float)
@@ -207,6 +253,8 @@ def main() -> int:
     ap.add_argument("--force", action="store_true", help="overwrite an existing file")
     args = ap.parse_args()
 
+    if args.levels:
+        return layer_balance(args)
     if args.presets or not any((args.render, args.preview, args.info, args.validate)):
         print(f"{len(music.preset_names())} music presets @ {args.sr} Hz default\n")
         for name, p in music.presets().items():
