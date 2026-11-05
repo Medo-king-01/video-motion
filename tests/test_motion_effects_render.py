@@ -9,7 +9,7 @@ from conftest import SKILL
 from PIL import Image
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
-from effects_render import draw_light_sweep  # noqa: E402
+from effects_render import draw_light_sweep, draw_whip_pan  # noqa: E402
 
 
 def test_light_sweep_composites_pixels_without_mutating_source():
@@ -26,3 +26,16 @@ def test_light_sweep_endpoints_are_pixel_identical():
     for time in (0.0, 0.72):
         result = draw_light_sweep(source, time)
         assert np.array_equal(np.asarray(result), np.asarray(source))
+
+
+def test_whip_pan_translates_frame_without_mutating_source():
+    source = Image.new("RGB", (80, 40), (0, 0, 0))
+    for x in range(8):
+        for y in range(10, 30):
+            source.putpixel((x, y), (255, 255, 255))
+
+    result = draw_whip_pan(source, 0.21)
+    assert source.getpixel((2, 20)) == (255, 255, 255)
+    assert result.getpixel((2, 20)) == (0, 0, 0)
+    assert result.getpixel((48, 20))[0] > 100
+    assert result.size == source.size
