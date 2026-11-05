@@ -18,6 +18,7 @@
 | `icons_sheet.py` | شيت مراجعة بصري لكل الأيقونات (المحرك P) | `python3 tools/icons_sheet.py --group itshover --limit 24` |
 | `icons_preview.mjs` | نفس الشيت بس من رسّام المحرك K (Canvas/Chromium) | `node tools/icons_preview.mjs --limit 24` |
 | `motion_studio.html` | استوديو الحركة الأوفلاين: محرر تايملاين JSON + سكرَب + قيم لحظية | `python3 -m http.server 8080` ثم `/tools/motion_studio.html` |
+| `cover_generator.py` | مولّد غلاف 9:16 وثَمبنيل 16:9 بهوية البراند، مع فريم اختياري ووضعية PNG | `python3 tools/cover_generator.py --title "عنوان الفيديو" --pose explain` · [الدليل](../docs/cover-generator.md) |
 | `theatre_import.py` | يحوّل Theatre.js state export لـJSON الحركة المشتركة لـP/K/R | `python3 tools/theatre_import.py state.json --offset 18.5` |
 | `presenter_build.py` | يقص صور ميدو من الخلفية ويطبّعها ويكتب `assets/poses/poses.json` | `python3 tools/presenter_build.py --sheet cache/poses-sheet.png` |
 | `sfx_kit.py` | مكتبة المؤثرات البرمجية: `--list` · `--bank` · `--demo` · `--cues` (ميكس مع التعليق، طوله = طول الـVO) · `--grid` (cue sheet على شبكة الـBPM) |

@@ -74,6 +74,9 @@ gate:            ## cumulative stage & delivery-promise gate: make gate P=projec
 phone-preview:   ## mobile grid & platform UI safe-zone sheet: make phone-preview MEDIA=out/master.mp4 [OUT=cache/phone-preview.png]
 	$(PY) tools/phone_preview.py $(MEDIA) --out $(or $(OUT),cache/phone-preview.png) $(if $(AT),--at $(AT),) $(if $(REPORT),--report $(REPORT),)
 
+cover:           ## generate a 9:16 cover + 16:9 thumbnail: make cover TITLE="..." [POSE=explain] [STYLE=tech-editorial]
+	$(PY) tools/cover_generator.py --title "$(TITLE)" $(if $(SUBTITLE),--subtitle "$(SUBTITLE)",) $(if $(EYEBROW),--eyebrow "$(EYEBROW)",) $(if $(FRAME),--frame "$(FRAME)",) $(if $(AT),--at $(AT),) $(if $(POSE),--pose $(POSE),) $(if $(POSE_FILE),--pose-file "$(POSE_FILE)",) $(if $(STYLE),--style $(STYLE),) $(if $(FONT),--font "$(FONT)",) --out-dir "$(or $(OUT),cache/covers)"
+
 asr-check:       ## audit word timings for hallucinations, loops & missed speech: make asr-check P=projects/x [STRICT=1]
 	$(PY) tools/asr_check.py $(or $(P),.) $(if $(VO),--vo $(VO),) $(if $(STRICT),--strict,)
 
@@ -104,4 +107,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup setup-dev doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint layout-p qa gate poses backgrounds sfx sfx-bank transitions clean
+.PHONY: help setup setup-dev doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint layout-p qa gate poses backgrounds sfx sfx-bank transitions cover clean
