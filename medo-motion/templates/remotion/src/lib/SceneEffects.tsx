@@ -1,4 +1,5 @@
 import React from 'react';
+import {staticFile} from 'remotion';
 import {LightSweep} from './LightSweep';
 import {WhipPan} from './WhipPan';
 import {ParticleDissolve} from './ParticleDissolve';
@@ -71,7 +72,7 @@ export const SceneEffects: React.FC<{
     } else {
       content = <div style={{position: 'absolute', inset: 0, overflow: 'hidden'}}>
         {content}
-        <ParticleDissolve source={effect.source!} time={time} width={width} height={height}
+        <ParticleDissolve source={staticFile(effect.source!)} time={time} width={width} height={height}
           start={effect.start} duration={effect.duration} count={effect.count}
           seed={effect.seed} background={effect.background}/>
       </div>;
