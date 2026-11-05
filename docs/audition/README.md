@@ -16,6 +16,27 @@ bash docs/audition/make.sh          # if you have ffmpeg on PATH
 
 ---
 
+# Decision record
+
+Listened, compared, and decided on **2026-11-05**. Recorded here so the reasoning survives the
+pull request.
+
+| question | decision |
+|---|---|
+| default music level | **keep `level_db` = −3.0.** The 2 dB cut was auditioned and **rejected as a default**. |
+| the −5 dB variant | kept in this folder and documented below as a **reference measurement**, not applied |
+| layer rebalance (Plan B) | measured and documented, **not applied** |
+| audio engine, presets, SFX | **unchanged** — see the verification at the bottom |
+
+**What this means in code:** `music.level_db` remains `-3.0`
+(`audio_mix.py:250` is the only default; `from_storyboard()` does not override it). Nothing in
+`medo-motion/templates/procedural-reels/` or `medo-motion/motion/` was edited to produce the −5 dB
+rendition — it exists only as a cue-sheet value inside `make.sh`'s A/B generator.
+
+**Why keep the file:** the 8.0 → 10.0 dB VO-separation number is the useful part. If a future video
+has a heavier voice-over or a denser script, `−5 dB` is now a **measured** option rather than a guess,
+and `08-music-level-AB.mp3` is the reference for what it sounds like.
+
 ---
 
 # Music level A/B — flat 2 dB cut, nothing else touched
@@ -51,12 +72,14 @@ That last pair is the one to read carefully:
 `08-music-level-AB.mp3` — A (music −3 dB) 0:00–0:20 · B (music −5 dB) 0:21.5–0:41.5. Both halves are
 mastered to **−14.80 LUFS** so the quieter bed cannot win or lose on loudness alone.
 
-## Not applied
+## Status: rejected as a default, retained as a reference
 
 `music-presets.json`, the layer levels, the presets, `music.py`, `audio_mix.py` and the SFX engine are
-**unchanged**. This is a cue-sheet value, and it is only in the A/B renders: the change is proposed,
-not committed. Approving it means setting `level_db: -5.0` on the generated sheet (the default in
-`audio_mix.mix()` is −3.0, and `from_storyboard()` does not set it) — one number, in one place.
+**unchanged**. The −5 dB setting exists only inside the A/B renders and this documentation.
+
+`-3.0` remains the default in `audio_mix.mix()`; `from_storyboard()` does not set `level_db` at all,
+so every generated sheet keeps the −3.0 default. If a specific video needs the quieter bed, set
+`music.level_db: -5.0` on that one sheet — that is the supported way to use this measurement.
 
 ---
 
@@ -197,27 +220,51 @@ whether the bed stays out of the way of Arabic speech, not to be final narration
 
 ## 7. Files to listen to
 
-| file | what |
-|---|---|
-| **`01-six-presets.mp3`** | the six presets **as they are now**, 16 s each, 2 s apart: tech 0:00 · minimal 0:18 · corporate 0:36 · energetic 0:54 · cinematic 1:12 · ambient 1:30 |
-| **`05-AB-tech-levelmatched.mp3`** | tech, current vs plan B, level-matched. A 0–16 s · B 17.5–33.5 s |
-| `06-AB-energetic.mp3` | energetic, the preset with the largest defect (+5.3 dB pluck), A/B level-matched |
-| **`07-VO-mix-AB.mp3`** | full mix with Arabic VO + 6 SFX + ducking, current vs plan B |
-| `vo-ar.mp3` | the Arabic VO used in `07` and `08` (synthetic stock ad read, not product copy) |
-| **`08-music-level-AB.mp3`** | the bed 2 dB quieter, A/B level-matched, VO and SFX untouched |
+| file | what | status |
+|---|---|---|
+| **`01-six-presets.mp3`** | the six presets as shipped, 16 s each: tech 0:00 · minimal 0:18 · corporate 0:36 · energetic 0:54 · cinematic 1:12 · ambient 1:30 | reference |
+| **`08-music-level-AB.mp3`** | music −3 dB (0:00–0:20) vs −5 dB (0:21.5–0:41.5), level-matched, VO + SFX identical | **decided: −3 dB stays default** |
+| `07-VO-mix-AB.mp3` | full mix, Arabic VO + 6 SFX + ducking, current vs Plan B | reference |
+| `05-AB-tech-levelmatched.mp3` | tech, current vs Plan B, level-matched | plan, not applied |
+| `06-AB-energetic.mp3` | energetic (largest Plan B defect, +5.3 dB pluck), A/B level-matched | plan, not applied |
+| `vo-ar.mp3` | the Arabic VO used in `07` and `08` (synthetic stock ad read, not product copy) | input |
 
-`plan_b_layers.json` and `plan_b_measurements.json` contain every number in this document.
+`plan_b_layers.json` and `plan_b_measurements.json` hold every Plan B number.
 
 ---
 
-## 8. What I need from you
+## 8. Verification — nothing was applied
 
-Listen to `01` and `05` (and `07` if you want to judge the VO case), then tell me:
+Executable, not prose: `bash docs/audition/verify.sh` (exit 0 = clean).
 
-- **apply as planned** — I write the 9 numbers into `music-presets.json`, re-run the audio tests,
-  and push to PR #33;
-- **apply, but dial something back** — tell me which number and I'll re-measure it;
-- **reject** — and say what you heard that the measurements missed.
+```
+  PASS  audio_mix.py default level_db is -3.0                    1
+  PASS  no 'level_db: -5' anywhere in engine/presets/tools       0
+  PASS  from_storyboard() does not set level_db                  0
+  PASS  music-presets.json identical to 82d8c3e                  identical
+  PASS  Plan B layer values                                      not applied
+```
 
-`PLAN B IS NOT APPLIED.` The repository is untouched, PR #33 is open and unmerged, and all CI is
-green on `d6cd5c4`.
+The same facts, spelled out:
+
+| check | result |
+|---|---|
+| `music.level_db` default in `audio_mix.py` | **−3.0** (line 250, unchanged) |
+| `from_storyboard()` sets `level_db` | **no** — generated sheets inherit −3.0 |
+| any `level_db: -5` in engine / presets / tools | **none** |
+| `music-presets.json` vs `d6cd5c4` | **byte-identical** |
+| `medo-motion/templates/procedural-reels/` vs `d6cd5c4` | **unchanged** |
+| `ruff check .` | clean |
+| audio test suites (`test_audio_engine`, `test_music`, `test_sfx_engine`, `test_audio_mix`) | **70 passed** |
+
+Plan B and the −5 dB cut are both **proposals recorded as measurements**. Neither is in the codebase;
+both can be recalled from this folder if a future project needs them.
+
+---
+
+## 9. Open item
+
+Plan B (the layer rebalance: `pluck` down in all six presets, `hat` up in the three whose own
+description promises brightness) is **still awaiting a verdict**. It is independent of the level
+decision above — it changes the *internal balance* of the bed, not its level in the mix. See §3–§5 and
+`05` / `06` if you want to judge it later.
