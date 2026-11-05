@@ -3,9 +3,8 @@ from __future__ import annotations
 
 import sys
 
-from conftest import SKILL
-
 import numpy as np
+from conftest import SKILL
 from PIL import Image
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
