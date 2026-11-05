@@ -28,13 +28,13 @@ def draw_light_sweep(image: Image.Image, t: float, **options) -> Image.Image:
 
     yy, xx = np.mgrid[0:height, 0:width].astype(np.float32)
     angle = float(state["angle"])
-    # A diagonal band is a horizontal strip in its own rotated coordinate space.
-    signed_distance = (xx / width - state["center_x"]) * np.cos(angle) + (
-        yy / height - 0.5
+    # Signed distance in pixels keeps the angle consistent on portrait and landscape frames.
+    signed_distance = (xx - state["center_x"] * width) * np.cos(angle) + (
+        yy - height / 2.0
     ) * np.sin(angle)
-    half_width = max(float(state["width"]) / 2.0, 1e-6)
+    half_width = max(float(state["width"]) * width / 2.0, 1e-6)
     profile = np.clip(1.0 - np.abs(signed_distance) / half_width, 0.0, 1.0)
-    alpha = np.clip(profile * float(state["alpha"]) * 0.62, 0.0, 1.0)
+    alpha = np.clip(profile * float(state["alpha"]) * 0.82, 0.0, 1.0)
     rgba = np.zeros((height, width, 4), dtype=np.uint8)
     rgba[..., :3] = 255
     rgba[..., 3] = np.round(alpha * 255).astype(np.uint8)
