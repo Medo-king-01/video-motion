@@ -37,6 +37,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 import contrast  # noqa: E402
 import machine_explainer as me  # noqa: E402
+import one_take  # noqa: E402
 import slide_wall  # noqa: E402
 import stage as stage_mod  # noqa: E402
 import text_direction as td  # noqa: E402
@@ -569,6 +570,28 @@ def lint_slide_wall(rep: Report, project: Path, plan: dict) -> None:
         rep.ok("W00", "slide wall: stable ids, geometry, bounds, separation and continuous VO timeline verified")
 
 
+def lint_one_take(rep: Report, project: Path, plan: dict) -> None:
+    """Optional Phase 2C contract gate; no One-Take plan means no One-Take warning."""
+    path = project / "plan" / "one-take.json"
+    if not path.is_file():
+        return
+    try:
+        spec = _load_strict_json(path)
+    except Exception as exc:
+        rep.error("O01", f"plan/one-take.json invalid JSON: {exc}")
+        return
+    duration = plan.get("duration")
+    if not one_take._finite(duration) or duration <= 0:
+        errors = ["plan/beats.json must contain a finite positive duration when plan/one-take.json exists"]
+        errors += one_take.validate_one_take_spec(spec)
+    else:
+        errors = one_take.validate_one_take_spec(spec, duration=float(duration))
+    for error in errors:
+        rep.error("O01", f"plan/one-take.json: {error}")
+    if not errors:
+        rep.ok("O00", "one-take: stable elements, continuous camera states and deterministic interactions verified")
+
+
 def lint_stage(rep: Report, project: Path, plan: dict, copy: dict) -> None:
     stage_path = project / "plan" / "stage.json"
     if not stage_path.is_file():
@@ -711,6 +734,8 @@ def main() -> int:
         lint_stage(rep, a.project, plan, copy)
     if (a.project / 'plan/slide-wall.json').is_file():
         lint_slide_wall(rep, a.project, plan)
+    if (a.project / 'plan/one-take.json').is_file():
+        lint_one_take(rep, a.project, plan)
     if a.scan_code:
         lint_code(rep, a.project)
 

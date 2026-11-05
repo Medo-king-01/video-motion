@@ -1,0 +1,656 @@
+{
+  "version": 1,
+  "id": "today-one-take",
+  "clock": "vo",
+  "duration": 8,
+  "canvas": {
+    "w": 1080,
+    "h": 1920,
+    "fps": 30
+  },
+  "backgroundRole": "gray_1",
+  "elements": [
+    {
+      "id": "backdrop",
+      "kind": "rect",
+      "w": 780,
+      "h": 980,
+      "radius": 52,
+      "role": "paper"
+    },
+    {
+      "id": "opening-kicker",
+      "kind": "text",
+      "w": 600,
+      "h": 60,
+      "text": "A SIMPLE DAY",
+      "fontRole": "label",
+      "fontSize": 28,
+      "role": "red",
+      "rtl": false
+    },
+    {
+      "id": "header",
+      "kind": "text",
+      "w": 600,
+      "h": 110,
+      "text": "Today",
+      "fontRole": "title",
+      "fontSize": 72,
+      "role": "ink",
+      "rtl": false
+    },
+    {
+      "id": "subhead",
+      "kind": "text",
+      "w": 650,
+      "h": 70,
+      "text": "A clear plan, one step at a time",
+      "fontRole": "body",
+      "fontSize": 30,
+      "role": "ink_soft",
+      "rtl": false
+    },
+    {
+      "id": "card-design",
+      "kind": "rect",
+      "w": 620,
+      "h": 170,
+      "radius": 32,
+      "role": "gray_1"
+    },
+    {
+      "id": "design-label",
+      "kind": "text",
+      "w": 430,
+      "h": 70,
+      "text": "Design review",
+      "fontRole": "body",
+      "fontSize": 38,
+      "role": "ink",
+      "rtl": false
+    },
+    {
+      "id": "design-check",
+      "kind": "circle",
+      "w": 64,
+      "h": 64,
+      "role": "red"
+    },
+    {
+      "id": "design-check-mark",
+      "kind": "text",
+      "w": 60,
+      "h": 60,
+      "text": "1",
+      "fontRole": "number",
+      "fontSize": 36,
+      "role": "paper",
+      "rtl": false
+    },
+    {
+      "id": "card-focus",
+      "kind": "rect",
+      "w": 620,
+      "h": 170,
+      "radius": 32,
+      "role": "gray_1"
+    },
+    {
+      "id": "focus-label",
+      "kind": "text",
+      "w": 430,
+      "h": 70,
+      "text": "Focus session",
+      "fontRole": "body",
+      "fontSize": 38,
+      "role": "ink",
+      "rtl": false
+    },
+    {
+      "id": "focus-check",
+      "kind": "circle",
+      "w": 64,
+      "h": 64,
+      "role": "red"
+    },
+    {
+      "id": "focus-check-mark",
+      "kind": "text",
+      "w": 60,
+      "h": 60,
+      "text": "2",
+      "fontRole": "number",
+      "fontSize": 36,
+      "role": "paper",
+      "rtl": false
+    },
+    {
+      "id": "action",
+      "kind": "rect",
+      "w": 320,
+      "h": 96,
+      "radius": 48,
+      "role": "ink"
+    },
+    {
+      "id": "action-label",
+      "kind": "text",
+      "w": 280,
+      "h": 60,
+      "text": "Start focus",
+      "fontRole": "cta",
+      "fontSize": 30,
+      "role": "paper",
+      "rtl": false
+    },
+    {
+      "id": "feature-panel",
+      "kind": "rect",
+      "w": 700,
+      "h": 480,
+      "radius": 42,
+      "role": "red"
+    },
+    {
+      "id": "feature-title",
+      "kind": "text",
+      "w": 560,
+      "h": 90,
+      "text": "Focus mode",
+      "fontRole": "title",
+      "fontSize": 56,
+      "role": "paper",
+      "rtl": false
+    },
+    {
+      "id": "feature-copy",
+      "kind": "text",
+      "w": 560,
+      "h": 70,
+      "text": "Notifications paused",
+      "fontRole": "body",
+      "fontSize": 30,
+      "role": "paper",
+      "rtl": false
+    },
+    {
+      "id": "progress-label",
+      "kind": "text",
+      "w": 480,
+      "h": 60,
+      "text": "2 of 3 complete",
+      "fontRole": "number",
+      "fontSize": 30,
+      "role": "paper",
+      "rtl": false
+    },
+    {
+      "id": "progress-track",
+      "kind": "rect",
+      "w": 480,
+      "h": 24,
+      "radius": 12,
+      "role": "paper"
+    },
+    {
+      "id": "progress-fill",
+      "kind": "rect",
+      "w": 320,
+      "h": 24,
+      "radius": 12,
+      "role": "ink"
+    },
+    {
+      "id": "result",
+      "kind": "circle",
+      "w": 300,
+      "h": 300,
+      "role": "ink"
+    },
+    {
+      "id": "result-mark",
+      "kind": "text",
+      "w": 160,
+      "h": 160,
+      "text": "3",
+      "fontRole": "number",
+      "fontSize": 110,
+      "role": "paper",
+      "rtl": false
+    },
+    {
+      "id": "result-title",
+      "kind": "text",
+      "w": 600,
+      "h": 100,
+      "text": "Day complete",
+      "fontRole": "title",
+      "fontSize": 64,
+      "role": "ink",
+      "rtl": false
+    },
+    {
+      "id": "result-copy",
+      "kind": "text",
+      "w": 600,
+      "h": 70,
+      "text": "One clear step at a time",
+      "fontRole": "body",
+      "fontSize": 30,
+      "role": "ink_soft",
+      "rtl": false
+    }
+  ],
+  "states": [
+    {
+      "id": "opening",
+      "time": 0,
+      "camera": {
+        "x": 540,
+        "y": 960,
+        "zoom": 0.88
+      },
+      "elements": {
+        "backdrop": {
+          "x": 540,
+          "y": 960,
+          "scale": 0.92
+        },
+        "opening-kicker": {
+          "x": 540,
+          "y": 470
+        },
+        "header": {
+          "x": 540,
+          "y": 590
+        },
+        "subhead": {
+          "x": 540,
+          "y": 690
+        },
+        "card-design": {
+          "x": 540,
+          "y": 860
+        },
+        "design-label": {
+          "x": 500,
+          "y": 850
+        },
+        "design-check": {
+          "x": 790,
+          "y": 860,
+          "scale": 0.4,
+          "opacity": 0
+        },
+        "design-check-mark": {
+          "x": 790,
+          "y": 860,
+          "opacity": 0
+        },
+        "card-focus": {
+          "x": 540,
+          "y": 1090
+        },
+        "focus-label": {
+          "x": 500,
+          "y": 1080
+        },
+        "focus-check": {
+          "x": 790,
+          "y": 1090,
+          "scale": 0.4,
+          "opacity": 0
+        },
+        "focus-check-mark": {
+          "x": 790,
+          "y": 1090,
+          "opacity": 0
+        },
+        "action": {
+          "x": 540,
+          "y": 1320
+        },
+        "action-label": {
+          "x": 540,
+          "y": 1320
+        },
+        "feature-panel": {
+          "x": 540,
+          "y": 1000,
+          "scale": 0.55,
+          "opacity": 0
+        },
+        "feature-title": {
+          "x": 540,
+          "y": 870,
+          "opacity": 0
+        },
+        "feature-copy": {
+          "x": 540,
+          "y": 970,
+          "opacity": 0
+        },
+        "progress-label": {
+          "x": 540,
+          "y": 1050,
+          "opacity": 0
+        },
+        "progress-track": {
+          "x": 540,
+          "y": 1130,
+          "opacity": 0
+        },
+        "progress-fill": {
+          "x": 460,
+          "y": 1130,
+          "scale": 0.05,
+          "opacity": 0
+        },
+        "result": {
+          "x": 540,
+          "y": 930,
+          "scale": 0.4,
+          "opacity": 0
+        },
+        "result-mark": {
+          "x": 540,
+          "y": 930,
+          "opacity": 0
+        },
+        "result-title": {
+          "x": 540,
+          "y": 1290,
+          "opacity": 0
+        },
+        "result-copy": {
+          "x": 540,
+          "y": 1390,
+          "opacity": 0
+        }
+      }
+    },
+    {
+      "id": "interface",
+      "time": 1.2,
+      "ease": "cubicInOut",
+      "camera": {
+        "x": 540,
+        "y": 960,
+        "zoom": 1
+      },
+      "elements": {
+        "backdrop": {
+          "scale": 1
+        },
+        "opening-kicker": {
+          "y": 450
+        },
+        "design-check": {
+          "scale": 1,
+          "opacity": 1
+        },
+        "design-check-mark": {
+          "opacity": 1
+        }
+      }
+    },
+    {
+      "id": "interaction",
+      "time": 2.4,
+      "ease": "sineInOut",
+      "camera": {
+        "x": 540,
+        "y": 1100,
+        "zoom": 1.12
+      },
+      "elements": {
+        "header": {
+          "y": 540
+        },
+        "action": {
+          "scale": 0.94
+        },
+        "action-label": {
+          "scale": 0.94
+        }
+      }
+    },
+    {
+      "id": "selected",
+      "time": 3.6,
+      "ease": "cubicInOut",
+      "camera": {
+        "x": 540,
+        "y": 1040,
+        "zoom": 1.28
+      },
+      "elements": {
+        "card-focus": {
+          "scale": 1.1
+        },
+        "focus-label": {
+          "scale": 1.05
+        },
+        "focus-check": {
+          "scale": 1,
+          "opacity": 1
+        },
+        "focus-check-mark": {
+          "opacity": 1
+        },
+        "action": {
+          "scale": 0.7,
+          "opacity": 0
+        },
+        "action-label": {
+          "opacity": 0
+        }
+      }
+    },
+    {
+      "id": "feature",
+      "time": 4.8,
+      "ease": "expoInOut",
+      "camera": {
+        "x": 540,
+        "y": 1000,
+        "zoom": 1.12
+      },
+      "elements": {
+        "header": {
+          "opacity": 0
+        },
+        "subhead": {
+          "opacity": 0
+        },
+        "card-design": {
+          "scale": 0.9,
+          "opacity": 0.15
+        },
+        "design-label": {
+          "opacity": 0.15
+        },
+        "design-check": {
+          "opacity": 0
+        },
+        "design-check-mark": {
+          "opacity": 0
+        },
+        "card-focus": {
+          "scale": 0.9,
+          "opacity": 0.15
+        },
+        "focus-label": {
+          "opacity": 0.15
+        },
+        "focus-check": {
+          "opacity": 0
+        },
+        "focus-check-mark": {
+          "opacity": 0
+        },
+        "feature-panel": {
+          "scale": 1,
+          "opacity": 1
+        },
+        "feature-title": {
+          "opacity": 1
+        },
+        "feature-copy": {
+          "opacity": 1
+        },
+        "progress-track": {
+          "opacity": 1
+        }
+      }
+    },
+    {
+      "id": "progress",
+      "time": 6,
+      "ease": "cubicInOut",
+      "camera": {
+        "x": 540,
+        "y": 1050,
+        "zoom": 1.22
+      },
+      "elements": {
+        "progress-label": {
+          "opacity": 1
+        },
+        "progress-fill": {
+          "scale": 1,
+          "opacity": 1
+        }
+      }
+    },
+    {
+      "id": "result",
+      "time": 7.2,
+      "ease": "sineInOut",
+      "camera": {
+        "x": 540,
+        "y": 960,
+        "zoom": 0.95
+      },
+      "elements": {
+        "backdrop": {
+          "scale": 1.05
+        },
+        "feature-panel": {
+          "scale": 1.35,
+          "opacity": 0
+        },
+        "feature-title": {
+          "opacity": 0
+        },
+        "feature-copy": {
+          "opacity": 0
+        },
+        "progress-label": {
+          "opacity": 0
+        },
+        "progress-track": {
+          "opacity": 0
+        },
+        "progress-fill": {
+          "opacity": 0
+        },
+        "result": {
+          "scale": 1,
+          "opacity": 1
+        },
+        "result-mark": {
+          "opacity": 1
+        },
+        "result-title": {
+          "opacity": 1
+        },
+        "result-copy": {
+          "opacity": 1
+        }
+      }
+    },
+    {
+      "id": "final",
+      "time": 8,
+      "ease": "cubicInOut",
+      "camera": {
+        "x": 540,
+        "y": 960,
+        "zoom": 1.05
+      },
+      "elements": {
+        "result": {
+          "scale": 1.08
+        },
+        "result-title": {
+          "y": 1260
+        }
+      }
+    }
+  ],
+  "cursor": {
+    "size": 42,
+    "points": [
+      {
+        "time": 0,
+        "x": 900,
+        "y": 1550
+      },
+      {
+        "time": 0.8,
+        "x": 900,
+        "y": 1550
+      },
+      {
+        "time": 1.9,
+        "x": 570,
+        "y": 1330,
+        "ease": "cubicInOut"
+      },
+      {
+        "time": 2.35,
+        "x": 570,
+        "y": 1330
+      },
+      {
+        "time": 3.15,
+        "x": 760,
+        "y": 1090,
+        "ease": "sineInOut"
+      },
+      {
+        "time": 3.7,
+        "x": 760,
+        "y": 1090
+      },
+      {
+        "time": 4.4,
+        "x": 940,
+        "y": 1500,
+        "ease": "cubicInOut"
+      },
+      {
+        "time": 6.2,
+        "x": 900,
+        "y": 1480
+      },
+      {
+        "time": 8,
+        "x": 900,
+        "y": 1480
+      }
+    ],
+    "clicks": [
+      {
+        "time": 2.15,
+        "duration": 0.36
+      },
+      {
+        "time": 3.25,
+        "duration": 0.36
+      }
+    ]
+  }
+}

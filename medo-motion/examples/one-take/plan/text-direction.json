@@ -1,0 +1,31 @@
+{
+  "version": 3,
+  "status": "directed",
+  "decidedBy": "agent",
+  "concept": "Readable static UI faces inside one deterministic camera-and-element transform timeline",
+  "scenes": [
+    {
+      "scene": 1,
+      "captionStyle": "softfade",
+      "captionWhy": "Reserved for a real measured VO; this silent example has no captions",
+      "textStyles": {
+        "title": "softfade",
+        "body": "softfade",
+        "label": "softfade",
+        "cta": "softfade",
+        "number": "softfade",
+        "ui": "softfade"
+      },
+      "textWhy": "One-Take owns the outer transform; text remains stable and readable inside each element",
+      "fontStyles": {
+        "title": { "family": "Cairo", "weight": 800 },
+        "body": { "family": "Cairo", "weight": 400 },
+        "label": { "family": "Cairo", "weight": 800 },
+        "cta": { "family": "Cairo", "weight": 800 },
+        "number": { "family": "Cairo", "weight": 800 },
+        "ui": { "family": "Cairo", "weight": 800 }
+      },
+      "fontWhy": "The bundled Cairo faces keep P/K/R UI rendering consistent without network assets"
+    }
+  ]
+}

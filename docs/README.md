@@ -35,6 +35,7 @@
 | `video-ad-editor-fit.md` | مراجعة `majedphotos/video-ad-editor` (MIT): الكشيدة العربية الآمنة وترتيب العبارات المختلطة، كابشن الجُمل (`2–4` كلمات)، kit القطع الأيزومتري لـP/K/R، shutter blur، ومعاينة شبكة الموبايل وفحص الـASR |
 | `machine-explainer.md` | مسار Machine Explainer الأصلي عبر P/K/R: النماذج الهندسية الأربعة (`nvme_ssd`، `cpu_package`، `ram_dimm`، `cooling_system`)، توثيق المصادر بـ`locator`، التوقيت الموحّد مع `word-timings.json`، وفحص الحجب الهندسي `X01`–`X04` |
 | `fixed-stage.md` | نظام Fixed Stage (المرحلة 2A) عبر P/K/R: نافذة المحتوى الديناميكية `win(t)`، الطبقات الثلاث `UNDER`/`CONTENT`/`OVER`، أقنعة القصّ المستطيلة والدائرية الحقيقية، التزامن مع VO Clock، وفحص التخطيط ثلاثي الحدود (`L01`–`L06` و`F00`–`F04`) |
+| `one-take.md` | Phase 2C عبر P/K/R: مشهد واحد بعناصر وحالات مستقرة، كاميرا 2D مستمرة، cursor/clicks حتمية، تقييم absolute-time، reduced motion، وحدود الرندر |
 | `skillry-fit.md` | مراجعة صفحات Skillry العامة من زاوية استوديو ميدو |
 | `skill-packs-review.md` | مراجعة ساكنة لحزم Skills الثماني المرفوعة: الملاءمة، خطر حذف المخرجات، الاعتماديات، التراخيص، والأفكار القابلة للتكييف فقط |
 | `reference-workflow.md` | تحليل مرجع بصري محليًا وتحويل الملاحظات إلى `STYLE.md` بدون كسر هوية ميدو |
