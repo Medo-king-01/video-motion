@@ -31,13 +31,16 @@ jobs:
           cache: pip
 
       - name: Install linter
-        run: python -m pip install ruff
+        run: python -m pip install ruff pillow numpy pytest
 
       - name: Check Python syntax
         run: python -m compileall -q tools medo-motion tests
 
       - name: Run Ruff
         run: python -m ruff check .
+
+      - name: Test cover and thumbnail generator
+        run: python -m pytest tests/test_cover_generator.py
 
   python-310-syntax:
     name: Python 3.10 syntax compatibility
