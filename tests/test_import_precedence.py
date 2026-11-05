@@ -75,3 +75,58 @@ def test_importing_the_name_does_not_drag_in_the_audio_stack():
     result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, cwd=ROOT)
     assert result.returncode == 0, result.stderr
     assert result.stdout.split() == ["False", "False"], result.stdout
+
+
+def _finder():
+    from conftest import _EngineModuleFinder
+
+    return next(f for f in sys.meta_path if isinstance(f, _EngineModuleFinder))
+
+
+def test_the_finder_claims_only_the_one_colliding_name():
+    """It must be a targeted claim, not a general redirect: everything else resolves as before."""
+    finder = _finder()
+    probes = ["audio_mix", "audio_mix.extra", "audio_engine", "music", "sfx", "text_direction",
+              "media_bin", "json", "wave", "chunk", "numpy", "pytest", "audio_mix_kit"]
+    claimed = [name for name in probes if finder.find_spec(name, None, None) is not None]
+    assert claimed == ["audio_mix"]
+
+
+def test_a_correctly_loaded_module_is_never_replaced():
+    """sys.modules is consulted before meta_path, so a second import returns the same object."""
+    import audio_mix
+
+    finder = _finder()
+    calls = []
+    original = type(finder).find_spec
+
+    def recording(self, fullname, path=None, target=None):
+        calls.append(fullname)
+        return original(self, fullname, path, target)
+
+    type(finder).find_spec = recording
+    try:
+        import audio_mix as second
+    finally:
+        type(finder).find_spec = original
+
+    assert second is audio_mix, "the finder handed back a different module object"
+    assert calls == [], f"the finder was consulted for an already-imported module: {calls}"
+
+
+def test_a_wrong_module_cached_before_conftest_is_an_error_not_a_silent_replace():
+    """If something did poison the name first, registration must fail loudly instead of patching over it."""
+    script = textwrap.dedent(
+        f"""
+        import importlib.util, sys
+        sys.path.insert(0, {str(ROOT / "tests")!r})
+        spec = importlib.util.spec_from_file_location("audio_mix", {str(CLI)!r})
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["audio_mix"] = module          # the CLI, cached before the guard exists
+        import conftest
+        print("no error")
+        """
+    )
+    result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, cwd=ROOT)
+    assert result.returncode != 0, "conftest accepted a module imported from the wrong place"
+    assert "expected it from" in result.stderr, result.stderr
