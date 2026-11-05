@@ -181,7 +181,7 @@ def step_engine_r() -> bool:
             '<rect width="320" height="320" fill="#d94848"/>'
             '<circle cx="160" cy="160" r="92" fill="#ffffff"/>'
             '<path d="M60 160h200M160 60v200" stroke="#202020" stroke-width="12"/>'
-            '</svg>\\n',
+            '</svg>\n',
             encoding="utf-8",
         )
         (proj / "plan" / "effects.json").write_text(json.dumps({
@@ -194,7 +194,7 @@ def step_engine_r() -> bool:
                      "start": 0.08, "duration": 0.28, "count": 16, "seed": 7},
                 ],
             }],
-        }) + "\\n", encoding="utf-8")
+        }) + "\n", encoding="utf-8")
         # render.mjs refuses placeholder copy — give the one scene its real card
         data_ts = proj / "src" / "data.ts"
         src = data_ts.read_text(encoding="utf-8")
