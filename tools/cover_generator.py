@@ -96,6 +96,13 @@ def _text_options(text: str) -> dict[str, str]:
     return {"direction": "rtl", "language": "ar"} if _is_arabic(text) else {"direction": "ltr"}
 
 
+def _text_length(font: ImageFont.FreeTypeFont, text: str) -> float:
+    try:
+        return font.getlength(text, **_text_options(text))
+    except (KeyError, TypeError, ValueError):
+        return font.getlength(text)
+
+
 def _draw_text(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str,
                font: ImageFont.FreeTypeFont, **kwargs: Any) -> None:
     try:
@@ -113,7 +120,7 @@ def _wrap(text: str, font: ImageFont.FreeTypeFont, max_width: int) -> list[str]:
     current = words[0]
     for word in words[1:]:
         candidate = f"{current} {word}"
-        if font.getlength(candidate) <= max_width:
+        if _text_length(font, candidate) <= max_width:
             current = candidate
         else:
             lines.append(current)
@@ -129,7 +136,7 @@ def _fit_lines(text: str, family: str, weight: int, max_width: int, max_height: 
         lines = _wrap(text, font, max_width)
         spacing = int(size * 0.22)
         height = len(lines) * size + max(0, len(lines) - 1) * spacing
-        if lines and max(font.getlength(line) for line in lines) <= max_width and height <= max_height:
+        if lines and max(_text_length(font, line) for line in lines) <= max_width and height <= max_height:
             return font, lines, spacing
     font = _load_font(family, weight, min_size)
     lines = _wrap(text, font, max_width)
@@ -297,9 +304,24 @@ def render_artwork(*, size: tuple[int, int], title: str, subtitle: str | None = 
     return canvas.convert("RGB")
 
 
+def _safe_output_dir(path: Path) -> Path:
+    absolute = Path(os.path.abspath(path))
+    current = absolute
+    while current != current.parent:
+        if current.is_symlink():
+            raise ValueError(f"Refusing symlink output path: {current}")
+        current = current.parent
+    resolved = absolute.resolve()
+    try:
+        resolved.relative_to(ROOT.resolve())
+    except ValueError as exc:
+        raise ValueError("Output directory must stay inside the repository (for example cache/covers or projects/<slug>/out).") from exc
+    resolved.mkdir(parents=True, exist_ok=True)
+    return resolved
+
+
 def generate(args: argparse.Namespace) -> tuple[Path, Path]:
-    out_dir = Path(args.out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    out_dir = _safe_output_dir(Path(args.out_dir))
     frame = _extract_frame(Path(args.frame), args.at) if args.frame else None
     pose = _pose_image(args.pose, Path(args.pose_file) if args.pose_file else None)
     cover = render_artwork(size=(1080, 1920), title=args.title, subtitle=args.subtitle,
