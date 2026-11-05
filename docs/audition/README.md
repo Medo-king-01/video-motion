@@ -16,6 +16,50 @@ bash docs/audition/make.sh          # if you have ffmpeg on PATH
 
 ---
 
+---
+
+# Music level A/B — flat 2 dB cut, nothing else touched
+
+**Requested:** lower the music bed by 2 dB, keep it clearly audible behind the VO, keep the VO in
+front, **do not** change the SFX, the layer balance, the presets, or the audio engine.
+
+**Done:** `music.level_db` from **−3.0 → −5.0** in the cue sheet. That is the single documented knob
+for bed level; nothing else in the sheet moved. Ducking is untouched at
+`amount 0.45 · attack 80 ms · release 320 ms · lookahead 40 ms`.
+
+## The control that matters
+
+| | A (music −3 dB) | B (music −5 dB) | change |
+|---|---|---|---|
+| music stem, pre-master | −25.43 dBFS | −27.43 dBFS | **−2.000 dB** (sample-exact ratio 0.794328) |
+| SFX stem, pre-master | −13.47 dBFS | −13.47 dBFS | **0.00 — bit-identical** (`array_equal` = True) |
+| VO stem | −20.68 dBFS | −20.68 dBFS | **0.00** |
+| **music-to-VO ratio in the finished master** | −4.75 dB | −6.75 dB | **−2.00 dB** |
+| **VO-to-music separation during speech** | 8.0 dB | **10.0 dB** | **+2.0 dB** |
+| finished loudness | −14.80 LUFS | −14.80 LUFS | **0.00** |
+
+That last pair is the one to read carefully:
+
+- **8.0 dB** separation is tight — the bed is competing with the narrator.
+- **10.0 dB** is inside the normal 8–14 dB range for a bed under speech: the words are clearly in
+  front and the music is still present, not ducked into a background wash.
+- It is **not** a "muffled/remote" setting. The bed is still the same arrangement, the same layers,
+  the same brightness — only 2 dB further back.
+
+## Listening
+
+`08-music-level-AB.mp3` — A (music −3 dB) 0:00–0:20 · B (music −5 dB) 0:21.5–0:41.5. Both halves are
+mastered to **−14.80 LUFS** so the quieter bed cannot win or lose on loudness alone.
+
+## Not applied
+
+`music-presets.json`, the layer levels, the presets, `music.py`, `audio_mix.py` and the SFX engine are
+**unchanged**. This is a cue-sheet value, and it is only in the A/B renders: the change is proposed,
+not committed. Approving it means setting `level_db: -5.0` on the generated sheet (the default in
+`audio_mix.mix()` is −3.0, and `from_storyboard()` does not set it) — one number, in one place.
+
+---
+
 # Plan B — layer rebalance, measured but **not applied**
 
 Status: **`music-presets.json` is byte-identical to commit `d6cd5c4`.** Nothing in this document has
@@ -159,7 +203,8 @@ whether the bed stays out of the way of Arabic speech, not to be final narration
 | **`05-AB-tech-levelmatched.mp3`** | tech, current vs plan B, level-matched. A 0–16 s · B 17.5–33.5 s |
 | `06-AB-energetic.mp3` | energetic, the preset with the largest defect (+5.3 dB pluck), A/B level-matched |
 | **`07-VO-mix-AB.mp3`** | full mix with Arabic VO + 6 SFX + ducking, current vs plan B |
-| `vo-ar.mp3` | the Arabic VO used in `07` (synthetic stock ad read, not product copy) |
+| `vo-ar.mp3` | the Arabic VO used in `07` and `08` (synthetic stock ad read, not product copy) |
+| **`08-music-level-AB.mp3`** | the bed 2 dB quieter, A/B level-matched, VO and SFX untouched |
 
 `plan_b_layers.json` and `plan_b_measurements.json` contain every number in this document.
 
