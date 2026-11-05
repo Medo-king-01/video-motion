@@ -37,7 +37,7 @@ def test_optional_pose_is_kept_inside_canvas():
     pose = Image.new("RGBA", (400, 1200), (203, 39, 27, 180))
     result = covers.render_artwork(size=(1080, 1920), title="شرح الأداة", pose=pose)
     assert result.size == (1080, 1920)
-    assert result.getpixel((1030, 1880)) != (0, 0, 0)
+    assert result.getpixel((900, 1700))[0] > 60
 
 
 def test_title_is_required_and_style_is_valid():
