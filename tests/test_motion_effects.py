@@ -6,9 +6,8 @@ import shutil
 import subprocess
 import sys
 
-from conftest import SKILL
-
 import pytest
+from conftest import SKILL
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
 from effects import light_sweep, particle_dissolve, whip_pan  # noqa: E402
