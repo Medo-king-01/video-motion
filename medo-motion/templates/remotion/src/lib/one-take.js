@@ -3,23 +3,26 @@
 // This module owns no fonts, DOM, Canvas, accumulated state, wall-clock time or external dependency.
 import { ease, lerp } from './motion.js';
 import { clampWindowBox, fullscreenBox, resolveBrandRole } from './stage.js';
+import { TEXT_ROLES } from './text-direction.js';
 
 export const ONE_TAKE_EASES = Object.freeze(['linear', 'cubicInOut', 'cubicOut', 'quintOut', 'sineInOut', 'expoInOut']);
 export const ONE_TAKE_KINDS = Object.freeze(['rect', 'circle', 'text']);
-const FONT_ROLES = new Set(['caption', 'hook', 'title', 'body', 'keyword', 'cta', 'label', 'number', 'ui', 'quote', 'hud']);
+const FONT_ROLES = new Set(TEXT_ROLES);
 const EPS = 1e-9;
 const finite = (v) => typeof v === 'number' && Number.isFinite(v);
 const object = (v) => v && typeof v === 'object' && !Array.isArray(v);
+const field = (source, key, fallback) => Object.prototype.hasOwnProperty.call(source, key) ? source[key] : fallback;
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 const defaultTransform = () => ({ x: 0, y: 0, scale: 1, rotation: 0, opacity: 1 });
+const normalizedOneTakes = new WeakSet();
 
 function canvasOf(raw, errors) {
-  const value = raw == null ? {} : raw;
+  const value = raw === undefined ? {} : raw;
   if (!object(value)) errors.push('canvas must be an object');
   const source = object(value) ? value : {};
   const out = {};
   [['w', 1080], ['h', 1920], ['fps', 30]].forEach(([key, fallback]) => {
-    const v = source[key] ?? fallback;
+    const v = field(source, key, fallback);
     if (!finite(v) || !Number.isInteger(v) || v <= 0) errors.push(`canvas.${key} must be a positive integer`);
     out[key] = finite(v) && Number.isInteger(v) && v > 0 ? v : fallback;
   });
@@ -27,16 +30,16 @@ function canvasOf(raw, errors) {
 }
 
 function roleOf(value, fallback, label, errors) {
-  try { return resolveBrandRole(value ?? fallback, label); }
+  try { return resolveBrandRole(value, label); }
   catch (error) { errors.push(error.message); return fallback; }
 }
 
 function transformOf(raw, previous, where, errors) {
-  if (raw != null && !object(raw)) errors.push(`${where} must be an object`);
+  if (raw !== undefined && !object(raw)) errors.push(`${where} must be an object`);
   const source = object(raw) ? raw : {};
   const out = {};
   ['x', 'y', 'scale', 'rotation', 'opacity'].forEach((key) => {
-    const value = source[key] ?? previous[key];
+    const value = field(source, key, previous[key]);
     if (!finite(value)) errors.push(`${where}.${key} must be finite`);
     out[key] = finite(value) ? value : previous[key];
   });
@@ -53,7 +56,7 @@ function parseOneTake(input, externalDuration = null) {
   if (!object(input)) return { errors: ['one-take spec must be an object'], spec: null };
   if (input.version !== 1) errors.push('version must be 1');
   if (typeof input.id !== 'string' || !input.id.trim()) errors.push('id must be a non-empty stable string');
-  if ((input.clock ?? 'vo') !== 'vo') errors.push("clock must be 'vo'; state and interaction times are absolute VO seconds");
+  if (field(input, 'clock', 'vo') !== 'vo') errors.push("clock must be 'vo'; state and interaction times are absolute VO seconds");
   const duration = input.duration;
   if (!finite(duration) || duration <= 0) errors.push('duration must be finite and positive');
   const sceneDuration = finite(duration) && duration > 0 ? duration : 1;
@@ -80,28 +83,28 @@ function parseOneTake(input, externalDuration = null) {
     const kind = ONE_TAKE_KINDS.includes(raw.kind) ? raw.kind : 'rect';
     const w = raw.w, h = raw.h;
     if (!finite(w) || w <= 0 || !finite(h) || h <= 0) errors.push(`element ${id}: w/h must be finite and positive`);
-    const radius = raw.radius ?? 0, strokeWidth = raw.strokeWidth ?? 0;
+    const radius = field(raw, 'radius', 0), strokeWidth = field(raw, 'strokeWidth', 0);
     if (!finite(radius) || radius < 0) errors.push(`element ${id}: radius must be finite and non-negative`);
     if (!finite(strokeWidth) || strokeWidth < 0) errors.push(`element ${id}: strokeWidth must be finite and non-negative`);
     const element = {
       id, kind,
       w: finite(w) && w > 0 ? w : 100, h: finite(h) && h > 0 ? h : 100,
       radius: finite(radius) && radius >= 0 ? radius : 0,
-      role: roleOf(raw.role, 'paper', `element ${id}.role`, errors),
-      accentRole: roleOf(raw.accentRole, 'red', `element ${id}.accentRole`, errors),
-      strokeRole: roleOf(raw.strokeRole, 'gray_2', `element ${id}.strokeRole`, errors),
+      role: roleOf(field(raw, 'role', 'paper'), 'paper', `element ${id}.role`, errors),
+      accentRole: roleOf(field(raw, 'accentRole', 'red'), 'red', `element ${id}.accentRole`, errors),
+      strokeRole: roleOf(field(raw, 'strokeRole', 'gray_2'), 'gray_2', `element ${id}.strokeRole`, errors),
       strokeWidth: finite(strokeWidth) && strokeWidth >= 0 ? strokeWidth : 0,
     };
     if (kind === 'text') {
       if (typeof raw.text !== 'string' || !raw.text.trim()) errors.push(`element ${id}: text must be a non-empty string`);
-      const fontSize = raw.fontSize ?? 48, scene = raw.scene ?? 1, fontRole = raw.fontRole ?? 'body';
+      const fontSize = field(raw, 'fontSize', 48), scene = field(raw, 'scene', 1), fontRole = field(raw, 'fontRole', 'body');
       if (!finite(fontSize) || fontSize <= 0) errors.push(`element ${id}: fontSize must be finite and positive`);
       if (!Number.isInteger(scene) || scene <= 0) errors.push(`element ${id}: scene must be a positive integer`);
       if (!FONT_ROLES.has(fontRole)) errors.push(`element ${id}: unknown fontRole ${fontRole}`);
       if ('rtl' in raw && typeof raw.rtl !== 'boolean') errors.push(`element ${id}: rtl must be boolean`);
       Object.assign(element, {
         text: typeof raw.text === 'string' ? raw.text : '', fontSize: finite(fontSize) && fontSize > 0 ? fontSize : 48,
-        scene: Number.isInteger(scene) && scene > 0 ? scene : 1, fontRole, rtl: raw.rtl ?? true,
+        scene: Number.isInteger(scene) && scene > 0 ? scene : 1, fontRole, rtl: field(raw, 'rtl', true),
       });
     }
     elements.push(element);
@@ -129,7 +132,7 @@ function parseOneTake(input, externalDuration = null) {
       errors.push(`last state time ${at} must equal duration ${sceneDuration}`);
     }
     previousTime = at;
-    const easeName = raw.ease ?? 'cubicInOut';
+    const easeName = field(raw, 'ease', 'cubicInOut');
     if (!ONE_TAKE_EASES.includes(easeName)) errors.push(`${where}.ease must be one of ${ONE_TAKE_EASES.join(',')}`);
     if (!object(raw.camera)) errors.push(`${where}.camera must be an object`);
     const cameraRaw = object(raw.camera) ? raw.camera : {};
@@ -140,7 +143,7 @@ function parseOneTake(input, externalDuration = null) {
       camera[key] = finite(value) ? value : key === 'zoom' ? 1 : canvas[key === 'x' ? 'w' : 'h'] / 2;
     });
     if (camera.zoom <= 0) { errors.push(`${where}.camera.zoom must be positive`); camera.zoom = 1; }
-    if (raw.elements != null && !object(raw.elements)) errors.push(`${where}.elements must be an object`);
+    if (raw.elements !== undefined && !object(raw.elements)) errors.push(`${where}.elements must be an object`);
     const patches = object(raw.elements) ? raw.elements : {};
     Object.keys(patches).forEach((idValue) => {
       if (!elementIds.has(idValue)) errors.push(`${where}.elements references unknown element ${idValue}`);
@@ -161,7 +164,7 @@ function parseOneTake(input, externalDuration = null) {
     const raw = input.cursor;
     if (!object(raw)) errors.push('cursor must be an object');
     const source = object(raw) ? raw : {};
-    const size = source.size ?? 42, opacity = source.opacity ?? 1;
+    const size = field(source, 'size', 42), opacity = field(source, 'opacity', 1);
     if (!finite(size) || size <= 0) errors.push('cursor.size must be finite and positive');
     if (!finite(opacity) || opacity < 0 || opacity > 1) errors.push('cursor.opacity must be within [0,1]');
     const rawPoints = Array.isArray(source.points) ? source.points : [];
@@ -177,17 +180,18 @@ function parseOneTake(input, externalDuration = null) {
       if (point.time < 0 || point.time > sceneDuration) errors.push(`${where}.time must stay inside the scene`);
       if (point.time <= pointTime + EPS) errors.push(`${where}.time must be strictly increasing`);
       pointTime = point.time;
-      const easeName = point.ease ?? 'cubicInOut';
+      const easeName = field(point, 'ease', 'cubicInOut');
       if (!ONE_TAKE_EASES.includes(easeName)) errors.push(`${where}.ease is invalid`);
       points.push({ time: point.time, x: point.x, y: point.y, ease: easeName });
     });
+    if (source.clicks !== undefined && !Array.isArray(source.clicks)) errors.push('cursor.clicks must be an array when provided');
     const rawClicks = Array.isArray(source.clicks) ? source.clicks : [];
     const clicks = [];
     let previousClickEnd = -Infinity;
     rawClicks.forEach((click, index) => {
       const where = `cursor.clicks[${index}]`;
       if (!object(click)) { errors.push(`${where} must be an object`); return; }
-      const clickDuration = click.duration ?? 0.36;
+      const clickDuration = field(click, 'duration', 0.36);
       if (!finite(click.time) || click.time < 0 || click.time >= sceneDuration) {
         errors.push(`${where}.time must be finite and inside [0,duration)`);
       }
@@ -213,7 +217,7 @@ function parseOneTake(input, externalDuration = null) {
     try { clampWindowBox(input.viewport, canvas); } catch (error) { errors.push(error.message); }
   }
   const spec = {
-    version: 1, id: input.id, clock: 'vo', _normalized: true, duration: sceneDuration, canvas,
+    version: 1, id: input.id, clock: 'vo', duration: sceneDuration, canvas,
     backgroundRole, elements, states, cursor,
     viewport: (() => {
       try { return clampWindowBox(input.viewport ?? fullscreenBox(canvas), canvas); }
@@ -228,9 +232,11 @@ export function validateOneTakeSpec(input, duration = null) {
 }
 
 export function normalizeOneTake(input) {
-  if (input?._normalized) return input;
+  // Only objects produced by this module skip parsing; a JSON `_normalized` field grants no trust.
+  if (object(input) && normalizedOneTakes.has(input)) return input;
   const { errors, spec } = parseOneTake(input);
   if (errors.length) throw new Error(`Invalid one-take spec:\n - ${errors.join('\n - ')}`);
+  normalizedOneTakes.add(spec);
   return spec;
 }
 

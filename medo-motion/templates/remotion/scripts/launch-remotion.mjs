@@ -40,12 +40,17 @@ if (existsSync(beatsPath)) {
     const wallErrors = validateSlideWallSpec(wallDoc, Number.isFinite(beats.duration) ? beats.duration : null);
     if (wallErrors.length) fail('Invalid plan/slide-wall.json:\n' + wallErrors.join('\n'));
   }
-  const oneTakePath = path.join(project, 'plan', 'one-take.json');
-  if (existsSync(oneTakePath)) {
-    const takeDoc = JSON.parse(readFileSync(oneTakePath, 'utf8'));
-    const takeErrors = validateOneTakeSpec(takeDoc, Number.isFinite(beats.duration) ? beats.duration : null);
-    if (takeErrors.length) fail('Invalid plan/one-take.json:\n' + takeErrors.join('\n'));
+}
+
+const oneTakePath = path.join(project, 'plan', 'one-take.json');
+if (existsSync(oneTakePath)) {
+  const beats = existsSync(beatsPath) ? JSON.parse(readFileSync(beatsPath, 'utf8')) : {};
+  if (!Number.isFinite(beats.duration) || beats.duration <= 0) {
+    fail('Invalid plan/one-take.json: plan/beats.json must contain a finite positive duration');
   }
+  const takeDoc = JSON.parse(readFileSync(oneTakePath, 'utf8'));
+  const takeErrors = validateOneTakeSpec(takeDoc, beats.duration);
+  if (takeErrors.length) fail('Invalid plan/one-take.json:\n' + takeErrors.join('\n'));
 }
 
 let browser = null;

@@ -17,15 +17,31 @@ import captions
 import layout_p
 import motion
 from stage import brand_rgb, clamp_window_box, fullscreen_box, resolve_brand_role
+from text_direction import TEXT_ROLES
 
 ONE_TAKE_EASES = {"linear", "cubicInOut", "cubicOut", "quintOut", "sineInOut", "expoInOut"}
 ONE_TAKE_KINDS = {"rect", "circle", "text"}
-FONT_ROLES = {"caption", "hook", "title", "body", "keyword", "cta", "label", "number", "ui", "quote", "hud"}
+FONT_ROLES = frozenset(TEXT_ROLES)
 _EPS = 1e-9
+_MISSING = object()
+
+
+class _NormalizedOneTake(dict):
+    """Internal marker that cannot be supplied through JSON or copied with dict()."""
 
 
 def _finite(value) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except (OverflowError, TypeError, ValueError):
+        return False
+
+
+def _field(source: dict, key: str, fallback):
+    """Only an absent property receives a default; an explicit null remains invalid input."""
+    return source[key] if key in source else fallback
 
 
 def _default_transform():
@@ -33,12 +49,12 @@ def _default_transform():
 
 
 def _canvas_of(raw, errors):
-    if raw is not None and not isinstance(raw, dict):
+    if not isinstance(raw, dict):
         errors.append("canvas must be an object")
     source = raw if isinstance(raw, dict) else {}
     out = {}
     for key, fallback in (("w", 1080), ("h", 1920), ("fps", 30)):
-        value = source.get(key, fallback)
+        value = _field(source, key, fallback)
         if not _finite(value) or int(value) != value or value <= 0:
             errors.append(f"canvas.{key} must be a positive integer")
         out[key] = int(value) if _finite(value) and int(value) == value and value > 0 else fallback
@@ -47,19 +63,19 @@ def _canvas_of(raw, errors):
 
 def _role_of(value, fallback, label, errors):
     try:
-        return resolve_brand_role(value if value is not None else fallback, label)
+        return resolve_brand_role(value, label)
     except ValueError as exc:
         errors.append(str(exc))
         return fallback
 
 
 def _transform_of(raw, previous, where, errors):
-    if raw is not None and not isinstance(raw, dict):
+    if raw is not _MISSING and not isinstance(raw, dict):
         errors.append(f"{where} must be an object")
     source = raw if isinstance(raw, dict) else {}
     out = {}
     for key in ("x", "y", "scale", "rotation", "opacity"):
-        value = source.get(key, previous[key])
+        value = _field(source, key, previous[key])
         if not _finite(value):
             errors.append(f"{where}.{key} must be finite")
         out[key] = float(value) if _finite(value) else previous[key]
@@ -80,7 +96,7 @@ def _parse_one_take(input_spec, external_duration=None):
         errors.append("version must be 1")
     if not isinstance(input_spec.get("id"), str) or not input_spec.get("id", "").strip():
         errors.append("id must be a non-empty stable string")
-    if input_spec.get("clock", "vo") != "vo":
+    if _field(input_spec, "clock", "vo") != "vo":
         errors.append("clock must be 'vo'; state and interaction times are absolute VO seconds")
     duration = input_spec.get("duration")
     if not _finite(duration) or duration <= 0:
@@ -90,8 +106,8 @@ def _parse_one_take(input_spec, external_duration=None):
         errors.append("external duration must be finite and positive")
     elif external_duration is not None and abs(float(external_duration) - scene_duration) > _EPS:
         errors.append(f"duration {scene_duration} must equal scene/VO duration {external_duration}")
-    canvas = _canvas_of(input_spec.get("canvas"), errors)
-    background_role = _role_of(input_spec.get("backgroundRole"), "ink_shadow", "backgroundRole", errors)
+    canvas = _canvas_of(_field(input_spec, "canvas", {}), errors)
+    background_role = _role_of(_field(input_spec, "backgroundRole", "ink_shadow"), "ink_shadow", "backgroundRole", errors)
 
     raw_elements = input_spec.get("elements") if isinstance(input_spec.get("elements"), list) else []
     if not isinstance(input_spec.get("elements"), list) or not raw_elements:
@@ -118,7 +134,7 @@ def _parse_one_take(input_spec, external_duration=None):
         w, h = raw.get("w"), raw.get("h")
         if not _finite(w) or w <= 0 or not _finite(h) or h <= 0:
             errors.append(f"element {element_id}: w/h must be finite and positive")
-        radius, stroke_width = raw.get("radius", 0), raw.get("strokeWidth", 0)
+        radius, stroke_width = _field(raw, "radius", 0), _field(raw, "strokeWidth", 0)
         if not _finite(radius) or radius < 0:
             errors.append(f"element {element_id}: radius must be finite and non-negative")
         if not _finite(stroke_width) or stroke_width < 0:
@@ -128,15 +144,16 @@ def _parse_one_take(input_spec, external_duration=None):
             "w": float(w) if _finite(w) and w > 0 else 100.0,
             "h": float(h) if _finite(h) and h > 0 else 100.0,
             "radius": float(radius) if _finite(radius) and radius >= 0 else 0.0,
-            "role": _role_of(raw.get("role"), "paper", f"element {element_id}.role", errors),
-            "accentRole": _role_of(raw.get("accentRole"), "red", f"element {element_id}.accentRole", errors),
-            "strokeRole": _role_of(raw.get("strokeRole"), "gray_2", f"element {element_id}.strokeRole", errors),
+            "role": _role_of(_field(raw, "role", "paper"), "paper", f"element {element_id}.role", errors),
+            "accentRole": _role_of(_field(raw, "accentRole", "red"), "red", f"element {element_id}.accentRole", errors),
+            "strokeRole": _role_of(_field(raw, "strokeRole", "gray_2"), "gray_2", f"element {element_id}.strokeRole", errors),
             "strokeWidth": float(stroke_width) if _finite(stroke_width) and stroke_width >= 0 else 0.0,
         }
         if kind == "text":
             if not isinstance(raw.get("text"), str) or not raw.get("text", "").strip():
                 errors.append(f"element {element_id}: text must be a non-empty string")
-            font_size, scene, font_role = raw.get("fontSize", 48), raw.get("scene", 1), raw.get("fontRole", "body")
+            font_size = _field(raw, "fontSize", 48)
+            scene, font_role = _field(raw, "scene", 1), _field(raw, "fontRole", "body")
             if not _finite(font_size) or font_size <= 0:
                 errors.append(f"element {element_id}: fontSize must be finite and positive")
             if not isinstance(scene, int) or isinstance(scene, bool) or scene <= 0:
@@ -149,7 +166,7 @@ def _parse_one_take(input_spec, external_duration=None):
                 "text": raw.get("text") if isinstance(raw.get("text"), str) else "",
                 "fontSize": float(font_size) if _finite(font_size) and font_size > 0 else 48.0,
                 "scene": scene if isinstance(scene, int) and not isinstance(scene, bool) and scene > 0 else 1,
-                "fontRole": font_role, "rtl": raw.get("rtl", True),
+                "fontRole": font_role, "rtl": _field(raw, "rtl", True),
             })
         elements.append(element)
 
@@ -184,7 +201,7 @@ def _parse_one_take(input_spec, external_duration=None):
         if index == len(raw_states) - 1 and abs(at - scene_duration) > _EPS:
             errors.append(f"last state time {at} must equal duration {scene_duration}")
         previous_time = at
-        ease_name = raw.get("ease", "cubicInOut")
+        ease_name = _field(raw, "ease", "cubicInOut")
         if ease_name not in ONE_TAKE_EASES:
             errors.append(f"{where}.ease must be one of {sorted(ONE_TAKE_EASES)}")
         if not isinstance(raw.get("camera"), dict):
@@ -199,7 +216,7 @@ def _parse_one_take(input_spec, external_duration=None):
         if camera["zoom"] <= 0:
             errors.append(f"{where}.camera.zoom must be positive")
             camera["zoom"] = 1.0
-        if raw.get("elements") is not None and not isinstance(raw.get("elements"), dict):
+        if "elements" in raw and not isinstance(raw.get("elements"), dict):
             errors.append(f"{where}.elements must be an object")
         patches = raw.get("elements") if isinstance(raw.get("elements"), dict) else {}
         for patch_id in patches:
@@ -208,7 +225,8 @@ def _parse_one_take(input_spec, external_duration=None):
         transforms = {}
         for element in elements:
             transforms[element["id"]] = _transform_of(
-                patches.get(element["id"]), previous_transforms.get(element["id"], _default_transform()),
+                patches[element["id"]] if element["id"] in patches else _MISSING,
+                previous_transforms.get(element["id"], _default_transform()),
                 f"{where}.elements.{element['id']}", errors,
             )
         states.append({"id": state_id, "time": at, "ease": ease_name, "camera": camera, "elements": transforms})
@@ -220,7 +238,7 @@ def _parse_one_take(input_spec, external_duration=None):
         if not isinstance(raw, dict):
             errors.append("cursor must be an object")
         source = raw if isinstance(raw, dict) else {}
-        size, opacity = source.get("size", 42), source.get("opacity", 1)
+        size, opacity = _field(source, "size", 42), _field(source, "opacity", 1)
         if not _finite(size) or size <= 0:
             errors.append("cursor.size must be finite and positive")
         if not _finite(opacity) or not 0 <= opacity <= 1:
@@ -242,10 +260,12 @@ def _parse_one_take(input_spec, external_duration=None):
             if point["time"] <= point_time + _EPS:
                 errors.append(f"{where}.time must be strictly increasing")
             point_time = float(point["time"])
-            ease_name = point.get("ease", "cubicInOut")
+            ease_name = _field(point, "ease", "cubicInOut")
             if ease_name not in ONE_TAKE_EASES:
                 errors.append(f"{where}.ease is invalid")
             points.append({"time": float(point["time"]), "x": float(point["x"]), "y": float(point["y"]), "ease": ease_name})
+        if "clicks" in source and not isinstance(source.get("clicks"), list):
+            errors.append("cursor.clicks must be an array when provided")
         raw_clicks = source.get("clicks") if isinstance(source.get("clicks"), list) else []
         clicks, previous_click_end = [], -math.inf
         for index, click in enumerate(raw_clicks):
@@ -253,7 +273,7 @@ def _parse_one_take(input_spec, external_duration=None):
             if not isinstance(click, dict):
                 errors.append(f"{where} must be an object")
                 continue
-            click_duration = click.get("duration", 0.36)
+            click_duration = _field(click, "duration", 0.36)
             if not _finite(click.get("time")) or not 0 <= click.get("time", -1) < scene_duration:
                 errors.append(f"{where}.time must be finite and inside [0,duration)")
             if not _finite(click_duration) or click_duration <= 0:
@@ -281,11 +301,11 @@ def _parse_one_take(input_spec, external_duration=None):
         viewport = clamp_window_box(input_spec.get("viewport") or fullscreen_box(canvas), canvas)
     except ValueError:
         viewport = fullscreen_box(canvas)
-    spec = {
-        "version": 1, "id": input_spec.get("id"), "clock": "vo", "_normalized": True,
+    spec = _NormalizedOneTake({
+        "version": 1, "id": input_spec.get("id"), "clock": "vo",
         "duration": scene_duration, "canvas": canvas, "backgroundRole": background_role,
         "elements": elements, "states": states, "cursor": cursor, "viewport": viewport,
-    }
+    })
     return errors, spec
 
 
@@ -295,7 +315,8 @@ def validate_one_take_spec(spec: dict, duration: float | None = None) -> list[st
 
 
 def normalize_one_take(spec: dict) -> dict:
-    if isinstance(spec, dict) and spec.get("_normalized"):
+    # The private type is created only by _parse_one_take; JSON fields cannot opt out of validation.
+    if type(spec) is _NormalizedOneTake:
         return spec
     errors, normalized = _parse_one_take(spec)
     if errors:
@@ -303,19 +324,32 @@ def normalize_one_take(spec: dict) -> dict:
     return normalized
 
 
-def load_project_one_take(project: str | Path) -> dict | None:
-    """Load the optional companion plan with strict UTF-8 JSON and no NaN/Infinity."""
-    path = Path(project).resolve() / "plan" / "one-take.json"
-    if not path.is_file():
-        return None
+def _load_strict_project_json(path: Path):
     def reject_constant(value):
         raise ValueError(f"non-finite JSON constant: {value}")
     try:
         with path.open(encoding="utf-8") as handle:
-            spec = json.load(handle, parse_constant=reject_constant)
+            return json.load(handle, parse_constant=reject_constant)
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
         raise ValueError(f"Invalid JSON in {path}: {exc}") from exc
-    return normalize_one_take(spec)
+
+
+def load_project_one_take(project: str | Path) -> dict | None:
+    """Load the optional plan and require its duration to match the project's measured beats."""
+    root = Path(project).resolve()
+    path = root / "plan" / "one-take.json"
+    if not path.is_file():
+        return None
+    spec = _load_strict_project_json(path)
+    beats_path = root / "plan" / "beats.json"
+    beats = _load_strict_project_json(beats_path) if beats_path.is_file() else {}
+    duration = beats.get("duration") if isinstance(beats, dict) else None
+    if not _finite(duration) or duration <= 0:
+        raise ValueError("plan/beats.json must contain a finite positive duration when plan/one-take.json exists")
+    errors, normalized = _parse_one_take(spec, float(duration))
+    if errors:
+        raise ValueError("Invalid one-take spec for plan/beats.json:\n - " + "\n - ".join(errors))
+    return normalized
 
 
 def _point_at(points, time, motion_mode):

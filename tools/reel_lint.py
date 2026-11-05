@@ -581,8 +581,11 @@ def lint_one_take(rep: Report, project: Path, plan: dict) -> None:
         rep.error("O01", f"plan/one-take.json invalid JSON: {exc}")
         return
     duration = plan.get("duration")
-    has_duration = isinstance(duration, (int, float)) and not isinstance(duration, bool) and float(duration) > 0
-    errors = one_take.validate_one_take_spec(spec, duration=float(duration) if has_duration else None)
+    if not one_take._finite(duration) or duration <= 0:
+        errors = ["plan/beats.json must contain a finite positive duration when plan/one-take.json exists"]
+        errors += one_take.validate_one_take_spec(spec)
+    else:
+        errors = one_take.validate_one_take_spec(spec, duration=float(duration))
     for error in errors:
         rep.error("O01", f"plan/one-take.json: {error}")
     if not errors:

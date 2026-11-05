@@ -58,7 +58,11 @@ if(existsSync(slideWallPath)){
 const oneTakePath=path.join(root,'plan','one-take.json');
 if(existsSync(oneTakePath)){
   const spec=JSON.parse(await readFile(oneTakePath,'utf8'));
-  const errors=validateOneTakeSpec(spec,Number.isFinite(DURATION)?DURATION:null);
+  const beats=existsSync(beatsPath)?JSON.parse(await readFile(beatsPath,'utf8')):{};
+  if(!Number.isFinite(beats.duration)||beats.duration<=0){
+    throw Error('Invalid plan/one-take.json: plan/beats.json must contain a finite positive duration');
+  }
+  const errors=validateOneTakeSpec(spec,beats.duration);
   if(errors.length)throw Error('Invalid plan/one-take.json:\n'+errors.join('\n'));
 }
 // The reel is exactly as long as the VO (no target length): say it out loud when they disagree,

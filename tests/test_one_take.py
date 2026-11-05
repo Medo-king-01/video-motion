@@ -256,6 +256,18 @@ def assert_numeric_equal(actual, expected, atol=1e-9) -> None:
         assert actual == expected
 
 
+def js_validation_errors(cases: list[dict], durations: list[float] | None = None) -> list[list[str]]:
+    module = (K / "lib" / "one-take.js").as_uri()
+    script = f"""
+      import {{validateOneTakeSpec}} from {json.dumps(module)};
+      const cases=JSON.parse(process.argv[1]),durations=JSON.parse(process.argv[2]);
+      console.log(JSON.stringify(cases.map((spec,index)=>validateOneTakeSpec(spec,durations?.[index]??null))));
+    """
+    result = subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(cases), json.dumps(durations)],
+                            capture_output=True, text=True, check=True, timeout=60)
+    return json.loads(result.stdout)
+
+
 def test_p_k_r_numeric_parity_and_identical_shared_core() -> None:
     spec = spec_fixture()
     module = (K / "lib" / "one-take.js").as_uri()
@@ -279,11 +291,117 @@ def test_p_k_r_numeric_parity_and_identical_shared_core() -> None:
     assert (K / "lib" / "one-take.js").read_bytes() == (R / "src" / "lib" / "one-take.js").read_bytes()
 
 
+def test_null_policy_matches_python_and_javascript() -> None:
+    mutations = [
+        ("missing properties use defaults", lambda s: None, True),
+        ("transform x null", lambda s: s["states"][0]["elements"]["card"].update(x=None), False),
+        ("camera zoom null", lambda s: s["states"][1]["camera"].update(zoom=None), False),
+        ("state ease null", lambda s: s["states"][1].update(ease=None), False),
+        ("cursor size null", lambda s: s["cursor"].update(size=None), False),
+        ("clock null", lambda s: s.update(clock=None), False),
+        ("canvas null", lambda s: s.update(canvas=None), False),
+        ("state elements null", lambda s: s["states"][1].update(elements=None), False),
+        ("element patch null", lambda s: s["states"][1]["elements"].update(card=None), False),
+        ("cursor clicks null", lambda s: s["cursor"].update(clicks=None), False),
+        ("click duration null", lambda s: s["cursor"]["clicks"][0].update(duration=None), False),
+        ("nullable cursor", lambda s: s.update(cursor=None), True),
+        ("nullable viewport", lambda s: s.update(viewport=None), True),
+    ]
+    cases, expected = [], []
+    for _, mutate, valid in mutations:
+        spec = spec_fixture()
+        mutate(spec)
+        cases.append(spec)
+        expected.append(valid)
+    font_null = spec_fixture()
+    font_null["elements"].append({"id": "label", "kind": "text", "w": 100, "h": 40,
+                                  "text": "Label", "fontRole": None})
+    cases.append(font_null)
+    expected.append(False)
+
+    js_errors = js_validation_errors(cases)
+    for (label, _, valid), spec, javascript in zip(mutations + [("fontRole null", None, False)], cases,
+                                                     js_errors, strict=True):
+        python = one_take.validate_one_take_spec(spec)
+        assert bool(python) == bool(javascript) == (not valid), (label, python, javascript)
+    assert one_take.normalize_one_take(cases[11])["cursor"] is None
+    nullable_viewport = one_take.normalize_one_take(cases[12])
+    assert nullable_viewport["viewport"] == one_take.fullscreen_box(nullable_viewport["canvas"])
+
+
+def test_font_roles_are_exactly_text_direction_roles_in_both_cores() -> None:
+    from text_direction import TEXT_ROLES  # noqa: PLC0415
+    assert set(one_take.FONT_ROLES) == set(TEXT_ROLES)
+    cases = []
+    for role in (*TEXT_ROLES, "caption", "hud"):
+        spec = spec_fixture()
+        spec["elements"].append({"id": "label", "kind": "text", "w": 100, "h": 40,
+                                 "text": "Label", "fontRole": role, "fontSize": 30})
+        cases.append(spec)
+    javascript = js_validation_errors(cases)
+    for role, spec, js_errors in zip((*TEXT_ROLES, "caption", "hud"), cases, javascript, strict=True):
+        py_errors = one_take.validate_one_take_spec(spec)
+        if role in TEXT_ROLES:
+            assert py_errors == js_errors == [], role
+        else:
+            assert any("fontRole" in error for error in py_errors), role
+            assert any("fontRole" in error for error in js_errors), role
+
+
+def test_external_normalized_flag_never_bypasses_validation_and_internal_reuse_is_fast(monkeypatch) -> None:
+    for raw in ({"_normalized": True}, {**spec_fixture(), "_normalized": True, "states": [{"id": "bad"}]}):
+        assert one_take.validate_one_take_spec(raw)
+        with pytest.raises(ValueError, match="Invalid one-take spec"):
+            one_take.normalize_one_take(raw)
+    raw = {**spec_fixture(), "_normalized": True}
+    normalized = one_take.normalize_one_take(raw)
+    assert normalized is not raw and "_normalized" not in normalized
+
+    def unexpected_parse(_spec, _duration=None):
+        raise AssertionError("internally normalized plans must not be parsed again per frame")
+
+    monkeypatch.setattr(one_take, "_parse_one_take", unexpected_parse)
+    assert one_take.normalize_one_take(normalized) is normalized
+    assert one_take.one_take_state_at(normalized, 0.5)["time"] == 0.5
+
+    module = (K / "lib" / "one-take.js").as_uri()
+    script = f"""
+      import {{normalizeOneTake,oneTakeStateAt,validateOneTakeSpec}} from {json.dumps(module)};
+      const raw=JSON.parse(process.argv[1]);
+      let missingThrew=false,badThrew=false;
+      try{{normalizeOneTake({{_normalized:true}})}}catch{{missingThrew=true}}
+      try{{normalizeOneTake({{...raw,states:[{{id:'bad'}}]}})}}catch{{badThrew=true}}
+      const normalized=normalizeOneTake(raw);
+      console.log(JSON.stringify({{missingInvalid:validateOneTakeSpec({{_normalized:true}}).length>0,
+        badInvalid:validateOneTakeSpec({{...raw,states:[{{id:'bad'}}]}}).length>0,missingThrew,badThrew,
+        distinct:normalized!==raw,noExternalMarker:!('_normalized' in normalized),
+        reused:normalizeOneTake(normalized)===normalized,time:oneTakeStateAt(normalized,.5).time}}));
+    """
+    result = subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(raw)],
+                            capture_output=True, text=True, check=True, timeout=60)
+    assert json.loads(result.stdout) == {"missingInvalid": True, "badInvalid": True, "missingThrew": True,
+                                         "badThrew": True, "distinct": True, "noExternalMarker": True,
+                                         "reused": True, "time": 0.5}
+
+
+def test_finite_rejects_overflow_nan_infinity_and_booleans() -> None:
+    assert one_take._finite(8)
+    assert one_take._finite(8.25)
+    for value in (10**10000, float("nan"), float("inf"), float("-inf"), True, False):
+        assert not one_take._finite(value)
+    spec = spec_fixture()
+    spec["duration"] = 10**10000
+    assert any("duration" in error for error in one_take.validate_one_take_spec(spec))
+    with pytest.raises(ValueError, match="duration"):
+        one_take.normalize_one_take(spec)
+
+
 def test_project_loader_and_reel_lint_o00_o01(tmp_path: Path) -> None:
     sys.path.insert(0, str(TOOLS))
     import reel_lint  # noqa: PLC0415
     (tmp_path / "plan").mkdir()
     (tmp_path / "plan" / "one-take.json").write_text(json.dumps(spec_fixture()))
+    (tmp_path / "plan" / "beats.json").write_text(json.dumps({"duration": 2}))
     assert one_take.load_project_one_take(tmp_path)["id"] == "unit-take"
     assert one_take.load_project_one_take(tmp_path / "missing") is None
     report = reel_lint.Report()
@@ -295,9 +413,74 @@ def test_project_loader_and_reel_lint_o00_o01(tmp_path: Path) -> None:
     report = reel_lint.Report()
     reel_lint.lint_one_take(report, tmp_path, {"duration": 2})
     assert report.errors and all(item["code"] == "O01" for item in report.errors)
+    (tmp_path / "plan" / "one-take.json").write_text(json.dumps(spec_fixture()))
+    report = reel_lint.Report()
+    reel_lint.lint_one_take(report, tmp_path, {})
+    assert any("finite positive duration" in item["msg"] for item in report.errors)
+    (tmp_path / "plan" / "one-take.json").write_text('{"_normalized":true}')
+    with pytest.raises(ValueError, match="Invalid one-take spec"):
+        one_take.load_project_one_take(tmp_path)
     (tmp_path / "plan" / "one-take.json").write_text('{"duration":NaN}')
     with pytest.raises(ValueError, match="non-finite"):
         one_take.load_project_one_take(tmp_path)
+
+
+@pytest.mark.parametrize(("take_duration", "beats_duration", "valid"), [(2, 2, True), (8, 10, False), (10, 8, False)])
+def test_project_duration_gate_matches_p_lint_and_js(tmp_path: Path, take_duration, beats_duration, valid) -> None:
+    sys.path.insert(0, str(TOOLS))
+    import reel_lint  # noqa: PLC0415
+    spec = spec_fixture()
+    spec["duration"] = take_duration
+    spec["states"][-1]["time"] = take_duration
+    (tmp_path / "plan").mkdir()
+    (tmp_path / "plan" / "one-take.json").write_text(json.dumps(spec))
+    (tmp_path / "plan" / "beats.json").write_text(json.dumps({"duration": beats_duration}))
+    py_errors = one_take.validate_one_take_spec(spec, duration=beats_duration)
+    js_errors = js_validation_errors([spec], [beats_duration])[0]
+    report = reel_lint.Report()
+    reel_lint.lint_one_take(report, tmp_path, {"duration": beats_duration})
+    if valid:
+        assert one_take.load_project_one_take(tmp_path)["duration"] == take_duration
+        assert py_errors == js_errors == [] and not report.errors
+    else:
+        with pytest.raises(ValueError, match="duration .* must equal scene/VO duration"):
+            one_take.load_project_one_take(tmp_path)
+        assert any("must equal scene/VO duration" in error for error in py_errors)
+        assert any("must equal scene/VO duration" in error for error in js_errors)
+        assert any("must equal scene/VO duration" in item["msg"] for item in report.errors)
+
+
+def test_k_and_r_launchers_reject_beats_mismatch_before_rendering(tmp_path: Path) -> None:
+    for engine in ("k", "r"):
+        project = _scaffold(engine, tmp_path / engine)
+        beats_path = project / "plan" / "beats.json"
+        beats = json.loads(beats_path.read_text())
+        beats["duration"] = 10  # One-Take and K data.js remain at eight seconds.
+        beats_path.write_text(json.dumps(beats))
+        command = (["node", "src/render.js", "--from", "0", "--to", "0.1", "--jpg", "--out", "cache/invalid"]
+                   if engine == "k" else
+                   ["node", "scripts/launch-remotion.mjs", "still", "src/index.ts", "OneTakeExample", "invalid.png"])
+        result = subprocess.run(command, cwd=project, capture_output=True, text=True, timeout=60)
+        assert result.returncode != 0, engine
+        assert "duration 8 must equal scene/VO duration 10" in result.stdout + result.stderr, engine
+        assert not (project / "cache" / "invalid").exists()
+        assert not (project / "invalid.png").exists()
+
+
+@pytest.mark.parametrize("beats", [None, {}, {"duration": None}, {"duration": 0}, {"duration": "2"}])
+def test_project_with_one_take_requires_valid_beats_duration(tmp_path: Path, beats) -> None:
+    (tmp_path / "plan").mkdir()
+    (tmp_path / "plan" / "one-take.json").write_text(json.dumps(spec_fixture()))
+    if beats is not None:
+        (tmp_path / "plan" / "beats.json").write_text(json.dumps(beats))
+    with pytest.raises(ValueError, match="finite positive duration"):
+        one_take.load_project_one_take(tmp_path)
+
+
+def test_project_without_one_take_does_not_read_beats(tmp_path: Path) -> None:
+    (tmp_path / "plan").mkdir()
+    (tmp_path / "plan" / "beats.json").write_text("not json")
+    assert one_take.load_project_one_take(tmp_path) is None
 
 
 def test_native_p_adapter_render_is_deterministic_and_seek_independent() -> None:

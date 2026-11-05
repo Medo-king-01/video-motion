@@ -18,6 +18,8 @@
 
 لا توجد dependency إلزامية جديدة. وجود الملف يفعّل التحقق في lint وK/R launchers، لكنه **لا يستبدل scene dispatcher تلقائيًا**: مشهد P أو K أو composition في R يستدعي المحول صراحة. كذلك تدخل كل ملفات `plan/*.json` في توقيع P chunk cache الحالي.
 
+في P يقرأ `load_project_one_take` ملف `plan/beats.json` عند وجود One-Take، ويشترط `duration` موجبًا finite ومطابقًا تمامًا لمدة One-Take قبل إنشاء المحول أو أي frame. غياب One-Take يحافظ على `None` دون قراءة beats؛ أما غياب duration الصالح مع وجود One-Take فهو خطأ. القاعدة نفسها تمر في lint وK/R launchers.
+
 ## عقد `plan/one-take.json`
 
 ```json
@@ -64,7 +66,7 @@
 ### العناصر والحالات
 
 - `kind` أحد `rect` أو `circle` أو `text`. لكل عنصر `id` نصي فريد ومستقر، وأبعاد موجبة، وbrand `role` محجوز. `strokeRole` و`accentRole` اختياريان؛ الألوان الخام مرفوضة.
-- النص يحتاج `fontRole` من نظام الخطوط الحالي و`fontSize` موجبًا و`rtl` boolean. لا HTML أو raw SVG أو external asset داخل هذا العقد.
+- النص يحتاج `fontRole` من أدوار Text Direction التسعة الحالية (`hook`, `title`, `body`, `keyword`, `cta`, `label`, `number`, `ui`, `quote`) و`fontSize` موجبًا و`rtl` boolean. تُرفض الأدوار غير المدعومة مثل `caption` و`hud` أثناء validation. لا HTML أو raw SVG أو external asset داخل هذا العقد.
 - عدد الحالات من **2 إلى 16**، بأزمنة absolute VO متزايدة بصرامة. أول زمن `0` وآخر زمن يساوي `duration`؛ وعند تمرير مدة beats يجب أن تتطابق معها. كل الحالات لها IDs فريدة وكاميرا `{x,y,zoom>0}` كاملة.
 - الحالة الأولى تحدد كل عنصر ظاهر بـ`x/y`، مع defaults موثقة: `scale=1`, `rotation=0`, `opacity=1`. الحالات التالية patches: القيم المحذوفة تُحمل من الحالة السابقة. كل مرجع عنصر يجب أن يكون معروفًا.
 - `ease` على الحالة هو easing **الوصول إليها** من الحالة السابقة. القيم المسموحة: `linear`, `cubicInOut`, `cubicOut`, `quintOut`, `sineInOut`, `expoInOut`.
