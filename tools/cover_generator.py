@@ -237,8 +237,10 @@ def _draw_copy(canvas: Image.Image, *, title: str, subtitle: str | None, eyebrow
     family = title_family or (style["font_ar"] if arabic else style["font_latin"])
     weight = int(style["weight"])
     if eyebrow:
-        eyebrow_font = _load_font(style["font_latin"], 600, max(22, int(width * 0.035)))
-        _draw_text(draw, (x1, y0), eyebrow.upper(), eyebrow_font, fill=colors["salmon"], anchor="ra")
+        eyebrow_family = style["font_ar"] if _is_arabic(eyebrow) else style["font_latin"]
+        eyebrow_font = _load_font(eyebrow_family, 600, max(22, int(width * 0.035)))
+        eyebrow_color = colors["salmon"] if style["theme"] == "dark" else colors["red"]
+        _draw_text(draw, (x1, y0), eyebrow.upper(), eyebrow_font, fill=eyebrow_color, anchor="ra")
         y0 += int(eyebrow_font.size * 1.9)
         height -= int(eyebrow_font.size * 1.9)
     title_font, lines, spacing = _fit_lines(title, family, weight, width, int(height * 0.72),
