@@ -54,6 +54,18 @@ def test_pose_manifest_resolves_known_slug_and_rejects_unknown():
         covers._pose_image("not-a-pose", None)
 
 
+def test_existing_output_symlink_is_rejected(tmp_path):
+    target = tmp_path / "real.png"
+    target.write_bytes(b"not an image")
+    link = tmp_path / "cover-9x16.png"
+    try:
+        link.symlink_to(target)
+    except (NotImplementedError, OSError):
+        pytest.skip("Symlink creation is not available on this platform")
+    with pytest.raises(ValueError, match="symlink output file"):
+        covers._reject_output_symlinks((link,))
+
+
 def test_source_frame_cover_crop_is_exact():
     source = Image.new("RGB", (1920, 1080), (20, 30, 40))
     result = covers._cover_crop(source, (1080, 1920))
