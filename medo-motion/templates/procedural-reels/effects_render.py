@@ -72,3 +72,48 @@ def draw_whip_pan(image: Image.Image, t: float, **options) -> Image.Image:
     if blur_radius > 0:
         shifted = shifted.filter(ImageFilter.GaussianBlur(radius=blur_radius))
     return shifted
+
+
+def draw_particle_dissolve(image: Image.Image, t: float, **options) -> Image.Image:
+    """Render the source image as deterministic, fading sampled-color particles.
+
+    The returned RGBA frame has a transparent background by default. Each particle
+    samples its color from the source frame at its normalized particle coordinate,
+    then paints a circle at that frame's deterministic destination coordinate.
+    The input image is never mutated; arbitrary-time calls are independent.
+    """
+    from PIL import ImageDraw
+
+    try:
+        from effects import particle_dissolve
+    except ImportError:  # pragma: no cover
+        from .effects import particle_dissolve  # type: ignore
+
+    if not isinstance(image, Image.Image) or image.mode not in ("RGB", "RGBA"):
+        raise ValueError("particle dissolve source must be a PIL RGB or RGBA image")
+    width, height = image.size
+    if width <= 0 or height <= 0:
+        raise ValueError("particle dissolve source must have positive dimensions")
+
+    background = options.pop("background", None)
+    state = particle_dissolve(t, **options)
+    source = image.convert("RGBA")
+    result = Image.new("RGBA", image.size, (0, 0, 0, 0) if background is None else (*background[:3], 255))
+    draw = ImageDraw.Draw(result, "RGBA")
+
+    for particle in state["particles"]:
+        alpha = max(0.0, min(1.0, float(particle["alpha"])))
+        if alpha <= 0:
+            continue
+        sx = max(0, min(width - 1, int(float(particle["x"]) * width)))
+        sy = max(0, min(height - 1, int(float(particle["y"]) * height)))
+        color = source.getpixel((sx, sy))
+        particle_alpha = round(color[3] * alpha)
+        if particle_alpha <= 0:
+            continue
+        cx = float(particle["x"]) * width
+        cy = float(particle["y"]) * height
+        radius = max(1.0, float(particle["radius"]) * width)
+        draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius),
+                     fill=(color[0], color[1], color[2], particle_alpha))
+    return result
