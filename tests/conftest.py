@@ -1,6 +1,8 @@
 """Shared fixtures: import paths and the brand font."""
 from __future__ import annotations
 
+import importlib.abc
+import importlib.util
 import sys
 import wave  # noqa: F401  — see below: import it BEFORE any test module touches sys.path
 from pathlib import Path
@@ -24,6 +26,48 @@ FONTS = ROOT / "assets" / "fonts" / "Cairo"
 for _p in (str(ROOT / "tools"), str(SKILL / "scripts"), str(ENGINE_P)):
     if _p not in sys.path:
         sys.path.append(_p)
+
+
+# `tools/audio_mix.py` is a CLI and `procedural-reels/audio_mix.py` is the library the audio tests
+# mean. `tools/` sits above the engine directory on the path set up here, and test modules push their
+# own directory to the front while they are being *collected* — test_cover_generator.py inserts
+# `tools`, alphabetically after test_audio_mix.py inserts the engine directory. So the first
+# `import audio_mix`, which happens inside a test function, could land on the CLI; once that module
+# object was cached in sys.modules every later import returned it, and the audio tests failed with
+# `module 'audio_mix' has no attribute 'save_sheet'`. Which order pytest picked depended on the
+# module set, which is why the full suite could pass while a two-file run failed.
+#
+# The name is therefore claimed here, while conftest is imported and before pytest collects any test
+# module. A finder is registered rather than the module being imported: importing it eagerly would
+# pull in numpy and scipy for every test in the suite, including the ones that have nothing to do
+# with audio (the fast CI job installs neither scipy nor runs anything but the cover generator).
+#
+# Only the one colliding name is claimed. Reordering the whole path would also shadow
+# `text_direction.py`, which exists in both trees with different contents and is used by
+# `reel_lint`, `stage_gate` and `layout_audit_p`.
+_ENGINE_OWNED = {"audio_mix": ENGINE_P / "audio_mix.py"}
+
+
+class _EngineModuleFinder(importlib.abc.MetaPathFinder):
+    """Resolve the claimed names from the engine directory, whatever sys.path says."""
+
+    def find_spec(self, fullname, path=None, target=None):
+        location = _ENGINE_OWNED.get(fullname)
+        if location is None or not location.is_file():
+            return None
+        return importlib.util.spec_from_file_location(fullname, location)
+
+
+if not any(isinstance(_f, _EngineModuleFinder) for _f in sys.meta_path):
+    _already = sys.modules.get("audio_mix")
+    if _already is not None:
+        _origin = Path(getattr(_already, "__file__", "") or "").resolve()
+        if _origin.parent != ENGINE_P.resolve():
+            raise RuntimeError(
+                f"'audio_mix' was imported from {_origin} before conftest ran; "
+                f"expected it from {ENGINE_P}"
+            )
+    sys.meta_path.insert(0, _EngineModuleFinder())
 
 
 @pytest.fixture(scope="session")
