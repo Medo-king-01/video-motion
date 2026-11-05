@@ -1,7 +1,7 @@
 # Deterministic effect states
 
-This first implementation slice adds frame-addressable state functions for three requested
-effect families. They are pure functions of local time and explicit parameters; they do not
+This implementation adds frame-addressable state functions for three requested effect
+families. They are pure functions of local time and explicit parameters; they do not
 read clocks, retain state between frames, or use random-number APIs.
 
 | Reference | API | Returned state |
@@ -19,14 +19,20 @@ read clocks, retain state between frames, or use random-number APIs.
   count is capped at 256 to keep accidental workloads bounded.
 - Whip-pan velocity is the analytic derivative of the smoothstep offset. blur_distance is
   bounded by max_blur; a renderer may map it to its existing velocity-blur sampling.
-- Light Sweep returns a band description, not a baked gradient or image asset. The renderer
-  chooses the palette-safe highlight treatment.
+- Light Sweep renderer adapters use the state function and composite a soft diagonal highlight:
+  - Engine P: `effects_render.draw_light_sweep(image, t, **options)` returns a new Pillow RGB/RGBA frame.
+  - Engine K: `effects-render.drawLightSweep(ctx, t, width, height, options)` paints into a Canvas2D context.
+  - Engine R: `LightSweep` from `lib/LightSweep.tsx` is an absolute overlay; place it after the content it should affect.
+- Light Sweep adapters preserve arbitrary-time sampling. They are renderer helpers, not automatically
+  injected into every scene; the scene/overlay caller must invoke or mount the adapter.
 
 ## Current scope and limitation
 
-These APIs establish matching P/K/R effect-state math and can be sampled at any frame. They
-are not yet renderer integrations: no Pillow/Canvas/Remotion drawing or transition compositing
-is added in this slice. In particular, Particle Dissolve still needs an image sampling and
-compositing path in each renderer, and R still needs its catalog-transition adapter before
-these effects can be selected as scene transitions. Do not describe these states alone as
-finished visual effects.
+Light Sweep now has raster/overlay adapters in P, K and R. The adapters are not yet wired into
+the generic scene authoring schema or automatically applied to existing renders.
+
+Whip Pan still has state math only: no camera/scene transform or blur sampling is automatically
+applied. Particle Dissolve still has state math only: no source-image sampling, particle
+compositing, or scene-transition integration is implemented. R also still needs its catalog
+transition adapter before these effects can be selected as scene transitions. Do not describe
+Whip Pan or Particle Dissolve as finished visual effects.
