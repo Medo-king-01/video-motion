@@ -58,8 +58,6 @@ def draw_whip_pan(image: Image.Image, t: float, **options) -> Image.Image:
     if width <= 0 or height <= 0:
         raise ValueError("whip pan target must have positive dimensions")
 
-    from effects import whip_pan
-
     state = whip_pan(t, **options)
     dx = float(state["offset_x"]) * width
     fill = (0, 0, 0, 0) if image.mode == "RGBA" else (0, 0, 0)
