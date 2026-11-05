@@ -53,7 +53,7 @@ The plan uses 1-based scene numbers from the VO timeline:
     {
       "scene": 2,
       "effects": [
-        { "type": "particleDissolve", "source": "media/particle-source.png",
+        { "type": "particleDissolve", "source": "particle-source.png",
           "start": 0, "duration": 0.72, "count": 96, "seed": 18 }
       ]
     }
@@ -63,7 +63,7 @@ The plan uses 1-based scene numbers from the VO timeline:
 
 Supported types are `lightSweep`, `whipPan`, and `particleDissolve`.
 All times are scene-local seconds, so seeking or rendering an arbitrary frame does
-not depend on prior frames. Particle Dissolve uses its explicit `source` image as
+not depend on prior frames. Particle Dissolve uses its explicit `source` image from the Remotion public directory as
 the particle color source; it is an overlay layer, not an automatic capture of
 arbitrary React scene content. Cross-origin sources must grant CORS access.
 
