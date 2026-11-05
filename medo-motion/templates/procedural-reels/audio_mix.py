@@ -413,11 +413,17 @@ def measure_loudness(path, ff=None) -> dict:
     r = subprocess.run([ff, "-hide_banner", "-nostats", "-i", str(path), "-af",
                         "ebur128=peak=true:framelog=quiet", "-f", "null", "-"],
                        capture_output=True, text=True)
-    out = {"ok": False}
-    m_i = re.search(r"I:\s*(-?\d+(?:\.\d+)?) LUFS", r.stderr)
-    m_tp = re.search(r"Peak:\s*(-?\d+(?:\.\d+)?) dBFS", r.stderr)
-    m_lra = re.search(r"LRA:\s*(-?\d+(?:\.\d+)?) LU", r.stderr)
-    if m_i:
+    # ebur128 emits partial per-window readings before its final Summary block.
+    # Parse only that block; searching the whole stderr returns an early transient
+    # (often 0.0 LUFS during the opening window) instead of integrated loudness.
+    summary_at = r.stderr.rfind("Summary:")
+    summary = r.stderr[summary_at:] if summary_at >= 0 else ""
+    out = {"ok": False, "reason": "EBU R128 summary missing or measurement failed",
+           "returncode": r.returncode, "stderr": r.stderr[-400:]}
+    m_i = re.search(r"I:\s*(-?\d+(?:\.\d+)?) LUFS", summary)
+    m_tp = re.search(r"Peak:\s*(-?\d+(?:\.\d+)?) dBFS", summary)
+    m_lra = re.search(r"LRA:\s*(-?\d+(?:\.\d+)?) LU", summary)
+    if r.returncode == 0 and m_i:
         out = {"ok": True, "lufs": float(m_i.group(1)),
                "true_peak": float(m_tp.group(1)) if m_tp else None,
                "lra": float(m_lra.group(1)) if m_lra else None}
