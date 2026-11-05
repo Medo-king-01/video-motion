@@ -29,7 +29,7 @@ def test_render_outputs_exact_dimensions(size, expected):
 
 def test_arabic_and_mixed_latin_title_renders():
     result = covers.render_artwork(size=(1080, 1920), title="جرّب Claude Code النهاردة",
-                                   subtitle="شرح عملي للمطورين")
+                                   subtitle="شرح عملي للمطورين", eyebrow="فكرة تقنية")
     assert result.size == (1080, 1920)
 
 
