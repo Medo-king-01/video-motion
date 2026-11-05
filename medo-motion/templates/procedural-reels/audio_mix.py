@@ -448,6 +448,13 @@ def master_to_target(path, lufs: float = -14.5, true_peak: float = -1.5, toleran
     before = measure_loudness(path, ff)
     report = {"ok": True, "loudnorm": norm, "measured_before_trim": before}
     if not before.get("ok"):
+        # A successful loudnorm pass is not sufficient: the exported master is only
+        # verified when the independent EBU R128 meter can read it.
+        report.update({
+            "ok": False,
+            "reason": "EBU R128 verification failed after loudnorm",
+            "measurement_error": before,
+        })
         return report
     gain = max(-max_trim, min(max_trim, lufs - before["lufs"]))
     if abs(gain) <= tolerance:
