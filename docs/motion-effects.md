@@ -38,7 +38,14 @@ Light Sweep now has raster/overlay adapters in P, K and R. The adapters are not 
 the generic scene authoring schema or automatically applied to existing renders.
 
 Whip Pan has callable renderer adapters, but they are not wired into the generic scene authoring
-schema or automatically applied to existing renders. Particle Dissolve still has state math only: no source-image sampling, particle
-compositing, or scene-transition integration is implemented. R also still needs its catalog
-transition adapter before these effects can be selected as scene transitions. Do not describe
-Whip Pan or Particle Dissolve as finished visual effects.
+schema or automatically applied to existing renders.
+
+Particle Dissolve now has callable sampled-color particle renderers:
+- Engine P: `effects_render.draw_particle_dissolve(image, t, **options)` returns a transparent RGBA Pillow frame.
+- Engine K: `effects-render.drawParticleDissolve(ctx, sourceCtx, t, width, height, options)` samples a separate readable source Canvas2D context and paints the particle layer.
+- Engine R: `ParticleDissolve` from `lib/ParticleDissolve.tsx` accepts a source URL, frame time and dimensions, then samples the loaded source image into a canvas particle layer. Cross-origin images require CORS permission.
+
+These adapters are callable render helpers, not automatic scene transitions. They are not yet wired into
+the generic scene-authoring schema; R also still needs a catalog transition adapter before they can
+be selected as scene transitions. The current particle renderer is a sampled-color dot dissolve,
+not a full-resolution shatter or tile-fragment simulation.
