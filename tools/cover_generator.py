@@ -96,6 +96,15 @@ def _text_options(text: str) -> dict[str, str]:
     return {"direction": "rtl", "language": "ar"} if _is_arabic(text) else {"direction": "ltr"}
 
 
+def _draw_text(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str,
+               font: ImageFont.FreeTypeFont, **kwargs: Any) -> None:
+    try:
+        draw.text(xy, text, font=font, **kwargs, **_text_options(text))
+    except (KeyError, ValueError):
+        # Older Pillow builds without libraqm cannot accept direction/language options.
+        draw.text(xy, text, font=font, **kwargs)
+
+
 def _wrap(text: str, font: ImageFont.FreeTypeFont, max_width: int) -> list[str]:
     words = text.split()
     if not words:
@@ -123,7 +132,10 @@ def _fit_lines(text: str, family: str, weight: int, max_width: int, max_height: 
         if lines and max(font.getlength(line) for line in lines) <= max_width and height <= max_height:
             return font, lines, spacing
     font = _load_font(family, weight, min_size)
-    return font, _wrap(text, font, max_width), int(min_size * 0.2)
+    lines = _wrap(text, font, max_width)
+    if not lines or max(font.getlength(line) for line in lines) > max_width:
+        raise ValueError("Title or subtitle is too long for the selected layout; shorten the copy.")
+    return font, lines, int(min_size * 0.2)
 
 
 def _cover_crop(image: Image.Image, size: tuple[int, int]) -> Image.Image:
@@ -218,8 +230,7 @@ def _draw_copy(canvas: Image.Image, *, title: str, subtitle: str | None, eyebrow
     weight = int(style["weight"])
     if eyebrow:
         eyebrow_font = _load_font(style["font_latin"], 600, max(22, int(width * 0.035)))
-        draw.text((x1, y0), eyebrow.upper(), font=eyebrow_font, fill=colors["salmon"],
-                  anchor="ra", **_text_options(eyebrow))
+        _draw_text(draw, (x1, y0), eyebrow.upper(), eyebrow_font, fill=colors["salmon"], anchor="ra")
         y0 += int(eyebrow_font.size * 1.9)
         height -= int(eyebrow_font.size * 1.9)
     title_font, lines, spacing = _fit_lines(title, family, weight, width, int(height * 0.72),
@@ -229,7 +240,7 @@ def _draw_copy(canvas: Image.Image, *, title: str, subtitle: str | None, eyebrow
     y = y0
     for index, line in enumerate(lines):
         color = colors["paper"] if style["theme"] == "dark" else colors["ink"]
-        draw.text((x1, y), line, font=title_font, fill=color, anchor="ra", **_text_options(line))
+        _draw_text(draw, (x1, y), line, title_font, fill=color, anchor="ra")
         y += line_height
     accent_y = min(y + int(title_font.size * 0.34), y1 - 4)
     draw.rounded_rectangle((x1 - int(width * 0.22), accent_y, x1, accent_y + max(6, title_font.size // 16)),
@@ -242,7 +253,7 @@ def _draw_copy(canvas: Image.Image, *, title: str, subtitle: str | None, eyebrow
         sy = accent_y + int(title_font.size * 0.72)
         sub_color = colors["gray_4"] if style["theme"] == "dark" else colors["ink_soft"]
         for line in sub_lines[:2]:
-            draw.text((x1, sy), line, font=sub_font, fill=sub_color, anchor="ra", **_text_options(line))
+            _draw_text(draw, (x1, sy), line, sub_font, fill=sub_color, anchor="ra")
             sy += sub_font.size + sub_spacing
 
 
