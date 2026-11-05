@@ -4,9 +4,9 @@ from __future__ import annotations
 import sys
 
 import numpy as np
-from PIL import Image
 
 from conftest import SKILL
+from PIL import Image
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
 from effects_render import draw_light_sweep  # noqa: E402
