@@ -45,9 +45,9 @@ def draw_light_sweep(image: Image.Image, t: float, **options) -> Image.Image:
 
 
 def draw_whip_pan(image: Image.Image, t: float, **options) -> Image.Image:
-    """Translate a frame by the deterministic whip-pan offset and apply directional blur.
+    """Translate a frame by the deterministic whip-pan offset and apply bounded Gaussian blur.
 
-    The image is not mutated. Blur is approximated with a horizontal Gaussian kernel;
+    The image is not mutated. Blur is approximated with an isotropic Gaussian kernel;
     the returned frame is cropped to the original viewport.
     """
     from PIL import ImageFilter
