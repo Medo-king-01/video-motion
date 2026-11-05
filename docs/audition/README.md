@@ -235,7 +235,10 @@ whether the bed stays out of the way of Arabic speech, not to be final narration
 
 ## 8. Verification — nothing was applied
 
-Executable, not prose: `bash docs/audition/verify.sh` (exit 0 = clean).
+Executable, not prose: `bash docs/audition/verify.sh` (exit 0 = clean). Check 5 delegates to
+`check_plan_b.py`, which compares the plan and the presets **as numbers with a tolerance** — the first
+version compared JSON as strings, so a plan value of `0.224` vs a hand edit of `0.22` reported
+"not applied" while the file had moved.
 
 ```
   PASS  audio_mix.py default level_db is -3.0                    1

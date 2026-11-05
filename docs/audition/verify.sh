@@ -43,45 +43,8 @@ check "from_storyboard() does not set level_db" "0" "$got"
 if git diff --quiet "$BASE" -- "$PRESETS"; then got=identical; else got=CHANGED; fi
 check "music-presets.json identical to $BASE" "identical" "$got"
 
-# 5. Plan B's nine numbers never reached the preset file.
-if [ -f docs/audition/plan_b_layers.json ]; then
-  drift=0
-  while read -r preset layer want; do
-    have=$(python3 -c "
-import json,sys
-try:
-    d=json.load(open('$PRESETS'))
-    print(d['presets']['$preset']['layers'].get('$layer'))
-except Exception:
-    print('ERR')
-" 2>/dev/null)
-    # Only flag it if the preset ALREADY equals the plan value while differing from the base value:
-    # that would mean the plan was applied.
-    base=$(git show "$BASE:$PRESETS" 2>/dev/null | python3 -c "
-import json,sys
-try:
-    d=json.load(sys.stdin)
-    print(d['presets']['$preset']['layers'].get('$layer'))
-except Exception:
-    print('')
-" 2>/dev/null)
-    if [ -n "$base" ] && [ "$have" = "$want" ] && [ "$have" != "$base" ]; then
-      printf '  FAIL  plan B applied to %s.%s = %s\n' "$preset" "$layer" "$want"
-      drift=1
-    fi
-  done < <(python3 -c "
-import json
-d=json.load(open('docs/audition/plan_b_layers.json'))
-current=json.load(open('$PRESETS'))
-for preset,layers in d.items():
-    for layer,val in layers.items():
-        print(preset, layer, val)
-")
-  [ "$drift" -eq 0 ] && printf '  PASS  %-56s not applied\n' "Plan B layer values"
-  fail=$((fail || drift))
-else
-  printf '  SKIP  %-56s (plan_b_layers.json missing)\n' "Plan B layer values"
-fi
+# 5. Plan B's layer values never reached the preset file (numeric compare, see check_plan_b.py).
+if ! python3 docs/audition/check_plan_b.py; then fail=1; fi
 
 echo
 if [ "$fail" -eq 0 ]; then
