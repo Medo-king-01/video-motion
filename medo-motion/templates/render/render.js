@@ -18,6 +18,7 @@ const root=process.cwd(),src=path.dirname(fileURLToPath(import.meta.url)),a=proc
 const opt=(k,d)=>{const i=a.indexOf('--'+k);return i<0?d:a[i+1];};
 const {DURATION}=await import('./data.js');
 import {validateTextDirection} from './lib/text-direction.js';
+import {validateSlideWallSpec} from './lib/slide-wall.js';
 const from=Number(opt('from',0)),to=Number(opt('to',DURATION)),fps=Number(opt('fps',30)),scale=Number(opt('scale',1));
 const crf=Number(opt('crf',18));
 const motionMode=opt('motion-mode',process.env.MEDO_MOTION_MODE||'normal');
@@ -46,6 +47,12 @@ if(existsSync(beatsPath)){
   const fonts=existsSync(fontsPath)?(JSON.parse(await readFile(fontsPath,'utf8')).families||{}):null;
   const {errors}=validateTextDirection(direction,beats,copy,fonts);
   if(errors.length)throw Error('Text direction incomplete — the agent must choose styles per scene:\n'+errors.join('\n'));
+}
+const slideWallPath=path.join(root,'plan','slide-wall.json');
+if(existsSync(slideWallPath)){
+  const spec=JSON.parse(await readFile(slideWallPath,'utf8'));
+  const errors=validateSlideWallSpec(spec,Number.isFinite(DURATION)?DURATION:null);
+  if(errors.length)throw Error('Invalid plan/slide-wall.json:\n'+errors.join('\n'));
 }
 // The reel is exactly as long as the VO (no target length): say it out loud when they disagree,
 // because `-af apad` + a fixed frame count would silently cut a longer voice-over.
@@ -91,7 +98,7 @@ const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript'
 const srcUrl='/'+path.relative(root,src).split(path.sep).join('/');
 const assetsRoot=path.resolve(setting('ASSETS_DIR')||path.join(root,'assets'));
 if(srcUrl.includes('..'))throw Error('Renderer must live inside the selected project');
-const ALLOWED_PLANS=['/plan/text-direction.json','/plan/beats.json','/plan/stage.json','/plan/copy.json','/plan/word-timings.json'];
+const ALLOWED_PLANS=['/plan/text-direction.json','/plan/beats.json','/plan/stage.json','/plan/slide-wall.json','/plan/copy.json','/plan/word-timings.json'];
 const server=http.createServer(async (request,response)=>{
   try{
     const u=decodeURIComponent(new URL(request.url,'http://localhost').pathname);

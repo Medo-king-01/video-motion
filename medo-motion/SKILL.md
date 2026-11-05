@@ -78,7 +78,7 @@ one storyboard sheet, then the complete preview with sound.
 | Reusable React/TypeScript scenes, data-driven graphics, Remotion Studio review | **R** — `templates/remotion` (Remotion + React) |
 | A reel whose different sections genuinely need P, K, and/or R | **Hybrid** — sequential full-frame segments via `tools/render_hybrid.py`; no simultaneous engine layers |
 
-For hybrid, each segment uses exactly one renderer; P/K features do not become R features without a deliberate, tested port. See `templates/HYBRID.md` and `docs/hybrid.md`. Same palette from `brand/brand.json` (K: `lib/brand.js`, R: `src/brand.ts`, P: constants in
+For hybrid, each segment uses exactly one renderer; P/K features do not become R features without a deliberate, tested port. See `templates/HYBRID.md` and `docs/hybrid.md`. For persistent framing use `../docs/fixed-stage.md`; for native multi-slide 3D camera moves inside its CONTENT use `../docs/slide-wall.md` and the scaffolded `examples/slide-wall` project. Three.js remains optional for both. Same palette from `brand/brand.json` (K: `lib/brand.js`, R: `src/brand.ts`, P: constants in
 `lib.py`; drift is checked by `scripts/brand_check.py --project`). Engine P needs Arabic
 shaping: Pillow with libraqm, or the bundled `arabic_shape.py` (HarfBuzz + FreeType) when the
 Pillow wheel has no libraqm. `lib.py` picks automatically; never letter-by-letter.

@@ -113,6 +113,35 @@ def camera(dist: float = 900.0, yaw: float = 0.0, pitch: float = 0.0, fov: float
             "fov": math.radians(fov), "target": target}
 
 
+def look_camera(position=(0.0, 0.0, 900.0), target=(0.0, 0.0, 0.0), fov: float = 38.0,
+                roll: float = 0.0, up=(0.0, 1.0, 0.0)) -> dict:
+    """A free pinhole camera with an explicit position, target, up hint and roll.
+
+    This complements :func:`camera` (which orbits a target) for timeline-driven dolly moves.
+    All angles are radians. The returned basis is orthonormal and has the same shape consumed
+    by :func:`project`, so existing mesh/projection code needs no camera-specific branch.
+    """
+    pos = tuple(float(v) for v in position)
+    target = tuple(float(v) for v in target)
+    forward = _norm(_sub(target, pos))
+    if _dot(_sub(target, pos), _sub(target, pos)) <= 1e-18:
+        raise ValueError("look_camera position and target must differ")
+    up_hint = _norm(up)
+    right_raw = _cross(forward, up_hint)
+    if _dot(right_raw, right_raw) <= 1e-18:
+        raise ValueError("look_camera up hint must not be parallel to the viewing direction")
+    right = _norm(right_raw)
+    true_up = _norm(_cross(right, forward))
+    if roll:
+        c, s = math.cos(roll), math.sin(roll)
+        right, true_up = (
+            tuple(right[i] * c + true_up[i] * s for i in range(3)),
+            tuple(-right[i] * s + true_up[i] * c for i in range(3)),
+        )
+    return {"pos": pos, "fwd": forward, "right": right, "up": true_up,
+            "fov": math.radians(fov), "target": target, "roll": float(roll)}
+
+
 def project(points, cam: dict, w: float, h: float) -> list[tuple[float, float, float, float]]:
     """[(screen_x, screen_y, depth, scale)] — depth is view-space z (larger = farther)."""
     f = (h / 2.0) / math.tan(cam["fov"] / 2.0)

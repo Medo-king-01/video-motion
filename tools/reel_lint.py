@@ -37,6 +37,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 import contrast  # noqa: E402
 import machine_explainer as me  # noqa: E402
+import slide_wall  # noqa: E402
 import stage as stage_mod  # noqa: E402
 import text_direction as td  # noqa: E402
 import visual_direction as vd  # noqa: E402
@@ -549,6 +550,25 @@ def _scene_words_map(project: Path) -> dict[int, list[dict]]:
     return out
 
 
+def lint_slide_wall(rep: Report, project: Path, plan: dict) -> None:
+    """Optional Phase 2B contract gate; no wall plan means no wall and no warning."""
+    path = project / "plan" / "slide-wall.json"
+    if not path.is_file():
+        return
+    try:
+        spec = _load_strict_json(path)
+    except Exception as exc:
+        rep.error("W01", f"plan/slide-wall.json invalid JSON: {exc}")
+        return
+    duration = plan.get("duration")
+    has_duration = isinstance(duration, (int, float)) and not isinstance(duration, bool) and float(duration) > 0
+    errors = slide_wall.validate_slide_wall_spec(spec, duration=float(duration) if has_duration else None)
+    for error in errors:
+        rep.error("W01", f"plan/slide-wall.json: {error}")
+    if not errors:
+        rep.ok("W00", "slide wall: stable ids, geometry, bounds, separation and continuous VO timeline verified")
+
+
 def lint_stage(rep: Report, project: Path, plan: dict, copy: dict) -> None:
     stage_path = project / "plan" / "stage.json"
     if not stage_path.is_file():
@@ -689,6 +709,8 @@ def main() -> int:
             rep.ok('X00', f"machine explainer: {len(m_res['machines'])} spec(s) verified (X01–X04)")
     if (a.project / 'plan/stage.json').is_file():
         lint_stage(rep, a.project, plan, copy)
+    if (a.project / 'plan/slide-wall.json').is_file():
+        lint_slide_wall(rep, a.project, plan)
     if a.scan_code:
         lint_code(rep, a.project)
 
