@@ -1,5 +1,5 @@
 // Canvas2D raster adapters for deterministic visual effects (Engine K).
-import { lightSweep, whipPan } from './effects.js';
+import { lightSweep, whipPan, particleDissolve } from './effects.js';
 
 /**
  * Composite a soft diagonal highlight into the current Canvas2D frame.
@@ -75,12 +75,7 @@ export function drawParticleDissolve(ctx, sourceCtx, t, width, height, options =
   if (!(width > 0) || !(height > 0)) {
     throw new RangeError('drawParticleDissolve dimensions must be positive');
   }
-  const { particleDissolve } = options.stateModule || {};
-  const stateFn = particleDissolve;
-  if (typeof stateFn !== 'function') {
-    throw new TypeError('drawParticleDissolve requires particleDissolve as options.stateModule.particleDissolve');
-  }
-  const state = stateFn(t, options.start ?? 0, options.duration ?? 0.72,
+  const state = particleDissolve(t, options.start ?? 0, options.duration ?? 0.72,
     options.count ?? 96, options.seed ?? 18);
   const source = sourceCtx.getImageData(0, 0, width, height);
   ctx.save();
