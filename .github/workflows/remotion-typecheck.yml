@@ -1,6 +1,12 @@
 name: Remotion typecheck
 
 on:
+  push:
+    branches:
+      - "feat/deterministic-motion-effects"
+    paths:
+      - "medo-motion/templates/remotion/**"
+      - ".github/workflows/remotion-typecheck.yml"
   pull_request:
     paths:
       - "medo-motion/templates/remotion/**"
