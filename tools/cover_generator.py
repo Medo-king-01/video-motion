@@ -16,7 +16,6 @@ import argparse
 import json
 import math
 import os
-import re
 import subprocess
 import sys
 from pathlib import Path
