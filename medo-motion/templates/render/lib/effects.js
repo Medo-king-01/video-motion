@@ -1,4 +1,4 @@
-// Deterministic, frame-addressable effect states for engine K.
+// Deterministic, frame-addressable effect states for engines K and R.
 // The matching Python implementation lives in procedural-reels/effects.py.
 import { clamp, ease, progress } from './motion.js';
 
