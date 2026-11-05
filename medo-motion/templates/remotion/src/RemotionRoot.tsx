@@ -92,7 +92,7 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
     throw new Error(`Invalid plan/stage.json: ${STAGE_ERRORS.join('; ')}`);
   }
   const frame = useCurrentFrame();
-  const {fps, durationInFrames} = useVideoConfig();
+  const {fps, durationInFrames, width, height} = useVideoConfig();
   const [fontHandle] = useState(() => delayRender('Loading agent-chosen fonts'));
   const absSeconds = frame / fps;
   const sceneCount = TIMELINE.scenes?.length || 1;
@@ -207,7 +207,7 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
   );
 
   const effectedSceneBody = (
-    <SceneEffects effects={sceneEffects} time={localSeconds} width={1080} height={1920}>
+    <SceneEffects effects={sceneEffects} time={localSeconds} width={width} height={height}>
       {sceneBody}
     </SceneEffects>
   );
