@@ -1,0 +1,162 @@
+{
+  "_doc": "Procedural music vocabulary shared by music.py (Python), tools/music_kit.py and the engines. A preset is a musical configuration, not a volume setting: it names the key/scale, a progression, a BPM range, a section-shape default, which layers play, and how each layer is voiced. Every preset must be playable and deterministic. Colours/levels are in dB relative to the bed's own RMS, never absolute.",
+  "version": 1,
+  "_levels": "`levelTrimDb` is a MEASURED correction (see tools/music_kit.py --levels): it brings every preset to the same perceived level (-19 dBFS RMS on a 24 s bed), because the arrangement density differs by up to 15 dB between, say, `ambient` and `energetic`. It is not a taste knob.",
+  "sections": {
+    "_doc": "A bed is divided into sections. `ratio` is the share of the requested duration; `bars` pins a section to a whole number of bars. Both are optional; when a section list is given explicitly the ratio is ignored.",
+    "names": ["intro", "build", "drop", "break", "outro", "stop"],
+    "intro": {
+      "ar": "مقدمة",
+      "en": "Intro",
+      "default_ratio": 0.12,
+      "layers": ["pad", "pluck", "kick"],
+      "density": 0.62,
+      "note": "sets the key and the feel; no clap, no full bass, brightness rolled off"
+    },
+    "build": {
+      "ar": "تصعيد",
+      "en": "Build",
+      "default_ratio": 0.14,
+      "layers": ["pad", "kick", "hat", "bass", "pluck"],
+      "density": 0.65,
+      "note": "filter opens, snare roll in the last bar, no clap"
+    },
+    "drop": {
+      "ar": "الدروب",
+      "en": "Drop",
+      "default_ratio": 0.44,
+      "layers": ["kick", "clap", "hat", "bass", "pad", "pluck", "melody", "texture"],
+      "density": 1.0,
+      "note": "full arrangement; crash accent on entry; sidechain pump active"
+    },
+    "break": {
+      "ar": "فاصل",
+      "en": "Break",
+      "default_ratio": 0.18,
+      "layers": ["pad", "texture", "bass", "hat", "pluck"],
+      "density": 0.5,
+      "note": "pulse survives but reduced; the pulse never disappears entirely under a VO"
+    },
+    "outro": {
+      "ar": "خاتمة",
+      "en": "Outro",
+      "default_ratio": 0.12,
+      "layers": ["pad", "kick", "bass", "pluck"],
+      "density": 0.55,
+      "note": "resolves, fades, no clap"
+    },
+    "stop": {
+      "ar": "سكتة",
+      "en": "Stop",
+      "default_ratio": 0.0,
+      "layers": [],
+      "density": 0.0,
+      "note": "true hard silence with 4 ms ramps; used for a deliberate beat before a reveal"
+    }
+  },
+  "scales": {
+    "minor": {"ar": "صغير", "semitones": [0, 2, 3, 5, 7, 8, 10], "mood": "serious, cinematic, driving"},
+    "major": {"ar": "كبير", "semitones": [0, 2, 4, 5, 7, 9, 11], "mood": "bright, confident, corporate"},
+    "dorian": {"ar": "دوريان", "semitones": [0, 2, 3, 5, 7, 9, 10], "mood": "cool, modern, slightly wistful"},
+    "phrygian": {"ar": "فريجيان", "semitones": [0, 1, 3, 5, 7, 8, 10], "mood": "tense, exotic, tech-thriller"},
+    "lydian": {"ar": "ليديان", "semitones": [0, 2, 4, 6, 7, 9, 11], "mood": "open, dreamy, hopeful"},
+    "minorPentatonic": {"ar": "بنتاتونيك صغير", "semitones": [0, 3, 5, 7, 10], "mood": "sparse, no wrong notes"}
+  },
+  "presets": {
+    "tech": {
+      "levelTrimDb": -1.5,
+      "ar": "تقني / إلكتروني",
+      "en": "Technology / Electronic",
+      "why": "a driving 16th pulse, a bright saw pluck and a short room — the sound of a product demo",
+      "bpm": 112,
+      "key": "A",
+      "scale": "minor",
+      "progression": [0, 5, 2, 6],
+      "sections": {"intro": 0.10, "build": 0.15, "drop": 0.47, "break": 0.16, "outro": 0.12},
+      "layers": {"kick": 0.85, "clap": 0.55, "hat": 0.6, "bass": 0.8, "pad": 0.5, "pluck": 0.72, "melody": 0.0, "texture": 0.35},
+      "groove": {"kick": "four", "hat": "sixteenth", "bass": "eighth", "pluck": "eighth", "clap": "backbeat"},
+      "tone": {"padCut": 2600, "pluckCut": 5200, "bassCut": 420, "drive": 1.4, "reverb": 0.18, "delay": 0.12},
+      "top": {"hat": 0.0, "pluck": 2.0}
+    },
+    "minimal": {
+      "levelTrimDb": 8.7,
+      "ar": "بسيط / نظيف",
+      "en": "Minimal / Clean",
+      "why": "almost nothing: a soft kick, a click, and one pad chord that moves slowly — leaves the VO room",
+      "bpm": 96,
+      "key": "D",
+      "scale": "dorian",
+      "progression": [0, 3, 4, 3],
+      "sections": {"intro": 0.16, "build": 0.12, "drop": 0.40, "break": 0.20, "outro": 0.12},
+      "layers": {"kick": 0.55, "clap": 0.0, "hat": 0.22, "bass": 0.42, "pad": 0.62, "pluck": 0.28, "melody": 0.0, "texture": 0.22},
+      "groove": {"kick": "half", "hat": "eighth", "bass": "half", "pluck": "quarter", "clap": "off"},
+      "tone": {"padCut": 1800, "pluckCut": 3600, "bassCut": 260, "drive": 1.0, "reverb": 0.30, "delay": 0.0},
+      "top": {"hat": 1.0, "pluck": 0.0}
+    },
+    "corporate": {
+      "levelTrimDb": 2.1,
+      "ar": "مؤسسي / احترافي",
+      "en": "Corporate / Professional",
+      "why": "major key, an eighth-note pulse and a warm pluck arpeggio — confident without shouting",
+      "bpm": 104,
+      "key": "C",
+      "scale": "major",
+      "progression": [0, 3, 4, 5],
+      "sections": {"intro": 0.14, "build": 0.14, "drop": 0.44, "break": 0.16, "outro": 0.12},
+      "layers": {"kick": 0.62, "clap": 0.30, "hat": 0.42, "bass": 0.60, "pad": 0.55, "pluck": 0.62, "melody": 0.18, "texture": 0.30},
+      "groove": {"kick": "four", "hat": "eighth", "bass": "eighth", "pluck": "eighth", "clap": "backbeat"},
+      "tone": {"padCut": 2200, "pluckCut": 4200, "bassCut": 300, "drive": 1.15, "reverb": 0.22, "delay": 0.08},
+      "top": {"hat": 0.0, "pluck": 1.0}
+    },
+    "energetic": {
+      "levelTrimDb": -4.4,
+      "ar": "حماسي / سريع",
+      "en": "Energetic / Upbeat",
+      "why": "fast, syncopated, a clap on every backbeat and a moving bass — for a hook that has to grab",
+      "bpm": 124,
+      "key": "E",
+      "scale": "minor",
+      "progression": [0, 5, 3, 6],
+      "sections": {"intro": 0.08, "build": 0.14, "drop": 0.52, "break": 0.12, "outro": 0.14},
+      "layers": {"kick": 0.95, "clap": 0.72, "hat": 0.78, "bass": 0.90, "pad": 0.42, "pluck": 0.80, "melody": 0.30, "texture": 0.30},
+      "groove": {"kick": "four", "hat": "sixteenth", "bass": "sixteenth", "pluck": "sixteenth", "clap": "backbeat"},
+      "tone": {"padCut": 3000, "pluckCut": 6200, "bassCut": 480, "drive": 1.8, "reverb": 0.14, "delay": 0.16},
+      "top": {"hat": 0.0, "pluck": 2.0}
+    },
+    "cinematic": {
+      "levelTrimDb": 8.5,
+      "ar": "سينمائي / درامي",
+      "en": "Cinematic / Dramatic",
+      "why": "slow, minor-phrygian, a wide lower pad with a long tail — weight instead of a beat",
+      "bpm": 82,
+      "key": "B",
+      "scale": "phrygian",
+      "progression": [0, 1, 5, 4],
+      "sections": {"intro": 0.20, "build": 0.18, "drop": 0.36, "break": 0.14, "outro": 0.12},
+      "layers": {"kick": 0.55, "clap": 0.18, "hat": 0.20, "bass": 0.72, "pad": 0.85, "pluck": 0.16, "melody": 0.22, "texture": 0.55},
+      "groove": {"kick": "half", "hat": "quarter", "bass": "whole", "pluck": "quarter", "clap": "off"},
+      "tone": {"padCut": 1400, "pluckCut": 3000, "bassCut": 220, "drive": 1.1, "reverb": 0.42, "delay": 0.06},
+      "top": {"hat": 0.0, "pluck": 0.0}
+    },
+    "ambient": {
+      "levelTrimDb": 11.1,
+      "ar": "هادئ / تركيز",
+      "en": "Ambient / Focus",
+      "why": "no drums at all, long pads and slow textures — the bed stays under the words",
+      "bpm": 76,
+      "key": "F",
+      "scale": "lydian",
+      "progression": [0, 4, 5, 3],
+      "sections": {"intro": 0.22, "build": 0.16, "drop": 0.38, "break": 0.12, "outro": 0.12},
+      "layers": {"kick": 0.0, "clap": 0.0, "hat": 0.0, "bass": 0.34, "pad": 0.95, "pluck": 0.30, "melody": 0.18, "texture": 0.62},
+      "groove": {"kick": "off", "hat": "off", "bass": "whole", "pluck": "quarter", "clap": "off"},
+      "tone": {"padCut": 1200, "pluckCut": 2600, "bassCut": 200, "drive": 1.0, "reverb": 0.55, "delay": 0.10},
+      "top": {"hat": 0.0, "pluck": 0.0}
+    }
+  },
+  "keys": {
+    "_doc": "MIDI note number of C in each named key. A4 = 440 Hz.",
+    "names": ["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"],
+    "values": {"C": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3, "E": 4, "F": 5, "F#": 6, "Gb": 6, "G": 7, "G#": 8, "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11}
+  }
+}
