@@ -308,6 +308,13 @@ def render_artwork(*, size: tuple[int, int], title: str, subtitle: str | None = 
     return canvas.convert("RGB")
 
 
+def _reject_output_symlinks(paths: tuple[Path, ...]) -> None:
+    """Reject pre-existing symlink targets before writing generated assets."""
+    for path in paths:
+        if path.is_symlink():
+            raise ValueError(f"Refusing symlink output file: {path}")
+
+
 def _safe_output_dir(path: Path) -> Path:
     absolute = Path(os.path.abspath(path))
     current = absolute
@@ -335,6 +342,7 @@ def generate(args: argparse.Namespace) -> tuple[Path, Path]:
                             eyebrow=args.eyebrow, frame=frame, pose=pose, style_name=args.style,
                             title_font=args.font)
     cover_path, thumb_path = out_dir / "cover-9x16.png", out_dir / "thumbnail-16x9.png"
+    _reject_output_symlinks((cover_path, thumb_path))
     cover.save(cover_path, format="PNG", optimize=True)
     thumb.save(thumb_path, format="PNG", optimize=True)
     return cover_path, thumb_path
