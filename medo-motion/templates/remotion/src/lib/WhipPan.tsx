@@ -34,7 +34,6 @@ export const WhipPan: React.FC<WhipPanProps> = ({
         position: 'absolute',
         inset: 0,
         overflow: 'hidden',
-        pointerEvents: 'none',
       }}
     >
       <div
