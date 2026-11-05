@@ -61,11 +61,11 @@ def test_python_and_javascript_effect_states_match(tmp_path):
     script.write_text(
         "import { lightSweep, whipPan, particleDissolve } from "
         + json.dumps(str(K_EFFECTS))
-        + ";\\n"
-        + "const times = [0, 0.11, 0.21, 0.36, 0.61, 0.72];\\n"
+        + ";\n"
+        + "const times = [0, 0.11, 0.21, 0.36, 0.61, 0.72];\n"
         + "console.log(JSON.stringify(times.map(t => ({"
         + "light: lightSweep(t), whip: whipPan(t), particles: particleDissolve(t, 0, 0.72, 12, 18)"
-        + "}))));\\n",
+        + "}))));\n",
         encoding="utf-8",
     )
     result = subprocess.run(["node", str(script)], capture_output=True, text=True)
