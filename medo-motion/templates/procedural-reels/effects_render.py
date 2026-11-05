@@ -5,9 +5,9 @@ import numpy as np
 from PIL import Image
 
 try:
-    from effects import light_sweep
+    from effects import light_sweep, whip_pan
 except ImportError:  # pragma: no cover
-    from .effects import light_sweep  # type: ignore
+    from .effects import light_sweep, whip_pan  # type: ignore
 
 
 def draw_light_sweep(image: Image.Image, t: float, **options) -> Image.Image:
