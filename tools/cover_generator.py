@@ -139,9 +139,11 @@ def _fit_lines(text: str, family: str, weight: int, max_width: int, max_height: 
             return font, lines, spacing
     font = _load_font(family, weight, min_size)
     lines = _wrap(text, font, max_width)
-    if not lines or max(font.getlength(line) for line in lines) > max_width:
+    spacing = int(min_size * 0.2)
+    height = len(lines) * min_size + max(0, len(lines) - 1) * spacing
+    if not lines or max(_text_length(font, line) for line in lines) > max_width or height > max_height:
         raise ValueError("Title or subtitle is too long for the selected layout; shorten the copy.")
-    return font, lines, int(min_size * 0.2)
+    return font, lines, spacing
 
 
 def _cover_crop(image: Image.Image, size: tuple[int, int]) -> Image.Image:
@@ -252,12 +254,14 @@ def _draw_copy(canvas: Image.Image, *, title: str, subtitle: str | None, eyebrow
                            radius=4, fill=colors["red"])
     if subtitle:
         sub_family = style["font_ar"] if _is_arabic(subtitle) else style["font_latin"]
-        sub_font, sub_lines, sub_spacing = _fit_lines(subtitle, sub_family, 600, width,
-                                                       max(80, y1 - accent_y - 26),
-                                                       int(width * 0.043), 22)
         sy = accent_y + int(title_font.size * 0.72)
+        available = y1 - sy
+        sub_font, sub_lines, sub_spacing = _fit_lines(subtitle, sub_family, 600, width,
+                                                       available, int(width * 0.043), 22)
+        if len(sub_lines) > 2:
+            raise ValueError("Subtitle must fit in two lines; shorten the supporting copy.")
         sub_color = colors["gray_4"] if style["theme"] == "dark" else colors["ink_soft"]
-        for line in sub_lines[:2]:
+        for line in sub_lines:
             _draw_text(draw, (x1, sy), line, sub_font, fill=sub_color, anchor="ra")
             sy += sub_font.size + sub_spacing
 
