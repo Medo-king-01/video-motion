@@ -5,6 +5,30 @@
 - Aligned the root guide, toolkit guides, setup instructions and renderer playbook with the current Video Motion repository.
 - Preserved third-party licence files and attribution records; clarified that project materials and third-party components have separate rights.
 
+## 2.7 — 2026-11-05 — procedural music engine + audio mix
+- **New**: `audio_engine.py` — one shared DSP core (rate-explicit filters, PolyBLEP saw, cached IR
+  reverb, ADSR, absolute-gate ducking with lookahead, limiter, true-peak meter, WAV I/O).
+- **New**: `music.py` + `motion/music-presets.json` — 8 independently mixable layers, 6 presets that
+  differ in key/scale/groove (tech, minimal, corporate, energetic, cinematic, ambient), a
+  section model (intro/build/drop/break/outro/stop) snapped to whole bars, sidechain pump, snare roll,
+  crash, a phone-speaker "top" layer, and exact requested length at 44.1k or 48k.
+- **New**: `audio_mix.py` — ONE cue sheet for music + SFX + voice (sample-locked resolution, music
+  changes, two-stage ducking, stems, report, ffmpeg loudnorm); `tools/music_kit.py` and
+  `tools/audio_mix.py` CLIs.
+- **Fixed in `sfx.py`** (all backward compatible, `tests/test_sfx.py` unchanged): sample rate is a
+  parameter instead of a module constant, event anchors, `bus.last_truncated` instead of silent
+  truncation, `duck()` keeps the bus length and uses an absolute dBFS gate (a quiet line now ducks),
+  layered cues, overwrite guards on every writer. 5 sounds added for real gaps (snap, page, coin,
+  heartbeat, vinyl) — the 15 originals are untouched.
+- **Fixed** `ffprobe_shim.py`: stream `duration` was divided by a hard-coded 1e6 instead of the
+  stream time base, reporting 0.384 s for an 8 s WAV.
+- **Fixed** `audio_engine.true_peak()`: collapsed channels with `max(axis=1)` (0 for symmetric stereo)
+  and over-read +1.1 dB on signals ending loud; now magnitude-collapsed and edge-reflected.
+- Docs: `docs/music.md` (architecture, presets, controls, CLI, integration, outputs, troubleshooting,
+  one full example), `docs/audio.md` updated, attribution in `assets/CREDITS.md`, audit in
+  `docs/audio-engine-audit.md`. Tests: `test_audio_engine` (13), `test_music` (20), `test_sfx_engine`
+  (17), `test_audio_mix` (15).
+
 ## 2.6 — 2026-11-02 — Palette v2.6 Muted
 - Locked palette v2.6 (given by Medo): the brown inks of v2 are replaced by deep black
   `ink #0A0A0A` and sharp neutral gray `ink_soft #71717A`; derived `ink_shadow` locks at `#030303`.

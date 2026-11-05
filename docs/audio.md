@@ -10,7 +10,7 @@
 عشان كده المكتبة هنا **متولّدة بالكود** (`templates/procedural-reels/sfx.py`): مجانية ١٠٠٪، أوفلاين،
 و**حتمية** — نفس الـseed يطلّع نفس العيّنات بالظبط، فأي ميكس يتعمل تاني بنفس النتيجة على أي جهاز.
 
-## الكتالوج | The kit (15 sounds)
+## الكتالوج | The kit (20 sounds)
 | الصوت | عيلة | الاستخدام |
 |---|---|---|
 | `pop` | ui | لصقة/ماركر/رقم بيظهر |
@@ -28,6 +28,11 @@
 | `stomp` | impact | جسم بيقع |
 | `sub` | impact | وزن تحت قطع من غير ضربة |
 | `glitch` | texture | glitch transition / لحظة خطأ |
+| `snap` | ui | ضربة جافة (وش/wood block) للتركيز |
+| `page` | ui | تقليب صفحة/مستند/تشيك ليست |
+| `coin` | ui | سعر/مكسب/عدّاد (نغمتين معدنيين) |
+| `heartbeat` | impact | توتر تحت كشف بطيء |
+| `vinyl` | texture | كراكل/هيس — بيخلي البيت يبان مسجّل مش مولّد |
 
 كل صوت عنده `family` و`gain` أساسي في `CATALOG` — الميكس بيبدأ من الـgain ده، فـ`gain: 1.0` في cue معناها
 «بصوته الصح في الميكس»، مش «أعلى حاجة».
@@ -38,7 +43,13 @@ python3 tools/sfx_kit.py --list                 # الكتالوج + المدد
 python3 tools/sfx_kit.py --bank out/sfx         # WAV لكل صوت (للـeditor أو After Effects)
 python3 tools/sfx_kit.py --demo cache/sfx.mp3   # معاينة مسموعة للكتالوج كله + كل الانتقالات
 python3 tools/sfx_kit.py --cues cues.json --vo vo.wav --out mix.wav   # المدة = طول الـVO
+python3 tools/sfx_kit.py --bank out/sfx48 --sr 48000                  # نفس الكيت بتردد 48k
+python3 tools/sfx_kit.py --list --json                                # كتالوج للقراءة الآلية
 ```
+
+> **الموسيقى والميكس الكامل** بقى ليهم أدوات مستقلة: `tools/music_kit.py` و`tools/audio_mix.py`.
+> التفاصيل في **`docs/music.md`**. `--cues` هنا بيفضل شغّال زي ما هو (متوافق للخلف) لكنه بيعرف
+> يعمل ducking بس للـSFX؛ الميكس الكامل (موسيقى + SFX + VO + loudnorm) بقى في `audio_mix.py`.
 `make sfx` بيعمل المعاينة، و`make sfx-bank DIR=out/sfx` بيطلّع الملفات.
 
 ## شكل الـcue sheet
@@ -73,6 +84,26 @@ python3 tools/sfx_kit.py --cues cache/grid-cues.json --vo vo.wav --out out/mix_r
 `k` impact · `s` click · `h` tick · `p` pop · `z` zip · `w` whoosh · `.` سكوت. النمط بيتكرر جوّه التاكت
 عشان `bars` يفضل معناها بارات بالظبط، فالأصوات ما بتزيحش عن الضربة (`docs/rhythm.md`).
 
+## الـanchors | Where the event sits
+كل صوت بيعرف فين **الحدث** جوّه الموجة بتاعته: الـ`impact` في الأول، الـ`riser` في الآخر
+(بيبان عشان يبقى ذروته عند اللحظة)، والـ`whoosh` في النص. الـ`bus()` افتراضيًا بيحط **بداية الملف**
+عند الوقت (نفس السلوك القديم بالحرف)، ولو عايز الوقت يبقى هو لحظة الحدث:
+
+```python
+bus(6.0, [{"t": 3.0, "sfx": "riser"}], tail=True, anchored=True)   # الذروة عند 3.0 ث بالظبط
+```
+
+وده اللي بيخلي صوت الانتقال يقع على القطع نفسه مش قبله بنص ثانية.
+
+## الحماية من الأخطاء الصامتة | No silent failures
+- **القص مش مخفي**: `bus.last_truncated` بيقولك كام sample ما لقاش مكان. لو `> 0` يبقى في صوت اتقطع.
+- **مفيش كتابة فوق ملف**: `render_bank(..., overwrite=True)` مطلوب لو الملف موجود.
+- **معدل العيّنة بيتحترم**: كل المولّدات بتاخد `sr=` والفلاتر بتتبني من نفس المعدل (قبل كده كان
+  `bp()` بيحسب على 44.1k حتى لو رندرت على 48k).
+- **الـducking بمقياس مطلق**: الـenvelope بيتقاس على dBFS مطلق + lookahead، فالسطر الهادي بيتوتّى
+  برضه (قبل كده كان بيتقسم على أعلى peak فالسطر الهادي ما كانش بيأثر).
+- **طول الميكس محفوظ**: `duck()` بترجّع بطول الـbus مش بطول الـVO، فالـtimeline ما بتزحش.
+
 ## الميكس مع التعليق | Mixing
 ```python
 from sfx import bus, duck, cues_for_transitions   # templates/procedural-reels/sfx.py
@@ -81,8 +112,16 @@ vo_dur = len(vo_mono) / 44100            # طول الريل = طول التعل
 sfx_bus = bus(vo_dur, cues)
 sfx_bus = duck(vo_mono, sfx_bus, depth=0.62)      # بيتوتّى تحت الكلام
 ```
-والباقي زي ما هو في `mix.py`: `vo + sfx + bed` → `loudnorm` مرتين → limiter → **−14.5 ±0.3 LUFS، TP ≤ −1.5 dBTP**.
+والـmaster زي ما هو: `loudnorm` مرتين → limiter → **−14.5 ±0.3 LUFS، TP ≤ −1.5 dBTP**.
 صوت أعلى من كده بيخسر على المنصات، وأوطى بيبان ضعيف.
+
+لما تحتاج موسيقى + SFX + تعليق في **timeline واحد**، استخدم `tools/audio_mix.py` (شوف `docs/music.md`):
+
+```bash
+python3 tools/audio_mix.py --sheet cues.json --vo out/vo.wav --out out/final_audio.wav
+```
+
+`mix.py` القديم باقي زي ما هو لمشاريع engine P؛ الجديد بيغطي نفس الحاجة + الموسيقى + الـstems.
 
 ## قواعد عملية | Rules that keep it sounding professional
 - **hit واحد لكل معنى**: مش كل حاجة بتتحرك ليها صوت.
@@ -94,11 +133,14 @@ sfx_bus = duck(vo_mono, sfx_bus, depth=0.62)      # بيتوتّى تحت الك
 
 ## إضافة صوت جديد | Adding one
 ```python
-def tape_stop(seed=0):
+def tape_stop(seed=0, *, sr=SR):
     """..."""
     ...
 BANK["tape_stop"] = tape_stop
 CATALOG["tape_stop"] = dict(family="texture", gain=0.4, tags="pause, rewind")
+ANCHORS["tape_stop"] = None        # None = احسبها من أعلى peak؛ أو 0.0 = ضربة، أو رقم ثواني
 ```
-وبعدها `tests/test_sfx.py` بيتأكد من الحتمية والمدى والكتالوج، ولو ربطته بانتقال: حط اسمه في
-`motion/transitions.json` → `sfx`.
+وبعدها `tests/test_sfx.py` بيتأكد من الحتمية والمدى والكتالوج، و`tests/test_sfx_engine.py` بيتأكد من
+الـ48k والـanchor. ولو ربطته بانتقال: حط اسمه في `motion/transitions.json` → `sfx`.
+
+> أي مولّد جديد **لازم** ياخد `*, sr=SR` ويستخدمه في كل فلتر — الـtests بتفشل لو معدل عيّنة اتغلب عليه.

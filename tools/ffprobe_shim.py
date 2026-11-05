@@ -110,7 +110,10 @@ def main(argv):
             pass
         try:
             if s.duration is not None:
-                d['duration'] = f'{s.duration / 1_000_000:.6f}'
+                # A stream's duration is in the *stream's own* time base (1/48000 for a WAV,
+                # 1/15360 for typical H.264). Dividing by 1e6 — the code's old assumption —
+                # reported 0.384 s for an 8 s file and silently broke every length check.
+                d['duration'] = f'{float(s.duration) * float(s.time_base):.6f}'
         except Exception:
             pass
         try:

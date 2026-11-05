@@ -1,0 +1,62 @@
+{
+ "tech": {
+  "kick": 0.85,
+  "clap": 0.55,
+  "hat": 0.78,
+  "bass": 0.8,
+  "pad": 0.5,
+  "pluck": 0.224,
+  "melody": 0.0,
+  "texture": 0.35
+ },
+ "minimal": {
+  "kick": 0.55,
+  "clap": 0.0,
+  "hat": 0.22,
+  "bass": 0.42,
+  "pad": 0.62,
+  "pluck": 0.063,
+  "melody": 0.0,
+  "texture": 0.22
+ },
+ "corporate": {
+  "kick": 0.62,
+  "clap": 0.3,
+  "hat": 0.63,
+  "bass": 0.6,
+  "pad": 0.55,
+  "pluck": 0.269,
+  "melody": 0.18,
+  "texture": 0.3
+ },
+ "energetic": {
+  "kick": 0.95,
+  "clap": 0.72,
+  "hat": 1.053,
+  "bass": 0.9,
+  "pad": 0.42,
+  "pluck": 0.245,
+  "melody": 0.3,
+  "texture": 0.3
+ },
+ "cinematic": {
+  "kick": 0.55,
+  "clap": 0.18,
+  "hat": 0.2,
+  "bass": 0.72,
+  "pad": 0.85,
+  "pluck": 0.114,
+  "melody": 0.22,
+  "texture": 0.55
+ },
+ "ambient": {
+  "kick": 0.0,
+  "clap": 0.0,
+  "hat": 0.0,
+  "bass": 0.34,
+  "pad": 0.95,
+  "pluck": 0.139,
+  "melody": 0.18,
+  "texture": 0.62
+ }
+}
