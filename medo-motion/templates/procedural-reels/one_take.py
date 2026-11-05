@@ -387,7 +387,7 @@ def one_take_state_at(spec: dict, time: float, *, motion_mode: str = "normal", v
     if motion_mode not in {"normal", "reduced"}:
         raise ValueError("motion_mode must be 'normal' or 'reduced'")
     spec = normalize_one_take(spec)
-    win = clamp_window_box(viewport or spec["viewport"], spec["canvas"])
+    win = clamp_window_box(spec["viewport"] if viewport is None else viewport, spec["canvas"])
     t = min(spec["duration"], max(0.0, float(time)))
     index = len(spec["states"]) - 2
     for i in range(len(spec["states"]) - 1):

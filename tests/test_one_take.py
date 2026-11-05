@@ -329,6 +329,81 @@ def test_null_policy_matches_python_and_javascript() -> None:
     assert nullable_viewport["viewport"] == one_take.fullscreen_box(nullable_viewport["canvas"])
 
 
+def test_background_role_default_and_explicit_invalid_values_match_k_and_r() -> None:
+    missing = spec_fixture()
+    missing.pop("backgroundRole")
+    cases = [missing]
+    for value in (None, "", "#123456", 0, False):
+        spec = spec_fixture()
+        spec["backgroundRole"] = value
+        cases.append(spec)
+
+    k_module = (K / "lib" / "one-take.js").as_uri()
+    r_module = (R / "src" / "lib" / "one-take.js").as_uri()
+    script = f"""
+      import {{validateOneTakeSpec as validateK,normalizeOneTake as normalizeK}} from {json.dumps(k_module)};
+      import {{validateOneTakeSpec as validateR,normalizeOneTake as normalizeR}} from {json.dumps(r_module)};
+      const cases=JSON.parse(process.argv[1]);
+      console.log(JSON.stringify({{
+        defaults:{{k:normalizeK(cases[0]).backgroundRole,r:normalizeR(cases[0]).backgroundRole}},
+        errors:cases.map(spec=>({{k:validateK(spec),r:validateR(spec)}}))
+      }}));
+    """
+    result = subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(cases)],
+                            capture_output=True, text=True, check=True, timeout=60)
+    actual = json.loads(result.stdout)
+    python_errors = [one_take.validate_one_take_spec(spec) for spec in cases]
+
+    assert actual["defaults"] == {"k": "ink_shadow", "r": "ink_shadow"}
+    assert one_take.normalize_one_take(missing)["backgroundRole"] == "ink_shadow"
+    assert python_errors[0] == actual["errors"][0]["k"] == actual["errors"][0]["r"] == []
+    for spec, errors, javascript in zip(cases[1:], python_errors[1:], actual["errors"][1:], strict=True):
+        assert errors and javascript["k"] and javascript["r"]
+        with pytest.raises(ValueError, match="backgroundRole"):
+            one_take.normalize_one_take(spec)
+
+
+def test_viewport_default_and_invalid_values_match_k_and_r() -> None:
+    spec = spec_fixture()
+    expected = one_take.fullscreen_box(spec["canvas"])
+    assert one_take.one_take_state_at(spec, 0.25)["viewport"] == expected
+    invalid_values = [{}, False, 0]
+    for value in invalid_values:
+        with pytest.raises(ValueError):
+            one_take.one_take_state_at(spec, 0.25, viewport=value)
+        candidate = {**spec, "viewport": value}
+        assert one_take.validate_one_take_spec(candidate)
+
+    k_module = (K / "lib" / "one-take.js").as_uri()
+    r_module = (R / "src" / "lib" / "one-take.js").as_uri()
+    script = f"""
+      import {{oneTakeStateAt as stateK,validateOneTakeSpec as validateK}} from {json.dumps(k_module)};
+      import {{oneTakeStateAt as stateR,validateOneTakeSpec as validateR}} from {json.dumps(r_module)};
+      const spec=JSON.parse(process.argv[1]),invalid=JSON.parse(process.argv[2]);
+      const rejection=evaluate=>{{try{{evaluate();return null}}catch(error){{return error.message}}}};
+      console.log(JSON.stringify({{
+        defaults:{{k:stateK(spec,.25).viewport,r:stateR(spec,.25).viewport}},
+        dynamic:invalid.map(viewport=>({{
+          k:rejection(()=>stateK(spec,.25,{{viewport}})),r:rejection(()=>stateR(spec,.25,{{viewport}}))
+        }})),
+        plans:invalid.map(viewport=>{{
+          const candidate={{...spec,viewport}};
+          return {{k:validateK(candidate),r:validateR(candidate)}};
+        }})
+      }}));
+    """
+    result = subprocess.run(
+        ["node", "--input-type=module", "-e", script, json.dumps(spec), json.dumps(invalid_values)],
+        capture_output=True, text=True, check=True, timeout=60,
+    )
+    actual = json.loads(result.stdout)
+    assert_numeric_equal(actual["defaults"]["k"], expected)
+    assert_numeric_equal(actual["defaults"]["r"], expected)
+    for dynamic, plans in zip(actual["dynamic"], actual["plans"], strict=True):
+        assert dynamic["k"] and dynamic["r"]
+        assert plans["k"] and plans["r"]
+
+
 def test_font_roles_are_exactly_text_direction_roles_in_both_cores() -> None:
     from text_direction import TEXT_ROLES  # noqa: PLC0415
     assert set(one_take.FONT_ROLES) == set(TEXT_ROLES)

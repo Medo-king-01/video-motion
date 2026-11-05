@@ -66,7 +66,7 @@ function parseOneTake(input, externalDuration = null) {
     errors.push(`duration ${sceneDuration} must equal scene/VO duration ${externalDuration}`);
   }
   const canvas = canvasOf(input.canvas, errors);
-  const backgroundRole = roleOf(input.backgroundRole, 'ink_shadow', 'backgroundRole', errors);
+  const backgroundRole = roleOf(field(input, 'backgroundRole', 'ink_shadow'), 'ink_shadow', 'backgroundRole', errors);
 
   const rawElements = Array.isArray(input.elements) ? input.elements : [];
   if (!Array.isArray(input.elements) || !rawElements.length) errors.push('elements must be a non-empty array');
