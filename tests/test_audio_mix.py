@@ -290,31 +290,33 @@ def test_a_music_change_is_a_cut_not_a_hole(tmp_path):
 
 
 
-def test_measure_loudness_uses_final_ebur128_summary(monkeypatch, tmp_path):
-    """Ignore per-window EBU readings and report the final integrated measurement."""
+def test_measure_loudness_uses_loudnorm_r128_json(monkeypatch, tmp_path):
+    """Parse the independent EBU R128 JSON analysis and retain all measured fields."""
     import audio_mix as AM
+
+    calls = []
 
     class Result:
         returncode = 0
-        stderr = """[Parsed_ebur128_0] t: 0.1 M: -20.0 S: -20.0 I: 0.0 LUFS LRA: 0.0 LU
-[Parsed_ebur128_0] Summary:
-
-  Integrated loudness:
-    I: -14.5 LUFS
-    Threshold: -24.5 LUFS
-
-  Loudness range:
-    LRA: 2.3 LU
-    Threshold: -34.5 LUFS
-
-  True peak:
-    Peak: -1.5 dBFS
+        stderr = """metadata before json
+{
+    "input_i": "-14.5",
+    "input_tp": "-1.5",
+    "input_lra": "2.3",
+    "input_thresh": "-24.5",
+    "target_offset": "0.0"
+}
 """
 
-    monkeypatch.setattr(AM.subprocess, "run", lambda *args, **kwargs: Result())
+    def fake_run(args, **kwargs):
+        calls.append(args)
+        return Result()
+
+    monkeypatch.setattr(AM.subprocess, "run", fake_run)
     measured = AM.measure_loudness(tmp_path / "mix.wav", ff="ffmpeg")
     assert measured == {"ok": True, "lufs": -14.5, "true_peak": -1.5, "lra": 2.3}
-
+    assert "loudnorm=I=-24:TP=-2:LRA=7:print_format=json" in calls[0]
+    assert calls[0][-1] == "-"
 
 def test_the_report_quotes_a_measured_master(tmp_path):
     """When ffmpeg is present, the report must carry a real EBU R128 measurement, not an intention."""
