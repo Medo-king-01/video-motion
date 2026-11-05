@@ -32,6 +32,45 @@ read clocks, retain state between frames, or use random-number APIs.
 - Whip Pan adapters are callable but not automatically injected. Their blur is Gaussian and isotropic,
   not a directional shutter-sample renderer.
 
+## Remotion scene-effects plan
+
+Engine R can now opt into scene-local effects with an optional
+`medo-motion/templates/remotion/plan/effects.json` file. The file is deliberately
+optional; projects without it retain their existing render behavior.
+
+The plan uses 1-based scene numbers from the VO timeline:
+
+```json
+{
+  "scenes": [
+    {
+      "scene": 1,
+      "effects": [
+        { "type": "lightSweep", "start": 0.2, "duration": 0.72, "intensity": 0.7 },
+        { "type": "whipPan", "start": 1.1, "duration": 0.42, "direction": 1 }
+      ]
+    },
+    {
+      "scene": 2,
+      "effects": [
+        { "type": "particleDissolve", "source": "media/particle-source.png",
+          "start": 0, "duration": 0.72, "count": 96, "seed": 18 }
+      ]
+    }
+  ]
+}
+```
+
+Supported types are `lightSweep`, `whipPan`, and `particleDissolve`.
+All times are scene-local seconds, so seeking or rendering an arbitrary frame does
+not depend on prior frames. Particle Dissolve uses its explicit `source` image as
+the particle color source; it is an overlay layer, not an automatic capture of
+arbitrary React scene content. Cross-origin sources must grant CORS access.
+
+The Remotion adapter validates effect entries and rejects unknown types or invalid
+numeric values. P and K retain their direct renderer APIs; this plan adapter is
+currently Engine R only and does not imply automatic integration in P/K.
+
 ## Current scope and limitation
 
 Light Sweep now has raster/overlay adapters in P, K and R. The adapters are not yet wired into
