@@ -60,3 +60,51 @@ export function drawWhipPan(ctx, t, width, height, drawFrame, options = {}) {
   ctx.restore();
   return state;
 }
+
+
+/**
+ * Render a source frame as deterministic, fading sampled-color particles.
+ * sourceCtx must expose the unmodified source pixels; ctx is the output context.
+ * The destination is cleared before drawing, so use a separate source canvas/context.
+ */
+export function drawParticleDissolve(ctx, sourceCtx, t, width, height, options = {}) {
+  if (!ctx || typeof ctx.save !== 'function' ||
+      !sourceCtx || typeof sourceCtx.getImageData !== 'function') {
+    throw new TypeError('drawParticleDissolve requires output and readable source Canvas2D contexts');
+  }
+  if (!(width > 0) || !(height > 0)) {
+    throw new RangeError('drawParticleDissolve dimensions must be positive');
+  }
+  const { particleDissolve } = options.stateModule || {};
+  const stateFn = particleDissolve;
+  if (typeof stateFn !== 'function') {
+    throw new TypeError('drawParticleDissolve requires particleDissolve as options.stateModule.particleDissolve');
+  }
+  const state = stateFn(t, options.start ?? 0, options.duration ?? 0.72,
+    options.count ?? 96, options.seed ?? 18);
+  const source = sourceCtx.getImageData(0, 0, width, height);
+  ctx.save();
+  ctx.clearRect(0, 0, width, height);
+  if (Array.isArray(options.background)) {
+    const [r, g, b] = options.background;
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    ctx.fillRect(0, 0, width, height);
+  }
+  for (const particle of state.particles) {
+    const alpha = Math.max(0, Math.min(1, particle.alpha));
+    if (alpha <= 0) continue;
+    const sx = Math.max(0, Math.min(width - 1, Math.floor(particle.x * width)));
+    const sy = Math.max(0, Math.min(height - 1, Math.floor(particle.y * height)));
+    const offset = (sy * width + sx) * 4;
+    const a = source.data[offset + 3] / 255 * alpha;
+    if (a <= 0) continue;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = `rgb(${source.data[offset]}, ${source.data[offset + 1]}, ${source.data[offset + 2]})`;
+    ctx.beginPath();
+    ctx.arc(particle.x * width, particle.y * height,
+      Math.max(1, particle.radius * width), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+  return state;
+}
