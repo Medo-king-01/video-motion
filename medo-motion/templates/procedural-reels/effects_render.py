@@ -42,3 +42,35 @@ def draw_light_sweep(image: Image.Image, t: float, **options) -> Image.Image:
     base = image.convert("RGBA")
     result = Image.alpha_composite(base, Image.fromarray(rgba, mode="RGBA"))
     return result if image.mode == "RGBA" else result.convert("RGB")
+
+
+def draw_whip_pan(image: Image.Image, t: float, **options) -> Image.Image:
+    """Translate a frame by the deterministic whip-pan offset and apply directional blur.
+
+    The image is not mutated. Blur is approximated with a horizontal Gaussian kernel;
+    the returned frame is cropped to the original viewport.
+    """
+    from PIL import ImageFilter
+
+    if not isinstance(image, Image.Image) or image.mode not in ("RGB", "RGBA"):
+        raise ValueError("whip pan target must be a PIL RGB or RGBA image")
+    width, height = image.size
+    if width <= 0 or height <= 0:
+        raise ValueError("whip pan target must have positive dimensions")
+
+    from effects import whip_pan
+
+    state = whip_pan(t, **options)
+    dx = float(state["offset_x"]) * width
+    fill = (0, 0, 0, 0) if image.mode == "RGBA" else (0, 0, 0)
+    shifted = image.transform(
+        image.size,
+        Image.Transform.AFFINE,
+        (1, 0, -dx, 0, 1, 0),
+        resample=Image.Resampling.BICUBIC,
+        fillcolor=fill,
+    )
+    blur_radius = min(width * 0.08, float(state["blur_distance"]) * width * 0.25)
+    if blur_radius > 0:
+        shifted = shifted.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+    return shifted
