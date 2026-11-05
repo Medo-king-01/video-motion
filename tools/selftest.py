@@ -214,8 +214,19 @@ def step_engine_r() -> bool:
                        cwd=proj, env=motion_env(), timeout=600)
         output = proj / "out" / "selftest.mp4"
         ok = rendered.returncode == 0 and output.is_file() and output.stat().st_size > 1000
+        preview_detail = ""
+        artifact_dir = os.environ.get("MEDO_MOTION_SELFTEST_ARTIFACT_DIR")
+        if ok and artifact_dir:
+            preview_path = Path(artifact_dir) / "scene-effects-preview.mp4"
+            try:
+                preview_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(output, preview_path)
+                preview_detail = f"; preview saved to {preview_path.name}"
+            except OSError as exc:
+                return record("engine R render", 1, f"could not save visual preview: {exc}")
         return record("engine R render", 0 if ok else 1,
-                      "6 frames via Remotion + shared Chromium" if ok else rendered.stdout + rendered.stderr)
+                      f"6 frames via Remotion + shared Chromium{preview_detail}"
+                      if ok else rendered.stdout + rendered.stderr)
     finally:
         shutil.rmtree(proj, ignore_errors=True)
 

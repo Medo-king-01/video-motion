@@ -68,15 +68,26 @@ jobs:
         env:
           PYTHONUNBUFFERED: "1"
           CI: "true"
+          MEDO_MOTION_SELFTEST_ARTIFACT_DIR: ${{ runner.temp }}/remotion-effects-preview
         run: |
           set -o pipefail
           python tools/selftest.py --remotion --skip-tests 2>&1 | tee "$RUNNER_TEMP/remotion-effects-smoke.log"
 
-      - name: Upload smoke log
+      - name: Create visual contact sheet
+        if: always()
+        run: |
+          preview="$RUNNER_TEMP/remotion-effects-preview/scene-effects-preview.mp4"
+          if [ -f "$preview" ]; then
+            ffmpeg -y -i "$preview" -vf "scale=360:-1,tile=3x2" -frames:v 1 "$RUNNER_TEMP/remotion-effects-preview/scene-effects-contact-sheet.png"
+          fi
+
+      - name: Upload smoke log and visual preview
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: remotion-scene-effects-smoke-log
-          path: ${{ runner.temp }}/remotion-effects-smoke.log
+          path: |
+            ${{ runner.temp }}/remotion-effects-smoke.log
+            ${{ runner.temp }}/remotion-effects-preview/
           if-no-files-found: ignore
           retention-days: 14

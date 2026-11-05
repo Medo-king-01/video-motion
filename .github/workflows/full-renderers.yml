@@ -1,6 +1,9 @@
 name: Full validation (nightly/manual)
 
 on:
+  push:
+    branches:
+      - "feat/deterministic-motion-effects"
   schedule:
     - cron: "0 2 * * *"
   workflow_dispatch:
