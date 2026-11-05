@@ -289,6 +289,33 @@ def test_a_music_change_is_a_cut_not_a_hole(tmp_path):
     assert at_change > -45, f"silence at the change ({at_change:.1f} dBFS)"
 
 
+
+def test_measure_loudness_uses_final_ebur128_summary(monkeypatch, tmp_path):
+    """Ignore per-window EBU readings and report the final integrated measurement."""
+    import audio_mix as AM
+
+    class Result:
+        returncode = 0
+        stderr = """[Parsed_ebur128_0] t: 0.1 M: -20.0 S: -20.0 I: 0.0 LUFS LRA: 0.0 LU
+[Parsed_ebur128_0] Summary:
+
+  Integrated loudness:
+    I: -14.5 LUFS
+    Threshold: -24.5 LUFS
+
+  Loudness range:
+    LRA: 2.3 LU
+    Threshold: -34.5 LUFS
+
+  True peak:
+    Peak: -1.5 dBFS
+"""
+
+    monkeypatch.setattr(AM.subprocess, "run", lambda *args, **kwargs: Result())
+    measured = AM.measure_loudness(tmp_path / "mix.wav", ff="ffmpeg")
+    assert measured == {"ok": True, "lufs": -14.5, "true_peak": -1.5, "lra": 2.3}
+
+
 def test_the_report_quotes_a_measured_master(tmp_path):
     """When ffmpeg is present, the report must carry a real EBU R128 measurement, not an intention."""
     import audio_mix as AM
