@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
+import {cancelRender, continueRender, delayRender} from 'remotion';
 import {particleDissolve} from './effects.js';
 
 export type ParticleDissolveProps = {
@@ -20,30 +21,46 @@ export const ParticleDissolve: React.FC<ParticleDissolveProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [pixels, setPixels] = useState<ImageData | null>(null);
+  const [loadHandle] = useState(() => delayRender('Loading Particle Dissolve source'));
 
-  // Load and sample the source once per source/dimension change, not once per rendered frame.
+  // Remotion must wait for the source pixels; otherwise rendered frames can be captured blank.
   useEffect(() => {
     setPixels(null);
-    if (!(width > 0) || !(height > 0)) return;
+    if (!(width > 0) || !(height > 0)) {
+      continueRender(loadHandle);
+      return;
+    }
+    let active = true;
     const image = new Image();
     image.crossOrigin = 'anonymous';
     image.onload = () => {
-      const sourceCanvas = document.createElement('canvas');
-      sourceCanvas.width = width;
-      sourceCanvas.height = height;
-      const sourceCtx = sourceCanvas.getContext('2d', {willReadFrequently: true});
-      if (!sourceCtx) return;
-      sourceCtx.drawImage(image, 0, 0, width, height);
+      if (!active) return;
       try {
-        setPixels(sourceCtx.getImageData(0, 0, width, height));
-      } catch {
-        // A cross-origin source without CORS permission cannot be sampled safely.
-        setPixels(null);
+        const sourceCanvas = document.createElement('canvas');
+        sourceCanvas.width = width;
+        sourceCanvas.height = height;
+        const sourceCtx = sourceCanvas.getContext('2d', {willReadFrequently: true});
+        if (!sourceCtx) throw new Error('Particle Dissolve could not create a source canvas context');
+        sourceCtx.drawImage(image, 0, 0, width, height);
+        const sampledPixels = sourceCtx.getImageData(0, 0, width, height);
+        setPixels(sampledPixels);
+        continueRender(loadHandle);
+      } catch (error) {
+        cancelRender(error instanceof Error
+          ? error
+          : new Error('Particle Dissolve could not sample its source image; check image CORS permissions'));
       }
     };
+    image.onerror = () => {
+      if (active) cancelRender(new Error(`Particle Dissolve failed to load source image: ${source}`));
+    };
     image.src = source;
-    return () => { image.onload = null; };
-  }, [source, width, height]);
+    return () => {
+      active = false;
+      image.onload = null;
+      image.onerror = null;
+    };
+  }, [source, width, height, loadHandle]);
 
   // Repaint from cached source pixels for every arbitrary-time frame request.
   useEffect(() => {
