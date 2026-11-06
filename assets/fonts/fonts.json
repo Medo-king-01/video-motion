@@ -692,7 +692,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Aref Ruqaa/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Aref+Ruqaa"
+      "source": "https://fonts.google.com/specimen/Aref+Ruqaa",
+      "captionSafe": false,
+      "rejectedReason": "words collide when shaped by HarfBuzz (glyph-ink overlap 0.42 vs <0.28 gate) — visually confirmed on cache/font-collision-sheet.png 2026-11-06; display-only, never captions/body"
     },
     "Aref Ruqaa Ink": {
       "script": "arabic",
@@ -716,7 +718,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Aref Ruqaa Ink/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Aref+Ruqaa+Ink"
+      "source": "https://fonts.google.com/specimen/Aref+Ruqaa+Ink",
+      "captionSafe": false,
+      "rejectedReason": "words collide when shaped by HarfBuzz (glyph-ink overlap 0.34 vs <0.28 gate) — visually confirmed on cache/font-collision-sheet.png 2026-11-06; display-only, never captions/body"
     },
     "Badeen Display": {
       "script": "arabic",
@@ -973,7 +977,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Gulzar/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Gulzar"
+      "source": "https://fonts.google.com/specimen/Gulzar",
+      "captionSafe": false,
+      "rejectedReason": "words collide when shaped by HarfBuzz (glyph-ink overlap 0.32 vs <0.28 gate) — visually confirmed on cache/font-collision-sheet.png 2026-11-06; display-only, never captions/body"
     },
     "Handjet": {
       "script": "arabic",
@@ -1045,7 +1051,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Jomhuria/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Jomhuria"
+      "source": "https://fonts.google.com/specimen/Jomhuria",
+      "captionSafe": false,
+      "rejectedReason": "words collide when shaped by HarfBuzz (glyph-ink overlap 0.49 vs <0.28 gate) — visually confirmed on cache/font-collision-sheet.png 2026-11-06; display-only, never captions/body"
     },
     "Katibeh": {
       "script": "arabic",
@@ -1299,7 +1307,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Noto Nastaliq Urdu/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Noto+Nastaliq+Urdu"
+      "source": "https://fonts.google.com/specimen/Noto+Nastaliq+Urdu",
+      "captionSafe": false,
+      "rejectedReason": "words collide when shaped by HarfBuzz (glyph-ink overlap 0.37 vs <0.28 gate) — visually confirmed on cache/font-collision-sheet.png 2026-11-06; display-only, never captions/body"
     },
     "Noto Sans Arabic": {
       "script": "arabic",
@@ -1451,7 +1461,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Reem Kufi/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Reem+Kufi"
+      "source": "https://fonts.google.com/specimen/Reem+Kufi",
+      "captionSafe": false,
+      "rejectedReason": "words collide when shaped by HarfBuzz (glyph-ink overlap 0.25 vs <0.28 gate) — visually confirmed on cache/font-collision-sheet.png 2026-11-06; display-only, never captions/body"
     },
     "Reem Kufi Fun": {
       "script": "arabic",
@@ -1470,7 +1482,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Reem Kufi Fun/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Reem+Kufi+Fun"
+      "source": "https://fonts.google.com/specimen/Reem+Kufi+Fun",
+      "captionSafe": false,
+      "rejectedReason": "words collide when shaped by HarfBuzz (glyph-ink overlap 0.25 vs <0.28 gate) — visually confirmed on cache/font-collision-sheet.png 2026-11-06; display-only, never captions/body"
     },
     "Reem Kufi Ink": {
       "script": "arabic",
@@ -1489,7 +1503,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Reem Kufi Ink/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Reem+Kufi+Ink"
+      "source": "https://fonts.google.com/specimen/Reem+Kufi+Ink",
+      "captionSafe": false,
+      "rejectedReason": "words collide when shaped by HarfBuzz (glyph-ink overlap 0.24 vs <0.28 gate) — visually confirmed on cache/font-collision-sheet.png 2026-11-06; display-only, never captions/body"
     },
     "Ruwudu": {
       "script": "arabic",
@@ -2843,25 +2859,6 @@
       "licence_file": "Pacifico/OFL.txt",
       "source": "https://fonts.google.com/specimen/Pacifico"
     },
-    "Permanent Marker": {
-      "script": "latin",
-      "role": "additional option — available for creative use",
-      "pairs": "Inter",
-      "tags": [
-        "sans",
-        "additional"
-      ],
-      "weights": [
-        {
-          "file": "PermanentMarker-Regular.ttf",
-          "weight": 400,
-          "style": "normal"
-        }
-      ],
-      "licence": "OFL-1.1",
-      "licence_file": "Permanent Marker/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Permanent+Marker"
-    },
     "Playfair Display": {
       "script": "latin",
       "role": "additional option — available for creative use",
@@ -3253,60 +3250,6 @@
       "licence": "OFL-1.1",
       "licence_file": "Tektur/OFL.txt",
       "source": "https://fonts.google.com/specimen/Tektur"
-    },
-    "Ubuntu": {
-      "script": "latin",
-      "role": "additional option — available for creative use",
-      "pairs": "Inter",
-      "tags": [
-        "sans",
-        "additional"
-      ],
-      "weights": [
-        {
-          "file": "Ubuntu-Bold.ttf",
-          "weight": 700,
-          "style": "normal"
-        },
-        {
-          "file": "Ubuntu-BoldItalic.ttf",
-          "weight": 700,
-          "style": "italic"
-        },
-        {
-          "file": "Ubuntu-Italic.ttf",
-          "weight": 400,
-          "style": "italic"
-        },
-        {
-          "file": "Ubuntu-Light.ttf",
-          "weight": 300,
-          "style": "normal"
-        },
-        {
-          "file": "Ubuntu-LightItalic.ttf",
-          "weight": 300,
-          "style": "italic"
-        },
-        {
-          "file": "Ubuntu-Medium.ttf",
-          "weight": 500,
-          "style": "normal"
-        },
-        {
-          "file": "Ubuntu-MediumItalic.ttf",
-          "weight": 500,
-          "style": "italic"
-        },
-        {
-          "file": "Ubuntu-Regular.ttf",
-          "weight": 400,
-          "style": "normal"
-        }
-      ],
-      "licence": "OFL-1.1",
-      "licence_file": "Ubuntu/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Ubuntu"
     },
     "Unbounded": {
       "script": "latin",

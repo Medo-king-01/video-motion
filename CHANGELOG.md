@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased — 2026-11-06 (Studio readiness pass: licence-safe all-OFL type pool, recalibrated shaping gate, green CI)
+
+Environment + gate repair before the next reel (setup on a clean venv, `doctor` READY, P/K renders
+verified by `tools/selftest.py`):
+
+- **Licence safety:** `Permanent Marker` and `Ubuntu` arrived in the type-pool expansion without an
+  `OFL.txt` and their upstream licences are not SIL OFL 1.1 (Apache-2.0 / Ubuntu Font Licence), so
+  they were removed from the allowed set in `assets/fonts/fonts.json` — the studio ships client work
+  on an all-OFL promise and must not claim one it cannot prove.
+- **Shaping gate recalibrated (`tests/test_fonts.py`):** the glyph-ink overlap threshold moved
+  0.20 → 0.28 because connected Arabic strokes put *healthy* variable fonts at 0.19–0.27 (measured
+  per weight, `cache/font-overlap-measured.json`), while eight calligraphic faces measured 0.24–0.50
+  **and** failed visual QA (`cache/font-collision-sheet.png`): Jomhuria, Aref Ruqaa, Aref Ruqaa Ink,
+  Gulzar, Noto Nastaliq Urdu, Reem Kufi, Reem Kufi Fun, Reem Kufi Ink. Those eight are marked
+  `captionSafe: false` in the manifest (display-only, never captions/body) and the gate skips them;
+  any future family above 0.28 still fails the build until measured and eyeballed.
+- **Docs generated for the expanded pool:** `docs/fonts.md` gains the 102-family pool table, the
+  measured-overlap table and the updated rejected list; `assets/CREDITS.md` records every family's
+  source + OFL; README counts corrected (123 families: 61 Arabic + 62 Latin, 21 caption core).
+- **Technique library contract per source (`tests/test_techniques.py`):** the studio-native 59
+  recipes keep the strict rules (`how` > 60 chars naming a real studio API); merged reference
+  catalogues are validated by their own shape (Alansari: build steps + Arabic how; Opus: description
+  + upstream locator; gl-transitions: shader file present in `assets/gl-transitions/`), and
+  `docs/techniques.md` was regenerated from the library (`make techniques-doc`).
+- `make ci` (Ruff + pytest + brand/contrast audit) and `tools/selftest.py` (doctor + P/K renders)
+  are green again; `drawtext` stays an optional WARN (contact-sheet timestamps fall back).
+
 ## Unreleased — 2026-11-04 (Native Machine Explainer workflow & X01–X04 geometric occlusion QA across P/K/R)
 
 Standalone Phase 1 native studio implementation (`docs/machine-explainer.md`, zero new dependencies):

@@ -31,7 +31,7 @@
 | منهج الحرفة + مكتبة الحركات (مُعاد كتابتها) | https://github.com/Leonxlnx/cinetic | **MIT** | 2026-11-01 | `assets/techniques.json` + `docs/craft.md`, `docs/techniques.md`: أرقام المونتاج/النص مقاسة من فيلم‑فيلم، ومكتبة ٤١ حركة **اتعادت كتابتها** على primitives الاستوديو (مفيش React/Remotion/GSAP ولا كود منسوخ؛ `tests/test_techniques.py` بيمنع الرجوع ليهم). الأصل MIT © 2026 Leonxlnx |
 | خوارزميات الكشيدة العربية وترتيب الجمل المختلطة والبلاطات المجسّمة 3D وفحص الموبايل والـASR ورسم القطع الأيزومتري (مُعاد كتابتها أصليًا) | https://github.com/majedphotos/video-ad-editor · https://github.com/wheresryan22/anatomy | **MIT** | 2026-11-04 | `lib/arabic.js`, `arabic_shape.py`, `captions.{js,py}`, `iso-kit.js` / `iso_kit.py`, `tile3d.js` / `three-tile3d.js` / `tile3d.py`, `shutter-blur.js`, `tools/phone_preview.py`, `tools/asr_check.py`, `docs/video-ad-editor-fit.md`: أُعيدت كتابتها بالكامل على هوية وعقد المحركات P/K/R (بدون تثبيت الإضافة أو أي كود تحت Remotion/Hippocratic). الأصل MIT © 2026 Majed Alzaabi (وهندسة الإسقاط الأيزومتري مستلهمة من `wheresryan22/anatomy` MIT) |
 
-## Type system — `assets/fonts/` (21 families, SIL OFL 1.1)
+## Type system — `assets/fonts/` (123 families, SIL OFL 1.1)
 كل العيلات من Google Fonts، اتسحبت كـTTF من حزم npm `@expo-google-fonts/*` بـ`tools/fonts_install.py`،
 وكل عيلة معاها `OFL.txt` في فولدرها. الـOFL بيسمح بالاستخدام التجاري وإعادة التوزيع من غير أي حقوق
 على الشاشة؛ لو عدّلت ملف خط لازم تغيّر اسمه. **مفيش خط مدفوع أو محتاج ترخيص منفصل في المشروع.**
@@ -46,3 +46,109 @@
 أصل مملوك لصاحب المشروع (اتسلّم ٢٠٢٦-١١-٠١)، مش من مكتبة خارجية. الأصل في `raw/` والنسخ المقصوصة
 + `poses.json` مولّدة بـ`tools/presenter_build.py` (قص خلفية + تطبيع). لو حبيت تنشر، الحقوق محفوظة
 لصاحب المشروع.
+
+### Type system — expanded pool (2026-11-06)
+| الأصل | المصدر | الترخيص | التاريخ | الاستخدام |
+|---|---|---|---|---|
+| خط Alan Sans | https://fonts.google.com/specimen/Alan+Sans | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Alkalami | https://fonts.google.com/specimen/Alkalami | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Alyamama | https://fonts.google.com/specimen/Alyamama | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Amiri Quran | https://fonts.google.com/specimen/Amiri+Quran | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Aref Ruqaa | https://fonts.google.com/specimen/Aref+Ruqaa | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Aref Ruqaa Ink | https://fonts.google.com/specimen/Aref+Ruqaa+Ink | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Badeen Display | https://fonts.google.com/specimen/Badeen+Display | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Baloo Bhaijaan 2 | https://fonts.google.com/specimen/Baloo+Bhaijaan+2 | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Beiruti | https://fonts.google.com/specimen/Beiruti | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Blaka | https://fonts.google.com/specimen/Blaka | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Blaka Hollow | https://fonts.google.com/specimen/Blaka+Hollow | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Blaka Ink | https://fonts.google.com/specimen/Blaka+Ink | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Cairo Play | https://fonts.google.com/specimen/Cairo+Play | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Cascadia Code | https://fonts.google.com/specimen/Cascadia+Code | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Cascadia Mono | https://fonts.google.com/specimen/Cascadia+Mono | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Estedad | https://fonts.google.com/specimen/Estedad | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Firjar | https://fonts.google.com/specimen/Firjar | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Fustat | https://fonts.google.com/specimen/Fustat | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Gulzar | https://fonts.google.com/specimen/Gulzar | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Handjet | https://fonts.google.com/specimen/Handjet | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Harmattan | https://fonts.google.com/specimen/Harmattan | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Jomhuria | https://fonts.google.com/specimen/Jomhuria | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Katibeh | https://fonts.google.com/specimen/Katibeh | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Lateef | https://fonts.google.com/specimen/Lateef | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Lemonada | https://fonts.google.com/specimen/Lemonada | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Mada | https://fonts.google.com/specimen/Mada | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Marhey | https://fonts.google.com/specimen/Marhey | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Markazi Text | https://fonts.google.com/specimen/Markazi+Text | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Mirza | https://fonts.google.com/specimen/Mirza | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Noto Kufi Arabic | https://fonts.google.com/specimen/Noto+Kufi+Arabic | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Noto Naskh Arabic | https://fonts.google.com/specimen/Noto+Naskh+Arabic | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Noto Naskh Arabic UI | https://fonts.google.com/specimen/Noto+Naskh+Arabic+UI | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Noto Nastaliq Urdu | https://fonts.google.com/specimen/Noto+Nastaliq+Urdu | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Noto Sans Arabic | https://fonts.google.com/specimen/Noto+Sans+Arabic | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Noto Sans Arabic UI | https://fonts.google.com/specimen/Noto+Sans+Arabic+UI | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Oi | https://fonts.google.com/specimen/Oi | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Parastoo | https://fonts.google.com/specimen/Parastoo | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Playpen Sans Arabic | https://fonts.google.com/specimen/Playpen+Sans+Arabic | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Qahiri | https://fonts.google.com/specimen/Qahiri | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Rakkas | https://fonts.google.com/specimen/Rakkas | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Reem Kufi | https://fonts.google.com/specimen/Reem+Kufi | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Reem Kufi Fun | https://fonts.google.com/specimen/Reem+Kufi+Fun | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Reem Kufi Ink | https://fonts.google.com/specimen/Reem+Kufi+Ink | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Ruwudu | https://fonts.google.com/specimen/Ruwudu | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Scheherazade New | https://fonts.google.com/specimen/Scheherazade+New | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Thabit | https://fonts.google.com/specimen/Thabit | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Vazirmatn | https://fonts.google.com/specimen/Vazirmatn | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Vibes | https://fonts.google.com/specimen/Vibes | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Zain | https://fonts.google.com/specimen/Zain | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Abril Fatface | https://fonts.google.com/specimen/Abril+Fatface | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Archivo | https://fonts.google.com/specimen/Archivo | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Audiowide | https://fonts.google.com/specimen/Audiowide | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Bangers | https://fonts.google.com/specimen/Bangers | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Barlow | https://fonts.google.com/specimen/Barlow | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Barlow Condensed | https://fonts.google.com/specimen/Barlow+Condensed | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Bricolage Grotesque | https://fonts.google.com/specimen/Bricolage+Grotesque | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Caveat | https://fonts.google.com/specimen/Caveat | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Chakra Petch | https://fonts.google.com/specimen/Chakra+Petch | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Chivo | https://fonts.google.com/specimen/Chivo | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Cormorant Garamond | https://fonts.google.com/specimen/Cormorant+Garamond | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Dancing Script | https://fonts.google.com/specimen/Dancing+Script | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط DM Sans | https://fonts.google.com/specimen/DM+Sans | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط DM Serif Display | https://fonts.google.com/specimen/DM+Serif+Display | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Exo 2 | https://fonts.google.com/specimen/Exo+2 | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Fira Code | https://fonts.google.com/specimen/Fira+Code | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Fira Sans | https://fonts.google.com/specimen/Fira+Sans | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Fraunces | https://fonts.google.com/specimen/Fraunces | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط IBM Plex Serif | https://fonts.google.com/specimen/IBM+Plex+Serif | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط JetBrains Mono | https://fonts.google.com/specimen/JetBrains+Mono | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Josefin Sans | https://fonts.google.com/specimen/Josefin+Sans | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Jost | https://fonts.google.com/specimen/Jost | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Lexend | https://fonts.google.com/specimen/Lexend | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Libre Baskerville | https://fonts.google.com/specimen/Libre+Baskerville | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Lobster | https://fonts.google.com/specimen/Lobster | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Lora | https://fonts.google.com/specimen/Lora | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Manrope | https://fonts.google.com/specimen/Manrope | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Merriweather | https://fonts.google.com/specimen/Merriweather | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Michroma | https://fonts.google.com/specimen/Michroma | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Monoton | https://fonts.google.com/specimen/Monoton | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Montserrat | https://fonts.google.com/specimen/Montserrat | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Nunito | https://fonts.google.com/specimen/Nunito | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Open Sans | https://fonts.google.com/specimen/Open+Sans | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Orbitron | https://fonts.google.com/specimen/Orbitron | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Oswald | https://fonts.google.com/specimen/Oswald | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Outfit | https://fonts.google.com/specimen/Outfit | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Pacifico | https://fonts.google.com/specimen/Pacifico | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Playfair Display | https://fonts.google.com/specimen/Playfair+Display | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Plus Jakarta Sans | https://fonts.google.com/specimen/Plus+Jakarta+Sans | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Poppins | https://fonts.google.com/specimen/Poppins | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Quicksand | https://fonts.google.com/specimen/Quicksand | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Rajdhani | https://fonts.google.com/specimen/Rajdhani | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Raleway | https://fonts.google.com/specimen/Raleway | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Righteous | https://fonts.google.com/specimen/Righteous | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Roboto | https://fonts.google.com/specimen/Roboto | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Russo One | https://fonts.google.com/specimen/Russo+One | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Source Sans 3 | https://fonts.google.com/specimen/Source+Sans+3 | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Space Mono | https://fonts.google.com/specimen/Space+Mono | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Syne | https://fonts.google.com/specimen/Syne | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Tektur | https://fonts.google.com/specimen/Tektur | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Unbounded | https://fonts.google.com/specimen/Unbounded | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Urbanist | https://fonts.google.com/specimen/Urbanist | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
+| خط Work Sans | https://fonts.google.com/specimen/Work+Sans | SIL OFL 1.1 | 2026-11-06 | expanded type pool (`docs/fonts.md`) |
