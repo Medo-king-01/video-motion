@@ -593,6 +593,2787 @@
       "licence_file": "Sora/OFL.txt",
       "source": "https://fonts.google.com/specimen/Sora",
       "npm": "@expo-google-fonts/sora"
+    },
+    "Alan Sans": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "AlanSans[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Alan Sans/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Alan+Sans"
+    },
+    "Alkalami": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Alkalami-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Alkalami/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Alkalami"
+    },
+    "Alyamama": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Alyamama[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Alyamama/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Alyamama"
+    },
+    "Amiri Quran": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "AmiriQuran-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Amiri Quran/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Amiri+Quran"
+    },
+    "Aref Ruqaa": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "ArefRuqaa-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "ArefRuqaa-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Aref Ruqaa/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Aref+Ruqaa"
+    },
+    "Aref Ruqaa Ink": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "ArefRuqaaInk-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "ArefRuqaaInk-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Aref Ruqaa Ink/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Aref+Ruqaa+Ink"
+    },
+    "Badeen Display": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "BadeenDisplay-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Badeen Display/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Badeen+Display"
+    },
+    "Baloo Bhaijaan 2": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "BalooBhaijaan2[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Baloo Bhaijaan 2/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Baloo+Bhaijaan+2"
+    },
+    "Beiruti": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Beiruti[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Beiruti/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Beiruti"
+    },
+    "Blaka": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Blaka-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Blaka/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Blaka"
+    },
+    "Blaka Hollow": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "BlakaHollow-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Blaka Hollow/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Blaka+Hollow"
+    },
+    "Blaka Ink": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "BlakaInk-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Blaka Ink/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Blaka+Ink"
+    },
+    "Cairo Play": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "CairoPlay[slnt,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Cairo Play/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Cairo+Play"
+    },
+    "Cascadia Code": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "CascadiaCode-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "CascadiaCode[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Cascadia Code/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Cascadia+Code"
+    },
+    "Cascadia Mono": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "CascadiaMono-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "CascadiaMono[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Cascadia Mono/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Cascadia+Mono"
+    },
+    "Estedad": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Estedad[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Estedad/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Estedad"
+    },
+    "Firjar": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Firjar[wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Firjar/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Firjar"
+    },
+    "Fustat": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Fustat[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Fustat/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Fustat"
+    },
+    "Gulzar": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Gulzar-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Gulzar/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Gulzar"
+    },
+    "Handjet": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Handjet[ELGR,ELSH,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Handjet/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Handjet"
+    },
+    "Harmattan": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Harmattan-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Harmattan-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "Harmattan-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "Harmattan-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Harmattan/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Harmattan"
+    },
+    "Jomhuria": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Jomhuria-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Jomhuria/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Jomhuria"
+    },
+    "Katibeh": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Katibeh-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Katibeh/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Katibeh"
+    },
+    "Lateef": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Lateef-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Lateef-ExtraBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Lateef-ExtraLight.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Lateef-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Lateef-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "Lateef-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "Lateef-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Lateef/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Lateef"
+    },
+    "Lemonada": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Lemonada[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Lemonada/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Lemonada"
+    },
+    "Mada": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Mada[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Mada/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Mada"
+    },
+    "Marhey": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Marhey[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Marhey/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Marhey"
+    },
+    "Markazi Text": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "MarkaziText[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Markazi Text/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Markazi+Text"
+    },
+    "Mirza": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Mirza-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Mirza-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "Mirza-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "Mirza-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Mirza/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Mirza"
+    },
+    "Noto Kufi Arabic": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "NotoKufiArabic[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Noto Kufi Arabic/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Noto+Kufi+Arabic"
+    },
+    "Noto Naskh Arabic": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "NotoNaskhArabic[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Noto Naskh Arabic/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Noto+Naskh+Arabic"
+    },
+    "Noto Naskh Arabic UI": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "NotoNaskhArabicUI[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Noto Naskh Arabic UI/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Noto+Naskh+Arabic+UI"
+    },
+    "Noto Nastaliq Urdu": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "NotoNastaliqUrdu[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Noto Nastaliq Urdu/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Noto+Nastaliq+Urdu"
+    },
+    "Noto Sans Arabic": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "NotoSansArabic[wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Noto Sans Arabic/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Noto+Sans+Arabic"
+    },
+    "Noto Sans Arabic UI": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "NotoSansArabicUI[wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Noto Sans Arabic UI/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Noto+Sans+Arabic+UI"
+    },
+    "Oi": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Oi-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Oi/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Oi"
+    },
+    "Parastoo": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Parastoo[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Parastoo/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Parastoo"
+    },
+    "Playpen Sans Arabic": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "PlaypenSansArabic[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Playpen Sans Arabic/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Playpen+Sans+Arabic"
+    },
+    "Qahiri": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Qahiri-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Qahiri/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Qahiri"
+    },
+    "Rakkas": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Rakkas-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Rakkas/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Rakkas"
+    },
+    "Reem Kufi": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "ReemKufi[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Reem Kufi/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Reem+Kufi"
+    },
+    "Reem Kufi Fun": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "ReemKufiFun[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Reem Kufi Fun/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Reem+Kufi+Fun"
+    },
+    "Reem Kufi Ink": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "ReemKufiInk-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Reem Kufi Ink/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Reem+Kufi+Ink"
+    },
+    "Ruwudu": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Ruwudu-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Ruwudu-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "Ruwudu-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "Ruwudu-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Ruwudu/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Ruwudu"
+    },
+    "Scheherazade New": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "ScheherazadeNew-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "ScheherazadeNew-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "ScheherazadeNew-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "ScheherazadeNew-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Scheherazade New/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Scheherazade+New"
+    },
+    "Thabit": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Thabit-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Thabit-BoldOblique.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Thabit-Oblique.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "Thabit.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Thabit/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Thabit"
+    },
+    "Vazirmatn": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Vazirmatn[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Vazirmatn/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Vazirmatn"
+    },
+    "Vibes": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Vibes-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Vibes/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Vibes"
+    },
+    "Zain": {
+      "script": "arabic",
+      "role": "additional option — available for creative use",
+      "pairs": "Cairo",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Zain-Black.ttf",
+          "weight": 900,
+          "style": "normal"
+        },
+        {
+          "file": "Zain-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Zain-ExtraBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Zain-ExtraLight.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Zain-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Zain-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Zain-LightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "Zain-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Zain/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Zain"
+    },
+    "Abril Fatface": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "AbrilFatface-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Abril Fatface/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Abril+Fatface"
+    },
+    "Archivo": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Archivo-Italic[wdth,wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Archivo[wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Archivo/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Archivo"
+    },
+    "Audiowide": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Audiowide-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Audiowide/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Audiowide"
+    },
+    "Bangers": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Bangers-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Bangers/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Bangers"
+    },
+    "Barlow": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Barlow-Black.ttf",
+          "weight": 900,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-BlackItalic.ttf",
+          "weight": 900,
+          "style": "italic"
+        },
+        {
+          "file": "Barlow-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-BoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "Barlow-ExtraBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-ExtraBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "Barlow-ExtraLight.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-ExtraLightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "Barlow-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Barlow-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-LightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "Barlow-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-MediumItalic.ttf",
+          "weight": 500,
+          "style": "italic"
+        },
+        {
+          "file": "Barlow-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-SemiBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "Barlow-Thin.ttf",
+          "weight": 100,
+          "style": "normal"
+        },
+        {
+          "file": "Barlow-ThinItalic.ttf",
+          "weight": 100,
+          "style": "italic"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Barlow/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Barlow"
+    },
+    "Barlow Condensed": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "BarlowCondensed-Black.ttf",
+          "weight": 900,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-BlackItalic.ttf",
+          "weight": 900,
+          "style": "italic"
+        },
+        {
+          "file": "BarlowCondensed-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-BoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "BarlowCondensed-ExtraBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-ExtraBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "BarlowCondensed-ExtraLight.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-ExtraLightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "BarlowCondensed-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "BarlowCondensed-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-LightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "BarlowCondensed-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-MediumItalic.ttf",
+          "weight": 500,
+          "style": "italic"
+        },
+        {
+          "file": "BarlowCondensed-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-SemiBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "BarlowCondensed-Thin.ttf",
+          "weight": 100,
+          "style": "normal"
+        },
+        {
+          "file": "BarlowCondensed-ThinItalic.ttf",
+          "weight": 100,
+          "style": "italic"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Barlow Condensed/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Barlow+Condensed"
+    },
+    "Bricolage Grotesque": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "BricolageGrotesque[opsz,wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Bricolage Grotesque/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Bricolage+Grotesque"
+    },
+    "Caveat": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Caveat[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Caveat/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Caveat"
+    },
+    "Chakra Petch": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "ChakraPetch-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "ChakraPetch-BoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "ChakraPetch-ExtraLight.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "ChakraPetch-ExtraLightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "ChakraPetch-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "ChakraPetch-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "ChakraPetch-LightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "ChakraPetch-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "ChakraPetch-MediumItalic.ttf",
+          "weight": 500,
+          "style": "italic"
+        },
+        {
+          "file": "ChakraPetch-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "ChakraPetch-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "ChakraPetch-SemiBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Chakra Petch/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Chakra+Petch"
+    },
+    "Chivo": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Chivo-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Chivo[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Chivo/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Chivo"
+    },
+    "Cormorant Garamond": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "CormorantGaramond-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "CormorantGaramond[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Cormorant Garamond/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Cormorant+Garamond"
+    },
+    "Dancing Script": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "DancingScript[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Dancing Script/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Dancing+Script"
+    },
+    "DM Sans": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "DMSans-Italic[opsz,wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "DMSans[opsz,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "DM Sans/OFL.txt",
+      "source": "https://fonts.google.com/specimen/DM+Sans"
+    },
+    "DM Serif Display": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "DMSerifDisplay-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "DMSerifDisplay-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "DM Serif Display/OFL.txt",
+      "source": "https://fonts.google.com/specimen/DM+Serif+Display"
+    },
+    "Exo 2": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Exo2-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Exo2[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Exo 2/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Exo+2"
+    },
+    "Fira Code": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "FiraCode[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Fira Code/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Fira+Code"
+    },
+    "Fira Sans": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "FiraSans-Black.ttf",
+          "weight": 900,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-BlackItalic.ttf",
+          "weight": 900,
+          "style": "italic"
+        },
+        {
+          "file": "FiraSans-BoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "FiraSans-ExtraBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-ExtraBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "FiraSans-ExtraLight.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-ExtraLightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "FiraSans-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "FiraSans-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-LightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "FiraSans-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-MediumItalic.ttf",
+          "weight": 500,
+          "style": "italic"
+        },
+        {
+          "file": "FiraSans-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-SemiBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "FiraSans-Thin.ttf",
+          "weight": 100,
+          "style": "normal"
+        },
+        {
+          "file": "FiraSans-ThinItalic.ttf",
+          "weight": 100,
+          "style": "italic"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Fira Sans/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Fira+Sans"
+    },
+    "Fraunces": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Fraunces-Italic[SOFT,WONK,opsz,wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Fraunces[SOFT,WONK,opsz,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Fraunces/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Fraunces"
+    },
+    "IBM Plex Serif": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "IBMPlexSerif-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "IBMPlexSerif-BoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "IBMPlexSerif-ExtraLight.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "IBMPlexSerif-ExtraLightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "IBMPlexSerif-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "IBMPlexSerif-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "IBMPlexSerif-LightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "IBMPlexSerif-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "IBMPlexSerif-MediumItalic.ttf",
+          "weight": 500,
+          "style": "italic"
+        },
+        {
+          "file": "IBMPlexSerif-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "IBMPlexSerif-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "IBMPlexSerif-SemiBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "IBMPlexSerif-Thin.ttf",
+          "weight": 100,
+          "style": "normal"
+        },
+        {
+          "file": "IBMPlexSerif-ThinItalic.ttf",
+          "weight": 100,
+          "style": "italic"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "IBM Plex Serif/OFL.txt",
+      "source": "https://fonts.google.com/specimen/IBM+Plex+Serif"
+    },
+    "JetBrains Mono": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "JetBrainsMono-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "JetBrainsMono[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "JetBrains Mono/OFL.txt",
+      "source": "https://fonts.google.com/specimen/JetBrains+Mono"
+    },
+    "Josefin Sans": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "JosefinSans-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "JosefinSans[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Josefin Sans/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Josefin+Sans"
+    },
+    "Jost": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Jost-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Jost[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Jost/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Jost"
+    },
+    "Lexend": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Lexend[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Lexend/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Lexend"
+    },
+    "Libre Baskerville": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "LibreBaskerville-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "LibreBaskerville[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Libre Baskerville/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Libre+Baskerville"
+    },
+    "Lobster": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Lobster-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Lobster/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Lobster"
+    },
+    "Lora": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Lora-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Lora[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Lora/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Lora"
+    },
+    "Manrope": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Manrope[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Manrope/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Manrope"
+    },
+    "Merriweather": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Merriweather-Italic[opsz,wdth,wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Merriweather[opsz,wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Merriweather/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Merriweather"
+    },
+    "Michroma": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Michroma-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Michroma/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Michroma"
+    },
+    "Monoton": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Monoton-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Monoton/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Monoton"
+    },
+    "Montserrat": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Montserrat-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Montserrat[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Montserrat/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Montserrat"
+    },
+    "Nunito": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Nunito-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Nunito[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Nunito/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Nunito"
+    },
+    "Open Sans": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "OpenSans-Italic[wdth,wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "OpenSans[wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Open Sans/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Open+Sans"
+    },
+    "Orbitron": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Orbitron[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Orbitron/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Orbitron"
+    },
+    "Oswald": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Oswald[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Oswald/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Oswald"
+    },
+    "Outfit": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Outfit[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Outfit/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Outfit"
+    },
+    "Pacifico": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Pacifico-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Pacifico/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Pacifico"
+    },
+    "Permanent Marker": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "PermanentMarker-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Permanent Marker/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Permanent+Marker"
+    },
+    "Playfair Display": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "PlayfairDisplay-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "PlayfairDisplay[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Playfair Display/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Playfair+Display"
+    },
+    "Plus Jakarta Sans": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "PlusJakartaSans-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "PlusJakartaSans[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Plus Jakarta Sans/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Plus+Jakarta+Sans"
+    },
+    "Poppins": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Poppins-Black.ttf",
+          "weight": 900,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-BlackItalic.ttf",
+          "weight": 900,
+          "style": "italic"
+        },
+        {
+          "file": "Poppins-BoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "Poppins-ExtraBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-ExtraBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "Poppins-ExtraLight.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-ExtraLightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "Poppins-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Poppins-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-LightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "Poppins-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-MediumItalic.ttf",
+          "weight": 500,
+          "style": "italic"
+        },
+        {
+          "file": "Poppins-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-SemiBoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "Poppins-Thin.ttf",
+          "weight": 100,
+          "style": "normal"
+        },
+        {
+          "file": "Poppins-ThinItalic.ttf",
+          "weight": 100,
+          "style": "italic"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Poppins/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Poppins"
+    },
+    "Quicksand": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Quicksand[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Quicksand/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Quicksand"
+    },
+    "Rajdhani": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Rajdhani-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Rajdhani-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Rajdhani-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "Rajdhani-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        },
+        {
+          "file": "Rajdhani-SemiBold.ttf",
+          "weight": 700,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Rajdhani/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Rajdhani"
+    },
+    "Raleway": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Raleway-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Raleway[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Raleway/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Raleway"
+    },
+    "Righteous": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Righteous-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Righteous/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Righteous"
+    },
+    "Roboto": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Roboto-Italic[wdth,wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Roboto[wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Roboto/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Roboto"
+    },
+    "Russo One": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "RussoOne-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Russo One/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Russo+One"
+    },
+    "Source Sans 3": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "SourceSans3-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "SourceSans3[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Source Sans 3/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Source+Sans+3"
+    },
+    "Space Mono": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "SpaceMono-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "SpaceMono-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "SpaceMono-BoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "SpaceMono-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Space Mono/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Space+Mono"
+    },
+    "Syne": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "display",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Syne[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Syne/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Syne"
+    },
+    "Tektur": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Tektur[wdth,wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Tektur/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Tektur"
+    },
+    "Ubuntu": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Ubuntu-Bold.ttf",
+          "weight": 700,
+          "style": "normal"
+        },
+        {
+          "file": "Ubuntu-BoldItalic.ttf",
+          "weight": 700,
+          "style": "italic"
+        },
+        {
+          "file": "Ubuntu-Italic.ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Ubuntu-Light.ttf",
+          "weight": 300,
+          "style": "normal"
+        },
+        {
+          "file": "Ubuntu-LightItalic.ttf",
+          "weight": 300,
+          "style": "italic"
+        },
+        {
+          "file": "Ubuntu-Medium.ttf",
+          "weight": 500,
+          "style": "normal"
+        },
+        {
+          "file": "Ubuntu-MediumItalic.ttf",
+          "weight": 500,
+          "style": "italic"
+        },
+        {
+          "file": "Ubuntu-Regular.ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Ubuntu/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Ubuntu"
+    },
+    "Unbounded": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Unbounded[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Unbounded/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Unbounded"
+    },
+    "Urbanist": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "Urbanist-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "Urbanist[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Urbanist/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Urbanist"
+    },
+    "Work Sans": {
+      "script": "latin",
+      "role": "additional option — available for creative use",
+      "pairs": "Inter",
+      "tags": [
+        "sans",
+        "additional"
+      ],
+      "weights": [
+        {
+          "file": "WorkSans-Italic[wght].ttf",
+          "weight": 400,
+          "style": "italic"
+        },
+        {
+          "file": "WorkSans[wght].ttf",
+          "weight": 400,
+          "style": "normal"
+        }
+      ],
+      "licence": "OFL-1.1",
+      "licence_file": "Work Sans/OFL.txt",
+      "source": "https://fonts.google.com/specimen/Work+Sans"
     }
   }
 }
