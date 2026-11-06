@@ -526,7 +526,7 @@ def main():
         json.dump(output, f, indent=2, ensure_ascii=False)
     
     print(f"✅ تم حفظ {len(STYLES)} ستايل في {out_path}")
-    print(f"\n📊 الإحصائيات:")
+    print("\n📊 الإحصائيات:")
     print(f"   ستايلات: {len(STYLES)}")
     print(f"   عائلات: {len(FAMILIES)}")
     print(f"   شخصيات: {len(PERSONALITIES)}")

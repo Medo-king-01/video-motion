@@ -9,12 +9,12 @@ from pathlib import Path
 
 # تحميل مكتبة Alansari
 ALANSARI_PATH = Path('/tmp/motion-library/alansari-motion-library.json')
-with open(ALANSARI_PATH, 'r', encoding='utf-8') as f:
+with open(ALANSARI_PATH, encoding='utf-8') as f:
     alansari_data = json.load(f)
 
 # تحميل مكتبة الاستيديو الحالية
 STUDIO_PATH = Path('/home/user/video-motion/assets/techniques.json')
-with open(STUDIO_PATH, 'r', encoding='utf-8') as f:
+with open(STUDIO_PATH, encoding='utf-8') as f:
     studio_data = json.load(f)
 
 # خريطة تحويل primitive
@@ -122,14 +122,14 @@ def convert_variant(motion, variant_type):
 
 def main():
     """الدمج الرئيسي."""
-    print(f"📥 تحميل مكتبة Alansari...")
+    print("📥 تحميل مكتبة Alansari...")
     all_motions = alansari_data['motions']
     
     # استخراج الحركات الأساسية فقط
     base_motions = [m for m in all_motions if not m.get('variant_of')]
     print(f"   {len(base_motions)} حركة أساسية")
     
-    print(f"\n🔄 توليد المتغيرات...")
+    print("\n🔄 توليد المتغيرات...")
     variant_count = 0
     new_techniques = []
     
@@ -147,12 +147,12 @@ def main():
     # إحصائيات حسب النوع
     from collections import Counter
     type_counts = Counter(t['variant_type'] for t in new_techniques)
-    print(f"\n📈 المتغيرات حسب النوع:")
+    print("\n📈 المتغيرات حسب النوع:")
     for vtype, count in sorted(type_counts.items()):
         print(f"   {vtype}: {count}")
     
     # دمج مع المكتبة الحالية
-    print(f"\n🔀 دمج المتغيرات...")
+    print("\n🔀 دمج المتغيرات...")
     existing_ids = {t['id'] for t in studio_data['techniques']}
     merged_count = 0
     for tech in new_techniques:
@@ -164,12 +164,12 @@ def main():
     print(f"   ✅ تم دمج {merged_count} متغير جديد")
     
     # حفظ النتيجة
-    print(f"\n💾 حفظ المكتبة المحدثة...")
+    print("\n💾 حفظ المكتبة المحدثة...")
     with open(STUDIO_PATH, 'w', encoding='utf-8') as f:
         json.dump(studio_data, f, indent=2, ensure_ascii=False)
     
     print(f"   ✅ تم الحفظ في {STUDIO_PATH}")
-    print(f"\n📊 الإحصائيات النهائية:")
+    print("\n📊 الإحصائيات النهائية:")
     print(f"   التقنيات قبل: {len(studio_data['techniques']) - merged_count}")
     print(f"   المتغيرات المضافة: {merged_count}")
     print(f"   الإجمالي: {len(studio_data['techniques'])}")

@@ -9,12 +9,12 @@ from pathlib import Path
 
 # تحميل مكتبة Alansari
 ALANSARI_PATH = Path('/tmp/motion-library/alansari-motion-library.json')
-with open(ALANSARI_PATH, 'r', encoding='utf-8') as f:
+with open(ALANSARI_PATH, encoding='utf-8') as f:
     alansari_data = json.load(f)
 
 # تحميل مكتبة الاستيديو الحالية
 STUDIO_PATH = Path('/home/user/video-motion/assets/techniques.json')
-with open(STUDIO_PATH, 'r', encoding='utf-8') as f:
+with open(STUDIO_PATH, encoding='utf-8') as f:
     studio_data = json.load(f)
 
 # الفئات الجديدة المطلوبة
@@ -140,21 +140,21 @@ def convert_motion_to_technique(motion, category_mapping):
 
 def main():
     """الدمج الرئيسي."""
-    print(f"📥 تحميل مكتبة Alansari...")
+    print("📥 تحميل مكتبة Alansari...")
     all_motions = alansari_data['motions']
     print(f"   {len(all_motions)} حركة")
     
-    print(f"\n📊 تحميل مكتبة الاستيديو الحالية...")
+    print("\n📊 تحميل مكتبة الاستيديو الحالية...")
     existing_count = len(studio_data['techniques'])
     print(f"   {existing_count} تقنية")
     
     # استخراج الحركات الأساسية فقط (بدون المتغيرات)
     base_motions = [m for m in all_motions if not m.get('variant_of')]
-    print(f"\n🎯 استخراج الحركات الأساسية...")
+    print("\n🎯 استخراج الحركات الأساسية...")
     print(f"   {len(base_motions)} حركة أساسية")
     
     # تحويل الحركات
-    print(f"\n🔄 تحويل الحركات إلى format الاستيديو...")
+    print("\n🔄 تحويل الحركات إلى format الاستيديو...")
     new_techniques = []
     for motion in base_motions:
         try:
@@ -168,12 +168,12 @@ def main():
     # إحصائيات حسب الفئة
     from collections import Counter
     cat_counts = Counter(t['category'] for t in new_techniques)
-    print(f"\n📈 التقنيات الجديدة حسب الفئة:")
+    print("\n📈 التقنيات الجديدة حسب الفئة:")
     for cat, count in sorted(cat_counts.items()):
         print(f"   {cat}: {count}")
     
     # دمج مع المكتبة الحالية
-    print(f"\n🔀 دمج التقنيات...")
+    print("\n🔀 دمج التقنيات...")
     existing_ids = {t['id'] for t in studio_data['techniques']}
     merged_count = 0
     for tech in new_techniques:
@@ -185,12 +185,12 @@ def main():
     print(f"   ✅ تم دمج {merged_count} تقنية جديدة")
     
     # حفظ النتيجة
-    print(f"\n💾 حفظ المكتبة المحدثة...")
+    print("\n💾 حفظ المكتبة المحدثة...")
     with open(STUDIO_PATH, 'w', encoding='utf-8') as f:
         json.dump(studio_data, f, indent=2, ensure_ascii=False)
     
     print(f"   ✅ تم الحفظ في {STUDIO_PATH}")
-    print(f"\n📊 الإحصائيات النهائية:")
+    print("\n📊 الإحصائيات النهائية:")
     print(f"   التقنيات الأصلية: {existing_count}")
     print(f"   التقنيات المضافة: {merged_count}")
     print(f"   الإجمالي: {len(studio_data['techniques'])}")

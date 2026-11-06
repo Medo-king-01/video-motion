@@ -44,7 +44,7 @@ CATEGORY_NAMES = {
 
 def generate_markdown():
     """توليد توثيق markdown."""
-    with open(TECHNIQUES_PATH, 'r', encoding='utf-8') as f:
+    with open(TECHNIQUES_PATH, encoding='utf-8') as f:
         data = json.load(f)
     
     techniques = data['techniques']
