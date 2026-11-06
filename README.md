@@ -45,10 +45,15 @@
 **وطول الفيديو = طول تسجيلك بالظبط** — مفيش طول مستهدف ولا تطويل ولا قص لتوصيل رقم:
 `tools/vo_length.py` بيقيس الصوت ويطلّع منه حدود المشاهد، والمحركات التلاتة بتمشي عليه (`docs/length.md`).
 
-**الحرفة بقت مقاسة ومحكومة**: `tools/techniques.py` بيسحب حركات الريل من مكتبة **٥٩ حركة** (فيهم ١٧ لمشاهد الشاشات: UI · منتج · أرقام · تفاعلات صغيرة) مكتوبة
-على أدوات الاستوديو نفسه (`assets/techniques.json`)، و`tools/reel_lint.py` بيفحص الخطة قبل الرندر
+**الحرفة بقت مقاسة ومحكومة**: `tools/techniques.py` بيسحب حركات الريل من مكتبة **١٤٣٤ تقنية** (٥٩ أصلية + ٢٧٥ من Alansari + ١١٠٠ متغير) في ٢٧ فئة، و`tools/reel_lint.py` بيفحص الخطة قبل الرندر
 (كلمات الشاشة، مدة القراءة، القطع على الشبكة، المساحات الفاضية، واللوكات الممنوعة) — الشرح والأرقام
 كلها في `docs/craft.md`، والمكتبة المقروءة في `docs/techniques.md`.
+
+**١٢٥ خط مجاني** (٦١ عربي + ٦٤ إنجليزي) SIL OFL 1.1 — مجموعة ضخمة من الخطوط العربية والإنجليزية تشمل Aref Ruqaa, Reem Kufi, Qahiri, Fustat, Lalezar وغيرها. الوكيل بيختار الأنسب لكل مشهد.
+
+**١٧ ستايل بصري** (`assets/styles/styles.json`) — لغة بصرية كاملة لكل فيديو: باليت ألوان، خطوط، سطح، شخصية. من كينوت نظيف لورق مقصوص ستوب موشن لترمنال كود لوثائقي فلمي. [التفاصيل](docs/STYLES.md).
+
+**توليد موسيقى خلفية** (`tools/audio_generate.py`) — موسيقى وخلفية صوتية مركّبة رياضياً (numpy/scipy) بدون عينات خارجية = بلا حقوق. درامز + باس + Lead + chord progression + ducking تلقائي + -14 LUFS mastering.
 
 **الصورة ليها سبب وفحص:** `visual_direction.py` بيربط كل beat بكلمة مقاسة ومعالجة متكلم/overlay/cover؛
 وصفات مقارنة/خط زمني/عدّاد أصلية لـK وR، و`layout_audit.mjs` بيفحص نصوص K/مناطق الوجه المسجلة
@@ -116,12 +121,18 @@ cd projects/my-reel && npm ci && npm run studio
 
 ```
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
-assets/                ← مدخلات مشتركة: fonts/ (٢١ عيلة OFL) · poses/ · sfx/
+assets/                ← مدخلات مشتركة:
+  fonts/               ← ١٢٥ عيلة OFL (٦١ عربي + ٦٤ إنجليزي)
+  styles/              ← ١٧ ستايل بصري (styles.json)
+  techniques.json      ← ١٤٣٤ تقنية حركة
+  poses/ · sfx/
 projects/<slug>/       ← مساحة شغل مؤقتة للفيديو (مستثناة من Git): BRIEF.md · STYLE.md · plan/ · assets/ · out/
 tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · machine_explainer.py · layout_audit.mjs · layout_audit_p.py · media_qa.py · stage_gate.py · phone_preview.py · asr_check.py · ffprobe_shim.py · chromium.mjs
-                         · icons_sheet.py (مراجعة الأيقونات) · icons_preview.mjs
+                       · audio_generate.py (توليد موسيقى numpy/scipy بلا حقوق)
+                       · icons_sheet.py · icons_preview.mjs
+                       · merge_alansari.py · add_variants.py · extract_styles.py
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
-docs/                  ← التحليل + قواعد الاتساق + مراجعة Skillry
+docs/                  ← التحليل + قواعد الاتساق + STYLES.md · COMPARISON_MAJED.md · ALANSARI_INTEGRATION.md
 medo-motion/           ← حزمة أدوات Video Motion: الهوية، المراجع، الأيقونات، وقوالب المحركات
   SKILL.md             ← نقطة دخول كلود كود (بتحوّل لـ AGENTS.md)
   brand/               ← الهوية: BRAND.md للبني آدم + brand.json للكود
