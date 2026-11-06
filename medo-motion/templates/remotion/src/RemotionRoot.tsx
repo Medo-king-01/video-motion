@@ -15,6 +15,7 @@ import DIRECTION from '../plan/text-direction.json';
 import FONTS from '../assets/fonts/fonts.json';
 import {DirectedText} from './lib/DirectedText';
 import {FixedStage} from './lib/FixedStage';
+import {SceneEffects} from './lib/SceneEffects';
 import {isStageEnabled, validateStageSpec} from './lib/stage.js';
 
 declare const require: {
@@ -31,10 +32,10 @@ declare const require: {
 // Optional plan JSON loader: legacy Engine R projects without plan/stage.json (or
 // optional copy.json) fall back cleanly to null with zero migration required.
 function loadOptionalPlanJson(
-  relName: './stage.json' | './copy.json',
+  relName: './stage.json' | './copy.json' | './effects.json',
 ): Record<string, any> | null {
   try {
-    const ctx = require.context('../plan', false, /^\.\/(stage|copy)\.json$/);
+    const ctx = require.context('../plan', false, /^\.\/(stage|copy|effects)\.json$/);
     if (ctx.keys().includes(relName)) {
       const mod = ctx(relName);
       const unwrapped = mod && typeof mod === 'object' && 'default' in mod ? mod.default : mod;
@@ -48,6 +49,7 @@ function loadOptionalPlanJson(
 
 export const STAGE_PLAN = loadOptionalPlanJson('./stage.json');
 const COPY_PLAN = loadOptionalPlanJson('./copy.json');
+const EFFECTS_PLAN = loadOptionalPlanJson('./effects.json');
 
 // Every manifest face is available to the agent's direction; @font-face is generated
 // from the same fonts.json the other engines read (no hardcoded creative default).
@@ -90,7 +92,7 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
     throw new Error(`Invalid plan/stage.json: ${STAGE_ERRORS.join('; ')}`);
   }
   const frame = useCurrentFrame();
-  const {fps, durationInFrames} = useVideoConfig();
+  const {fps, durationInFrames, width, height} = useVideoConfig();
   const [fontHandle] = useState(() => delayRender('Loading agent-chosen fonts'));
   const absSeconds = frame / fps;
   const sceneCount = TIMELINE.scenes?.length || 1;
@@ -99,6 +101,10 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
     return Math.max(0, found);
   }, [absSeconds]);
   const scene = TIMELINE.scenes?.[sceneIndex];
+  const effectScene = Array.isArray(EFFECTS_PLAN?.scenes)
+    ? EFFECTS_PLAN!.scenes.find((item: any) => item && item.scene === sceneIndex + 1)
+    : null;
+  const sceneEffects = effectScene?.effects;
   const localFrame = Math.max(0, frame - Math.round((scene?.start ?? 0) * fps));
   const localSeconds = localFrame / fps;
   const duration = Math.max(0.5, (scene?.end ?? durationInFrames / fps) - (scene?.start ?? 0));
@@ -116,6 +122,10 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       ? USED_FONTS.map((f) => document.fonts.load(`${f.weight} 32px "${f.family}"`))
       : [document.fonts.load('800 32px Cairo')];
     Promise.all(jobs)
+      // FontFaceSet.load() resolves when the requested faces load, while .ready also
+      // waits for the browser's font-driven layout pass. This prevents the first
+      // still after a seek from capturing fallback-font metrics in a persistent browser.
+      .then(() => document.fonts.ready)
       .then(() => continueRender(fontHandle))
       .catch((error) => cancelRender(error));
   }, [fontHandle]);
@@ -200,6 +210,12 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
     </AbsoluteFill>
   );
 
+  const effectedSceneBody = (
+    <SceneEffects effects={sceneEffects} time={localSeconds} width={width} height={height}>
+      {sceneBody}
+    </SceneEffects>
+  );
+
   if (AUTO_STAGE_ACTIVE) {
     return (
       <AbsoluteFill style={{fontFamily: 'Cairo, sans-serif', overflow: 'hidden', direction: 'rtl'}}>
@@ -213,12 +229,12 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
           motionMode={motionMode}
           over={previewBadge}
         >
-          {sceneBody}
+          {effectedSceneBody}
         </FixedStage>
         {audioFile ? <Audio src={staticFile(audioFile)} /> : null}
       </AbsoluteFill>
     );
   }
 
-  return sceneBody;
+  return effectedSceneBody;
 };

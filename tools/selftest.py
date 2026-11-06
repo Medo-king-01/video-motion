@@ -173,6 +173,28 @@ def step_engine_r() -> bool:
         (proj / "plan" / "beats.json").write_text(json.dumps(beats) + "\n", encoding="utf-8")
         fill_story_cards(proj)
         fill_text_direction(proj, beats)
+        # Exercise all three declarative scene effects in the actual Remotion renderer.
+        public_effects = proj / "public" / "effects"
+        public_effects.mkdir(parents=True, exist_ok=True)
+        (public_effects / "selftest.svg").write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">'
+            '<rect width="320" height="320" fill="#d94848"/>'
+            '<circle cx="160" cy="160" r="92" fill="#ffffff"/>'
+            '<path d="M60 160h200M160 60v200" stroke="#202020" stroke-width="12"/>'
+            '</svg>\n',
+            encoding="utf-8",
+        )
+        (proj / "plan" / "effects.json").write_text(json.dumps({
+            "scenes": [{
+                "scene": 1,
+                "effects": [
+                    {"type": "lightSweep", "start": 0, "duration": 0.32},
+                    {"type": "whipPan", "start": 0.02, "duration": 0.24, "distance": 0.12},
+                    {"type": "particleDissolve", "source": "effects/selftest.svg",
+                     "start": 0.08, "duration": 0.28, "count": 16, "seed": 7},
+                ],
+            }],
+        }) + "\n", encoding="utf-8")
         # render.mjs refuses placeholder copy — give the one scene its real card
         data_ts = proj / "src" / "data.ts"
         src = data_ts.read_text(encoding="utf-8")
@@ -192,8 +214,19 @@ def step_engine_r() -> bool:
                        cwd=proj, env=motion_env(), timeout=600)
         output = proj / "out" / "selftest.mp4"
         ok = rendered.returncode == 0 and output.is_file() and output.stat().st_size > 1000
+        preview_detail = ""
+        artifact_dir = os.environ.get("MEDO_MOTION_SELFTEST_ARTIFACT_DIR")
+        if ok and artifact_dir:
+            preview_path = Path(artifact_dir) / "scene-effects-preview.mp4"
+            try:
+                preview_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(output, preview_path)
+                preview_detail = f"; preview saved to {preview_path.name}"
+            except OSError as exc:
+                return record("engine R render", 1, f"could not save visual preview: {exc}")
         return record("engine R render", 0 if ok else 1,
-                      "6 frames via Remotion + shared Chromium" if ok else rendered.stdout + rendered.stderr)
+                      f"6 frames via Remotion + shared Chromium{preview_detail}"
+                      if ok else rendered.stdout + rendered.stderr)
     finally:
         shutil.rmtree(proj, ignore_errors=True)
 

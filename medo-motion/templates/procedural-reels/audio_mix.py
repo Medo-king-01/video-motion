@@ -400,29 +400,33 @@ def ffmpeg_loudnorm(path_in, path_out, lufs: float = -14.5, true_peak: float = -
 
 
 def measure_loudness(path, ff=None) -> dict:
-    """Integrated loudness / true peak / LRA measured by ffmpeg's **EBU R128** meter.
+    """Measure integrated loudness, true peak and LRA with FFmpeg's EBU R128 loudnorm analysis.
 
-    `loudnorm` and `ebur128` do not agree to the last decimal on the same file (measured here:
-    -14.51 LUFS vs -14.8 LUFS on one master). `loudnorm` is a normaliser; `ebur128` is the reference
-    meter the platforms use, so this is what the report quotes and what the trim step aims at.
+    Use the loudnorm filter's analysis-only JSON output rather than the standalone ebur128 filter.
+    This remains an independent EBU R128 measurement pass, while avoiding a decoder/filter failure
+    observed with Ubuntu 22.04's FFmpeg 4.4.2 when ebur128 peak=true reads the mastered WAV.
     """
-    import re
-
     from media_bin import ffmpeg as find_ffmpeg
     ff = ff or find_ffmpeg() or "ffmpeg"
-    r = subprocess.run([ff, "-hide_banner", "-nostats", "-i", str(path), "-af",
-                        "ebur128=peak=true:framelog=quiet", "-f", "null", "-"],
-                       capture_output=True, text=True)
-    out = {"ok": False}
-    m_i = re.search(r"I:\s*(-?\d+(?:\.\d+)?) LUFS", r.stderr)
-    m_tp = re.search(r"Peak:\s*(-?\d+(?:\.\d+)?) dBFS", r.stderr)
-    m_lra = re.search(r"LRA:\s*(-?\d+(?:\.\d+)?) LU", r.stderr)
-    if m_i:
-        out = {"ok": True, "lufs": float(m_i.group(1)),
-               "true_peak": float(m_tp.group(1)) if m_tp else None,
-               "lra": float(m_lra.group(1)) if m_lra else None}
-    return out
-
+    r = subprocess.run(
+        [ff, "-hide_banner", "-nostats", "-i", str(path), "-af",
+         "loudnorm=I=-24:TP=-2:LRA=7:print_format=json", "-f", "null", "-"],
+        capture_output=True, text=True)
+    try:
+        start, end = r.stderr.rindex("{"), r.stderr.rindex("}") + 1
+        measured = json.loads(r.stderr[start:end])
+        values = {
+            "lufs": float(measured["input_i"]),
+            "true_peak": float(measured["input_tp"]),
+            "lra": float(measured["input_lra"]),
+        }
+    except (ValueError, KeyError, TypeError, json.JSONDecodeError):
+        return {"ok": False, "reason": "EBU R128 loudnorm analysis missing or measurement failed",
+                "returncode": r.returncode, "stderr": r.stderr[-2000:]}
+    if r.returncode != 0:
+        return {"ok": False, "reason": "EBU R128 loudnorm analysis failed",
+                "returncode": r.returncode, "stderr": r.stderr[-2000:]}
+    return {"ok": True, **values}
 
 def master_to_target(path, lufs: float = -14.5, true_peak: float = -1.5, tolerance: float = 0.15,
                      max_trim: float = 2.0, ff=None) -> dict:
@@ -442,6 +446,13 @@ def master_to_target(path, lufs: float = -14.5, true_peak: float = -1.5, toleran
     before = measure_loudness(path, ff)
     report = {"ok": True, "loudnorm": norm, "measured_before_trim": before}
     if not before.get("ok"):
+        # A successful loudnorm pass is not sufficient: the exported master is only
+        # verified when the independent EBU R128 meter can read it.
+        report.update({
+            "ok": False,
+            "reason": "EBU R128 verification failed after loudnorm",
+            "measurement_error": before,
+        })
         return report
     gain = max(-max_trim, min(max_trim, lufs - before["lufs"]))
     if abs(gain) <= tolerance:

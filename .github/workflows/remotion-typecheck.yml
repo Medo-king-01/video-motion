@@ -1,0 +1,42 @@
+name: Remotion typecheck
+
+on:
+  push:
+    branches:
+      - "feat/deterministic-motion-effects"
+    paths:
+      - "medo-motion/templates/remotion/**"
+      - ".github/workflows/remotion-typecheck.yml"
+  pull_request:
+    paths:
+      - "medo-motion/templates/remotion/**"
+      - ".github/workflows/remotion-typecheck.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: remotion-typecheck-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: Remotion TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: medo-motion/templates/remotion/package-lock.json
+
+      - name: Install Remotion dependencies
+        run: npm ci --prefix medo-motion/templates/remotion
+
+      - name: Type-check Remotion template
+        run: npm run typecheck --prefix medo-motion/templates/remotion
