@@ -45,13 +45,26 @@
 **وطول الفيديو = طول تسجيلك بالظبط** — مفيش طول مستهدف ولا تطويل ولا قص لتوصيل رقم:
 `tools/vo_length.py` بيقيس الصوت ويطلّع منه حدود المشاهد، والمحركات التلاتة بتمشي عليه (`docs/length.md`).
 
-**الحرفة بقت مقاسة ومحكومة**: `tools/techniques.py` بيسحب حركات الريل من مكتبة **١٤٣٤ تقنية** (٥٩ أصلية + ٢٧٥ من Alansari + ١١٠٠ متغير) في ٢٧ فئة، و`tools/reel_lint.py` بيفحص الخطة قبل الرندر
+**الحرفة بقت مقاسة ومحكومة**: `tools/techniques.py` بيسحب حركات الريل من مكتبة **٢٢٣٩ تقنية** في ٤٤ فئة:
+- **٥٩ تقنية أصلية** من الاستيديو (philosophy-driven)
+- **١٣٧٥ تقنية** من Alansari Motion Library (٢٧٥ حركة + ١١٠٠ متغير)
+- **٦١٦ تقنية** من Opus Motion Library
+- **١٨٩ انتقال GLSL** من gl-transitions
+
+و`tools/reel_lint.py` بيفحص الخطة قبل الرندر
 (كلمات الشاشة، مدة القراءة، القطع على الشبكة، المساحات الفاضية، واللوكات الممنوعة) — الشرح والأرقام
 كلها في `docs/craft.md`، والمكتبة المقروءة في `docs/techniques.md`.
 
 **١٢٥ خط مجاني** (٦١ عربي + ٦٤ إنجليزي) SIL OFL 1.1 — مجموعة ضخمة من الخطوط العربية والإنجليزية تشمل Aref Ruqaa, Reem Kufi, Qahiri, Fustat, Lalezar وغيرها. الوكيل بيختار الأنسب لكل مشهد.
 
-**١٧ ستايل بصري** (`assets/styles/styles.json`) — لغة بصرية كاملة لكل فيديو: باليت ألوان، خطوط، سطح، شخصية. من كينوت نظيف لورق مقصوص ستوب موشن لترمنال كود لوثائقي فلمي. [التفاصيل](docs/STYLES.md).
+**١٦٣ ستايل بصري** (`assets/styles/styles.json`) — لغة بصرية كاملة لكل فيديو: باليت ألوان، خطوط، سطح، شخصية:
+- **١٧ ستايل** من Majed Video (keynote, paperCut, explainer, terminal, vhs, brutal...)
+- **١٤٦ ستايل** من Opus Motion Library (woodcut, risograph, neon-noir, crt-terminal...)
+[التفاصيل](docs/STYLES.md).
+
+**١٨٩ انتقال GLSL** (`assets/gl-transitions/`) — شيدورات GPU جاهزة: Accordion, Bloom, CircleIris, Cube, DoomScreen, Flash, Glitch, Morph, PageTurn, Ripple, Spiral, Wave, Zoom... [التفاصيل](docs/GL_TRANSITIONS.md).
+
+**مبادئ تصميم الحركة** (`docs/motion-principles/`) — مستوحاة من LottieFiles: 12 مبدأ ديزني مكيفة للواجهات، 4 شخصيات حركة، جداول توقيت، خرائط عاطفة→حركة. [التفاصيل](docs/MOTION_PRINCIPLES.md).
 
 **توليد موسيقى خلفية** (`tools/audio_generate.py`) — موسيقى وخلفية صوتية مركّبة رياضياً (numpy/scipy) بدون عينات خارجية = بلا حقوق. درامز + باس + Lead + chord progression + ducking تلقائي + -14 LUFS mastering.
 

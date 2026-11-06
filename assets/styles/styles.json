@@ -734,6 +734,5056 @@
         "terminal",
         "studio3D"
       ]
+    },
+    "woodcut": {
+      "name": "Woodcut print",
+      "name_en": "Woodcut print",
+      "desc": "Black relief print on laid paper: carved line screen, ragged knife edge, wood-grain streaks and specks where ink did not take, a ragged block edge, and at most one mottled copper plate for the thing that burns.",
+      "family": "print",
+      "palette": {
+        "bg": "#EFE8D8",
+        "paper": "#EFE8D8",
+        "ink": "#111111",
+        "accent": "#C8502A",
+        "swatches": [
+          "#111111",
+          "#EFE8D8",
+          "#C8502A",
+          "#D8C29C"
+        ]
+      },
+      "useFor": "Folk tales, craft brands, book trailers, serious history.",
+      "personality": "clean",
+      "cues": [
+        "print",
+        "monochrome",
+        "folk",
+        "carved",
+        "woodcut",
+        "relief",
+        "block"
+      ],
+      "source": "opus-motion-library"
+    },
+    "risograph": {
+      "name": "Risograph",
+      "name_en": "Risograph",
+      "desc": "True three-plate riso: blue / yellow / fluorescent-pink spot inks separated from the frame, angled halftone screens, per-plate misregistration, ink grain, roller feed streaks and pinholes in the solids on warm paper. Overprints mix green, violet and orange.",
+      "family": "print",
+      "palette": {
+        "bg": "#F6F1E6",
+        "paper": "#F6F1E6",
+        "ink": "#0078BF",
+        "accent": "#FF48B0",
+        "accent2": "#FFE800",
+        "swatches": [
+          "#0078BF",
+          "#FFE800",
+          "#FF48B0",
+          "#F6F1E6",
+          "#373F86",
+          "#789972",
+          "#DC7D72"
+        ]
+      },
+      "useFor": "Zines, indie brands, event posters, playful explainers.",
+      "personality": "clean",
+      "cues": [
+        "print",
+        "riso",
+        "zine",
+        "pink",
+        "blue",
+        "yellow",
+        "plates",
+        "overprint",
+        "grain"
+      ],
+      "source": "opus-motion-library"
+    },
+    "ink-wash": {
+      "name": "Ink wash (sumi-e)",
+      "name_en": "Ink wash (sumi-e)",
+      "desc": "Black ink in five tones on fibrous rice paper: wet washes with pigment-edged bleed, dry wobble, long paper fibres, and one vermilion seal accent kept in colour.",
+      "family": "paint",
+      "palette": {
+        "bg": "#F2ECDE",
+        "paper": "#F2ECDE",
+        "ink": "#131110",
+        "accent": "#B02E22",
+        "swatches": [
+          "#131110",
+          "#726E64",
+          "#A59F93",
+          "#CEC6B6",
+          "#F2ECDE",
+          "#B02E22"
+        ]
+      },
+      "useFor": "Calm, poetic, nature, East-Asian themes, meditation and craft stories.",
+      "personality": "clean",
+      "cues": [
+        "ink",
+        "brush",
+        "zen",
+        "monochrome",
+        "paper",
+        "sumi-e",
+        "xieyi",
+        "vermilion"
+      ],
+      "source": "opus-motion-library"
+    },
+    "pixel-8bit": {
+      "name": "8-bit pixel",
+      "name_en": "8-bit pixel",
+      "desc": "Chunky 8 px pixels snapped to a 16-colour palette with ordered Bayer dither, steps on twos — any motion becomes a retro game cutscene.",
+      "family": "retro",
+      "palette": {
+        "bg": "#1A1C2C",
+        "paper": "#1A1C2C",
+        "ink": "#F4F4F4",
+        "accent": "#FFCD75",
+        "accent2": "#38B764",
+        "swatches": [
+          "#1A1C2C",
+          "#5D275D",
+          "#B13E53",
+          "#EF7D57",
+          "#FFCD75",
+          "#38B764",
+          "#41A6F6",
+          "#F4F4F4"
+        ]
+      },
+      "useFor": "Games, nostalgia, playful product moments, developer humour.",
+      "personality": "clean",
+      "cues": [
+        "pixel",
+        "retro",
+        "game",
+        "8-bit",
+        "dither",
+        "indexed"
+      ],
+      "source": "opus-motion-library"
+    },
+    "comic-halftone": {
+      "name": "Comic halftone",
+      "name_en": "Comic halftone",
+      "desc": "Pop-art print: punchy posterised colour, ink outlines, a real 45° dot screen grown into the midtones and a cyan misregistered plate ghost.",
+      "family": "print",
+      "palette": {
+        "bg": "#FFF4D6",
+        "paper": "#FFF4D6",
+        "ink": "#14110F",
+        "accent": "#E8322E",
+        "accent2": "#1F6FEB",
+        "swatches": [
+          "#14110F",
+          "#E8322E",
+          "#FFD400",
+          "#1F6FEB",
+          "#FFF4D6"
+        ]
+      },
+      "useFor": "Punchlines, launches, pop culture, energetic social clips.",
+      "personality": "clean",
+      "cues": [
+        "comic",
+        "pop-art",
+        "halftone",
+        "outline",
+        "ben-day"
+      ],
+      "source": "opus-motion-library"
+    },
+    "watercolor": {
+      "name": "Watercolour",
+      "name_en": "Watercolour",
+      "desc": "Field-journal watercolour: translucent pigment washes that pool darker just inside every edge (tide line), dry-brush flying-white streaks, granulation in the cold-press tooth, gentle wobble; paper is the only white.",
+      "family": "paint",
+      "palette": {
+        "bg": "#F1E9DA",
+        "paper": "#F1E9DA",
+        "ink": "#2B2520",
+        "accent": "#CF4F2C",
+        "accent2": "#3D85C6",
+        "swatches": [
+          "#CF4F2C",
+          "#F2CC8F",
+          "#81B29A",
+          "#3D85C6",
+          "#F1E9DA",
+          "#2B2520"
+        ]
+      },
+      "useFor": "Children’s stories, travel, wellness, gentle brand films.",
+      "personality": "clean",
+      "cues": [
+        "paint",
+        "soft",
+        "watercolor",
+        "kids",
+        "paper",
+        "wash",
+        "granulation",
+        "field-journal",
+        "dry-brush",
+        "tide-line"
+      ],
+      "source": "opus-motion-library"
+    },
+    "neon-noir": {
+      "name": "Neon noir",
+      "name_en": "Neon noir",
+      "desc": "Night-city grade: crushed blacks, magenta/cyan split, threshold-gated bloom with magenta halation, chromatic fringe, rain-wet sheen and grain.",
+      "family": "screen",
+      "palette": {
+        "bg": "#07060D",
+        "paper": "#07060D",
+        "ink": "#F3E9FF",
+        "accent": "#FF2E97",
+        "accent2": "#21E6FF",
+        "swatches": [
+          "#07060D",
+          "#3A0D5C",
+          "#FF2E97",
+          "#21E6FF",
+          "#F3E9FF"
+        ]
+      },
+      "useFor": "Tech launches, music, gaming, cyber themes, night scenes.",
+      "personality": "clean",
+      "cues": [
+        "neon",
+        "cyber",
+        "night",
+        "glow",
+        "synthwave",
+        "bloom"
+      ],
+      "source": "opus-motion-library"
+    },
+    "crt-terminal": {
+      "name": "CRT terminal",
+      "name_en": "CRT terminal",
+      "desc": "Green phosphor monitor: monochrome green ramp, phosphor bloom, scanlines whose glow pools in bright areas, curved glass bezel with glare and a rolling bar.",
+      "family": "screen",
+      "palette": {
+        "bg": "#020A05",
+        "paper": "#020A05",
+        "ink": "#8CFFB0",
+        "accent": "#D9FFE5",
+        "swatches": [
+          "#020A05",
+          "#0B3A1C",
+          "#1F8A45",
+          "#8CFFB0"
+        ]
+      },
+      "useFor": "Hacker/dev themes, retro computing, logs and data, sci-fi interfaces.",
+      "personality": "clean",
+      "cues": [
+        "crt",
+        "terminal",
+        "green",
+        "retro",
+        "hacker",
+        "phosphor"
+      ],
+      "source": "opus-motion-library"
+    },
+    "pencil-sketch": {
+      "name": "Pencil sketch",
+      "name_en": "Pencil sketch",
+      "desc": "Graphite on sketch paper: soft grey edges, light diagonal hatching in the shade, boiling line wobble on twos, paper fibre.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#F4F1EA",
+        "paper": "#F4F1EA",
+        "ink": "#3A3A3C",
+        "accent": "#D24B3E",
+        "swatches": [
+          "#3A3A3C",
+          "#8E8C86",
+          "#F4F1EA",
+          "#D24B3E"
+        ]
+      },
+      "useFor": "Storyboards, ideation, \"drawing it out\", education and explainers.",
+      "personality": "clean",
+      "cues": [
+        "pencil",
+        "sketch",
+        "drawing",
+        "storyboard",
+        "graphite",
+        "hatching"
+      ],
+      "source": "opus-motion-library"
+    },
+    "cyanotype": {
+      "name": "Cyanotype",
+      "name_en": "Cyanotype",
+      "desc": "Sun-print blue: Prussian-blue to paper-white ramp, chemical coating streaks, soft grain and a brushed deckle border.",
+      "family": "photo",
+      "palette": {
+        "bg": "#0E3B6E",
+        "paper": "#E8EEF2",
+        "ink": "#0E3B6E",
+        "accent": "#F2F6F8",
+        "swatches": [
+          "#0B2E57",
+          "#2A5D93",
+          "#9DB8D4",
+          "#E8EEF2"
+        ]
+      },
+      "useFor": "Botany, science history, calm product stories, archival looks.",
+      "personality": "clean",
+      "cues": [
+        "blue",
+        "photo",
+        "archival",
+        "science",
+        "sun-print"
+      ],
+      "source": "opus-motion-library"
+    },
+    "film-noir": {
+      "name": "Film noir",
+      "name_en": "Film noir",
+      "desc": "High-contrast black-and-white cinema print: deep shadows, silver highlights, gate weave, scratches and dust, grain and 2.39:1 bars.",
+      "family": "photo",
+      "palette": {
+        "bg": "#050505",
+        "paper": "#050505",
+        "ink": "#F2F2F2",
+        "accent": "#BFBFBF",
+        "swatches": [
+          "#050505",
+          "#3A3A3A",
+          "#9A9A9A",
+          "#F2F2F2"
+        ]
+      },
+      "useFor": "Mystery, drama, serious brand films, trailers.",
+      "personality": "clean",
+      "cues": [
+        "noir",
+        "black-and-white",
+        "cinema",
+        "drama",
+        "film-print"
+      ],
+      "source": "opus-motion-library"
+    },
+    "archive-lighttable": {
+      "name": "Archive light table",
+      "name_en": "Archive light table",
+      "desc": "Archive scans on a cool backlit light table: neutral silver-gelatin greys, soft backlight bloom, one orange signal mark kept in colour.",
+      "family": "photo",
+      "palette": {
+        "bg": "#F7F9FB",
+        "paper": "#E5E8EA",
+        "ink": "#15171A",
+        "accent": "#FF5A1F",
+        "accent2": "#545759",
+        "swatches": [
+          "#0E0F11",
+          "#15171A",
+          "#656461",
+          "#908F8B",
+          "#C5C4C0",
+          "#E5E8EA",
+          "#F7F9FB",
+          "#FF5A1F"
+        ]
+      },
+      "useFor": "Evidence films, history and archive stories, fact-checks, document reveals, museum and research explainers.",
+      "personality": "clean",
+      "cues": [
+        "archive",
+        "light-table",
+        "documentary",
+        "evidence",
+        "neutral",
+        "signal-orange",
+        "modern"
+      ],
+      "source": "opus-motion-library"
+    },
+    "art-deco": {
+      "name": "Art Deco",
+      "name_en": "Art Deco",
+      "desc": "1930s poster in motion: warm lacquer black, engraved gold ramp with a moving sheen, one burgundy hero accent, gold keyline frame.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#0D0B09",
+        "paper": "#F2E8D5",
+        "ink": "#C9A24B",
+        "accent": "#8E1B2E",
+        "accent2": "#1D6B57",
+        "swatches": [
+          "#060504",
+          "#130F08",
+          "#6F5220",
+          "#C9A24B",
+          "#F3D98B",
+          "#FFF4D2",
+          "#8E1B2E",
+          "#1D6B57"
+        ]
+      },
+      "useFor": "Luxury, hotels, galas, jazz, premieres, award reveals, vintage premium brands.",
+      "personality": "clean",
+      "cues": [
+        "art-deco",
+        "gold",
+        "luxury",
+        "1930s",
+        "poster",
+        "black",
+        "burgundy",
+        "gatsby"
+      ],
+      "source": "opus-motion-library"
+    },
+    "ascii-crt": {
+      "name": "ASCII CRT terminal",
+      "name_en": "ASCII CRT terminal",
+      "desc": "Every picture rebuilt from real monospace glyphs ( .:-+=*%#@) by ink density, lit in amber P3 phosphor on curved dark glass with bloom and scanlines.",
+      "family": "screen",
+      "palette": {
+        "bg": "#090604",
+        "paper": "#090604",
+        "ink": "#FFB000",
+        "accent": "#FFEBB8",
+        "accent2": "#BFE4FF",
+        "swatches": [
+          "#060503",
+          "#281906",
+          "#734C0D",
+          "#FF6605",
+          "#FFB000",
+          "#FFEBB8",
+          "#BFE4FF"
+        ]
+      },
+      "useFor": "Hacker/dev stories, logs, retro computing, sci-fi terminals, \"the machine is thinking\" moments.",
+      "personality": "clean",
+      "cues": [
+        "ascii",
+        "terminal",
+        "crt",
+        "amber",
+        "phosphor",
+        "glyphs",
+        "retro",
+        "hacker"
+      ],
+      "source": "opus-motion-library"
+    },
+    "backrooms": {
+      "name": "Liminal camcorder (VHS)",
+      "name_en": "Liminal camcorder (VHS)",
+      "desc": "1990s camcorder tape: sickly yellow-green grade, per-line time-base jitter, rolling tracking band, chroma bleed, tape snow and dropouts in a 4:3 pillarbox.",
+      "family": "retro",
+      "palette": {
+        "bg": "#000000",
+        "paper": "#C0B988",
+        "ink": "#463711",
+        "accent": "#FF2A1A",
+        "accent2": "#D5BD66",
+        "swatches": [
+          "#000000",
+          "#463711",
+          "#69591D",
+          "#948130",
+          "#D5BD66",
+          "#C0B988",
+          "#FF2A1A"
+        ]
+      },
+      "useFor": "Found-footage, liminal / uncanny moods, 90s nostalgia, home-video memories, horror-adjacent teasers.",
+      "personality": "clean",
+      "cues": [
+        "vhs",
+        "camcorder",
+        "found-footage",
+        "liminal",
+        "90s",
+        "tape",
+        "retro",
+        "4:3"
+      ],
+      "source": "opus-motion-library"
+    },
+    "brick-toy": {
+      "name": "Brick toy macro",
+      "name_en": "Brick toy macro",
+      "desc": "Stop-motion toy bricks shot with a macro lens: glossy saturated plastic, crisp highlights, shallow depth of field band, cool neutral grade, on twos.",
+      "family": "craft",
+      "palette": {
+        "bg": "#CECDCB",
+        "paper": "#F2F2EE",
+        "ink": "#1B2A34",
+        "accent": "#C91A09",
+        "accent2": "#F2CD37",
+        "swatches": [
+          "#C91A09",
+          "#0055BF",
+          "#F2CD37",
+          "#237841",
+          "#F2F2EE",
+          "#1B2A34",
+          "#868078"
+        ]
+      },
+      "useFor": "Kids and education, building / assembly metaphors, playful product stories, \"we built it piece by piece\".",
+      "personality": "clean",
+      "cues": [
+        "toy",
+        "bricks",
+        "stop-motion",
+        "macro",
+        "plastic",
+        "depth-of-field",
+        "kids",
+        "on-twos"
+      ],
+      "source": "opus-motion-library"
+    },
+    "briefing-board": {
+      "name": "Engineering briefing board",
+      "name_en": "Engineering briefing board",
+      "desc": "A real whiteboard wall: warm enamel with window falloff, muted photographs, a sliding reflection sheen, and red reserved for the decision.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#F3F1EB",
+        "paper": "#EDE9DF",
+        "ink": "#23272E",
+        "accent": "#D33A21",
+        "accent2": "#1F4FC8",
+        "swatches": [
+          "#23272E",
+          "#1F4FC8",
+          "#D33A21",
+          "#5F86DA",
+          "#8F8B83",
+          "#DCD8CE",
+          "#F3F1EB"
+        ]
+      },
+      "useFor": "Engineering post-mortems, decision explainers, investigations, strategy walkthroughs.",
+      "personality": "clean",
+      "cues": [
+        "whiteboard",
+        "marker",
+        "engineering",
+        "briefing",
+        "evidence",
+        "red-decision"
+      ],
+      "source": "opus-motion-library"
+    },
+    "caption-news": {
+      "name": "Caption news (sound-off)",
+      "name_en": "Caption news (sound-off)",
+      "desc": "Social-news footage grade: a touch more contrast, a touch less saturation, warm soft-light lift, dark bottom veil for huge captions.",
+      "family": "photo",
+      "palette": {
+        "bg": "#0E0E0C",
+        "paper": "#F7F5EF",
+        "ink": "#0E0E0C",
+        "accent": "#FFC21A",
+        "accent2": "#FF4A3D",
+        "swatches": [
+          "#0E0E0C",
+          "#23221E",
+          "#5E5C55",
+          "#8D8B83",
+          "#F7F5EF",
+          "#FFC21A",
+          "#FF4A3D"
+        ]
+      },
+      "useFor": "Sound-off social news, data-driven shorts, explainers with big captions and source tags.",
+      "personality": "clean",
+      "cues": [
+        "news",
+        "captions",
+        "social",
+        "footage",
+        "documentary",
+        "honey",
+        "sound-off"
+      ],
+      "source": "opus-motion-library"
+    },
+    "cel-anime-80s": {
+      "name": "80s cel anime (OVA on tape)",
+      "name_en": "80s cel anime (OVA on tape)",
+      "desc": "Late-80s OVA cels played from videotape on a CRT: flat two-tone luminance bands, coloured (never black) line, violet-lifted shadows, neon halation, chroma bleed, light scanlines, on twos.",
+      "family": "retro",
+      "palette": {
+        "bg": "#130D1F",
+        "paper": "#E9C9C4",
+        "ink": "#2E1850",
+        "accent": "#FF3FA4",
+        "accent2": "#35E7FF",
+        "swatches": [
+          "#130D1F",
+          "#2B1D30",
+          "#3A2F4D",
+          "#2F6FE2",
+          "#FF3FA4",
+          "#35E7FF",
+          "#E2B24E",
+          "#FF6B6B"
+        ]
+      },
+      "useFor": "City-pop music videos, retro tech, night city moods, nostalgic brand films, synthwave.",
+      "personality": "clean",
+      "cues": [
+        "anime",
+        "cel",
+        "80s",
+        "ova",
+        "vhs",
+        "neon",
+        "city-pop",
+        "synthwave",
+        "on-twos"
+      ],
+      "source": "opus-motion-library"
+    },
+    "city-symphony": {
+      "name": "Time-lapse symphony",
+      "name_en": "Time-lapse symphony",
+      "desc": "Release-print grade for city footage: desaturated cool greys, a sigmoid S-curve, lifted 7/255 blacks, warm sodium bloom, gentle gate weave, 1.85 matte.",
+      "family": "photo",
+      "palette": {
+        "bg": "#000000",
+        "paper": "#EDE8DF",
+        "ink": "#3C3A38",
+        "accent": "#D9772F",
+        "accent2": "#B0AAA0",
+        "swatches": [
+          "#000000",
+          "#3C3A38",
+          "#464442",
+          "#4F4D4B",
+          "#A0A5AB",
+          "#D1D1D0",
+          "#EDE8DF",
+          "#D9772F"
+        ]
+      },
+      "useFor": "City films, time-lapse montages, music-driven documentaries, \"a day in…\" pieces without narration.",
+      "personality": "clean",
+      "cues": [
+        "city",
+        "timelapse",
+        "film",
+        "grade",
+        "documentary",
+        "sodium",
+        "matte",
+        "music"
+      ],
+      "source": "opus-motion-library"
+    },
+    "countdown": {
+      "name": "Live countdown split-screen",
+      "name_en": "Live countdown split-screen",
+      "desc": "Event-countdown grade: cool shadows / warm highlights, slight contrast, light radial vignette and grain; hard graphic orange as the only colour accent.",
+      "family": "photo",
+      "palette": {
+        "bg": "#06080A",
+        "paper": "#0B0E11",
+        "ink": "#F2F5F7",
+        "accent": "#FF5B1F",
+        "accent2": "#7C878D",
+        "swatches": [
+          "#06080A",
+          "#0B0E11",
+          "#282722",
+          "#484139",
+          "#7C878D",
+          "#F2F5F7",
+          "#FF5B1F"
+        ]
+      },
+      "useFor": "Launches, live events, deadlines, mission control, \"T-minus\" sequences, split-screen comparisons.",
+      "personality": "clean",
+      "cues": [
+        "countdown",
+        "live",
+        "launch",
+        "split-screen",
+        "orange",
+        "mission",
+        "clock"
+      ],
+      "source": "opus-motion-library"
+    },
+    "crayon-book": {
+      "name": "Crayon picture book",
+      "name_en": "Crayon picture book",
+      "desc": "Wax crayon on toothy warm paper: a box of eight crayons, colour broken by the paper grain, indigo (never black) outlines that boil on twos.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#F4EFE3",
+        "paper": "#F4EFE3",
+        "ink": "#2D3263",
+        "accent": "#F5C63C",
+        "accent2": "#D4483C",
+        "swatches": [
+          "#F4EFE3",
+          "#2D3263",
+          "#F5C63C",
+          "#EC8A3C",
+          "#D4483C",
+          "#62A24C",
+          "#79ACD9",
+          "#6A5AA6"
+        ]
+      },
+      "useFor": "Children’s stories, bedtime tales, charity and family brands, gentle explainers, \"drawn by a kid\" moments.",
+      "personality": "clean",
+      "cues": [
+        "crayon",
+        "kids",
+        "picture-book",
+        "wax",
+        "paper",
+        "hand-drawn",
+        "boil",
+        "on-twos"
+      ],
+      "source": "opus-motion-library"
+    },
+    "dark-keynote": {
+      "name": "Dark tech keynote",
+      "name_en": "Dark tech keynote",
+      "desc": "Near-black keynote stage: any frame turned dark-mode with cool slate surfaces, hairline grid, soft glow and a single lime product accent.",
+      "family": "screen",
+      "palette": {
+        "bg": "#0A0B0F",
+        "paper": "#12151C",
+        "ink": "#E8EAF0",
+        "accent": "#B7F34A",
+        "accent2": "#8B7CFF",
+        "swatches": [
+          "#0A0B0F",
+          "#12151C",
+          "#1A1E28",
+          "#222734",
+          "#5C6272",
+          "#8A90A0",
+          "#E8EAF0",
+          "#B7F34A"
+        ]
+      },
+      "useFor": "Software launches, product keynotes, SaaS demos, AI tool reveals, giant-number moments.",
+      "personality": "clean",
+      "cues": [
+        "keynote",
+        "dark-mode",
+        "tech",
+        "launch",
+        "saas",
+        "grid",
+        "lime",
+        "premium",
+        "dark-tech-minimal",
+        "near-black"
+      ],
+      "source": "opus-motion-library"
+    },
+    "data-physical": {
+      "name": "Data physicalization",
+      "name_en": "Data physicalization",
+      "desc": "Statistics shot like a studio product: warm greige sweep, soft key light, shallow depth-of-field band, gentle bloom and warm vignette.",
+      "family": "photo",
+      "palette": {
+        "bg": "#E7D8C8",
+        "paper": "#C4BEB4",
+        "ink": "#1C1D20",
+        "accent": "#D4521C",
+        "accent2": "#D2B07A",
+        "swatches": [
+          "#1C1D20",
+          "#463322",
+          "#604934",
+          "#968065",
+          "#C4BEB4",
+          "#E7D8C8",
+          "#D2B07A",
+          "#D4521C"
+        ]
+      },
+      "useFor": "Data stories that should feel tangible, annual reports, sustainability figures, premium infographics.",
+      "personality": "clean",
+      "cues": [
+        "data",
+        "physical",
+        "studio",
+        "product",
+        "depth-of-field",
+        "warm",
+        "infographic"
+      ],
+      "source": "opus-motion-library"
+    },
+    "dataviz": {
+      "name": "Data storytelling (pencil on chart paper)",
+      "name_en": "Data storytelling (pencil on chart paper)",
+      "desc": "Cream chart paper with a dot grid: everything greys into soft graphite, pencil outlines boil gently, and only the data colours keep their hue.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#F6F3EC",
+        "paper": "#F6F3EC",
+        "ink": "#2B2723",
+        "accent": "#A8283A",
+        "accent2": "#2F5D8A",
+        "swatches": [
+          "#2B2723",
+          "#6E665C",
+          "#BDB4A5",
+          "#E4DDCF",
+          "#F6F3EC",
+          "#2166AC",
+          "#92C5DE",
+          "#F4A582",
+          "#B2182B"
+        ]
+      },
+      "useFor": "Data journalism, climate and science stories, \"one chart, one idea\" explainers, annotated graphs.",
+      "personality": "clean",
+      "cues": [
+        "dataviz",
+        "chart",
+        "pencil",
+        "paper",
+        "journalism",
+        "annotation",
+        "graph"
+      ],
+      "source": "opus-motion-library"
+    },
+    "engraving": {
+      "name": "Copperplate engraving",
+      "name_en": "Copperplate engraving",
+      "desc": "Natural-history plate: tone only from swelling hatch lines (three crossing families by darkness), ink contour, laid paper, ruled plate border, and a pale hand-coloured wash.",
+      "family": "print",
+      "palette": {
+        "bg": "#F1E8D2",
+        "paper": "#EFE6CF",
+        "ink": "#1C1510",
+        "accent": "#D9962A",
+        "accent2": "#A9C3CF",
+        "swatches": [
+          "#1C1510",
+          "#664924",
+          "#DDCFAD",
+          "#E8DDC2",
+          "#F1E8D2",
+          "#D9962A",
+          "#A8743E",
+          "#A9C3CF"
+        ]
+      },
+      "useFor": "Science and nature history, botanical / zoological plates, heritage brands, scholarly explainers, banknote-like seriousness.",
+      "personality": "clean",
+      "cues": [
+        "engraving",
+        "copperplate",
+        "hatching",
+        "etching",
+        "natural-history",
+        "plate",
+        "print",
+        "scientific"
+      ],
+      "source": "opus-motion-library"
+    },
+    "game-show": {
+      "name": "Game show flat",
+      "name_en": "Game show flat",
+      "desc": "Candy-flat variety show: every colour snapped to a bright candy set, thick ink outlines, no gradients, no blur.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#6B4FBB",
+        "paper": "#FFF6E5",
+        "ink": "#1B1B1B",
+        "accent": "#FFD23F",
+        "accent2": "#FF5A5F",
+        "swatches": [
+          "#1B1B1B",
+          "#FFFFFF",
+          "#FFF6E5",
+          "#FFD23F",
+          "#FF5A5F",
+          "#5BD68A",
+          "#4D7CFE",
+          "#6B4FBB"
+        ]
+      },
+      "useFor": "Quizzes, rhythm games, playful brand moments, kids and party content, social reaction formats.",
+      "personality": "clean",
+      "cues": [
+        "game-show",
+        "flat",
+        "candy",
+        "cartoon",
+        "outline",
+        "party",
+        "quiz",
+        "bright"
+      ],
+      "source": "opus-motion-library"
+    },
+    "glass-product": {
+      "name": "Glass product render",
+      "name_en": "Glass product render",
+      "desc": "Dark-field launch film: infinite black studio, silver-grey forms, ice-blue/violet light as the only colour, bloom and a hint of prism dispersion.",
+      "family": "screen",
+      "palette": {
+        "bg": "#000000",
+        "paper": "#16181B",
+        "ink": "#E3F3FB",
+        "accent": "#62DCFF",
+        "accent2": "#A98BFF",
+        "swatches": [
+          "#000000",
+          "#090E15",
+          "#252C34",
+          "#545C65",
+          "#7E8992",
+          "#F3F8FB",
+          "#62DCFF",
+          "#A98BFF"
+        ]
+      },
+      "useFor": "Hardware and gadget launches, premium tech, audio products, \"hear the light\" style teasers.",
+      "personality": "clean",
+      "cues": [
+        "glass",
+        "product",
+        "dark-field",
+        "launch",
+        "premium",
+        "ice-blue",
+        "bloom",
+        "hardware"
+      ],
+      "source": "opus-motion-library"
+    },
+    "halftone-dossier": {
+      "name": "Halftone dossier",
+      "name_en": "Halftone dossier",
+      "desc": "Retro printed case file: flat spot inks on cream archive paper, pink misregistered shadow plate, angled blue Ben-Day dots in the darks, dust specks.",
+      "family": "print",
+      "palette": {
+        "bg": "#F4ECDD",
+        "paper": "#F4ECDD",
+        "ink": "#1D2340",
+        "accent": "#FF5A87",
+        "accent2": "#FFC628",
+        "swatches": [
+          "#F4ECDD",
+          "#1D2340",
+          "#2E55D6",
+          "#FF5A87",
+          "#FFC628",
+          "#F58A34",
+          "#E8384F"
+        ]
+      },
+      "useFor": "True-crime-lite, case files, mystery teasers, character profiles, playful investigations.",
+      "personality": "clean",
+      "cues": [
+        "halftone",
+        "dossier",
+        "case-file",
+        "ben-day",
+        "spot-ink",
+        "misregistration",
+        "print",
+        "retro"
+      ],
+      "source": "opus-motion-library"
+    },
+    "hd-2d": {
+      "name": "HD-2D diorama",
+      "name_en": "HD-2D diorama",
+      "desc": "Pixel art in a lit miniature world: 4 px pixels with ordered dither, a tilt-shift focus band, heavy warm bloom on practical lights, deep vignette.",
+      "family": "retro",
+      "palette": {
+        "bg": "#050818",
+        "paper": "#F3EAD6",
+        "ink": "#1A1016",
+        "accent": "#FFAE55",
+        "accent2": "#8FA8E0",
+        "swatches": [
+          "#050818",
+          "#101D3E",
+          "#2C4262",
+          "#1A1016",
+          "#FF8C3A",
+          "#FFAE55",
+          "#FFF0C8",
+          "#C9503F"
+        ]
+      },
+      "useFor": "Game trailers, RPG-flavoured stories, fantasy towns, nostalgic-but-premium pixel scenes.",
+      "personality": "clean",
+      "cues": [
+        "pixel",
+        "hd-2d",
+        "tilt-shift",
+        "rpg",
+        "game",
+        "diorama",
+        "bloom",
+        "fantasy"
+      ],
+      "source": "opus-motion-library"
+    },
+    "hologram-hud": {
+      "name": "Sci-fi hologram HUD",
+      "name_en": "Sci-fi hologram HUD",
+      "desc": "Scanned holographic wireframe: near-black stage, cyan glowing line work from edges, interlace scanlines, dot grid, amber reserved for locked values.",
+      "family": "screen",
+      "palette": {
+        "bg": "#020709",
+        "paper": "#071215",
+        "ink": "#70ECFF",
+        "accent": "#FFBF47",
+        "accent2": "#E3F8FB",
+        "swatches": [
+          "#020709",
+          "#071215",
+          "#0C1F23",
+          "#26C4D9",
+          "#70ECFF",
+          "#E3F8FB",
+          "#FFBF47"
+        ]
+      },
+      "useFor": "Spec walkthroughs, teardown HUDs, sci-fi product scans, cyber security, mission briefings.",
+      "personality": "clean",
+      "cues": [
+        "hologram",
+        "hud",
+        "sci-fi",
+        "cyan",
+        "wireframe",
+        "scan",
+        "fui",
+        "tech"
+      ],
+      "source": "opus-motion-library"
+    },
+    "impasto": {
+      "name": "Impasto palette knife",
+      "name_en": "Impasto palette knife",
+      "desc": "A moving oil painting: simplified value-planned colour planes raised into knife ridges and lit by a raking light, on canvas weave.",
+      "family": "paint",
+      "palette": {
+        "bg": "#302937",
+        "paper": "#EFE2C4",
+        "ink": "#302937",
+        "accent": "#DC2F28",
+        "accent2": "#F4BC2A",
+        "swatches": [
+          "#34507E",
+          "#D99A78",
+          "#F7DCA0",
+          "#DCA064",
+          "#3F7A6C",
+          "#B8342A",
+          "#302937",
+          "#63586C"
+        ]
+      },
+      "useFor": "Art, culture and travel films, emotional brand stories, rainy city moods, music videos.",
+      "personality": "clean",
+      "cues": [
+        "oil",
+        "impasto",
+        "palette-knife",
+        "painting",
+        "texture",
+        "canvas",
+        "art"
+      ],
+      "source": "opus-motion-library"
+    },
+    "iso-infographic": {
+      "name": "Isometric infographic",
+      "name_en": "Isometric infographic",
+      "desc": "Flat three-tone diorama colours snapped to a cream / sea / leaf / coffee-red / soil / mustard set, no outlines on solids, faint isometric lattice.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#F2E6D0",
+        "paper": "#FBF4E6",
+        "ink": "#2E2522",
+        "accent": "#B3352B",
+        "accent2": "#3C7FB1",
+        "swatches": [
+          "#F2E6D0",
+          "#FBF4E6",
+          "#3C7FB1",
+          "#5E8C4A",
+          "#B3352B",
+          "#8A5B3A",
+          "#D9A53A",
+          "#2E2522"
+        ]
+      },
+      "useFor": "Process explainers (\"from bean to cup\"), supply chains, city / farm / factory maps, onboarding flows.",
+      "personality": "clean",
+      "cues": [
+        "isometric",
+        "infographic",
+        "flat",
+        "diorama",
+        "process",
+        "map",
+        "explainer"
+      ],
+      "source": "opus-motion-library"
+    },
+    "kino-montage": {
+      "name": "Constructivist montage",
+      "name_en": "Constructivist montage",
+      "desc": "Archive printed as ink on paper: one S-curved ink→paper grade for everything, a single flat constructivist red, paper fibre, flicker, weave and grain.",
+      "family": "print",
+      "palette": {
+        "bg": "#EDE4D0",
+        "paper": "#EDE4D0",
+        "ink": "#141210",
+        "accent": "#D52B1E",
+        "swatches": [
+          "#141210",
+          "#2B2722",
+          "#534E46",
+          "#797367",
+          "#9A9183",
+          "#E8DDC7",
+          "#EDE4D0",
+          "#D52B1E"
+        ]
+      },
+      "useFor": "History, labour and revolution stories, manifesto films, bold campaigns, archive montages.",
+      "personality": "clean",
+      "cues": [
+        "constructivist",
+        "montage",
+        "archive",
+        "red",
+        "propaganda",
+        "print",
+        "bold",
+        "history"
+      ],
+      "source": "opus-motion-library"
+    },
+    "lidar-survey": {
+      "name": "LiDAR survey",
+      "name_en": "LiDAR survey",
+      "desc": "Laser returns in a cold dark void: the picture rebuilt as a fine point cloud coloured by a canopy-to-ground ramp, glowing fronts, amber hairline findings.",
+      "family": "technical",
+      "palette": {
+        "bg": "#05080A",
+        "paper": "#0A1013",
+        "ink": "#D4FFF0",
+        "accent": "#FFB347",
+        "accent2": "#83C495",
+        "swatches": [
+          "#05080A",
+          "#0A1013",
+          "#1F3F35",
+          "#5C9A7A",
+          "#C8B38C",
+          "#E2F3DC",
+          "#FFB347"
+        ]
+      },
+      "useFor": "Archaeology and terrain reveals, mapping, surveying, autonomous sensing, \"what lies beneath\" stories.",
+      "personality": "clean",
+      "cues": [
+        "lidar",
+        "point-cloud",
+        "survey",
+        "terrain",
+        "mapping",
+        "dark",
+        "scan",
+        "technical"
+      ],
+      "source": "opus-motion-library"
+    },
+    "living-screencast": {
+      "name": "Living screencast",
+      "name_en": "Living screencast",
+      "desc": "Screen-recording polish: the frame floats as a window on a warm peach wallpaper mat with a soft inner shadow, a clean warm grade, no grain.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#F9F8F4",
+        "paper": "#ECDECD",
+        "ink": "#1F1E1C",
+        "accent": "#D97757",
+        "accent2": "#BD5D3A",
+        "swatches": [
+          "#1F1E1C",
+          "#7F7D79",
+          "#A3A19D",
+          "#E9DFCF",
+          "#F9F8F4",
+          "#ECDECD",
+          "#D5BFAB",
+          "#D97757"
+        ]
+      },
+      "useFor": "Product walkthroughs, app demos, feature launches, tutorials, changelog videos.",
+      "personality": "clean",
+      "cues": [
+        "screencast",
+        "product",
+        "ui",
+        "demo",
+        "tutorial",
+        "window",
+        "clean",
+        "saas"
+      ],
+      "source": "opus-motion-library"
+    },
+    "lowpoly-island": {
+      "name": "Low-poly island",
+      "name_en": "Low-poly island",
+      "desc": "Flat-shaded pastel miniature: colours simplified into crisp faceted bands, gentle saturation, soft focus at the frame edges, light bloom.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#EAF5F2",
+        "paper": "#F3DFAB",
+        "ink": "#23264A",
+        "accent": "#D9644A",
+        "accent2": "#FFC676",
+        "swatches": [
+          "#F3DFAB",
+          "#93C96C",
+          "#C99C6E",
+          "#38A5BC",
+          "#86E2D4",
+          "#D9644A",
+          "#4F7FB8",
+          "#FFC676"
+        ]
+      },
+      "useFor": "Travel and tourism, sustainability, game worlds, calm explainers about places and growth.",
+      "personality": "clean",
+      "cues": [
+        "low-poly",
+        "island",
+        "pastel",
+        "flat-shaded",
+        "miniature",
+        "calm",
+        "isometric",
+        "low-poly-voxel",
+        "voxel"
+      ],
+      "source": "opus-motion-library"
+    },
+    "microgame": {
+      "name": "Microgame frenzy",
+      "name_en": "Microgame frenzy",
+      "desc": "Party-game home stage: colours snapped to violet / magenta / gold / cyan toon inks, thick near-black outlines, on twos.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#2A0F5C",
+        "paper": "#F6F1E4",
+        "ink": "#1A1030",
+        "accent": "#FF2E88",
+        "accent2": "#FFC928",
+        "swatches": [
+          "#1A1030",
+          "#2A0F5C",
+          "#6B2BD9",
+          "#FF2E88",
+          "#FFC928",
+          "#1FD1D1",
+          "#FF7A1A",
+          "#F6F1E4"
+        ]
+      },
+      "useFor": "Rapid-fire challenges, quiz shorts, game promos, energetic social content, \"level up\" moments.",
+      "personality": "clean",
+      "cues": [
+        "microgame",
+        "party",
+        "game",
+        "toon",
+        "violet",
+        "magenta",
+        "gold",
+        "frenzy"
+      ],
+      "source": "opus-motion-library"
+    },
+    "microscope": {
+      "name": "Microscope story",
+      "name_en": "Microscope story",
+      "desc": "Evidence microscopy: the stain keeps its true colour, glass normalised to a warm paper white with a little density and chroma, gentle local contrast and a light illumination vignette — no false colour, no film look; one cool mint accent for measured readings.",
+      "family": "technical",
+      "palette": {
+        "bg": "#0B0D0F",
+        "paper": "#F4F1EC",
+        "ink": "#181B1F",
+        "accent": "#78F0CD",
+        "accent2": "#007A63",
+        "swatches": [
+          "#0B0D0F",
+          "#2A3036",
+          "#F4F1EC",
+          "#181B1F",
+          "#C2477A",
+          "#5B3A8C",
+          "#2E5FA8",
+          "#78F0CD"
+        ]
+      },
+      "useFor": "Biomedicine, materials science, skincare science, lab and instrument launches, \"zoom in to the cell\" explainers.",
+      "personality": "clean",
+      "cues": [
+        "microscope",
+        "microscopy",
+        "science",
+        "biomedical",
+        "specimen",
+        "stain",
+        "lab",
+        "evidence",
+        "measurement",
+        "scale-bar"
+      ],
+      "source": "opus-motion-library"
+    },
+    "midcentury-toon": {
+      "name": "Mid-century cartoon",
+      "name_en": "Mid-century cartoon",
+      "desc": "1950s classroom-film cartoon: flat atomic-age colour cels printed a few px off a thin, breaking, breathing warm-black ink line, dry-brush tooth in the fills, mottled cream paper, on twos.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#F4EAD5",
+        "paper": "#F4EAD5",
+        "ink": "#2B2420",
+        "accent": "#E4613F",
+        "accent2": "#E8B43A",
+        "swatches": [
+          "#F4EAD5",
+          "#2B2420",
+          "#E4613F",
+          "#E8B43A",
+          "#3FA7A0",
+          "#7F9CC0",
+          "#A7AE5B",
+          "#F0B4A8"
+        ]
+      },
+      "useFor": "How-to guides, rules cards, recipes, numbered steps, friendly retro brand explainers.",
+      "personality": "clean",
+      "cues": [
+        "cartoon",
+        "1950s",
+        "atomic",
+        "upa",
+        "flat",
+        "cel",
+        "off-register",
+        "retro",
+        "limited-animation",
+        "how-to"
+      ],
+      "source": "opus-motion-library"
+    },
+    "news-package": {
+      "name": "Broadcast news package",
+      "name_en": "Broadcast news package",
+      "desc": "Newsroom on-air grade for picture plates: greyscale duotone ink→paper with a firm S-curve, grain and a heavy vignette, so the lemon headline colour is the only hue left.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#121417",
+        "paper": "#F4F1E8",
+        "ink": "#121417",
+        "accent": "#F2CF1D",
+        "accent2": "#D4B064",
+        "swatches": [
+          "#121417",
+          "#1B1E23",
+          "#22262C",
+          "#F2CF1D",
+          "#D4B064",
+          "#F4F1E8",
+          "#FE6B3D"
+        ]
+      },
+      "useFor": "News explainers, bulletins, one-fact-per-screen graphics, data stories with a strap and a bug.",
+      "personality": "clean",
+      "cues": [
+        "news",
+        "broadcast",
+        "bulletin",
+        "package",
+        "lemon",
+        "duotone",
+        "lower-third",
+        "tv"
+      ],
+      "source": "opus-motion-library"
+    },
+    "newsreel": {
+      "name": "1920s newsreel",
+      "name_en": "1920s newsreel",
+      "desc": "Late-1920s sound newsreel: strictly monochrome warm-silver print inside a rounded 1.37 gate, gate weave, projector flicker, scratches and dust, heavy vignette and grain.",
+      "family": "photo",
+      "palette": {
+        "bg": "#000000",
+        "paper": "#EBE4D4",
+        "ink": "#12110F",
+        "accent": "#D6CFC0",
+        "accent2": "#F3EEE4",
+        "swatches": [
+          "#12110F",
+          "#282621",
+          "#4C4840",
+          "#999487",
+          "#EBE4D4",
+          "#000000"
+        ]
+      },
+      "useFor": "Archive edits, historical explainers, \"this week in…\" recaps, retro event openers.",
+      "personality": "clean",
+      "cues": [
+        "newsreel",
+        "archive",
+        "1920s",
+        "silver",
+        "black-and-white",
+        "film",
+        "gate",
+        "projector",
+        "history"
+      ],
+      "source": "opus-motion-library"
+    },
+    "one-line": {
+      "name": "One-line drawing",
+      "name_en": "One-line drawing",
+      "desc": "A single warm-black ink line on mottled cream paper: fills flattened to paper, contours inked with a soft bleed and a slow hand wobble — no tones, no second weight.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#F4EFE4",
+        "paper": "#F4EFE4",
+        "ink": "#1D1A17",
+        "accent": "#B3332B",
+        "swatches": [
+          "#F4EFE4",
+          "#1D1A17",
+          "#B3332B",
+          "#ECE6DA"
+        ]
+      },
+      "useFor": "Poetic brand stories, journeys, timelines, love / memory pieces, minimalist openers.",
+      "personality": "clean",
+      "cues": [
+        "line",
+        "one-line",
+        "continuous",
+        "ink",
+        "minimal",
+        "contour",
+        "paper",
+        "drawing"
+      ],
+      "source": "opus-motion-library"
+    },
+    "paper-lantern": {
+      "name": "Paper-cut lightbox",
+      "name_en": "Paper-cut lightbox",
+      "desc": "A backlit shadow box of cut-paper sheets: tones snapped to a night value ladder (bright translucent back, near-black front), relief at every cut edge, warm windows and moons burning through with bloom, pulp mottle.",
+      "family": "craft",
+      "palette": {
+        "bg": "#0A1330",
+        "paper": "#C3CBE8",
+        "ink": "#0E1532",
+        "accent": "#FFB862",
+        "accent2": "#B3302A",
+        "swatches": [
+          "#0A1330",
+          "#172A58",
+          "#3F5A92",
+          "#6A86C2",
+          "#C3CBE8",
+          "#FFF0CF",
+          "#FFB862",
+          "#FF8A48"
+        ]
+      },
+      "useFor": "Festive / lunar-new-year stories, bedtime tales, nostalgic city nights, poetry.",
+      "personality": "clean",
+      "cues": [
+        "paper",
+        "papercut",
+        "lightbox",
+        "backlit",
+        "night",
+        "lantern",
+        "layers",
+        "festival",
+        "moon"
+      ],
+      "source": "opus-motion-library"
+    },
+    "paper-popup": {
+      "name": "Paper pop-up book",
+      "name_en": "Paper pop-up book",
+      "desc": "Saturated cut-paper cards with thick off-white die-cut borders and a grey card edge, standing on a book page under a warm desk lamp (transparent motions get the sticker border).",
+      "family": "craft",
+      "palette": {
+        "bg": "#EFE8DA",
+        "paper": "#FFFDF7",
+        "ink": "#3A2A24",
+        "accent": "#E8413A",
+        "accent2": "#FFCF3F",
+        "swatches": [
+          "#86C763",
+          "#7CC6EF",
+          "#58ADE3",
+          "#ECD49A",
+          "#FFFDF7",
+          "#B9AD9C",
+          "#3A2A24",
+          "#E8413A",
+          "#FFCF3F"
+        ]
+      },
+      "useFor": "Children’s stories, product tours as a storybook, playful onboarding, sticker overlays.",
+      "personality": "clean",
+      "cues": [
+        "paper",
+        "pop-up",
+        "book",
+        "sticker",
+        "die-cut",
+        "kids",
+        "storybook",
+        "craft",
+        "overlay"
+      ],
+      "source": "opus-motion-library"
+    },
+    "papercut-red": {
+      "name": "Red paper-cut",
+      "name_en": "Red paper-cut",
+      "desc": "Window-flower paper cuts: the frame re-laid in indigo night paper layers, every saturated red re-cut as flat China-red paper on top, relief edges and soft paper shadows, hand-cut wobble, on twos.",
+      "family": "craft",
+      "palette": {
+        "bg": "#1C2446",
+        "paper": "#F2E8D0",
+        "ink": "#D2201F",
+        "accent": "#B00F26",
+        "accent2": "#D9A93F",
+        "swatches": [
+          "#0F142A",
+          "#1F2A55",
+          "#29356E",
+          "#35457F",
+          "#7A88BA",
+          "#D2201F",
+          "#B00F26",
+          "#D9A93F",
+          "#F2E8D0"
+        ]
+      },
+      "useFor": "Lunar new year, festivals, folk tales, heritage brands, greetings.",
+      "personality": "clean",
+      "cues": [
+        "papercut",
+        "paper",
+        "red",
+        "chinese",
+        "folk",
+        "festival",
+        "new-year",
+        "cut-out",
+        "indigo"
+      ],
+      "source": "opus-motion-library"
+    },
+    "pictogram-motion": {
+      "name": "Pictogram motion",
+      "name_en": "Pictogram motion",
+      "desc": "Beat-locked flash-card identity: the whole frame snapped to five flat tones of one chapter hue (vermilion by default) plus cream, no outlines, no gradients, a whisper of grain.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#C73E29",
+        "paper": "#FBF6EC",
+        "ink": "#15111C",
+        "accent": "#D8B21A",
+        "accent2": "#3D3A9A",
+        "swatches": [
+          "#AA3522",
+          "#C73E29",
+          "#E2462E",
+          "#E66250",
+          "#EC8676",
+          "#FBF6EC",
+          "#3D3A9A",
+          "#0F9A52",
+          "#D8B21A"
+        ]
+      },
+      "useFor": "Event identities, sports / catalogue runs, chaptered lists, bold social countdowns.",
+      "personality": "clean",
+      "cues": [
+        "pictogram",
+        "identity",
+        "monochrome",
+        "flat",
+        "beat",
+        "chapter",
+        "sport",
+        "event",
+        "grid"
+      ],
+      "source": "opus-motion-library"
+    },
+    "pixel-rpg": {
+      "name": "16-bit pixel RPG",
+      "name_en": "16-bit pixel RPG",
+      "desc": "A 320×180 indexed-palette world scaled ×6: every colour from a limited RPG palette, gradients only as ordered Bayer dither, no scanlines, no grain, no bloom; sprites on twos.",
+      "family": "retro",
+      "palette": {
+        "bg": "#181425",
+        "paper": "#EAD4AA",
+        "ink": "#262B44",
+        "accent": "#E43B44",
+        "accent2": "#FEAE34",
+        "swatches": [
+          "#181425",
+          "#3A4466",
+          "#5A6988",
+          "#C0CBDC",
+          "#EAD4AA",
+          "#BE4A2F",
+          "#3E8948",
+          "#0099DB"
+        ]
+      },
+      "useFor": "Game-story explainers, quests and progress, nostalgic product journeys, dialog-box humour.",
+      "personality": "clean",
+      "cues": [
+        "pixel",
+        "rpg",
+        "16-bit",
+        "indexed",
+        "dither",
+        "game",
+        "retro",
+        "bayer",
+        "sprite"
+      ],
+      "source": "opus-motion-library"
+    },
+    "rubber-hose": {
+      "name": "1930s rubber-hose cartoon",
+      "name_en": "1930s rubber-hose cartoon",
+      "desc": "Early-sound black-and-white cartoon: warm grey ramp with pure ink and character white at the extremes, boiling ink lines on twos, shown as a worn 35 mm print in a rounded 4:3 gate with flicker, scratches, dust and a hair.",
+      "family": "retro",
+      "palette": {
+        "bg": "#8C8981",
+        "paper": "#F1EEE6",
+        "ink": "#0E0D0C",
+        "accent": "#FCFBF7",
+        "accent2": "#000000",
+        "swatches": [
+          "#0E0D0C",
+          "#3B3A37",
+          "#6B6963",
+          "#9A978F",
+          "#C8C5BC",
+          "#FCFBF7"
+        ]
+      },
+      "useFor": "Jazz-age gags, retro mascots, vintage music videos, playful brand nostalgia.",
+      "personality": "clean",
+      "cues": [
+        "cartoon",
+        "1930s",
+        "rubber-hose",
+        "black-and-white",
+        "jazz",
+        "boil",
+        "film",
+        "vintage",
+        "4:3"
+      ],
+      "source": "opus-motion-library"
+    },
+    "satellite-briefing": {
+      "name": "Satellite briefing",
+      "name_en": "Satellite briefing",
+      "desc": "Analyst grade for imagery: strong local contrast, blue-black → cool-silver ramp with 22 % of the true colour returned, one amber reading kept, light vignette — white is reserved for measurement marks.",
+      "family": "technical",
+      "palette": {
+        "bg": "#414342",
+        "paper": "#070B0E",
+        "ink": "#F2F5F6",
+        "accent": "#FFBE55",
+        "accent2": "#2E70CE",
+        "swatches": [
+          "#070B0E",
+          "#292D2C",
+          "#4F5251",
+          "#90948F",
+          "#A1A7A9",
+          "#F2F5F6",
+          "#FFBE55",
+          "#2E70CE"
+        ]
+      },
+      "useFor": "OSINT / geography explainers, climate and disaster briefings, before/after over time, logistics maps.",
+      "personality": "clean",
+      "cues": [
+        "satellite",
+        "osint",
+        "analyst",
+        "map",
+        "imagery",
+        "briefing",
+        "grey",
+        "amber",
+        "measurement"
+      ],
+      "source": "opus-motion-library"
+    },
+    "scifi-toon": {
+      "name": "Sci-fi sitcom toon",
+      "name_en": "Sci-fi sitcom toon",
+      "desc": "Adult-swim-era TV cartoon: flat cel bands, uniform thick purple-black outlines that boil on twos, punchy flat colour — clean digital, no grain, no paper.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#A1C9A7",
+        "paper": "#D1E4BF",
+        "ink": "#1B1422",
+        "accent": "#B04CFF",
+        "accent2": "#FF6AD5",
+        "swatches": [
+          "#A1C9A7",
+          "#798E73",
+          "#4C5349",
+          "#D1E4BF",
+          "#1B1422",
+          "#B04CFF",
+          "#FF6AD5",
+          "#FFE1FF"
+        ]
+      },
+      "useFor": "Absurd comedy explainers, tech parody, reaction-driven shorts, sci-fi gadget reveals.",
+      "personality": "clean",
+      "cues": [
+        "cartoon",
+        "toon",
+        "sci-fi",
+        "sitcom",
+        "outline",
+        "boil",
+        "adult-animation",
+        "comedy",
+        "flat"
+      ],
+      "source": "opus-motion-library"
+    },
+    "shadow-puppet": {
+      "name": "Shadow puppetry",
+      "name_en": "Shadow puppetry",
+      "desc": "Dyed-hide puppets on a backlit cotton screen: warm lamp light through the picture, highlights rolling off softly, a lamp hotspot with warm-brown falloff, cloth weave, bloom on the brightest holes.",
+      "family": "craft",
+      "palette": {
+        "bg": "#F2E6D1",
+        "paper": "#E2BD80",
+        "ink": "#1A100A",
+        "accent": "#B8211A",
+        "accent2": "#236E3A",
+        "swatches": [
+          "#F9F5E6",
+          "#EBD5A8",
+          "#FFC475",
+          "#B8211A",
+          "#D9541C",
+          "#DC9D1E",
+          "#236E3A",
+          "#22647E",
+          "#1A100A"
+        ]
+      },
+      "useFor": "Folk tales, opera and legend retellings, heritage culture pieces, theatrical storytelling.",
+      "personality": "clean",
+      "cues": [
+        "shadow-puppet",
+        "piyingxi",
+        "backlit",
+        "lamp",
+        "theatre",
+        "folk",
+        "warm",
+        "cloth",
+        "heritage"
+      ],
+      "source": "opus-motion-library"
+    },
+    "silent-film": {
+      "name": "1920s silent film",
+      "name_en": "1920s silent film",
+      "desc": "An inked engraving printed on silver stock and projected: crossed hatching in the darks, ink contours, sepia-toned print, a 4:3 gate in dark velvet drapes, flicker, scratches, burned edges, hand-cranked on twos.",
+      "family": "retro",
+      "palette": {
+        "bg": "#160B09",
+        "paper": "#F7EBD1",
+        "ink": "#1B120C",
+        "accent": "#9E805E",
+        "accent2": "#D97757",
+        "swatches": [
+          "#1B120C",
+          "#35322F",
+          "#716C67",
+          "#9E805E",
+          "#C4C2BF",
+          "#F7EBD1",
+          "#160B09"
+        ]
+      },
+      "useFor": "Slapstick gags, intertitle storytelling, vintage product reveals, wordless explainers.",
+      "personality": "clean",
+      "cues": [
+        "silent",
+        "1920s",
+        "sepia",
+        "hatching",
+        "engraving",
+        "film",
+        "projector",
+        "intertitle",
+        "vintage",
+        "4:3"
+      ],
+      "source": "opus-motion-library"
+    },
+    "silkscreen-poster": {
+      "name": "Silkscreen travel poster",
+      "name_en": "Silkscreen travel poster",
+      "desc": "WPA-style screen print: tones laid as six opaque flat inks from dark foreground to pale sky (depth = value), stepped bands instead of gradients, slipped registration slivers, pinholes in the ink, mottled paper.",
+      "family": "print",
+      "palette": {
+        "bg": "#5E4433",
+        "paper": "#F2E8D2",
+        "ink": "#1B1B2F",
+        "accent": "#FBE3A6",
+        "accent2": "#D8613F",
+        "swatches": [
+          "#1B1B2F",
+          "#43325A",
+          "#7C3E5F",
+          "#D8613F",
+          "#F4B461",
+          "#FBE3A6",
+          "#F2E8D2"
+        ]
+      },
+      "useFor": "Travel and place stories, national-park / city campaigns, heritage posters, event key art.",
+      "personality": "clean",
+      "cues": [
+        "silkscreen",
+        "screen-print",
+        "poster",
+        "travel",
+        "wpa",
+        "flat-ink",
+        "bands",
+        "national-park",
+        "print"
+      ],
+      "source": "opus-motion-library"
+    },
+    "spy-titles": {
+      "name": "60s spy title sequence",
+      "name_en": "60s spy title sequence",
+      "desc": "Four-ink cut-paper title grammar: black, signal red, mustard and cream by value, scissor-cut wobble edges, ink voids, faint squeegee streaks and paper grain, on twos.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#D23A22",
+        "paper": "#EFE4C9",
+        "ink": "#1B1714",
+        "accent": "#D23A22",
+        "accent2": "#E2A52A",
+        "swatches": [
+          "#1B1714",
+          "#D23A22",
+          "#E2A52A",
+          "#EFE4C9",
+          "#9A2A18",
+          "#B07E1C",
+          "#3A322B"
+        ]
+      },
+      "useFor": "Title sequences, heist / mystery openers, credits, bold editorial promos.",
+      "personality": "clean",
+      "cues": [
+        "titles",
+        "spy",
+        "1960s",
+        "saul-bass",
+        "cut-paper",
+        "credits",
+        "four-ink",
+        "jazz",
+        "retro"
+      ],
+      "source": "opus-motion-library"
+    },
+    "stained-glass": {
+      "name": "Stained glass",
+      "name_en": "Stained glass",
+      "desc": "A leaded window in a dark stone hall: simplified jewel-saturated colour pieces, thick lead cames around every shape over a bevelled quarry grid, streaky glass, bloom where light burns through, and a travelling band of sun.",
+      "family": "craft",
+      "palette": {
+        "bg": "#0E0E0E",
+        "paper": "#CFDAC6",
+        "ink": "#1D1F23",
+        "accent": "#A8101C",
+        "accent2": "#1D3A9C",
+        "swatches": [
+          "#1D3A9C",
+          "#142A70",
+          "#A8101C",
+          "#DC9A22",
+          "#2F7F36",
+          "#632A63",
+          "#D2A288",
+          "#CFDAC6",
+          "#1D1F23"
+        ]
+      },
+      "useFor": "Heritage and craft stories, secular fables, museum pieces, dramatic reveals by light.",
+      "personality": "clean",
+      "cues": [
+        "stained-glass",
+        "glass",
+        "lead",
+        "window",
+        "jewel",
+        "light",
+        "gothic",
+        "craft",
+        "heritage"
+      ],
+      "source": "opus-motion-library"
+    },
+    "swiss-motion": {
+      "name": "Swiss motion graphics",
+      "name_en": "Swiss motion graphics",
+      "desc": "International Typographic Style in motion: the frame reduced to black, two light greys and paper on a visible modular grid, with exactly one signal red kept — no texture, no shadow, no glow.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#EAE9E5",
+        "paper": "#FFFFFF",
+        "ink": "#111111",
+        "accent": "#E30613",
+        "accent2": "#CFCEC9",
+        "swatches": [
+          "#EAE9E5",
+          "#FFFFFF",
+          "#111111",
+          "#CFCEC9",
+          "#8A8984",
+          "#E30613"
+        ]
+      },
+      "useFor": "Design-led brand films, typographic explainers, data facts, architecture and product principles.",
+      "personality": "clean",
+      "cues": [
+        "swiss",
+        "international-style",
+        "grid",
+        "typographic",
+        "editorial",
+        "red",
+        "minimal",
+        "poster",
+        "swiss-editorial"
+      ],
+      "source": "opus-motion-library"
+    },
+    "teardown": {
+      "name": "Exploded teardown",
+      "name_en": "Exploded teardown",
+      "desc": "Studio packshot on dark graphite: the frame turned dark-mode with neutral desaturated product greys, lifted near-blacks, emitters blooming, one orange index accent kept, heavy studio vignette.",
+      "family": "technical",
+      "palette": {
+        "bg": "#16171A",
+        "paper": "#34363A",
+        "ink": "#F1EFE9",
+        "accent": "#FF6B3D",
+        "accent2": "#86898A",
+        "swatches": [
+          "#0D0E10",
+          "#16171A",
+          "#34363A",
+          "#686C73",
+          "#86898A",
+          "#D9D4C9",
+          "#F1EFE9",
+          "#FF6B3D"
+        ]
+      },
+      "useFor": "Hardware and product teardowns, spec walkthroughs, \"what’s inside\", architecture explainers.",
+      "personality": "clean",
+      "cues": [
+        "teardown",
+        "exploded-view",
+        "product",
+        "hardware",
+        "studio",
+        "dark",
+        "spec",
+        "graphite",
+        "orange"
+      ],
+      "source": "opus-motion-library"
+    },
+    "telestrator": {
+      "name": "Sports telestrator",
+      "name_en": "Sports telestrator",
+      "desc": "Pundit’s analysis freeze: footage desaturated by 40 % with cool shadows, a follow spotlight that darkens everything outside the play, and fluorescent marker yellow kept as the one identity colour.",
+      "family": "photo",
+      "palette": {
+        "bg": "#0C1411",
+        "paper": "#F4F1E8",
+        "ink": "#F4F1E8",
+        "accent": "#FFD400",
+        "accent2": "#3FD8FF",
+        "swatches": [
+          "#0C1411",
+          "#36431F",
+          "#536536",
+          "#FFD400",
+          "#3FD8FF",
+          "#FF3B30",
+          "#F4F1E8"
+        ]
+      },
+      "useFor": "Sports analysis, play breakdowns, \"watch this moment\" replays, tactical explainers over any footage.",
+      "personality": "clean",
+      "cues": [
+        "sports",
+        "telestrator",
+        "analysis",
+        "freeze",
+        "spotlight",
+        "broadcast",
+        "marker",
+        "replay",
+        "yellow"
+      ],
+      "source": "opus-motion-library"
+    },
+    "tilt-shift": {
+      "name": "Tilt-shift miniature",
+      "name_en": "Tilt-shift miniature",
+      "desc": "A real place seen as a tabletop model: only a thin horizontal strip sharp, everything above and below melting into blur, saturated freshly-painted colour, sunny warm highlights, light vignette.",
+      "family": "photo",
+      "palette": {
+        "bg": "#4B4E53",
+        "paper": "#F3EFE6",
+        "ink": "#1E2A33",
+        "accent": "#C8673A",
+        "accent2": "#2F78C8",
+        "swatches": [
+          "#4B4E53",
+          "#6FA24A",
+          "#8FD14A",
+          "#C8673A",
+          "#2F78C8",
+          "#FFB000",
+          "#0F5E3C"
+        ]
+      },
+      "useFor": "Cities, travel, logistics, \"a day in…\" time-lapses, aerial footage and top-down scenes.",
+      "personality": "clean",
+      "cues": [
+        "tilt-shift",
+        "miniature",
+        "model",
+        "toy-town",
+        "aerial",
+        "time-lapse",
+        "saturated",
+        "city",
+        "lens"
+      ],
+      "source": "opus-motion-library"
+    },
+    "ukiyoe": {
+      "name": "Ukiyo-e woodblock",
+      "name_en": "Ukiyo-e woodblock",
+      "desc": "Edo woodblock print: flat colour blocks in Prussian blues, green and paper by value, a sumi key-line block, blocks slightly out of register, woodgrain and goma-zuri specks, beni red kept for seals, mist bands, double border on washi.",
+      "family": "print",
+      "palette": {
+        "bg": "#EEE2C6",
+        "paper": "#EEE2C6",
+        "ink": "#231F1C",
+        "accent": "#1D3A66",
+        "accent2": "#B8412F",
+        "swatches": [
+          "#231F1C",
+          "#13284A",
+          "#1D3A66",
+          "#4D6F98",
+          "#8AA152",
+          "#8DB0C6",
+          "#CF9F4A",
+          "#B8412F",
+          "#EEE2C6"
+        ]
+      },
+      "useFor": "Japan-inspired stories, nature and sea, travel, seasonal campaigns, calm heritage openers.",
+      "personality": "clean",
+      "cues": [
+        "ukiyo-e",
+        "woodblock",
+        "japanese",
+        "edo",
+        "print",
+        "prussian-blue",
+        "washi",
+        "seal",
+        "mist"
+      ],
+      "source": "opus-motion-library"
+    },
+    "urban-sketch": {
+      "name": "Urban sketch · pen & wash",
+      "name_en": "Urban sketch · pen & wash",
+      "desc": "A sketchbook page drawn on location: pale transparent washes slipped a few px off a breaking sepia fineliner, pigment pooling at dried edges, granulation in cream cold-press, and the painting fraying before the page edge.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#F5EEDE",
+        "paper": "#F5EEDE",
+        "ink": "#2B2520",
+        "accent": "#D9B26A",
+        "accent2": "#9FBCD6",
+        "swatches": [
+          "#F5EEDE",
+          "#2B2520",
+          "#C3C96F",
+          "#7FA04A",
+          "#9FBCD6",
+          "#D8C6A0",
+          "#5A5F82",
+          "#D9B26A"
+        ]
+      },
+      "useFor": "Travel diaries, places and neighbourhoods, architecture stories, lifestyle and food journals.",
+      "personality": "clean",
+      "cues": [
+        "sketch",
+        "pen-and-wash",
+        "urban-sketching",
+        "sketchbook",
+        "fineliner",
+        "watercolour",
+        "travel",
+        "journal"
+      ],
+      "source": "opus-motion-library"
+    },
+    "visual-investigation": {
+      "name": "Visual investigation",
+      "name_en": "Visual investigation",
+      "desc": "Forensic evidence-desk grade: media turned to contrasty neutral greyscale with fine grain, and a single red that only ever points (rings, links, highlights) kept in colour.",
+      "family": "technical",
+      "palette": {
+        "bg": "#0B0C0E",
+        "paper": "#E4E0D4",
+        "ink": "#ECEAE4",
+        "accent": "#FF4A2E",
+        "accent2": "#8B9097",
+        "swatches": [
+          "#0B0C0E",
+          "#141619",
+          "#2E3238",
+          "#4A4F57",
+          "#8B9097",
+          "#ECEAE4",
+          "#FF4A2E"
+        ]
+      },
+      "useFor": "Fact-checks, incident reconstructions, OSINT timelines, document and footage analysis.",
+      "personality": "clean",
+      "cues": [
+        "investigation",
+        "forensic",
+        "osint",
+        "fact-check",
+        "evidence",
+        "greyscale",
+        "red",
+        "documentary"
+      ],
+      "source": "opus-motion-library"
+    },
+    "white-model": {
+      "name": "Projection on white model",
+      "name_en": "Projection on white model",
+      "desc": "A plaster-white massing model in a dark room with data projected as light: everything turned to matte white / grey forms, only saturated colour survives as projected light, with bloom and a deep vignette.",
+      "family": "technical",
+      "palette": {
+        "bg": "#080A0E",
+        "paper": "#F3F3F1",
+        "ink": "#F5F5F2",
+        "accent": "#FFA13D",
+        "accent2": "#2F98FF",
+        "swatches": [
+          "#080A0E",
+          "#17181A",
+          "#3B393F",
+          "#9F918B",
+          "#F3F3F1",
+          "#FFA13D",
+          "#2A46FF",
+          "#6FDCFF",
+          "#E2509A"
+        ]
+      },
+      "useFor": "Urban data, architecture and planning stories, heat / height / time layers, museum installations.",
+      "personality": "clean",
+      "cues": [
+        "white-model",
+        "massing",
+        "projection",
+        "architecture",
+        "urban",
+        "data",
+        "light",
+        "plaster",
+        "installation"
+      ],
+      "source": "opus-motion-library"
+    },
+    "whiteboard": {
+      "name": "Whiteboard explainer",
+      "name_en": "Whiteboard explainer",
+      "desc": "Dry-erase marker on one glossy board: the frame reduced to black marker, grey ghosts and board white, streaky marker texture, one orange accent marker, and a slow window sheen drifting across the gloss.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#FBFBF9",
+        "paper": "#FBFBF9",
+        "ink": "#23262C",
+        "accent": "#D97757",
+        "accent2": "#2A5CB3",
+        "swatches": [
+          "#FBFBF9",
+          "#EEEDE9",
+          "#23262C",
+          "#2A5CB3",
+          "#D97757",
+          "#9AA0A8"
+        ]
+      },
+      "useFor": "Explainers, lessons, strategy and process walkthroughs, live-drawn arguments.",
+      "personality": "clean",
+      "cues": [
+        "whiteboard",
+        "marker",
+        "explainer",
+        "lesson",
+        "board",
+        "dry-erase",
+        "education",
+        "hand-drawn"
+      ],
+      "source": "opus-motion-library"
+    },
+    "cel-boil": {
+      "name": "Hand-inked cel boil",
+      "name_en": "Hand-inked cel boil",
+      "desc": "Frame-by-frame hand-inked cartoon: colour snapped to a four-colour box (ink, tomato, sunny yellow, cream), fills printed off the ink, every line re-drawn each exposure (boil), paper tooth re-offset per drawing.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#F4E9D0",
+        "paper": "#F4E9D0",
+        "ink": "#1C1613",
+        "accent": "#E5402B",
+        "accent2": "#FFC425",
+        "swatches": [
+          "#1C1613",
+          "#E5402B",
+          "#FFC425",
+          "#F4E9D0",
+          "#FFF6E2",
+          "#D9573F"
+        ]
+      },
+      "useFor": "Energetic hand-made explainers, character gags, studio reels, \"made by hand\" brand moments.",
+      "personality": "clean",
+      "cues": [
+        "cel",
+        "boil",
+        "hand-drawn",
+        "ink",
+        "frame-by-frame",
+        "cartoon",
+        "on-twos",
+        "tomato",
+        "paper"
+      ],
+      "source": "opus-motion-library"
+    },
+    "iso-diorama": {
+      "name": "Pastel isometric miniature",
+      "name_en": "Pastel isometric miniature",
+      "desc": "Soft pastel miniature world: lifted lavender shadows, gentle saturation, a lilac studio cast, light bloom on glowing windows and a faint isometric lattice — no hard blacks.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#EEEAFC",
+        "paper": "#F4F1FD",
+        "ink": "#2C2960",
+        "accent": "#FF9E86",
+        "accent2": "#62F0F2",
+        "swatches": [
+          "#EEEAFC",
+          "#DAD3F7",
+          "#C4BAEF",
+          "#2C2960",
+          "#94DFBD",
+          "#8781D0",
+          "#8CC6FF",
+          "#FFC4AC",
+          "#FFE6A1"
+        ]
+      },
+      "useFor": "City / product ecosystems, SaaS \"how it fits together\", growth stories, calm tech explainers.",
+      "personality": "clean",
+      "cues": [
+        "isometric",
+        "pastel",
+        "miniature",
+        "diorama",
+        "lavender",
+        "soft",
+        "city",
+        "saas",
+        "clay"
+      ],
+      "source": "opus-motion-library"
+    },
+    "flat-vector-pop": {
+      "name": "Flat vector pop",
+      "name_en": "Flat vector pop",
+      "desc": "Showreel-grade flat vector: shapes simplified and snapped to ultramarine, coral, sunflower, mint, cream and deep ink — strictly flat, no outlines, no texture.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#2B2BFF",
+        "paper": "#FFF6E9",
+        "ink": "#151433",
+        "accent": "#FF5A4E",
+        "accent2": "#FFC62B",
+        "swatches": [
+          "#2B2BFF",
+          "#4B4BFF",
+          "#FF5A4E",
+          "#FFC62B",
+          "#2EE6A8",
+          "#FFF6E9",
+          "#151433"
+        ]
+      },
+      "useFor": "Product explainers, onboarding, upbeat brand reels, social promos with one hero dot.",
+      "personality": "clean",
+      "cues": [
+        "flat",
+        "vector",
+        "explainer",
+        "pop",
+        "ultramarine",
+        "coral",
+        "showreel",
+        "springy",
+        "no-outline"
+      ],
+      "source": "opus-motion-library"
+    },
+    "gold-line-luxe": {
+      "name": "Gold line luxe",
+      "name_en": "Gold line luxe",
+      "desc": "One constant-width champagne line on near-black navy: every picture reduced to glowing gold contours, fills sunk into the dark ground, fine grain — quiet luxury.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#0B1320",
+        "paper": "#0B1320",
+        "ink": "#E9D7A5",
+        "accent": "#FFF6DC",
+        "accent2": "#D6B270",
+        "swatches": [
+          "#0B1320",
+          "#16233A",
+          "#E9D7A5",
+          "#FFF6DC",
+          "#E8C88A",
+          "#D6B270"
+        ]
+      },
+      "useFor": "Luxury, jewellery and hospitality brands, perfume, premium invitations, elegant openers.",
+      "personality": "clean",
+      "cues": [
+        "line-art",
+        "gold",
+        "luxury",
+        "navy",
+        "monoline",
+        "elegant",
+        "premium",
+        "glow",
+        "one-line"
+      ],
+      "source": "opus-motion-library"
+    },
+    "soft-3d-candy": {
+      "name": "Soft 3D candy",
+      "name_en": "Soft 3D candy",
+      "desc": "Pastel C4D / Octane ident: lifted rosy shadows, a lilac grade, candy highlights blooming pink, soft vignette and 9 % overlay grain.",
+      "family": "photo",
+      "palette": {
+        "bg": "#F6E8F1",
+        "paper": "#F1E4EC",
+        "ink": "#2A1830",
+        "accent": "#FF5AA6",
+        "accent2": "#C6B9F3",
+        "swatches": [
+          "#F1E4EC",
+          "#F6E8F1",
+          "#EADCF2",
+          "#FF5AA6",
+          "#EBDCCD",
+          "#C6B9F3",
+          "#F4F3F6",
+          "#2A1830"
+        ]
+      },
+      "useFor": "App and brand idents, playful product launches, logo stings, social loops.",
+      "personality": "clean",
+      "cues": [
+        "3d",
+        "candy",
+        "pastel",
+        "c4d",
+        "octane",
+        "soft",
+        "ident",
+        "pink",
+        "jelly"
+      ],
+      "source": "opus-motion-library"
+    },
+    "shape-morph": {
+      "name": "Shape morph",
+      "name_en": "Shape morph",
+      "desc": "Graphic storytelling with one hero silhouette: every colour snapped to cream, ink, vermilion, marigold and ultramarine fields, with paper luminance texture and fine grain.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#F4EEE3",
+        "paper": "#F4EEE3",
+        "ink": "#16151B",
+        "accent": "#FF4F2B",
+        "accent2": "#FFB627",
+        "swatches": [
+          "#F4EEE3",
+          "#16151B",
+          "#FF4F2B",
+          "#FFB627",
+          "#2438E8"
+        ]
+      },
+      "useFor": "Brand stories told through one shape, logo reveals, icon chains, minimal poster motion.",
+      "personality": "clean",
+      "cues": [
+        "shape",
+        "morph",
+        "flat",
+        "graphic",
+        "logo",
+        "icon",
+        "vermilion",
+        "marigold",
+        "ultramarine"
+      ],
+      "source": "opus-motion-library"
+    },
+    "sticker-explainer": {
+      "name": "Sticker explainer",
+      "name_en": "Sticker explainer",
+      "desc": "Knowledge-video canvas: cut-out stickers with fat white die-cut outlines and soft lift shadows on a cool off-white dot-grid canvas, colours calmed to slate with one signal orange (transparent motions get the border).",
+      "family": "graphic",
+      "palette": {
+        "bg": "#E9EEF2",
+        "paper": "#F7F9FB",
+        "ink": "#25313D",
+        "accent": "#FF5A36",
+        "accent2": "#8C9AA8",
+        "swatches": [
+          "#E9EEF2",
+          "#C5CFD8",
+          "#F7F9FB",
+          "#25313D",
+          "#8C9AA8",
+          "#FF5A36"
+        ]
+      },
+      "useFor": "Dense science / tech explainers, \"how many X are in Y\", supply chains, product anatomy.",
+      "personality": "clean",
+      "cues": [
+        "sticker",
+        "explainer",
+        "knowledge",
+        "paperclip",
+        "cut-out",
+        "dot-grid",
+        "canvas",
+        "science",
+        "overlay"
+      ],
+      "source": "opus-motion-library"
+    },
+    "cyber-hud-fui": {
+      "name": "Cyberpunk HUD / FUI",
+      "name_en": "Cyberpunk HUD / FUI",
+      "desc": "Film-interface grade: the picture as dim cyan-on-teal-black tone, hot white only at the brightest, bloom on light, radial RGB split, fine scanlines, faint panel grid, rec red kept as the only warm colour.",
+      "family": "screen",
+      "palette": {
+        "bg": "#020A0D",
+        "paper": "#030F12",
+        "ink": "#00E5FF",
+        "accent": "#FF2A1F",
+        "accent2": "#FF6600",
+        "swatches": [
+          "#020A0D",
+          "#0E3A42",
+          "#0B7C8C",
+          "#00E5FF",
+          "#E8FEFF",
+          "#FF2A1F",
+          "#FF6600"
+        ]
+      },
+      "useFor": "Sci-fi interfaces, security / targeting scenes, cyber thrillers, data-heavy tech promos.",
+      "personality": "clean",
+      "cues": [
+        "hud",
+        "fui",
+        "cyberpunk",
+        "interface",
+        "cyan",
+        "teal",
+        "sci-fi",
+        "targeting",
+        "scanlines"
+      ],
+      "source": "opus-motion-library"
+    },
+    "collage-cutout": {
+      "name": "Collage cut-out",
+      "name_en": "Collage cut-out",
+      "desc": "Dada / editorial collage: pictures re-printed as aged mono halftone cut-outs on kraft, scissor-rough edges that boil at 10 fps, dust and grain, warm multiply vignette.",
+      "family": "craft",
+      "palette": {
+        "bg": "#B89A72",
+        "paper": "#F2ECDF",
+        "ink": "#16130F",
+        "accent": "#D2261C",
+        "accent2": "#D6A945",
+        "swatches": [
+          "#B89A72",
+          "#D2261C",
+          "#16130F",
+          "#F4EFE4",
+          "#F2ECDF",
+          "#D6A945"
+        ]
+      },
+      "useFor": "Editorial and magazine pieces, satire, history and ideas explainers, zine-style promos.",
+      "personality": "clean",
+      "cues": [
+        "collage",
+        "cut-out",
+        "dada",
+        "halftone",
+        "kraft",
+        "editorial",
+        "zine",
+        "stop-motion",
+        "paper"
+      ],
+      "source": "opus-motion-library"
+    },
+    "aurora-glass": {
+      "name": "Aurora & liquid glass",
+      "name_en": "Aurora & liquid glass",
+      "desc": "AI-launch calm: the frame mapped into deep indigo with adjacent violet / blue / cyan light pools, frosted softness, wide bloom and a fine anti-banding grain.",
+      "family": "screen",
+      "palette": {
+        "bg": "#040312",
+        "paper": "#3320A8",
+        "ink": "#FFFFFF",
+        "accent": "#7050FF",
+        "accent2": "#34CFF0",
+        "swatches": [
+          "#040312",
+          "#3320A8",
+          "#2F46F2",
+          "#7050FF",
+          "#B653F0",
+          "#34CFF0",
+          "#8C8CFF",
+          "#FFC98A"
+        ]
+      },
+      "useFor": "AI and SaaS product launches, keynote backdrops, premium landing-page loops, glass UI showcases.",
+      "personality": "clean",
+      "cues": [
+        "aurora",
+        "glass",
+        "glassmorphism",
+        "ai",
+        "saas",
+        "launch",
+        "indigo",
+        "violet",
+        "grainy-gradient",
+        "mesh-gradient"
+      ],
+      "source": "opus-motion-library"
+    },
+    "bauhaus-kinetic": {
+      "name": "Bauhaus kinetic poster",
+      "name_en": "Bauhaus kinetic poster",
+      "desc": "Primary geometry printed as separate knockout plates: every colour snapped to paper, black, red, yellow and blue, a slipped blue plate, rough printed edges, paper tooth and mottle.",
+      "family": "print",
+      "palette": {
+        "bg": "#F1E9DA",
+        "paper": "#F1E9DA",
+        "ink": "#111111",
+        "accent": "#E03C31",
+        "accent2": "#F2B705",
+        "swatches": [
+          "#F1E9DA",
+          "#111111",
+          "#E03C31",
+          "#F2B705",
+          "#1E4FA3"
+        ]
+      },
+      "useFor": "Design and architecture stories, structured explainers, posters in motion, beat-locked type.",
+      "personality": "clean",
+      "cues": [
+        "bauhaus",
+        "constructivist",
+        "primary",
+        "poster",
+        "geometric",
+        "grid",
+        "print",
+        "plates",
+        "kinetic"
+      ],
+      "source": "opus-motion-library"
+    },
+    "synthwave-vhs": {
+      "name": "80s synthwave VHS",
+      "name_en": "80s synthwave VHS",
+      "desc": "OutRun on tape: the frame mapped into a purple-to-sunset ramp, double neon bloom, VHS time-base jitter and chroma bleed, scanlines, snow, a PLAY counter and a heavy vignette.",
+      "family": "retro",
+      "palette": {
+        "bg": "#0A0014",
+        "paper": "#2A0A4A",
+        "ink": "#FF29D1",
+        "accent": "#FF9E38",
+        "accent2": "#4FE3FF",
+        "swatches": [
+          "#0A0014",
+          "#2A0A4A",
+          "#FF29D1",
+          "#FF3D8F",
+          "#FF6647",
+          "#FF9E38",
+          "#FFDB5C",
+          "#4FE3FF"
+        ]
+      },
+      "useFor": "Retro music videos, 80s nostalgia promos, gaming / tech throwbacks, night-drive loops.",
+      "personality": "clean",
+      "cues": [
+        "synthwave",
+        "outrun",
+        "80s",
+        "vhs",
+        "neon",
+        "retro",
+        "sunset",
+        "tape",
+        "magenta"
+      ],
+      "source": "opus-motion-library"
+    },
+    "pixel-quest": {
+      "name": "16-bit pixel platformer",
+      "name_en": "16-bit pixel platformer",
+      "desc": "A 320×180 platformer on a CRT: 6 px pixels snapped to a sky-blue / grass / sunset master palette with Bayer dither, glow on bright pixels, fat scanlines, curved glass with a soft roll, 10 fps sprites.",
+      "family": "retro",
+      "palette": {
+        "bg": "#0D0B1A",
+        "paper": "#C8ECFF",
+        "ink": "#0D0B1A",
+        "accent": "#D23C3C",
+        "accent2": "#FFD166",
+        "swatches": [
+          "#0D0B1A",
+          "#2A2F5A",
+          "#4F6FC0",
+          "#C8ECFF",
+          "#2E7A45",
+          "#93D65A",
+          "#F59A4A",
+          "#D23C3C",
+          "#FFD166"
+        ]
+      },
+      "useFor": "Game launches, level-up / reward moments, playful progress stories, retro event promos.",
+      "personality": "clean",
+      "cues": [
+        "pixel",
+        "platformer",
+        "16-bit",
+        "game",
+        "crt",
+        "retro",
+        "dither",
+        "scanlines",
+        "indexed"
+      ],
+      "source": "opus-motion-library"
+    },
+    "liquid-candy": {
+      "name": "Glossy liquid candy",
+      "name_en": "Glossy liquid candy",
+      "desc": "Thick candy-coloured liquid on a plum set: the frame mapped from deep plum through magenta and pink to warm amber, inflated glossy relief on every shape, pink bloom on highlights.",
+      "family": "screen",
+      "palette": {
+        "bg": "#3B0F4A",
+        "paper": "#1E0628",
+        "ink": "#FFE8F0",
+        "accent": "#FF1A70",
+        "accent2": "#FFBD4D",
+        "swatches": [
+          "#1E0628",
+          "#3B0F4A",
+          "#9E054D",
+          "#FF1A70",
+          "#FF5C0F",
+          "#FF80A8",
+          "#D685FF",
+          "#FFBD4D"
+        ]
+      },
+      "useFor": "Beverage and beauty brands, playful logo reveals, music visuals, juicy product moments.",
+      "personality": "clean",
+      "cues": [
+        "liquid",
+        "candy",
+        "glossy",
+        "plum",
+        "pink",
+        "juicy",
+        "gooey",
+        "metaball",
+        "beverage"
+      ],
+      "source": "opus-motion-library"
+    },
+    "variety-hanazi": {
+      "name": "Variety-show 花字",
+      "name_en": "Variety-show 花字",
+      "desc": "Variety-show reaction language: punchy saturated footage, and every transparent element (captions, stickers, emotes) wrapped in a fat white stroke plus a navy outer stroke and a soft lift shadow.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#16B9F0",
+        "paper": "#FFFFFF",
+        "ink": "#1A1030",
+        "accent": "#FF3D7F",
+        "accent2": "#FFE14D",
+        "swatches": [
+          "#FF3D7F",
+          "#A3124F",
+          "#1E2A78",
+          "#FFE14D",
+          "#16B9F0",
+          "#7BE35A",
+          "#E8283C",
+          "#FFFFFF"
+        ]
+      },
+      "useFor": "Pet and vlog edits, reaction captions, social shorts, playful product reviews (best on overlay motions).",
+      "personality": "clean",
+      "cues": [
+        "variety",
+        "hanazi",
+        "花字",
+        "caption",
+        "reaction",
+        "sticker",
+        "vlog",
+        "pet",
+        "social",
+        "overlay"
+      ],
+      "source": "opus-motion-library"
+    },
+    "ortho-tint": {
+      "name": "Orthochromatic print",
+      "name_en": "Orthochromatic print",
+      "desc": "1920s orthochromatic stock: reds and skin go dark, blues go pale, whites drift halfway to amber, one terracotta hero kept in colour inside a heavy iris vignette with flicker and grain.",
+      "family": "photo",
+      "palette": {
+        "bg": "#120D08",
+        "paper": "#FFE2B0",
+        "ink": "#120D08",
+        "accent": "#D97757",
+        "swatches": [
+          "#120D08",
+          "#5E5244",
+          "#C9B79A",
+          "#FFE2B0",
+          "#D97757"
+        ]
+      },
+      "useFor": "Period drama, silent-era homages with one coloured hero, vintage product heroes.",
+      "personality": "clean",
+      "cues": [
+        "orthochromatic",
+        "film",
+        "1920s",
+        "amber",
+        "hero-colour",
+        "vintage",
+        "iris",
+        "monochrome"
+      ],
+      "source": "opus-motion-library"
+    },
+    "albumen-print": {
+      "name": "Albumen print",
+      "name_en": "Albumen print",
+      "desc": "1880s gold-toned albumen photograph: umber blacks to cream highlights, a faint hand-tint left on saturated subjects, softness, burned edges and a cream card mount.",
+      "family": "photo",
+      "palette": {
+        "bg": "#E9DFC9",
+        "paper": "#F2DCB4",
+        "ink": "#2E1C0F",
+        "accent": "#B5654A",
+        "swatches": [
+          "#2E1C0F",
+          "#7A5638",
+          "#C9A27A",
+          "#F2DCB4",
+          "#E9DFC9"
+        ]
+      },
+      "useFor": "History pieces, heritage brands, family archives, Victorian-era stories.",
+      "personality": "clean",
+      "cues": [
+        "albumen",
+        "victorian",
+        "photograph",
+        "sepia",
+        "gold-toned",
+        "hand-tinted",
+        "archive",
+        "mount"
+      ],
+      "source": "opus-motion-library"
+    },
+    "art-nouveau-litho": {
+      "name": "Art Nouveau lithograph",
+      "name_en": "Art Nouveau lithograph",
+      "desc": "Decorative panel lithograph: pastel flat colours with one hard shadow tone, doubled warm-brown contours, cream stone-printed paper and a brown keyline frame.",
+      "family": "print",
+      "palette": {
+        "bg": "#F3E6CC",
+        "paper": "#F3E6CC",
+        "ink": "#4B3326",
+        "accent": "#C9824A",
+        "accent2": "#8BA37A",
+        "swatches": [
+          "#F3E6CC",
+          "#4B3326",
+          "#E8C9A0",
+          "#C9824A",
+          "#8BA37A",
+          "#D9A3A0",
+          "#A6B8C9"
+        ]
+      },
+      "useFor": "Beauty, perfume, tea and wine brands, festivals, elegant portraits, decorative posters.",
+      "personality": "clean",
+      "cues": [
+        "art-nouveau",
+        "lithograph",
+        "poster",
+        "pastel",
+        "decorative",
+        "contour",
+        "belle-epoque",
+        "panel"
+      ],
+      "source": "opus-motion-library"
+    },
+    "sea-chart": {
+      "name": "Engraved sea chart",
+      "name_en": "Engraved sea chart",
+      "desc": "Admiralty-style copperplate chart: sepia engraving tones, fine horizontal burin hatching in the darks, pale hand-tinted washes, a lat/long graticule and a ruled border on laid paper.",
+      "family": "technical",
+      "palette": {
+        "bg": "#EFE6D2",
+        "paper": "#EFE6D2",
+        "ink": "#2A2620",
+        "accent": "#B3442E",
+        "accent2": "#7FA3B8",
+        "swatches": [
+          "#2A2620",
+          "#8C8475",
+          "#EFE6D2",
+          "#7FA3B8",
+          "#C9B37A",
+          "#B3442E"
+        ]
+      },
+      "useFor": "Voyages and routes, exploration history, logistics and trade stories, maps with gravitas.",
+      "personality": "clean",
+      "cues": [
+        "chart",
+        "nautical",
+        "map",
+        "copperplate",
+        "engraving",
+        "voyage",
+        "route",
+        "antique"
+      ],
+      "source": "opus-motion-library"
+    },
+    "letterpress-newsprint": {
+      "name": "1890s letterpress newspaper",
+      "name_en": "1890s letterpress newspaper",
+      "desc": "Victorian newspaper page: pictures as fine horizontal line engravings on grey newsprint, ink spreading slightly, specks where ink starved, show-through mottle.",
+      "family": "print",
+      "palette": {
+        "bg": "#D9D4C7",
+        "paper": "#D9D4C7",
+        "ink": "#1A1A1A",
+        "accent": "#1A1A1A",
+        "swatches": [
+          "#1A1A1A",
+          "#5A5750",
+          "#D9D4C7"
+        ]
+      },
+      "useFor": "Extra! extra! history beats, period news recaps, vintage announcements.",
+      "personality": "clean",
+      "cues": [
+        "newspaper",
+        "letterpress",
+        "victorian",
+        "line-engraving",
+        "newsprint",
+        "history",
+        "print"
+      ],
+      "source": "opus-motion-library"
+    },
+    "charcoal-erasure": {
+      "name": "Charcoal & eraser",
+      "name_en": "Charcoal & eraser",
+      "desc": "Charcoal animation on toothy paper: rich smudged blacks, tone breaking on the paper grain, eraser-lift streaks and the ghost of earlier drawings, redrawn on twos.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#EDE9E0",
+        "paper": "#EDE9E0",
+        "ink": "#151412",
+        "accent": "#4A6FA5",
+        "swatches": [
+          "#151412",
+          "#55524D",
+          "#BDB8AE",
+          "#EDE9E0"
+        ]
+      },
+      "useFor": "Memory and history pieces, serious documentaries, poetic essays, protest art.",
+      "personality": "clean",
+      "cues": [
+        "charcoal",
+        "eraser",
+        "drawing",
+        "smudge",
+        "palimpsest",
+        "tooth",
+        "documentary",
+        "monochrome"
+      ],
+      "source": "opus-motion-library"
+    },
+    "stone-litho-poster": {
+      "name": "Stone lithograph poster",
+      "name_en": "Stone lithograph poster",
+      "desc": "Wartime three-stone lithograph: muted navy, olive, khaki and brick flats, crayon-grain shadow plate, a navy key line, plates 1–3 px off register, grain boiling on twos.",
+      "family": "print",
+      "palette": {
+        "bg": "#EFE5CC",
+        "paper": "#EFE5CC",
+        "ink": "#1E2433",
+        "accent": "#B5402F",
+        "accent2": "#8C7A4A",
+        "swatches": [
+          "#1E2433",
+          "#3E4A3A",
+          "#8C7A4A",
+          "#B5402F",
+          "#D9C9A3",
+          "#EFE5CC"
+        ]
+      },
+      "useFor": "Campaign and public-service posters, historical calls to action, civic and industry stories.",
+      "personality": "clean",
+      "cues": [
+        "lithograph",
+        "poster",
+        "wartime",
+        "propaganda-style",
+        "civic",
+        "stone",
+        "crayon",
+        "registration"
+      ],
+      "source": "opus-motion-library"
+    },
+    "glamour-still-bw": {
+      "name": "Glamour still",
+      "name_en": "Glamour still",
+      "desc": "1940s airbrushed studio portrait: silky black-and-white with diffusion glow on the highlights, diagonal venetian-blind shadows across the frame, soft vignette.",
+      "family": "photo",
+      "palette": {
+        "bg": "#0A0A0A",
+        "paper": "#F4F2EE",
+        "ink": "#0A0A0A",
+        "accent": "#F4F2EE",
+        "swatches": [
+          "#0A0A0A",
+          "#7A7A78",
+          "#F4F2EE"
+        ]
+      },
+      "useFor": "Portraits, fashion and beauty, noir-romance teasers, elegant character intros.",
+      "personality": "clean",
+      "cues": [
+        "glamour",
+        "portrait",
+        "black-and-white",
+        "1940s",
+        "studio",
+        "blinds",
+        "diffusion",
+        "noir",
+        "hollywood"
+      ],
+      "source": "opus-motion-library"
+    },
+    "typewriter-art": {
+      "name": "Typewriter art",
+      "name_en": "Typewriter art",
+      "desc": "The picture typed on a mono grid: darker tones get denser glyphs, struck in black ribbon ink on warm typing paper with half-inked, uneven strikes.",
+      "family": "print",
+      "palette": {
+        "bg": "#F1EBDD",
+        "paper": "#F1EBDD",
+        "ink": "#1E1B18",
+        "accent": "#B3261E",
+        "swatches": [
+          "#F1EBDD",
+          "#1E1B18",
+          "#B3261E"
+        ]
+      },
+      "useFor": "Writers, archives and memos, retro-tech, poetic openers, \"typed into existence\" reveals.",
+      "personality": "clean",
+      "cues": [
+        "typewriter",
+        "ascii",
+        "text-art",
+        "ribbon",
+        "mono",
+        "paper",
+        "retro",
+        "writer"
+      ],
+      "source": "opus-motion-library"
+    },
+    "picture-magazine": {
+      "name": "Picture-magazine spread",
+      "name_en": "Picture-magazine spread",
+      "desc": "1940s photo-essay page: the frame separated into a black 45° halftone and a spot-orange plate at another angle, overprinted on warm coated stock.",
+      "family": "print",
+      "palette": {
+        "bg": "#F3EEE2",
+        "paper": "#F3EEE2",
+        "ink": "#1A1A1A",
+        "accent": "#F26B1D",
+        "swatches": [
+          "#1A1A1A",
+          "#F26B1D",
+          "#F3EEE2"
+        ]
+      },
+      "useFor": "Photo essays, documentary features, retro editorial spreads, people stories.",
+      "personality": "clean",
+      "cues": [
+        "magazine",
+        "photo-essay",
+        "halftone",
+        "spot-colour",
+        "duotone",
+        "print",
+        "1940s",
+        "editorial"
+      ],
+      "source": "opus-motion-library"
+    },
+    "wood-type-poster": {
+      "name": "Wood-type letterpress poster",
+      "name_en": "Wood-type letterpress poster",
+      "desc": "Show-print letterpress: three flat solid inks (red, navy, mustard) separated from the frame and printed off register, starved ink and pinholes, laid cream stock.",
+      "family": "print",
+      "palette": {
+        "bg": "#EFE3C8",
+        "paper": "#EFE3C8",
+        "ink": "#1C2A4A",
+        "accent": "#C8322B",
+        "accent2": "#E8B83A",
+        "swatches": [
+          "#C8322B",
+          "#1C2A4A",
+          "#E8B83A",
+          "#EFE3C8"
+        ]
+      },
+      "useFor": "Gig and event posters, Americana, craft beer and food, bold announcements.",
+      "personality": "clean",
+      "cues": [
+        "letterpress",
+        "wood-type",
+        "poster",
+        "gig",
+        "americana",
+        "flat-ink",
+        "plates",
+        "show-print"
+      ],
+      "source": "opus-motion-library"
+    },
+    "offset-wash": {
+      "name": "Offset wash",
+      "name_en": "Offset wash",
+      "desc": "Fast ink drawing with bright colour washes deliberately slid well off the line (Fauvist-poster manner): cobalt, lemon and rose patches 20–30 px adrift of a quick black contour on white paper.",
+      "family": "paint",
+      "palette": {
+        "bg": "#FBF8F1",
+        "paper": "#FBF8F1",
+        "ink": "#1A1712",
+        "accent": "#2C5FD0",
+        "accent2": "#F2D23A",
+        "swatches": [
+          "#FBF8F1",
+          "#1A1712",
+          "#2C5FD0",
+          "#F2D23A",
+          "#E8738F",
+          "#3FA37A"
+        ]
+      },
+      "useFor": "Riviera / travel, fashion and lifestyle, music, joyful brand illustrations.",
+      "personality": "clean",
+      "cues": [
+        "wash",
+        "offset",
+        "fauvist",
+        "ink",
+        "colour",
+        "joyful",
+        "riviera",
+        "illustration"
+      ],
+      "source": "opus-motion-library"
+    },
+    "high-key-bw": {
+      "name": "High-key black & white",
+      "name_en": "High-key black & white",
+      "desc": "1950s high-key photograph: most of the frame above mid-grey, lifted shadows, halation blooming around bright edges, white vignette, fine grain.",
+      "family": "photo",
+      "palette": {
+        "bg": "#FBFAF7",
+        "paper": "#FBFAF7",
+        "ink": "#2A2A2A",
+        "accent": "#B9B9B6",
+        "swatches": [
+          "#2A2A2A",
+          "#B9B9B6",
+          "#FBFAF7"
+        ]
+      },
+      "useFor": "Summer, beach and fashion, wellness, airy nostalgia, clean minimal portraits.",
+      "personality": "clean",
+      "cues": [
+        "high-key",
+        "black-and-white",
+        "bright",
+        "airy",
+        "halation",
+        "1950s",
+        "beach",
+        "fashion"
+      ],
+      "source": "opus-motion-library"
+    },
+    "kinescope-tv": {
+      "name": "Kinescope TV",
+      "name_en": "Kinescope TV",
+      "desc": "A 1950s black-and-white broadcast on a curved tube: cool grey phosphor, soft focus with bloom, scanlines, roll bar and flicker, set in a warm wooden cabinet bezel.",
+      "family": "screen",
+      "palette": {
+        "bg": "#3B2A1E",
+        "paper": "#DDE6EE",
+        "ink": "#0B0D10",
+        "accent": "#DDE6EE",
+        "swatches": [
+          "#0B0D10",
+          "#5E6670",
+          "#DDE6EE",
+          "#3B2A1E"
+        ]
+      },
+      "useFor": "Mid-century broadcast throwbacks, \"as seen on TV\", retro ads, history of media.",
+      "personality": "clean",
+      "cues": [
+        "tv",
+        "kinescope",
+        "broadcast",
+        "1950s",
+        "black-and-white",
+        "crt",
+        "retro",
+        "cabinet"
+      ],
+      "source": "opus-motion-library"
+    },
+    "painted-film-poster": {
+      "name": "Painted film poster",
+      "name_en": "Painted film poster",
+      "desc": "1960s hand-painted movie poster: three-value modelling, cool navy shadows against warm amber lights with the subject hue kept, pooled brush edges and canvas texture.",
+      "family": "paint",
+      "palette": {
+        "bg": "#1E2A44",
+        "paper": "#FFF0D2",
+        "ink": "#1E2A44",
+        "accent": "#E8B57A",
+        "accent2": "#7A5A48",
+        "swatches": [
+          "#1E2A44",
+          "#7A5A48",
+          "#E8B57A",
+          "#FFF0D2"
+        ]
+      },
+      "useFor": "Adventure and epic trailers, heroic key art, retro campaign heroes.",
+      "personality": "clean",
+      "cues": [
+        "poster",
+        "painted",
+        "movie",
+        "1960s",
+        "gouache",
+        "epic",
+        "warm-cool",
+        "key-art"
+      ],
+      "source": "opus-motion-library"
+    },
+    "satirical-print": {
+      "name": "Hand-coloured satirical print",
+      "name_en": "Hand-coloured satirical print",
+      "desc": "Georgian copperplate caricature: cross-hatched etching on cream, with pale watercolour washes laid over by hand and spilling past the lines.",
+      "family": "print",
+      "palette": {
+        "bg": "#F1E6CF",
+        "paper": "#F1E6CF",
+        "ink": "#2A1E14",
+        "accent": "#C0503A",
+        "accent2": "#6A8CB0",
+        "swatches": [
+          "#2A1E14",
+          "#F1E6CF",
+          "#C0503A",
+          "#6A8CB0",
+          "#D9B25A",
+          "#7FA06A"
+        ]
+      },
+      "useFor": "Political and social satire, history explainers, editorial cartoons, comic period pieces.",
+      "personality": "clean",
+      "cues": [
+        "satire",
+        "caricature",
+        "etching",
+        "copperplate",
+        "hand-coloured",
+        "georgian",
+        "editorial",
+        "cartoon"
+      ],
+      "source": "opus-motion-library"
+    },
+    "fashion-ink-wash": {
+      "name": "Fashion ink & magenta",
+      "name_en": "Fashion ink & magenta",
+      "desc": "Fashion-illustration ink: tones turned into black ink flowing into magenta and pink washes, pooled pigment edges and a swift wobble on white cold-press.",
+      "family": "paint",
+      "palette": {
+        "bg": "#FBF2F4",
+        "paper": "#FBF2F4",
+        "ink": "#120A10",
+        "accent": "#B0206E",
+        "accent2": "#F27BB8",
+        "swatches": [
+          "#120A10",
+          "#B0206E",
+          "#F27BB8",
+          "#FBF2F4"
+        ]
+      },
+      "useFor": "Fashion, beauty and theatre, posters for shows, expressive figure drawing.",
+      "personality": "clean",
+      "cues": [
+        "fashion",
+        "ink",
+        "magenta",
+        "pink",
+        "wash",
+        "illustration",
+        "figure",
+        "expressive"
+      ],
+      "source": "opus-motion-library"
+    },
+    "old-master-glaze": {
+      "name": "Old-master oil glaze",
+      "name_en": "Old-master oil glaze",
+      "desc": "Renaissance panel in oil: warm amber varnish, deep chiaroscuro falloff into umber darkness, sculpted local contrast, craquelure across the whole picture and a hint of canvas.",
+      "family": "paint",
+      "palette": {
+        "bg": "#1A0F06",
+        "paper": "#E8D3A6",
+        "ink": "#2A1D12",
+        "accent": "#9E2A1C",
+        "accent2": "#C9A24A",
+        "swatches": [
+          "#1A0F06",
+          "#4A2E18",
+          "#9E7A4A",
+          "#E8D3A6",
+          "#9E2A1C",
+          "#2E4A3A"
+        ]
+      },
+      "useFor": "Museum and art-history pieces, luxury storytelling, dramatic portraits, mock-heroic humour.",
+      "personality": "clean",
+      "cues": [
+        "oil",
+        "old-master",
+        "renaissance",
+        "varnish",
+        "craquelure",
+        "chiaroscuro",
+        "museum",
+        "portrait"
+      ],
+      "source": "opus-motion-library"
+    },
+    "toy-theatre": {
+      "name": "Toy theatre",
+      "name_en": "Toy theatre",
+      "desc": "A paper toy theatre: printed card flats with white scissor margins and hard card shadows, flickering candle footlights from below, a red-and-gilt proscenium frame.",
+      "family": "craft",
+      "palette": {
+        "bg": "#2A1410",
+        "paper": "#FBF7EC",
+        "ink": "#2A1410",
+        "accent": "#7A1E1E",
+        "accent2": "#D9B25A",
+        "swatches": [
+          "#2A1410",
+          "#7A1E1E",
+          "#D9B25A",
+          "#FBF7EC",
+          "#FFC870"
+        ]
+      },
+      "useFor": "Stories and fables, theatrical announcements, Victorian whimsy, staged product tales.",
+      "personality": "clean",
+      "cues": [
+        "theatre",
+        "toy-theatre",
+        "paper",
+        "stage",
+        "footlights",
+        "victorian",
+        "proscenium",
+        "cut-out"
+      ],
+      "source": "opus-motion-library"
+    },
+    "pop-silkscreen": {
+      "name": "Pop silkscreen",
+      "name_en": "Pop silkscreen",
+      "desc": "1960s photo silkscreen: the picture flattened into garish pink, orange, turquoise and yellow blocks with the black photo plate printed off register on top, squeegee streaks.",
+      "family": "print",
+      "palette": {
+        "bg": "#C9C9C9",
+        "paper": "#C9C9C9",
+        "ink": "#151515",
+        "accent": "#FF4FA0",
+        "accent2": "#22C6C6",
+        "swatches": [
+          "#FF4FA0",
+          "#FF8A1F",
+          "#22C6C6",
+          "#F7E03A",
+          "#C9C9C9",
+          "#151515"
+        ]
+      },
+      "useFor": "Pop-art portraits, celebrity / product icons, repeat grids, bold social posts.",
+      "personality": "clean",
+      "cues": [
+        "pop-art",
+        "silkscreen",
+        "warhol-like",
+        "garish",
+        "portrait",
+        "icon",
+        "repeat",
+        "off-register"
+      ],
+      "source": "opus-motion-library"
+    },
+    "pushed-16mm": {
+      "name": "Pushed 16 mm",
+      "name_en": "Pushed 16 mm",
+      "desc": "Gritty 1970s documentary stock pushed in the lab: cyan shadows, warm-brown mids, harsh local contrast, clumpy grain and a little gate weave.",
+      "family": "photo",
+      "palette": {
+        "bg": "#1A2224",
+        "paper": "#E8D9BC",
+        "ink": "#1A2224",
+        "accent": "#C2763A",
+        "accent2": "#3A7A80",
+        "swatches": [
+          "#1A2224",
+          "#3A7A80",
+          "#7A5A3A",
+          "#C2763A",
+          "#E8D9BC"
+        ]
+      },
+      "useFor": "Documentaries, street and sports stories, raw brand films, 70s throwbacks.",
+      "personality": "clean",
+      "cues": [
+        "16mm",
+        "film",
+        "documentary",
+        "gritty",
+        "1970s",
+        "grain",
+        "cyan-shadows",
+        "pushed"
+      ],
+      "source": "opus-motion-library"
+    },
+    "still-light": {
+      "name": "Still light (American realism)",
+      "name_en": "Still light (American realism)",
+      "desc": "Quiet realist painting: flat pale institutional planes, muted colour, cool blue shadow over the room and one hard sun parallelogram crossed by window-frame shadows.",
+      "family": "paint",
+      "palette": {
+        "bg": "#D9D2BF",
+        "paper": "#EDE6D2",
+        "ink": "#2A3A40",
+        "accent": "#FCE6AC",
+        "accent2": "#4A7A6A",
+        "swatches": [
+          "#2A3A40",
+          "#4A7A6A",
+          "#A84A3A",
+          "#D9D2BF",
+          "#EDE6D2",
+          "#FCE6AC"
+        ]
+      },
+      "useFor": "Loneliness / waiting / city-morning moods, architecture, reflective essays, slow brand films.",
+      "personality": "clean",
+      "cues": [
+        "realism",
+        "painting",
+        "sunlight",
+        "stillness",
+        "americana",
+        "morning",
+        "quiet",
+        "architecture"
+      ],
+      "source": "opus-motion-library"
+    },
+    "egg-tempera": {
+      "name": "Egg tempera",
+      "name_en": "Egg tempera",
+      "desc": "Dry-brush egg tempera: muted straw, umber and bone, hairline cross-hatched strokes building the tones, a faint wind-combed texture, quiet and lonely.",
+      "family": "paint",
+      "palette": {
+        "bg": "#EEE6D2",
+        "paper": "#EEE6D2",
+        "ink": "#3A2E22",
+        "accent": "#8A6A3A",
+        "swatches": [
+          "#3A2E22",
+          "#7D6B50",
+          "#C8B48A",
+          "#EEE6D2",
+          "#6A7A5A"
+        ]
+      },
+      "useFor": "Rural and landscape stories, memory, contemplative brand films, literary adaptations.",
+      "personality": "clean",
+      "cues": [
+        "tempera",
+        "painting",
+        "muted",
+        "hatching",
+        "rural",
+        "landscape",
+        "quiet",
+        "straw"
+      ],
+      "source": "opus-motion-library"
+    },
+    "block-print-textile": {
+      "name": "Block-print textile",
+      "name_en": "Block-print textile",
+      "desc": "Hand block-printed cotton: indigo dabu ramp with a madder-red accent block, misregistered stamps, white mud-resist crackle inside the dye, bleed along the weave.",
+      "family": "craft",
+      "palette": {
+        "bg": "#DCD3BE",
+        "paper": "#DCD3BE",
+        "ink": "#0E1A33",
+        "accent": "#A8332A",
+        "accent2": "#4E73A8",
+        "swatches": [
+          "#0E1A33",
+          "#1E3A6E",
+          "#4E73A8",
+          "#DCD3BE",
+          "#A8332A"
+        ]
+      },
+      "useFor": "Craft and textile brands, Indian heritage stories, slow fashion, artisan processes.",
+      "personality": "clean",
+      "cues": [
+        "textile",
+        "block-print",
+        "indigo",
+        "dabu",
+        "resist",
+        "crackle",
+        "craft",
+        "cotton",
+        "india"
+      ],
+      "source": "opus-motion-library"
+    },
+    "faded-snapshot": {
+      "name": "Faded snapshot",
+      "name_en": "Faded snapshot",
+      "desc": "Instant-photo album: lifted teal blacks, warm faded colour, soft highlights, a white print border, a warm light leak and gentle grain.",
+      "family": "photo",
+      "palette": {
+        "bg": "#F4F1EA",
+        "paper": "#F4F1EA",
+        "ink": "#2A3A3A",
+        "accent": "#E8A070",
+        "swatches": [
+          "#2A3A3A",
+          "#6A8A86",
+          "#E8A070",
+          "#F2D9B0",
+          "#F4F1EA"
+        ]
+      },
+      "useFor": "Memories and throwbacks, family and travel montages, lifestyle brands, birthdays.",
+      "personality": "clean",
+      "cues": [
+        "polaroid",
+        "snapshot",
+        "instant",
+        "faded",
+        "nostalgia",
+        "album",
+        "memories",
+        "light-leak"
+      ],
+      "source": "opus-motion-library"
+    },
+    "rococo-silhouette": {
+      "name": "Rococo silhouette",
+      "name_en": "Rococo silhouette",
+      "desc": "Black cut-paper profiles on candle-warm paper: every form thresholded to solid silhouette with a thin glowing gold rim, a candle halo, inside a velvet-and-gilt frame.",
+      "family": "craft",
+      "palette": {
+        "bg": "#E9D3A8",
+        "paper": "#E9D3A8",
+        "ink": "#0B0806",
+        "accent": "#D9A94A",
+        "accent2": "#5A1420",
+        "swatches": [
+          "#0B0806",
+          "#E9D3A8",
+          "#D9A94A",
+          "#5A1420"
+        ]
+      },
+      "useFor": "Period romance, elegant invitations, opera and theatre, refined storytelling.",
+      "personality": "clean",
+      "cues": [
+        "silhouette",
+        "cut-paper",
+        "rococo",
+        "candle",
+        "gold",
+        "elegant",
+        "profile",
+        "opera"
+      ],
+      "source": "opus-motion-library"
+    },
+    "gongbi-silk": {
+      "name": "Gongbi on silk",
+      "name_en": "Gongbi on silk",
+      "desc": "Chinese court painting: fine iron-wire outlines, mineral colours under an ochre glaze, simplified flat areas, silk weave and an aged warm vignette.",
+      "family": "paint",
+      "palette": {
+        "bg": "#E6D3AA",
+        "paper": "#E6D3AA",
+        "ink": "#2A1C14",
+        "accent": "#B03A2E",
+        "accent2": "#2E7A6A",
+        "swatches": [
+          "#2A1C14",
+          "#B03A2E",
+          "#2E7A6A",
+          "#3A5A9A",
+          "#D9A94A",
+          "#E6D3AA"
+        ]
+      },
+      "useFor": "Chinese heritage and court stories, tea and porcelain brands, birds-and-flowers, museum pieces.",
+      "personality": "clean",
+      "cues": [
+        "gongbi",
+        "chinese",
+        "silk",
+        "court-painting",
+        "mineral",
+        "fine-line",
+        "heritage",
+        "birds-and-flowers"
+      ],
+      "source": "opus-motion-library"
+    },
+    "airbrush-chrome": {
+      "name": "80s airbrush chrome",
+      "name_en": "80s airbrush chrome",
+      "desc": "1980s airbrush illustration: every tone mapped onto banded chrome (navy sky, white horizon, brown earth, orange glow), crisp local contrast, a gliding glint.",
+      "family": "retro",
+      "palette": {
+        "bg": "#0B1A4D",
+        "paper": "#D8F6FF",
+        "ink": "#0B1A4D",
+        "accent": "#FF9A3C",
+        "accent2": "#5FB8FF",
+        "swatches": [
+          "#0B1A4D",
+          "#1D4FAE",
+          "#5FB8FF",
+          "#D8F6FF",
+          "#2B0A26",
+          "#C2452F",
+          "#FF9A3C",
+          "#FFD98A"
+        ]
+      },
+      "useFor": "Retro tech and music, sci-fi album art, glossy 80s brand nostalgia.",
+      "personality": "clean",
+      "cues": [
+        "chrome",
+        "airbrush",
+        "80s",
+        "retro",
+        "metallic",
+        "glossy",
+        "album-art",
+        "sci-fi"
+      ],
+      "source": "opus-motion-library"
+    },
+    "selective-color-bw": {
+      "name": "Selective colour B&W",
+      "name_en": "Selective colour B&W",
+      "desc": "Hero-colour grade: the whole frame in rich black-and-white with an S-curve and silver grain, and exactly one red subject left in colour.",
+      "family": "photo",
+      "palette": {
+        "bg": "#101010",
+        "paper": "#EDEDED",
+        "ink": "#101010",
+        "accent": "#D2201F",
+        "swatches": [
+          "#101010",
+          "#5A5A5A",
+          "#EDEDED",
+          "#D2201F"
+        ]
+      },
+      "useFor": "Pointing at one thing in any scene: the hero product, the one person, the key data series.",
+      "personality": "clean",
+      "cues": [
+        "selective-colour",
+        "hero-colour",
+        "black-and-white",
+        "red",
+        "keep-hue",
+        "focus",
+        "cinematic"
+      ],
+      "source": "opus-motion-library"
+    },
+    "illuminated-manuscript": {
+      "name": "Illuminated manuscript",
+      "name_en": "Illuminated manuscript",
+      "desc": "Medieval vellum page: colours snapped to lapis, vermilion, verdigris, burnished gold and iron-gall ink, ink contours, a gilt frame and a candle glint sweeping the gold.",
+      "family": "paint",
+      "palette": {
+        "bg": "#F1E3C2",
+        "paper": "#F1E3C2",
+        "ink": "#2A1E14",
+        "accent": "#C9A13B",
+        "accent2": "#1F3C88",
+        "swatches": [
+          "#F1E3C2",
+          "#2A1E14",
+          "#1F3C88",
+          "#B3261E",
+          "#C9A13B",
+          "#2E6B3A"
+        ]
+      },
+      "useFor": "Legends and chronicles, fantasy titles, heritage and rare-book stories, ornate openers.",
+      "personality": "clean",
+      "cues": [
+        "manuscript",
+        "medieval",
+        "vellum",
+        "gold-leaf",
+        "lapis",
+        "illuminated",
+        "fantasy",
+        "heritage"
+      ],
+      "source": "opus-motion-library"
+    },
+    "dv-camcorder": {
+      "name": "90s DV camcorder",
+      "name_en": "90s DV camcorder",
+      "desc": "Late-90s digital camcorder: crisp-but-cheap picture with a cool cast, over-sharpened edges, slight colour fringing, interlace lines and a blinking REC / date OSD.",
+      "family": "retro",
+      "palette": {
+        "bg": "#101418",
+        "paper": "#F2F2F2",
+        "ink": "#F2F2F2",
+        "accent": "#FF2A1F",
+        "swatches": [
+          "#101418",
+          "#5A6A7A",
+          "#F2F2F2",
+          "#FF2A1F"
+        ]
+      },
+      "useFor": "Y2K nostalgia, found footage, behind-the-scenes, music videos, home-movie edits.",
+      "personality": "clean",
+      "cues": [
+        "dv",
+        "camcorder",
+        "90s",
+        "y2k",
+        "rec",
+        "home-video",
+        "digital",
+        "osd",
+        "found-footage"
+      ],
+      "source": "opus-motion-library"
+    },
+    "floor-mosaic": {
+      "name": "Floor mosaic",
+      "name_en": "Floor mosaic",
+      "desc": "Roman tesserae: the picture laid in small square stones of slightly varied tone with dark grout and a bevel on every tile, glints sliding across the gold.",
+      "family": "craft",
+      "palette": {
+        "bg": "#3A332C",
+        "paper": "#E9DFC9",
+        "ink": "#3A332C",
+        "accent": "#C9A13B",
+        "swatches": [
+          "#3A332C",
+          "#8A3A2A",
+          "#C9A13B",
+          "#E9DFC9",
+          "#3A5A6A",
+          "#6A7A4A"
+        ]
+      },
+      "useFor": "Antiquity and history, archaeology, Mediterranean brands, tile / craft makers.",
+      "personality": "clean",
+      "cues": [
+        "mosaic",
+        "tesserae",
+        "roman",
+        "tiles",
+        "antiquity",
+        "grout",
+        "craft",
+        "archaeology"
+      ],
+      "source": "opus-motion-library"
+    },
+    "chalkboard": {
+      "name": "Chalkboard",
+      "name_en": "Chalkboard",
+      "desc": "Coloured chalk on a slate-green board: tones lifted to chalk white with soft colour, chalk contours broken by board grain, smudged erasures and a wooden frame.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#1F2A26",
+        "paper": "#1F2A26",
+        "ink": "#F2F1EA",
+        "accent": "#F2C46D",
+        "accent2": "#8FC9E8",
+        "swatches": [
+          "#1F2A26",
+          "#2E3B36",
+          "#9DA8A0",
+          "#F2F1EA",
+          "#F2C46D",
+          "#8FC9E8",
+          "#F28C8C"
+        ]
+      },
+      "useFor": "Lessons and maths, café menus, school and back-to-school, cosy explainers.",
+      "personality": "clean",
+      "cues": [
+        "chalkboard",
+        "chalk",
+        "slate",
+        "lesson",
+        "school",
+        "menu",
+        "education",
+        "hand-drawn"
+      ],
+      "source": "opus-motion-library"
+    },
+    "silhouette-stage": {
+      "name": "Silhouette stage",
+      "name_en": "Silhouette stage",
+      "desc": "Black stage, red light: the frame mapped from black through deep red to hot pink-white, figures as backlit silhouettes in haze, a white follow spot and red bloom.",
+      "family": "screen",
+      "palette": {
+        "bg": "#000000",
+        "paper": "#3A0408",
+        "ink": "#FFE3DA",
+        "accent": "#B3121C",
+        "accent2": "#FF5A4A",
+        "swatches": [
+          "#000000",
+          "#3A0408",
+          "#B3121C",
+          "#FF5A4A",
+          "#FFE3DA"
+        ]
+      },
+      "useFor": "Dance and music performances, theatrical teasers, dramatic reveals, fashion shows.",
+      "personality": "clean",
+      "cues": [
+        "stage",
+        "silhouette",
+        "red",
+        "spotlight",
+        "dance",
+        "performance",
+        "theatre",
+        "haze",
+        "backlit"
+      ],
+      "source": "opus-motion-library"
+    },
+    "sodium-night": {
+      "name": "Sodium night",
+      "name_en": "Sodium night",
+      "desc": "Long-exposure night: cold cyan-teal world against warm sodium-orange lights kept in colour, with horizontal streak bloom so every light becomes a ribbon.",
+      "family": "photo",
+      "palette": {
+        "bg": "#03070A",
+        "paper": "#9FEFF2",
+        "ink": "#9FEFF2",
+        "accent": "#F2A24A",
+        "accent2": "#3FD0D8",
+        "swatches": [
+          "#03070A",
+          "#08303A",
+          "#1F8A93",
+          "#3FD0D8",
+          "#9FEFF2",
+          "#F2A24A"
+        ]
+      },
+      "useFor": "Night cities and roads, logistics and travel at night, moody music videos, transport stories.",
+      "personality": "clean",
+      "cues": [
+        "night",
+        "sodium",
+        "long-exposure",
+        "teal-orange",
+        "light-trails",
+        "city",
+        "road",
+        "streak"
+      ],
+      "source": "opus-motion-library"
+    },
+    "stencil-graffiti": {
+      "name": "Stencil graffiti",
+      "name_en": "Stencil graffiti",
+      "desc": "Street stencil: three to five flat spray layers (black, red, blue, yellow, off-white) with overspray specks, slightly rough cut edges, on a mottled concrete wall with mortar lines.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#C9C2B6",
+        "paper": "#C9C2B6",
+        "ink": "#1C1C1C",
+        "accent": "#D93A2B",
+        "accent2": "#2E8BC0",
+        "swatches": [
+          "#1C1C1C",
+          "#D93A2B",
+          "#2E8BC0",
+          "#F2C230",
+          "#E9E4D8",
+          "#C9C2B6"
+        ]
+      },
+      "useFor": "Street culture, activism, urban brands, music and skate, bold social posts.",
+      "personality": "clean",
+      "cues": [
+        "stencil",
+        "graffiti",
+        "street-art",
+        "spray",
+        "urban",
+        "wall",
+        "activism",
+        "overspray"
+      ],
+      "source": "opus-motion-library"
+    },
+    "tech-manual": {
+      "name": "Technical manual",
+      "name_en": "Technical manual",
+      "desc": "Military technical-manual plate: black line art on sand paper, flat olive and khaki tints by value, a faint grid and a ruled border, animated on twos.",
+      "family": "technical",
+      "palette": {
+        "bg": "#E9E3CC",
+        "paper": "#E9E3CC",
+        "ink": "#1C1E17",
+        "accent": "#B33A2A",
+        "accent2": "#6B6F45",
+        "swatches": [
+          "#2A2D22",
+          "#6B6F45",
+          "#B5AE84",
+          "#E9E3CC",
+          "#1C1E17",
+          "#B33A2A"
+        ]
+      },
+      "useFor": "Equipment and procedure explainers, hardware assembly, safety briefings, retro-industrial brands.",
+      "personality": "clean",
+      "cues": [
+        "manual",
+        "technical",
+        "military",
+        "line-art",
+        "olive",
+        "exploded-view",
+        "procedure",
+        "industrial"
+      ],
+      "source": "opus-motion-library"
+    },
+    "golden-age-comic": {
+      "name": "Golden-age comic",
+      "name_en": "Golden-age comic",
+      "desc": "Silver-age comic printing: colour separated into a CMYK dot rosette on aged yellow newsprint, heavy black brush contours, muddy-warm paper and slight misregistration.",
+      "family": "print",
+      "palette": {
+        "bg": "#EDE0BE",
+        "paper": "#EDE0BE",
+        "ink": "#1A1410",
+        "accent": "#E8322E",
+        "accent2": "#1F6FEB",
+        "swatches": [
+          "#1A1410",
+          "#E8322E",
+          "#FFD400",
+          "#1F6FEB",
+          "#EDE0BE"
+        ]
+      },
+      "useFor": "Superhero-style action, retro comic recaps, pop-culture explainers, bold promos.",
+      "personality": "clean",
+      "cues": [
+        "comic",
+        "golden-age",
+        "cmyk",
+        "rosette",
+        "ben-day",
+        "newsprint",
+        "superhero",
+        "pulp"
+      ],
+      "source": "opus-motion-library"
+    },
+    "daguerreotype": {
+      "name": "Daguerreotype",
+      "name_en": "Daguerreotype",
+      "desc": "A cased silver plate: cool mirror-silver tones with soft bloom, an iridescent tarnish halo creeping in from the edges, set in a brass mat.",
+      "family": "photo",
+      "palette": {
+        "bg": "#3A2A1A",
+        "paper": "#E4E8EC",
+        "ink": "#0A0C10",
+        "accent": "#B08A3E",
+        "swatches": [
+          "#0A0C10",
+          "#3B4250",
+          "#9AA3AE",
+          "#E4E8EC",
+          "#B08A3E"
+        ]
+      },
+      "useFor": "Portraits from the past, ancestry and archives, historical mystery, elegant intros.",
+      "personality": "clean",
+      "cues": [
+        "daguerreotype",
+        "silver",
+        "plate",
+        "tarnish",
+        "victorian",
+        "portrait",
+        "antique",
+        "brass"
+      ],
+      "source": "opus-motion-library"
+    },
+    "moonlight-oil": {
+      "name": "Moonlight oil",
+      "name_en": "Moonlight oil",
+      "desc": "Nocturne in oil: the frame mapped into blue-violet, teal and a magenta rim light, short low-contrast brush strokes raised in the paint, canvas weave and a deep vignette.",
+      "family": "paint",
+      "palette": {
+        "bg": "#0B0C1E",
+        "paper": "#F2E6F0",
+        "ink": "#0B0C1E",
+        "accent": "#C46AB0",
+        "accent2": "#3E7F86",
+        "swatches": [
+          "#0B0C1E",
+          "#32377A",
+          "#3E7F86",
+          "#C46AB0",
+          "#F2E6F0"
+        ]
+      },
+      "useFor": "Night romance, dream and lullaby pieces, melancholy music videos, art-house moods.",
+      "personality": "clean",
+      "cues": [
+        "oil",
+        "nocturne",
+        "moonlight",
+        "violet",
+        "teal",
+        "magenta",
+        "painterly",
+        "night"
+      ],
+      "source": "opus-motion-library"
+    },
+    "underwater-teal": {
+      "name": "Underwater teal",
+      "name_en": "Underwater teal",
+      "desc": "Below the surface: cool teal-green grade with lifted fog, a shimmering web of caustic light, soft god-ray shafts and bloom on warm practicals.",
+      "family": "photo",
+      "palette": {
+        "bg": "#02161A",
+        "paper": "#BFF7F2",
+        "ink": "#02161A",
+        "accent": "#FFB86A",
+        "accent2": "#6FE3D8",
+        "swatches": [
+          "#02161A",
+          "#0E6E78",
+          "#3FA8A8",
+          "#6FE3D8",
+          "#BFF7F2",
+          "#FFB86A"
+        ]
+      },
+      "useFor": "Ocean and diving, aquariums, calm wellness loops, mystery and exploration pieces.",
+      "personality": "clean",
+      "cues": [
+        "underwater",
+        "ocean",
+        "teal",
+        "caustics",
+        "god-rays",
+        "diving",
+        "aquarium",
+        "calm"
+      ],
+      "source": "opus-motion-library"
+    },
+    "linen-postcard": {
+      "name": "Linen postcard",
+      "name_en": "Linen postcard",
+      "desc": "Mid-century linen-finish postcard: punchy saturated simplified colour, ink sitting only on the raised threads of a woven texture, a white printed border.",
+      "family": "print",
+      "palette": {
+        "bg": "#F6F1E4",
+        "paper": "#F6F1E4",
+        "ink": "#2A2A3A",
+        "accent": "#E8452C",
+        "accent2": "#2E8BC0",
+        "swatches": [
+          "#F6F1E4",
+          "#2E8BC0",
+          "#E8452C",
+          "#F2C230",
+          "#3FA35A",
+          "#2A2A3A"
+        ]
+      },
+      "useFor": "Travel and \"greetings from\" pieces, roadside Americana, tourism campaigns, retro souvenirs.",
+      "personality": "clean",
+      "cues": [
+        "postcard",
+        "linen",
+        "travel",
+        "greetings-from",
+        "americana",
+        "souvenir",
+        "saturated",
+        "retro"
+      ],
+      "source": "opus-motion-library"
+    },
+    "soft-pastel": {
+      "name": "Soft pastel",
+      "name_en": "Soft pastel",
+      "desc": "Chalk pastel on grey-violet toned paper: chalky lifted colour, toned-paper grain pressed into every stroke, upright chalk streaks, soft violet edges.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#7D7079",
+        "paper": "#7D7079",
+        "ink": "#3A3040",
+        "accent": "#F2B8A0",
+        "accent2": "#B8A0E0",
+        "swatches": [
+          "#7D7079",
+          "#3A3040",
+          "#F2D08A",
+          "#F2B8A0",
+          "#B8A0E0",
+          "#A0C8B0"
+        ]
+      },
+      "useFor": "Gentle landscapes, skies and seasons, children’s pieces, calm wellness stories.",
+      "personality": "clean",
+      "cues": [
+        "pastel",
+        "chalk-pastel",
+        "toned-paper",
+        "soft",
+        "sky",
+        "landscape",
+        "gentle",
+        "textured"
+      ],
+      "source": "opus-motion-library"
+    },
+    "belle-epoque-litho": {
+      "name": "Belle Époque litho",
+      "name_en": "Belle Époque litho",
+      "desc": "Cabaret poster lithograph: flat wobbly plates in acid yellow-green, orange, red and olive, fat loaded-brush black outlines, crachis spatter only in the shadows, cream stock.",
+      "family": "print",
+      "palette": {
+        "bg": "#F2E6C4",
+        "paper": "#F2E6C4",
+        "ink": "#1A1712",
+        "accent": "#D9622B",
+        "accent2": "#D9C24A",
+        "swatches": [
+          "#F2E6C4",
+          "#D9C24A",
+          "#6E7A2E",
+          "#D9622B",
+          "#B3261E",
+          "#1A1712"
+        ]
+      },
+      "useFor": "Nightlife and events, cabarets and festivals, bold figure posters, retro food and drink.",
+      "personality": "clean",
+      "cues": [
+        "belle-epoque",
+        "lithograph",
+        "poster",
+        "cabaret",
+        "spatter",
+        "crachis",
+        "flat",
+        "outline"
+      ],
+      "source": "opus-motion-library"
+    },
+    "engraved-treatise": {
+      "name": "Engraved treatise",
+      "name_en": "Engraved treatise",
+      "desc": "Deadpan scientific plates on near-black: white-line engraving by luminance bands, bone type greys, and one hazard-orange signal that is the only thing allowed to glow.",
+      "family": "print",
+      "palette": {
+        "bg": "#0A0A0B",
+        "paper": "#EEE9DF",
+        "ink": "#EEE9DF",
+        "accent": "#FF4D12",
+        "accent2": "#FF8A3D",
+        "swatches": [
+          "#0A0A0B",
+          "#151517",
+          "#5E5B57",
+          "#9C978F",
+          "#EEE9DF",
+          "#FF4D12",
+          "#FF8A3D",
+          "#C21D0B"
+        ]
+      },
+      "useFor": "Lyric videos, AI / science essays, banknote-serious explainers, dark technical title sequences.",
+      "personality": "clean",
+      "cues": [
+        "engraving",
+        "white-line",
+        "scratchboard",
+        "dark",
+        "signal-orange",
+        "treatise",
+        "banknote",
+        "lyric"
+      ],
+      "source": "opus-motion-library"
+    },
+    "ink-wash-cartoon": {
+      "name": "Ink-and-wash cartoon",
+      "name_en": "Ink-and-wash cartoon",
+      "desc": "Flat 2D cartoon painted in watercolour washes with a boiling tapered ink outline on warm paper: never pure black or white, wet edges, pigment grain, on twos.",
+      "family": "paint",
+      "palette": {
+        "bg": "#F3EBDC",
+        "paper": "#F3EBDC",
+        "ink": "#2B2233",
+        "accent": "#D97757",
+        "accent2": "#E8AA38",
+        "swatches": [
+          "#F3EBDC",
+          "#2B2233",
+          "#FFF5E2",
+          "#D97757",
+          "#1F2550",
+          "#E27A92",
+          "#E8AA38",
+          "#3A9C98"
+        ]
+      },
+      "useFor": "Mascot acting, story shorts, warm character explainers, hand-made brand films.",
+      "personality": "clean",
+      "cues": [
+        "ink",
+        "wash",
+        "cartoon",
+        "watercolor",
+        "mascot",
+        "paper",
+        "boil",
+        "on-twos",
+        "hand-made"
+      ],
+      "source": "opus-motion-library"
+    },
+    "watercolor-storybook": {
+      "name": "Watercolour storybook theatre",
+      "name_en": "Watercolour storybook theatre",
+      "desc": "A hand-painted picture-book stage show: flat colour washes over paper stains and fibres, wobbly boiling outlines, warm edge vignette, chunky lettering.",
+      "family": "paint",
+      "palette": {
+        "bg": "#F3EBDC",
+        "paper": "#F3EBDC",
+        "ink": "#2B2233",
+        "accent": "#E8AA38",
+        "accent2": "#D97757",
+        "swatches": [
+          "#F3EBDC",
+          "#2B2233",
+          "#D97757",
+          "#1F2550",
+          "#2F3C7A",
+          "#E27A92",
+          "#E8AA38",
+          "#6E9F58",
+          "#8EC3E6"
+        ]
+      },
+      "useFor": "Musical story shorts, karaoke-style sing-alongs, playful narrated tales, warm seasonal campaigns.",
+      "personality": "clean",
+      "cues": [
+        "watercolor",
+        "storybook",
+        "theatre",
+        "karaoke",
+        "paper",
+        "painted",
+        "kids",
+        "musical"
+      ],
+      "source": "opus-motion-library"
+    },
+    "cinematic-3d": {
+      "name": "Cinematic golden hour",
+      "name_en": "Cinematic golden hour",
+      "desc": "Film-grade golden hour: warm low-sun highlights against teal-lifted shadows, an S-curve, warm haze and bloom around the light, 2.39:1 bars and fine grain — reads as a film, not a viewport.",
+      "family": "photo",
+      "palette": {
+        "bg": "#1B2233",
+        "paper": "#FFF1D6",
+        "ink": "#22252E",
+        "accent": "#E4572E",
+        "accent2": "#2F5D7C",
+        "swatches": [
+          "#1B2233",
+          "#F2A65A",
+          "#FFD8A8",
+          "#22252E",
+          "#2F5D7C",
+          "#FFF1D6",
+          "#E4572E"
+        ]
+      },
+      "useFor": "3D worlds and terrain fly-throughs, product films, trailers, epic openers.",
+      "personality": "clean",
+      "cues": [
+        "cinematic",
+        "3d",
+        "golden-hour",
+        "film",
+        "teal-orange",
+        "trailer",
+        "epic",
+        "letterbox",
+        "haze"
+      ],
+      "source": "opus-motion-library"
+    },
+    "flat-vector": {
+      "name": "Flat vector (night explainer)",
+      "name_en": "Flat vector (night explainer)",
+      "desc": "Kurzgesagt-like flat vector on a deep backdrop: shapes simplified into flat tonal bands with no outlines, saturated complementary colour, navy-lifted blacks and a soft radial vignette.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#1D1E3A",
+        "paper": "#2A2C52",
+        "ink": "#FFFFFF",
+        "accent": "#F7B32B",
+        "accent2": "#F25F5C",
+        "swatches": [
+          "#1D1E3A",
+          "#2A2C52",
+          "#F7B32B",
+          "#F25F5C",
+          "#3BCEAC",
+          "#FFFFFF"
+        ]
+      },
+      "useFor": "Science and big-idea explainers, space / biology / economics stories, YouTube essays.",
+      "personality": "clean",
+      "cues": [
+        "flat",
+        "vector",
+        "explainer",
+        "kurzgesagt",
+        "night",
+        "science",
+        "saturated",
+        "no-outline",
+        "youtube"
+      ],
+      "source": "opus-motion-library"
+    },
+    "light-editorial-minimal": {
+      "name": "Light editorial minimal",
+      "name_en": "Light editorial minimal",
+      "desc": "Warm off-white page, near-black components and a single orange accent: everything else drained to soft warm greys, lifted blacks, no texture — the UI-motion editorial look.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#EDEBE7",
+        "paper": "#F7F5F1",
+        "ink": "#111111",
+        "accent": "#FF4F00",
+        "accent2": "#6B6B6B",
+        "swatches": [
+          "#EDEBE7",
+          "#F7F5F1",
+          "#D6D3CC",
+          "#6B6B6B",
+          "#111111",
+          "#FF4F00"
+        ]
+      },
+      "useFor": "UI and product motion, SaaS feature reels, portfolio pieces, editorial type animation.",
+      "personality": "clean",
+      "cues": [
+        "editorial",
+        "minimal",
+        "light",
+        "ui-motion",
+        "dribbble",
+        "orange",
+        "off-white",
+        "clean",
+        "saas"
+      ],
+      "source": "opus-motion-library"
+    },
+    "apple-keynote": {
+      "name": "Premium keynote (light)",
+      "name_en": "Premium keynote (light)",
+      "desc": "Bright premium product stage: clean light-grey studio, gently lifted shadows and crisp contrast, true colours kept, a soft specular sweep gliding across and a hint of highlight bloom — no grain.",
+      "family": "photo",
+      "palette": {
+        "bg": "#F5F5F7",
+        "paper": "#FFFFFF",
+        "ink": "#1D1D1F",
+        "accent": "#2997FF",
+        "accent2": "#86868B",
+        "swatches": [
+          "#F5F5F7",
+          "#FFFFFF",
+          "#86868B",
+          "#1D1D1F",
+          "#2997FF",
+          "#A1C4FD",
+          "#C2E9FB"
+        ]
+      },
+      "useFor": "Product heroes, feature announcements, device showcases, premium landing loops (light theme).",
+      "personality": "clean",
+      "cues": [
+        "keynote",
+        "premium",
+        "product",
+        "apple-like",
+        "light",
+        "studio",
+        "clean",
+        "launch",
+        "sheen"
+      ],
+      "source": "opus-motion-library"
+    },
+    "line-art-mono": {
+      "name": "Monoline line art (线稿)",
+      "name_en": "Monoline line art (线稿)",
+      "desc": "Single-weight black contour lines on clean white: fills dissolved to near-white, every shape reduced to its outline, with sparse spot colour where the picture was most saturated.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#FAFAF7",
+        "paper": "#FAFAF7",
+        "ink": "#1A1A1A",
+        "accent": "#E4572E",
+        "accent2": "#2E86AB",
+        "swatches": [
+          "#FAFAF7",
+          "#1A1A1A",
+          "#E4572E",
+          "#2E86AB"
+        ]
+      },
+      "useFor": "Explainers (especially Chinese 线稿 requests), process diagrams, onboarding, light-humour doodles.",
+      "personality": "clean",
+      "cues": [
+        "line-art",
+        "monoline",
+        "线稿",
+        "outline",
+        "contour",
+        "minimal",
+        "explainer",
+        "doodle",
+        "white"
+      ],
+      "source": "opus-motion-library"
+    },
+    "anime-cel": {
+      "name": "Anime cel",
+      "name_en": "Anime cel",
+      "desc": "Modern TV-anime cel look: clean thin ink lines, colour flattened into two-to-three cel tones, bright saturated skies, soft bloom on highlights — crisp digital, no tape, no grain.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#8EC5FF",
+        "paper": "#FFFFFF",
+        "ink": "#2B2B2B",
+        "accent": "#FF6B6B",
+        "accent2": "#FFE0C7",
+        "swatches": [
+          "#8EC5FF",
+          "#FFFFFF",
+          "#2B2B2B",
+          "#FFE0C7",
+          "#E8B4A0",
+          "#FF6B6B"
+        ]
+      },
+      "useFor": "Character stories, dramatic reveals, music videos, anime-styled social shorts.",
+      "personality": "clean",
+      "cues": [
+        "anime",
+        "cel",
+        "cel-shaded",
+        "manga",
+        "toon",
+        "japanese",
+        "character",
+        "bloom",
+        "clean"
+      ],
+      "source": "opus-motion-library"
+    },
+    "clay-3d": {
+      "name": "Claymation",
+      "name_en": "Claymation",
+      "desc": "Matte plasticine: colours simplified into soft clay forms, warm muted grade, fingerprint-bumpy surface relief under a soft key light, stop-motion stepping on twos.",
+      "family": "craft",
+      "palette": {
+        "bg": "#E6DED3",
+        "paper": "#EDE6DC",
+        "ink": "#5A4A3C",
+        "accent": "#E48E6D",
+        "accent2": "#F9F4EE",
+        "swatches": [
+          "#E6DED3",
+          "#EDE6DC",
+          "#E48E6D",
+          "#F9F4EE",
+          "#CEC5B7",
+          "#8FB3A0",
+          "#F2C46D"
+        ]
+      },
+      "useFor": "Friendly brand mascots, kids’ content, cosy explainers, stop-motion style loops.",
+      "personality": "clean",
+      "cues": [
+        "clay",
+        "claymation",
+        "plasticine",
+        "stop-motion",
+        "3d",
+        "soft",
+        "matte",
+        "friendly",
+        "handmade"
+      ],
+      "source": "opus-motion-library"
+    },
+    "math-3b1b": {
+      "name": "Maths on slate",
+      "name_en": "Maths on slate",
+      "desc": "Maths-video language: dark slate ground, every colour snapped to white and a few meaning-colours (blue, yellow, green, red), a faint glow on the strokes — no decoration.",
+      "family": "technical",
+      "palette": {
+        "bg": "#1C1C1C",
+        "paper": "#1C1C1C",
+        "ink": "#FFFFFF",
+        "accent": "#58C4DD",
+        "accent2": "#FFFF00",
+        "swatches": [
+          "#1C1C1C",
+          "#FFFFFF",
+          "#58C4DD",
+          "#FFFF00",
+          "#83C167",
+          "#FC6255",
+          "#555555"
+        ]
+      },
+      "useFor": "Maths and physics explainers, function plots, equation walkthroughs, algorithm visualisations.",
+      "personality": "clean",
+      "cues": [
+        "math",
+        "maths",
+        "3b1b",
+        "manim",
+        "equation",
+        "plot",
+        "slate",
+        "education",
+        "physics"
+      ],
+      "source": "opus-motion-library"
+    },
+    "brainrot-chaos": {
+      "name": "Brainrot chaos",
+      "name_en": "Brainrot chaos",
+      "desc": "Maximal meme energy: crushed over-saturated colour, a hard S-curve, crunchy over-sharpening, RGB split fringes and noisy grain — loud but captions stay readable.",
+      "family": "screen",
+      "palette": {
+        "bg": "#000000",
+        "paper": "#FFFFFF",
+        "ink": "#FFFFFF",
+        "accent": "#FF00A8",
+        "accent2": "#00F0FF",
+        "swatches": [
+          "#FF00A8",
+          "#00F0FF",
+          "#FFE600",
+          "#000000",
+          "#FFFFFF"
+        ]
+      },
+      "useFor": "Meme edits, reaction shorts, gaming clips, deliberately chaotic social content.",
+      "personality": "clean",
+      "cues": [
+        "brainrot",
+        "meme",
+        "chaos",
+        "maximal",
+        "deep-fried",
+        "rgb-split",
+        "saturated",
+        "shorts",
+        "tiktok"
+      ],
+      "source": "opus-motion-library"
+    },
+    "vhs-home": {
+      "name": "VHS home video",
+      "name_en": "VHS home video",
+      "desc": "A neutral home-video tape: soft analogue picture with lifted blacks, per-line time-base jitter, a rolling tracking band, chroma bleeding right, tape snow and dropouts, fine scanlines and a PLAY counter.",
+      "family": "retro",
+      "palette": {
+        "bg": "#101010",
+        "paper": "#E6E6E6",
+        "ink": "#E6E6E6",
+        "accent": "#FF3355",
+        "accent2": "#33CCFF",
+        "swatches": [
+          "#101010",
+          "#3A3A3A",
+          "#E6E6E6",
+          "#FF3355",
+          "#33CCFF"
+        ]
+      },
+      "useFor": "Nostalgia, found footage, horror openers, retro birthday / family edits.",
+      "personality": "clean",
+      "cues": [
+        "vhs",
+        "tape",
+        "home-video",
+        "analogue",
+        "retro",
+        "90s",
+        "found-footage",
+        "osd",
+        "nostalgia"
+      ],
+      "source": "opus-motion-library"
+    },
+    "manga-bw": {
+      "name": "Manga black & white",
+      "name_en": "Manga black & white",
+      "desc": "Pure black-and-white manga page: tones turned into screentone dots, bold ink contours, white paper — no grey wash, no colour.",
+      "family": "print",
+      "palette": {
+        "bg": "#FFFDF5",
+        "paper": "#FFFDF5",
+        "ink": "#111111",
+        "accent": "#111111",
+        "swatches": [
+          "#FFFDF5",
+          "#111111",
+          "#7A7A7A"
+        ]
+      },
+      "useFor": "Manga-style stories, dramatic reveals, action beats, comic recaps in monochrome.",
+      "personality": "clean",
+      "cues": [
+        "manga",
+        "comic",
+        "screentone",
+        "black-and-white",
+        "ink",
+        "halftone",
+        "japanese",
+        "panel"
+      ],
+      "source": "opus-motion-library"
+    },
+    "voxel-studio": {
+      "name": "Voxel clay studio",
+      "name_en": "Voxel clay studio",
+      "desc": "Matte toy-product calm: warm off-white seamless studio, soft shadows, one saturated orange accent against warm greys, no texture, no outlines.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#F3F1ED",
+        "paper": "#E2DCD7",
+        "ink": "#040300",
+        "accent": "#F47A2D",
+        "accent2": "#904739",
+        "swatches": [
+          "#F3F1ED",
+          "#E2DCD7",
+          "#87837D",
+          "#040300",
+          "#F47A2D",
+          "#FF6623"
+        ]
+      },
+      "useFor": "Product loops, app icons in motion, build/assemble metaphors, quiet premium explainers.",
+      "personality": "clean",
+      "cues": [
+        "voxel",
+        "clay",
+        "studio",
+        "toy",
+        "minimal",
+        "orange",
+        "product",
+        "soft"
+      ],
+      "source": "opus-motion-library"
+    },
+    "swiss-reel": {
+      "name": "Swiss motion reel",
+      "name_en": "Swiss motion reel",
+      "desc": "Flat editorial colour fields: warm paper, red-orange, ultramarine and black chapters, light grain, soft vignette, no gradients inside shapes.",
+      "family": "graphic",
+      "palette": {
+        "bg": "#EDE9E1",
+        "paper": "#EDE9E1",
+        "ink": "#1E181E",
+        "accent": "#FC491D",
+        "accent2": "#1F32EE",
+        "swatches": [
+          "#EDE9E1",
+          "#1E181E",
+          "#FC491D",
+          "#1F32EE",
+          "#0C0B10",
+          "#D2FC36",
+          "#808078"
+        ]
+      },
+      "useFor": "Motion-design reels, principle explainers, type-led brand films, portfolio openers.",
+      "personality": "clean",
+      "cues": [
+        "swiss",
+        "editorial",
+        "flat",
+        "grotesk",
+        "reel",
+        "minimal",
+        "poster",
+        "typographic"
+      ],
+      "source": "opus-motion-library"
+    },
+    "ink-hatch-3d": {
+      "name": "Ink-hatched clay",
+      "name_en": "Ink-hatched clay",
+      "desc": "White clay world drawn with pen: ink contours and 45° hatching in the shade, warm paper greys, and only the saturated \"energy\" colours kept glowing.",
+      "family": "drawing",
+      "palette": {
+        "bg": "#EFEDE9",
+        "paper": "#EFEDE9",
+        "ink": "#1E1E1E",
+        "accent": "#7E2AE4",
+        "accent2": "#2A79EB",
+        "swatches": [
+          "#EFEDE9",
+          "#F4F2EE",
+          "#BEB3A2",
+          "#1E1E1E",
+          "#7E2AE4",
+          "#2A79EB",
+          "#F2741E",
+          "#2DFF71"
+        ]
+      },
+      "useFor": "Science textbooks in motion, physics explainers, pop-up-book lessons, museum interactives.",
+      "personality": "clean",
+      "cues": [
+        "ink",
+        "hatching",
+        "clay",
+        "textbook",
+        "education",
+        "science",
+        "pen",
+        "npr"
+      ],
+      "source": "opus-motion-library"
+    },
+    "storybook-gouache": {
+      "name": "Storybook gouache",
+      "name_en": "Storybook gouache",
+      "desc": "Cosy hand-painted gouache: terracotta and cream grade with lifted warm blacks, thin warm-brown ink lines, fine paper grain, sunbeam bloom.",
+      "family": "paint",
+      "palette": {
+        "bg": "#F0DBB0",
+        "paper": "#FDEBCB",
+        "ink": "#3E2A20",
+        "accent": "#D2714E",
+        "accent2": "#F2C66E",
+        "swatches": [
+          "#F0DBB0",
+          "#FDEBCB",
+          "#DE9D61",
+          "#3E2A20",
+          "#B88B5D",
+          "#D2714E",
+          "#F2C66E",
+          "#7AA8C9"
+        ]
+      },
+      "useFor": "Cosy product promos, children’s brands, autumn / holiday campaigns, \"made with love\" stories.",
+      "personality": "clean",
+      "cues": [
+        "gouache",
+        "storybook",
+        "cosy",
+        "warm",
+        "terracotta",
+        "painted",
+        "ghibli-like",
+        "illustration"
+      ],
+      "source": "opus-motion-library"
+    },
+    "paper-diorama": {
+      "name": "Paper-cut diorama",
+      "name_en": "Paper-cut diorama",
+      "desc": "Layered cut paper: flattened colour planes with pale torn rims, paper fibre in every layer, deep shadows between planes, one warm guide light.",
+      "family": "craft",
+      "palette": {
+        "bg": "#182C4B",
+        "paper": "#EDE4D6",
+        "ink": "#2A1F15",
+        "accent": "#C95523",
+        "accent2": "#D6B65D",
+        "swatches": [
+          "#182C4B",
+          "#3C4E8C",
+          "#5E65A8",
+          "#2D4C36",
+          "#AEA54C",
+          "#C95523",
+          "#D6B65D",
+          "#F2E9E4"
+        ]
+      },
+      "useFor": "Storybook journeys, heritage and craft brands, calm narrated shorts, title sequences.",
+      "personality": "clean",
+      "cues": [
+        "paper",
+        "papercut",
+        "diorama",
+        "layers",
+        "craft",
+        "storybook",
+        "handmade",
+        "night",
+        "paper-collage",
+        "cut-out"
+      ],
+      "source": "opus-motion-library"
+    },
+    "klein-terminal": {
+      "name": "Klein-blue terminal",
+      "name_en": "Klein-blue terminal",
+      "desc": "Saturated International-Klein-blue screen: everything mapped to blue with white line work, scanlines, red-left / cyan-right RGB split and grain — medieval meets machine.",
+      "family": "screen",
+      "palette": {
+        "bg": "#1206A5",
+        "paper": "#FFFFFF",
+        "ink": "#FFF6E2",
+        "accent": "#E0503C",
+        "accent2": "#615DC9",
+        "swatches": [
+          "#1206A5",
+          "#615DC9",
+          "#FFFFFF",
+          "#FFF6E2",
+          "#E0503C",
+          "#030309"
+        ]
+      },
+      "useFor": "AI-agent demos, strategy game promos, hacker-gothic brand moments, bold tech teasers.",
+      "personality": "clean",
+      "cues": [
+        "klein-blue",
+        "terminal",
+        "gothic",
+        "blackletter",
+        "glitch",
+        "ai",
+        "blue",
+        "bold"
+      ],
+      "source": "opus-motion-library"
+    },
+    "arcade-halftone": {
+      "name": "Spider-Verse arcade",
+      "name_en": "Spider-Verse arcade",
+      "desc": "Comic-printed 3D: punchy saturated colour, halftone dots grown into the shadows, spray-grain speckle, magenta/cyan chromatic rims, neon bloom.",
+      "family": "print",
+      "palette": {
+        "bg": "#100929",
+        "paper": "#FCFAE3",
+        "ink": "#03011B",
+        "accent": "#E66154",
+        "accent2": "#3598F6",
+        "swatches": [
+          "#100929",
+          "#1C2154",
+          "#03011B",
+          "#FCFAE3",
+          "#E66154",
+          "#3598F6",
+          "#E54B8E",
+          "#55C5F9",
+          "#F8CB61"
+        ]
+      },
+      "useFor": "Versus / battle promos, game launches, hype shorts, music drops, sports face-offs.",
+      "personality": "clean",
+      "cues": [
+        "comic",
+        "arcade",
+        "halftone",
+        "spider-verse",
+        "versus",
+        "neon",
+        "print",
+        "fight"
+      ],
+      "source": "opus-motion-library"
+    },
+    "iso-workbench": {
+      "name": "Isometric drafting workbench",
+      "name_en": "Isometric drafting workbench",
+      "desc": "Technical illustration on warm drafting paper: flat cel tones, dark navy outlines, soft warm-brown shadows, faint ±30° iso grid, one teal accent.",
+      "family": "technical",
+      "palette": {
+        "bg": "#F4ECDB",
+        "paper": "#F7F2E4",
+        "ink": "#1C253B",
+        "accent": "#21A69A",
+        "accent2": "#E5A24C",
+        "swatches": [
+          "#F4ECDB",
+          "#E8DCC6",
+          "#1C253B",
+          "#21A69A",
+          "#E5A24C",
+          "#4D588A",
+          "#D63A33",
+          "#B8A58C"
+        ]
+      },
+      "useFor": "Hardware tutorials, maker / electronics content, assembly guides, product documentation in motion.",
+      "personality": "clean",
+      "cues": [
+        "isometric",
+        "drafting",
+        "technical",
+        "tutorial",
+        "hardware",
+        "outline",
+        "teal",
+        "maker"
+      ],
+      "source": "opus-motion-library"
     }
   }
 }
