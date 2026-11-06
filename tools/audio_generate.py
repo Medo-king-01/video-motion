@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """audio.py — صوت «شرح بالموشن»: خلفية صوتية مركّبة على الإيقاع + مؤثرات + الصوت + معايرة ‎-14 LUFS + دمج بالفيديو.
 
   python3 audio.py <proj>            → renders/final.mp4        (صوت + خلفية + مؤثرات)
@@ -19,7 +18,14 @@ project.json → music: { key:'A', scale:'minor'|'major'|'dorian', progression:[
    المرساة: riser و reverse-whoosh ينتهون عند at · whoosh و swoosh-pass ذروتهم عند at · الباقي يبدأ عند at
    لو sfx.json مو موجود: swoosh-pass تلقائي عند كل انتقال مشهد.
 """
-import sys, os, json, math, wave, re, argparse, subprocess
+import argparse
+import json
+import math
+import os
+import re
+import subprocess
+import wave
+
 import numpy as np
 from scipy import signal
 
@@ -56,7 +62,7 @@ def read_wav_ch(path, ch):
 
 
 def run(cmd, capture=False):
-    r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    r = subprocess.run(cmd, capture_output=True)
     if r.returncode != 0: raise RuntimeError(' '.join(cmd) + '\n' + r.stderr.decode('utf-8', 'replace')[-1500:])
     return (r.stdout + r.stderr).decode('utf-8', 'replace')
 
@@ -314,13 +320,13 @@ def build_bed(tl, music, dur, seed=5):
         notes = [deg(ch, 3), deg(ch + 2, 3), deg(ch + 4, 3), deg(ch + 7, 3)]
         # pad
         n = int((blen + 1.2) * SR); tt = np.arange(n) / SR; pad = np.zeros((n, 2))
-        for q, m in enumerate(notes):
+        for _q, m in enumerate(notes):
             f = mfreq(m)
             for chn, det in ((0, -1), (1, 1)):
                 for dv in (-7, 0, 7):
                     pad[:, chn] += polyblep_saw(f * 2 ** ((dv + det * 3) / 1200), n, r.rand()) * (0.6 if dv else 0.8)
         cut = {'intro': 900, 'build': 1400, 'drop': 2600, 'break': 1600, 'outro': 1000}.get(sec, 1800)
-        if sec == 'build': pad = sweep(pad, 'lowpass', lambda x: 900 + 3200 * min(1, x / blen))
+        if sec == 'build': pad = sweep(pad, 'lowpass', lambda x, blen=blen: 900 + 3200 * min(1, x / blen))
         else: pad = filt(pad, 'lowpass', cut)
         eP = np.minimum(1, tt / 0.25) * np.where(tt > blen, np.exp(-(tt - blen) / 0.35), 1)
         put('pad', pad * eP[:, None] * (0.05 if sec != 'break' else 0.09), t0)
@@ -475,7 +481,7 @@ def limiter(x, thr, look=0.005, rel=0.08):
 def loudnorm(src, dst, I=-14.0, TP=-1.5, LRA=11):
     measure1 = lambda f: json.loads((lambda o: o[o.rindex('{'):o.rindex('}') + 1])(run(['ffmpeg', '-hide_banner', '-nostats', '-i', f, '-af', f'loudnorm=I={I}:TP={TP}:LRA={LRA}:print_format=json', '-f', 'null', '-'])))
     js = measure1(src); orig = src; margin = 0.8
-    for attempt in range(4):                                           # peaks would pass the ceiling → limit first so loudnorm stays LINEAR
+    for _attempt in range(4):                                           # peaks would pass the ceiling → limit first so loudnorm stays LINEAR
         gain = I - float(js['input_i'])
         if float(js['input_tp']) + gain <= TP - 0.3: break
         x = np.stack([read_wav_ch(orig, 0), read_wav_ch(orig, 1)], axis=1)

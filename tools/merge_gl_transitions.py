@@ -3,23 +3,24 @@
 دمج gl-transitions في الاستيديو.
 189 انتقال GLSL جاهز للاستخدام.
 """
+import glob
 import json
 import os
-import glob
+import shutil
 from pathlib import Path
 
 GL_DIR = Path('/tmp/gl-transitions')
 
 # تحميل استيديو
 STUDIO_PATH = Path('/home/user/video-motion/assets/techniques.json')
-with open(STUDIO_PATH, 'r', encoding='utf-8') as f:
+with open(STUDIO_PATH, encoding='utf-8') as f:
     studio_data = json.load(f)
 
 # استخراج كل انتقالات GLSL
 transitions = []
 for f in sorted(glob.glob(str(GL_DIR / 'transitions/*.glsl'))):
     name = os.path.basename(f)[:-5]
-    with open(f, 'r') as fh:
+    with open(f) as fh:
         glsl = fh.read()
     
     # استخراج uniform params
@@ -84,7 +85,7 @@ print(f'  ✅ تم إضافة {new_count} انتقال')
 current_order = studio_data['format']['reel']['order']
 if 'gl-transition' not in current_order:
     current_order.append('gl-transition')
-    print(f'  📂 فئة جديدة: gl-transition')
+    print('  📂 فئة جديدة: gl-transition')
 
 # حفظ
 with open(STUDIO_PATH, 'w', encoding='utf-8') as f:
@@ -94,13 +95,12 @@ with open(STUDIO_PATH, 'w', encoding='utf-8') as f:
 DEST_DIR = Path('/home/user/video-motion/assets/gl-transitions')
 DEST_DIR.mkdir(parents=True, exist_ok=True)
 
-import shutil
 for f in glob.glob(str(GL_DIR / 'transitions/*.glsl')):
     shutil.copy2(f, DEST_DIR)
 
-print(f'  💾 تم نسخ ملفات GLSL إلى assets/gl-transitions/')
+print('  💾 تم نسخ ملفات GLSL إلى assets/gl-transitions/')
 
 # الإحصائيات النهائية
-print(f'\n📊 الإحصائيات النهائية:')
+print('\n📊 الإحصائيات النهائية:')
 print(f'   التقنيات: {len(studio_data["techniques"])}')
 print(f'   الفئات: {len(set(t["category"] for t in studio_data["techniques"]))}')

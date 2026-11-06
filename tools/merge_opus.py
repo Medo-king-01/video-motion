@@ -6,19 +6,19 @@
 - 148 ستايل بصري
 """
 import json
-from pathlib import Path
 from collections import Counter
+from pathlib import Path
 
 # تحميل ملفات Opus
 OPUS_DIR = Path('/tmp/opus-motion-library')
-with open(OPUS_DIR / 'catalog.json', 'r', encoding='utf-8') as f:
+with open(OPUS_DIR / 'catalog.json', encoding='utf-8') as f:
     catalog = json.load(f)
-with open(OPUS_DIR / 'styles.json', 'r', encoding='utf-8') as f:
+with open(OPUS_DIR / 'styles.json', encoding='utf-8') as f:
     opus_styles = json.load(f)
 
 # تحميل استيديو
 STUDIO_PATH = Path('/home/user/video-motion/assets/techniques.json')
-with open(STUDIO_PATH, 'r', encoding='utf-8') as f:
+with open(STUDIO_PATH, encoding='utf-8') as f:
     studio_data = json.load(f)
 
 # خريطة primitive
@@ -105,7 +105,7 @@ print(f'  ✅ تم تحويل {len(new_techniques)} حركة')
 
 # إحصائيات
 cats = Counter(t['category'] for t in new_techniques)
-print(f'\n📊 حسب الفئة:')
+print('\n📊 حسب الفئة:')
 for cat, count in cats.most_common():
     print(f'  {cat}: {count}')
 
@@ -120,7 +120,7 @@ print(f'\n📂 فئات جديدة: {new_cats}')
 
 # دمج ستايلات Opus (148)
 STYLES_PATH = Path('/home/user/video-motion/assets/styles/styles.json')
-with open(STYLES_PATH, 'r', encoding='utf-8') as f:
+with open(STYLES_PATH, encoding='utf-8') as f:
     styles_data = json.load(f)
 
 print(f'\n🎨 دمج {len(opus_styles)} ستايل من Opus...')
@@ -156,7 +156,7 @@ with open(STYLES_PATH, 'w', encoding='utf-8') as f:
     json.dump(styles_data, f, indent=2, ensure_ascii=False)
 
 # الإحصائيات النهائية
-print(f'\n📊 الإحصائيات النهائية:')
+print('\n📊 الإحصائيات النهائية:')
 print(f'   التقنيات: {len(studio_data["techniques"])}')
 print(f'   الستايلات: {len(styles_data["styles"])}')
 print(f'   الفئات: {len(cats)}')
