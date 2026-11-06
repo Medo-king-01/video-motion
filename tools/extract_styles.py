@@ -1,0 +1,537 @@
+#!/usr/bin/env python3
+"""
+استخراج نظام الستايلات من Majed Video وتحويلها إلى format video-motion.
+الستايلات = اللغة البصرية للفيديو كله (باليت، خطوط، سطح، شخصية).
+"""
+import json
+from pathlib import Path
+
+# 17 ستايل من Majed Video (styles.js)
+STYLES = {
+    "keynote": {
+        "name": "كينوت",
+        "name_en": "Keynote",
+        "desc": "فراغ كبير، كلمة وحدة تحمل المشهد، حركة قليلة مضبوطة",
+        "families": ["calm", "onetake"],
+        "personality": "clean",
+        "palette": {
+            "bg": "#F5F5F7",
+            "ink": "#1D1D1F",
+            "acc": "#D97757",
+            "mut": "#6E6E73",
+            "hi": "#F6C7A8"
+        },
+        "fonts": {
+            "display": "IBM Plex Sans Arabic",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0, "vignette": 0.10},
+        "surface": "clean",
+        "card": "soft",
+        "label": "clean",
+        "person": "plain",
+        "needs_cut": True,
+        "cues": ["reveal", "number", "launch", "calm"],
+        "blend": ["explainer", "devCard", "studio3D"]
+    },
+    "glassUI": {
+        "name": "زجاج الواجهة",
+        "name_en": "Glass UI",
+        "desc": "إشعارات وكروت وويدجت بمادة زجاجية فوق الفيديو",
+        "families": ["editorial", "punch"],
+        "personality": "organic",
+        "palette": {
+            "bg": "#0E1116",
+            "ink": "#FFFFFF",
+            "acc": "#D97757",
+            "mut": "rgba(255,255,255,.72)",
+            "hi": "#FFD9C7"
+        },
+        "fonts": {
+            "display": "Readex Pro",
+            "body": "Readex Pro",
+            "num": "Inter"
+        },
+        "post": {"grain": 0, "vignette": 0.12},
+        "surface": "video",
+        "card": "glass",
+        "label": "notif",
+        "person": "plain",
+        "needs_cut": False,
+        "cues": ["tech", "app", "list", "chat"],
+        "blend": ["keynote", "terminal"]
+    },
+    "explainer": {
+        "name": "شرح صحفي",
+        "name_en": "Explainer",
+        "desc": "ورق ودبابيس وقلم تحديد وخيط أحمر — المعلومة تطلع موثّقة",
+        "lock_acc": True,
+        "families": ["editorial"],
+        "personality": "organic",
+        "palette": {
+            "bg": "#EDE5D3",
+            "ink": "#1B1A17",
+            "acc": "#FFE14D",
+            "mut": "#6B6255",
+            "hi": "#C8382B",
+            "paper": "#FBF7EE"
+        },
+        "fonts": {
+            "display": "Aref Ruqaa",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter",
+            "hand": "Aref Ruqaa"
+        },
+        "post": {"grain": 0.05, "vignette": 0.18},
+        "surface": "paper",
+        "card": "clipping",
+        "label": "highlight",
+        "person": "plain",
+        "needs_cut": True,
+        "cues": ["news", "number", "contrast", "map", "source"],
+        "blend": ["keynote", "paperCut", "archive"]
+    },
+    "paperCut": {
+        "name": "ورق مقصوص",
+        "name_en": "Paper Cut",
+        "desc": "كل شي قصاصة ورق بحد أبيض وظل قاسي — ستوب موشن",
+        "families": ["punch", "editorial"],
+        "personality": "snappy",
+        "fps": 12,
+        "palette": {
+            "bg": "#E7D7B5",
+            "ink": "#1B1A17",
+            "acc": "#E2482B",
+            "hi": "#F2C230",
+            "mut": "#5E5240",
+            "paper": "#FBF7EE"
+        },
+        "fonts": {
+            "display": "Lalezar",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0.04, "vignette": 0.08},
+        "surface": "kraft",
+        "card": "torn",
+        "label": "slap",
+        "person": "sticker",
+        "needs_cut": True,
+        "cues": ["hit", "list", "fun", "emphasis"],
+        "blend": ["explainer", "archive", "doodle"]
+    },
+    "archive": {
+        "name": "وثائقي",
+        "name_en": "Archive",
+        "desc": "حبيبات فلم، ملف مانيلا، آلة كاتبة، ختم أحمر، وكن بيرنز بطيء",
+        "lock_acc": True,
+        "families": ["calm", "editorial"],
+        "personality": "calm",
+        "palette": {
+            "bg": "#2A231A",
+            "ink": "#231A0C",
+            "acc": "#B3261E",
+            "mut": "#5A4320",
+            "hi": "#D9C59A",
+            "paper": "#D9C59A"
+        },
+        "fonts": {
+            "display": "Aref Ruqaa",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0.09, "vignette": 0.45},
+        "surface": "film",
+        "vfx": "film",
+        "card": "manila",
+        "label": "stamp",
+        "person": "warm",
+        "needs_cut": False,
+        "cues": ["story", "history", "reveal", "secret", "date"],
+        "blend": ["explainer", "paperCut", "newsprint"]
+    },
+    "editorial": {
+        "name": "مجلة",
+        "name_en": "Editorial",
+        "desc": "غلاف مجلة: عنوان ضخم ورا الراس، خطوط رفيعة، أرقام صغيرة بالزوايا",
+        "families": ["editorial", "calm"],
+        "personality": "clean",
+        "palette": {
+            "bg": "#F1ECE3",
+            "ink": "#141414",
+            "acc": "#C8382B",
+            "mut": "#6F6A62"
+        },
+        "fonts": {
+            "display": "Aref Ruqaa",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0.02, "vignette": 0},
+        "surface": "solid",
+        "card": "rule",
+        "label": "masthead",
+        "person": "plain",
+        "needs_cut": True,
+        "cues": ["quote", "profile", "story", "title"],
+        "blend": ["swiss", "keynote"]
+    },
+    "swiss": {
+        "name": "سويسري",
+        "name_en": "Swiss",
+        "desc": "شبكة صارمة، أحمر وأسود وأبيض، أشرطة وأرقام ضخمة، بلا زخرفة",
+        "lock_acc": True,
+        "families": ["punch", "editorial"],
+        "personality": "clean",
+        "palette": {
+            "bg": "#FFFFFF",
+            "ink": "#111111",
+            "acc": "#E30613",
+            "mut": "#777777"
+        },
+        "fonts": {
+            "display": "Noto Kufi Arabic",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0, "vignette": 0},
+        "surface": "grid",
+        "card": "block",
+        "label": "bar",
+        "person": "plain",
+        "needs_cut": True,
+        "cues": ["number", "list", "steps", "data"],
+        "blend": ["editorial", "brutal"]
+    },
+    "doodle": {
+        "name": "رسم يد",
+        "name_en": "Doodle",
+        "desc": "أسهم ودوائر بقلم تنرسم وهي تلحق الكلام، والخط «يغلي» شوي",
+        "families": ["calm", "editorial"],
+        "personality": "organic",
+        "palette": {
+            "bg": "#FBFAF6",
+            "ink": "#1B1A17",
+            "acc": "#D97757",
+            "mut": "#8A847A"
+        },
+        "fonts": {
+            "display": "Aref Ruqaa",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter",
+            "hand": "Aref Ruqaa"
+        },
+        "post": {"grain": 0.02, "vignette": 0},
+        "surface": "video",
+        "card": "sketch",
+        "label": "circled",
+        "person": "plain",
+        "needs_cut": False,
+        "cues": ["emphasis", "explain", "arrow", "tip"],
+        "blend": ["paperCut", "explainer"]
+    },
+    "terminal": {
+        "name": "تيرمنال",
+        "name_en": "Terminal",
+        "desc": "نافذة كود داكنة، مؤشر يومض، أوامر تنكتب ونتايج تطلع",
+        "lock_acc": True,
+        "families": ["punch", "editorial"],
+        "personality": "mechanical",
+        "palette": {
+            "bg": "#0D1117",
+            "ink": "#E6EDF3",
+            "acc": "#3FB950",
+            "mut": "#7D8590",
+            "hi": "#D2A8FF",
+            "warn": "#F0883E"
+        },
+        "fonts": {
+            "display": "IBM Plex Sans Arabic",
+            "body": "IBM Plex Sans Arabic",
+            "num": "monospace",
+            "mono": "monospace"
+        },
+        "post": {"grain": 0, "vignette": 0.15},
+        "surface": "video",
+        "card": "window",
+        "label": "prompt",
+        "person": "plain",
+        "needs_cut": False,
+        "cues": ["tech", "code", "ai", "tool"],
+        "blend": ["glassUI", "devCard"]
+    },
+    "riso": {
+        "name": "ريزو",
+        "name_en": "Riso",
+        "desc": "حبرين فلورسنت متراكبين مزحزحين، ونقاط هافتون — طباعة يدوية",
+        "lock_acc": True,
+        "families": ["punch"],
+        "personality": "snappy",
+        "palette": {
+            "bg": "#F4F0E8",
+            "ink": "#2B2B6B",
+            "acc": "#FF48B0",
+            "hi": "#00A9B5",
+            "mut": "#6E6A8C"
+        },
+        "fonts": {
+            "display": "Lalezar",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0.05, "vignette": 0},
+        "surface": "riso",
+        "card": "misreg",
+        "label": "misreg",
+        "person": "halftone",
+        "needs_cut": True,
+        "cues": ["hook", "title", "fun"],
+        "blend": ["paperCut", "newsprint"]
+    },
+    "newsprint": {
+        "name": "جريدة",
+        "name_en": "Newsprint",
+        "desc": "ورق جرايد، عنوان عريض، أعمدة رفيعة، وأحمر للعاجل بس",
+        "lock_acc": True,
+        "families": ["editorial"],
+        "personality": "clean",
+        "palette": {
+            "bg": "#E9E5DC",
+            "ink": "#161513",
+            "acc": "#C8102E",
+            "mut": "#5C5850"
+        },
+        "fonts": {
+            "display": "Aref Ruqaa",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0.06, "vignette": 0.15},
+        "surface": "newspaper",
+        "card": "column",
+        "label": "headline",
+        "person": "plain",
+        "needs_cut": True,
+        "cues": ["news", "breaking", "source"],
+        "blend": ["archive", "explainer"]
+    },
+    "blueprint": {
+        "name": "بلوبرنت",
+        "name_en": "Blueprint",
+        "desc": "أزرق وشبكة قياس، خطوط تنرسم وأسهم أبعاد وcallouts تأشر",
+        "lock_acc": True,
+        "families": ["editorial", "calm"],
+        "personality": "calm",
+        "palette": {
+            "bg": "#1E4C8F",
+            "ink": "#FFFFFF",
+            "acc": "#FF9F43",
+            "mut": "rgba(200,225,255,.75)",
+            "hi": "#9FD3FF"
+        },
+        "fonts": {
+            "display": "Noto Kufi Arabic",
+            "body": "Readex Pro",
+            "num": "Inter"
+        },
+        "post": {"grain": 0.02, "vignette": 0.2},
+        "surface": "blueprint",
+        "card": "outline",
+        "label": "callout",
+        "person": "plain",
+        "needs_cut": True,
+        "cues": ["how", "explain", "parts", "tech"],
+        "blend": ["terminal", "swiss"]
+    },
+    "vhs": {
+        "name": "VHS",
+        "name_en": "VHS",
+        "desc": "شاشة قديمة: خطوط مسح ونزيف ألوان وOSD — لحظات «زمان» بس",
+        "lock_acc": True,
+        "moment": True,
+        "families": ["punch"],
+        "personality": "mechanical",
+        "palette": {
+            "bg": "#0A0A12",
+            "ink": "#FFFFFF",
+            "acc": "#33FF66",
+            "mut": "#BBBBBB",
+            "hi": "#FF3366"
+        },
+        "fonts": {
+            "display": "Noto Kufi Arabic",
+            "body": "Noto Kufi Arabic",
+            "num": "monospace",
+            "mono": "monospace"
+        },
+        "post": {"grain": 0.07, "vignette": 0.35},
+        "surface": "video",
+        "vfx": "vhs",
+        "card": "osd",
+        "label": "osd",
+        "person": "plain",
+        "needs_cut": False,
+        "cues": ["flashback", "old", "retro"],
+        "blend": ["archive"]
+    },
+    "brutal": {
+        "name": "بروتالي",
+        "name_en": "Brutal",
+        "desc": "ألوان صارخة، حدود سودة عريضة وظل قاسي، ضربة واهتزاز — للهوك والطلب بس",
+        "lock_acc": True,
+        "moment": True,
+        "families": ["punch"],
+        "personality": "snappy",
+        "palette": {
+            "bg": "#FFE600",
+            "ink": "#000000",
+            "acc": "#FF3B00",
+            "mut": "#333333",
+            "paper": "#FFFFFF"
+        },
+        "fonts": {
+            "display": "Lalezar",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0, "vignette": 0},
+        "surface": "video",
+        "card": "brutal",
+        "label": "boxed",
+        "person": "plain",
+        "needs_cut": False,
+        "cues": ["hook", "cta", "hit"],
+        "blend": ["swiss", "stickerToon"]
+    },
+    "studio3D": {
+        "name": "ستوديو منتج",
+        "name_en": "Studio 3D",
+        "desc": "خلفية كريمية بإضاءة ناعمة، اسم بارز كأنه مجسّم مطفي، وتاق أسود صغير",
+        "families": ["calm", "onetake"],
+        "personality": "calm",
+        "palette": {
+            "bg": "#EFE7DA",
+            "ink": "#1E1D1B",
+            "acc": "#D97757",
+            "mut": "#8A8276",
+            "hi": "#FFFFFF"
+        },
+        "fonts": {
+            "display": "Cairo",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0.02, "vignette": 0.22},
+        "surface": "studio",
+        "card": "soft",
+        "label": "extrude",
+        "person": "plain",
+        "needs_cut": True,
+        "cues": ["launch", "tool", "free", "name"],
+        "blend": ["keynote", "devCard"]
+    },
+    "stickerToon": {
+        "name": "ستيكر كرتوني",
+        "name_en": "Sticker Toon",
+        "desc": "باستيل وحدود سودة ثابتة السماكة، فقاعات وماسكوت ينط — مرح",
+        "families": ["punch"],
+        "personality": "bouncy",
+        "fps": 12,
+        "palette": {
+            "bg": "#F7C6D9",
+            "ink": "#111111",
+            "acc": "#FF7A1A",
+            "mut": "#5A4A55",
+            "paper": "#FFFDF7",
+            "hi": "#CFE6FF"
+        },
+        "fonts": {
+            "display": "Lalezar",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter"
+        },
+        "post": {"grain": 0, "vignette": 0},
+        "surface": "pastel",
+        "card": "toon",
+        "label": "pill",
+        "person": "outline",
+        "needs_cut": True,
+        "cues": ["fun", "tool", "explain", "kids"],
+        "blend": ["doodle", "paperCut"]
+    },
+    "devCard": {
+        "name": "كرت أداة",
+        "name_en": "Dev Card",
+        "desc": "كريمي بشبكة وأشعة، كرت أبيض، breadcrumb، كلمة أكسنت بالرقعة وchips",
+        "families": ["calm", "editorial"],
+        "personality": "clean",
+        "palette": {
+            "bg": "#F4EFE6",
+            "ink": "#1F1D1A",
+            "acc": "#C8643B",
+            "mut": "#8A847A",
+            "paper": "#FFFFFF",
+            "line": "#E7E0D4"
+        },
+        "fonts": {
+            "display": "IBM Plex Sans Arabic",
+            "body": "IBM Plex Sans Arabic",
+            "num": "Inter",
+            "accent": "Aref Ruqaa",
+            "mono": "monospace"
+        },
+        "post": {"grain": 0, "vignette": 0.06},
+        "surface": "devgrid",
+        "card": "white",
+        "label": "chip",
+        "person": "plain",
+        "needs_cut": True,
+        "cues": ["tool", "skill", "free", "launch", "fact"],
+        "blend": ["keynote", "terminal", "studio3D"]
+    }
+}
+
+# العائلات (families)
+FAMILIES = {
+    "calm": "هادي — جمل تأمل ونصايح",
+    "punch": "طاقة — هوك قوي، أرقام، مقارنات",
+    "onetake": "ونشوت — كاميرا مستمرة بلا قص",
+    "editorial": "تحريري — شرح وقوائم ومعلومة"
+}
+
+# الشخصيات (personalities)
+PERSONALITIES = {
+    "calm": "هادئ — sineInOut",
+    "clean": "نظيف — expoOut",
+    "snappy": "حاد — backOut",
+    "bouncy": "نطاط — backOut",
+    "mechanical": "آلي — stepped",
+    "organic": "عضوي — softBack",
+    "soft": "ناعم — cubicOut"
+}
+
+def main():
+    output = {
+        "version": "1.0",
+        "source": "Majed Video (video-ad-editor)",
+        "note": "17 visual styles adapted from Majed Video. Each style defines the visual language for a video: palette, fonts, surface, personality.",
+        "families": FAMILIES,
+        "personalities": PERSONALITIES,
+        "styles": STYLES
+    }
+    
+    out_path = Path('/home/user/video-motion/assets/styles/styles.json')
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump(output, f, indent=2, ensure_ascii=False)
+    
+    print(f"✅ تم حفظ {len(STYLES)} ستايل في {out_path}")
+    print(f"\n📊 الإحصائيات:")
+    print(f"   ستايلات: {len(STYLES)}")
+    print(f"   عائلات: {len(FAMILIES)}")
+    print(f"   شخصيات: {len(PERSONALITIES)}")
+    
+    return 0
+
+if __name__ == '__main__':
+    main()
