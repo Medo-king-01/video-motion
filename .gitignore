@@ -31,3 +31,4 @@ out/
 .env.*
 .env-*
 !.env.example
+studio-venv/
