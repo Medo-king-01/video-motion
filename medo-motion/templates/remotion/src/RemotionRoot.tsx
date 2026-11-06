@@ -122,6 +122,10 @@ export const MotionReel: React.FC<ReelProps> = ({audioFile = null, previewOnly =
       ? USED_FONTS.map((f) => document.fonts.load(`${f.weight} 32px "${f.family}"`))
       : [document.fonts.load('800 32px Cairo')];
     Promise.all(jobs)
+      // FontFaceSet.load() resolves when the requested faces load, while .ready also
+      // waits for the browser's font-driven layout pass. This prevents the first
+      // still after a seek from capturing fallback-font metrics in a persistent browser.
+      .then(() => document.fonts.ready)
       .then(() => continueRender(fontHandle))
       .catch((error) => cancelRender(error));
   }, [fontHandle]);
