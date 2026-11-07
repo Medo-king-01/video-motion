@@ -289,8 +289,9 @@ document every factual part with a `locator` source as
 
 For unsupported hardware models, use `custom` geometry
 only when the available primitives (slab, slab_stack, ticks,
-wire, ring, coil) can represent them honestly — otherwise
-simplify the diagram or change the visual approach.
+poly3d, cylinder, ring, wire, coil) can represent them
+honestly — otherwise simplify the diagram or change the
+visual approach.
 
 ### 5.2 Slide Wall
 

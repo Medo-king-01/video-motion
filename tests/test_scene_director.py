@@ -81,6 +81,38 @@ def test_machine_archetypes_match_both_engines():
         assert f"- {name}" in text, f"machine archetype {name} missing from the skill"
 
 
+def test_custom_primitives_match_all_three_engines():
+    """The `custom` primitive list is a draw-switch contract, not prose.
+
+    A review round caught the skill saying `coil` while the report said
+    `cylinder` — both engines accept a strict union. Pin the skill and the
+    report to the actual dispatch in the three machine-kit sources.
+    """
+    expected = {"slab", "slab_stack", "ticks", "poly3d", "cylinder", "ring", "wire", "coil"}
+    js_sets = []
+    for rel in ("templates/remotion/src/lib/machine-kit.js",
+                "templates/render/lib/machine-kit.js"):
+        src = (SKILL / rel).read_text(encoding="utf-8")
+        js_sets.append(set(re.findall(r"primitive === '([a-z0-9_]+)'", src)))
+    py = (ENGINE_P / "machine_kit.py").read_text(encoding="utf-8")
+    py_prims = set(re.findall(r'prim == "([a-z0-9_]+)"', py))
+    for group in re.findall(r"prim in \(([^)]*)\)", py):
+        py_prims |= set(re.findall(r'"([a-z0-9_]+)"', group))
+    assert js_sets[0] == expected, f"engine K primitives drifted: {sorted(js_sets[0])}"
+    assert js_sets[1] == expected, f"engine R primitives drifted: {sorted(js_sets[1])}"
+    assert py_prims == expected, f"engine P primitives drifted: {sorted(py_prims)}"
+    text = _skill_text()
+    match = re.search(r"available primitives \(([^)]*)\)", text)
+    assert match, "the skill must list the custom primitives it relies on"
+    listed = {p.strip() for p in match.group(1).split(",")}
+    assert listed == expected, f"the skill's primitive list drifted: {sorted(listed)}"
+    report = (ROOT / "docs" / "scene-director-skill.md").read_text(encoding="utf-8")
+    row = next((line for line in report.splitlines() if "slab_stack" in line), "")
+    assert row, "the implementation report must list the custom primitives"
+    reported = set(re.findall(r"`([a-z0-9_]+)`", row)) - {"custom"}
+    assert reported == expected, f"the report's primitive list drifted: {sorted(reported)}"
+
+
 def test_data_recipe_kinds_match_code():
     text = _skill_text()
     kinds = ("comparison", "timeline", "counter")
