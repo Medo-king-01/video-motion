@@ -53,6 +53,10 @@ def test_scene_breakdown_boundary_is_pinned():
     assert re.search(r"count or order on your own", flat, re.IGNORECASE), "the skill must forbid silent reordering/renumbering"
     assert re.search(r"propose an adjustment", flat, re.IGNORECASE) and re.search(r"silently", flat, re.IGNORECASE), \
         "changes to the breakdown must be proposed with rationale, never silent"
+    assert re.search(r"written rationale", flat, re.IGNORECASE), \
+        "every breakdown adjustment must carry a written rationale, not a bare suggestion"
+    assert re.search(r"user approves", flat, re.IGNORECASE), \
+        "the input breakdown stays authoritative until the user approves the change"
     assert re.search(r"generic", flat), "the skill must stay project-agnostic, not SSD-vs-HDD specific"
 
 

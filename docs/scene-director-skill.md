@@ -4,7 +4,7 @@
 
 ## القرار
 
-المهارة اندمجت كملحق اختياري في `medo-motion/skills/scene-director/SKILL.md` — **من غير أي تعديل** على المهارة الأساسية `medo-motion/SKILL.md` أو المحركات أو الـtemplates. حراسة الانجراف الدائمة في `tests/test_scene_director.py` (12 اختبار) بتحط ادعاءات المهارة في مقارنة آلية مع المانيفستات والكود.
+المهارة اندمجت كملحق اختياري في `medo-motion/skills/scene-director/SKILL.md` — **من غير أي تعديل** على المهارة الأساسية `medo-motion/SKILL.md` أو المحركات أو الـtemplates. حراسة الانجراف الدائمة في `tests/test_scene_director.py` (14 اختبارًا) بتحط ادعاءات المهارة في مقارنة آلية مع المانيفستات والكود.
 
 ## المهارة — إيه اللي اتغير عن النسخة المرفوعة
 
@@ -30,7 +30,7 @@
 
 - **الكود:** `machine_kit.py` / `machine-kit.js` (الأركتايبات والبدائيات وحالات الحركة `spin`/`packet_flow`/…) · `data-recipes.js` · `one_take.py` · `captions.py`/`captions.js` (`draw_directed_text`/`drawDirectedText`) · `machine-visual.js` · `transition.js` · `three-layer.js` + `ThreeCanvas.tsx` · absence of icons/data-recipes in R/P بالمصفوفة.
 - **المانيفستات:** `techniques.json` (2,239/44 — `--validate` = OK) · `styles.json` (163) · `poses.json` (49 = 30+19) · `backgrounds.json` (12) · `transitions.json` (14) · `text-animations.json` · `fonts.json`.
-- **الاختبارات:** `tools/techniques.py --validate` · `tests/` (الشبكة الكاملة) · وdrift-guard جديد `tests/test_scene_director.py` (12/12 ✓).
+- **الاختبارات:** `tools/techniques.py --validate` · `tests/` (الشبكة الكاملة) · وdrift-guard جديد `tests/test_scene_director.py` (14/14 ✓).
 
 ### اكتشافات الانجراف (موجودة قبل هذا الشغل — لم تُلمس)
 
@@ -67,7 +67,7 @@
 | `tools/reel_lint.py --scan-code` | **6 أخطاء فقط = V01 المتوقع** (التوقيت provisional لحد ما يوصل VO) — S01/S02/S06/T01/T04/M01/C02/C04/C06 كلها PASS |
 | `brand_check.py --project` | **PASS** |
 | رندر K كامل | **540 فريم × مرّتين** (Chromium 138) + contact sheet + مراجعة stills |
-| `tests/test_scene_director.py` | **12/12 ✓** |
+| `tests/test_scene_director.py` | **14/14 ✓** |
 
 أخطاء V01 الستة ("draft" + "anchor must reference a measured word index") هي **بوابة الاستوديو المتعمّدة**: المهارة §9 بتقول "من غير VO التوقيت يفضل مبدئي" — والبوابة بتمنع بالظبط إن التقدير يتاخد كقياس. أول ما يوصل التسجيل: `vo_length.py` → `word-timings.json` → ربط الـanchors → `decidedBy` → V01 يقفل.
 
@@ -95,7 +95,7 @@
 ## ملاحظات المراجعة ومعالجتها (الجولة الأولى على PR #41)
 
 1. **انجراف قائمة بدائيات `custom` (ملاحظة المراجعة الأولى — اتصلحت).** المهارة قالت `coil` والتقرير قال `cylinder`؛ الحقيقة إن مفتاح الرسم في المحركات الثلاثة بيقبل اتحادهما مع `poly3d` أيضًا: `slab`، `slab_stack`، `ticks`، `poly3d`، `cylinder`، `ring`، `wire`، `coil` (أي primitive غير ده بيتخطاه الرسم بصمت). القائمة اتوحدت في المهارة والتقرير، واختبار حراسة جديد `test_custom_primitives_match_all_three_engines` بيستخرج المجموعة من `machine_kit.py` ونسختَي `machine-kit.js` ويقارنها بنصَّي المهارة والتقرير — أي انجراف مستقبلي هيكسر الاختبار.
-2. **اختبارات المهارة ما كانتش في CI (ملاحظة المراجعة الثانية — اتصلحت).** `tests/test_scene_director.py` (13 اختبارًا الآن) اتضاف لخط **Fast CI** (`.github/workflows/ci.yml`) كخطوة مستقلة بعد اختبارات الكوفر — فحراسة الانجراف هتشتغل تلقائيًا مع كل تعديل مستقبلي.
+2. **اختبارات المهارة ما كانتش في CI (ملاحظة المراجعة الثانية — اتصلحت).** `tests/test_scene_director.py` (14 اختبارًا الآن) اتضاف لخط **Fast CI** (`.github/workflows/ci.yml`) كخطوة مستقلة بعد اختبارات الكوفر — فحراسة الانجراف هتشتغل تلقائيًا مع كل تعديل مستقبلي.
 3. **ملاحظات غير مانعة للدمج (تحتاج VO فقط — موثقة كحدود مبدئية).** توقيت المشاهد مبدئي لحد الـVO (بوابة X02)، وتغطية C05 عند 72% (فوق الحد 65% بتحذير) هتتراجع على الهاتف بعد التعليق الصوتي، واختبار P في CI هو smoke من 3 إطارات والرندر الكامل اللي في التقرير كان اختبارًا عمليًا منفصلًا.
 
 ## حدود النطاق — Scene Breakdown مقابل Scene Director (اتضاف بطلب المستخدم)
