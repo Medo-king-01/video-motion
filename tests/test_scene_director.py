@@ -39,6 +39,23 @@ def test_addon_defers_to_the_core_contract_without_replacing_it():
     assert "video-motion-scene-director" not in core, "core skill must not depend on the add-on"
 
 
+def test_scene_breakdown_boundary_is_pinned():
+    """Scene Breakdown (what) belongs to the inputs; Scene Director (how) is the skill.
+
+    The skill must never re-split scenes or change their count/order on its
+    own — it proposes adjustments and waits for approval. This separation is
+    the user's explicit contract, so pin it.
+    """
+    text = _skill_text()
+    flat = _flat(text)
+    assert "Scene Breakdown" in text and "Scene Director" in text
+    assert re.search(r"never\s+re-split", flat, re.IGNORECASE), "the skill must forbid re-splitting the input breakdown"
+    assert re.search(r"count or order on your own", flat, re.IGNORECASE), "the skill must forbid silent reordering/renumbering"
+    assert re.search(r"propose an adjustment", flat, re.IGNORECASE) and re.search(r"silently", flat, re.IGNORECASE), \
+        "changes to the breakdown must be proposed with rationale, never silent"
+    assert re.search(r"generic", flat), "the skill must stay project-agnostic, not SSD-vs-HDD specific"
+
+
 def test_inspection_targets_exist():
     for rel in (
         "AGENTS.md",

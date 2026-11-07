@@ -54,6 +54,25 @@ This skill specializes in scene design.
 It must obey the repository's AGENTS.md, DESIGN_SYSTEM.md,
 and medo-motion/SKILL.md contracts.
 
+### Scope boundary — Scene Breakdown vs Scene Director
+
+Two different responsibilities, kept strictly separate:
+
+| Responsibility | Decides | Owner |
+|---|---|---|
+| Scene Breakdown | WHAT happens in each scene: the number of scenes, their order, their content, and their narrative goal | The video inputs — the user's division |
+| Scene Director (this skill) | HOW each given scene looks and moves inside the studio: engine, composition, motion, character, background, text, effects | This skill |
+
+Work inside the given breakdown. Never re-split scenes, and never
+change their count or order on your own. If the given breakdown is
+visually or narratively unsuitable, propose an adjustment with a
+written rationale instead of changing it silently — the input
+breakdown stays authoritative until the user approves the change.
+
+This skill is generic: it directs scenes for any video the studio
+produces (tech explainers, comparisons, language lessons, narrative,
+data stories, presenter pieces). No project is its private scope.
+
 ---
 
 ## 2. Mandatory Studio Inspection
