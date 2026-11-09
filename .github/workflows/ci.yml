@@ -54,6 +54,12 @@ jobs:
       - name: Test the type system (manifest, licences, shaping gate, shortlist)
         run: python -m pytest tests/test_fonts.py
 
+      - name: Test the technique library contract (families, gl-transitions, generated docs)
+        run: python -m pytest tests/test_techniques.py
+
+      - name: Test font-path safety guards
+        run: python -m pytest tests/test_file_safety.py
+
   python-310-syntax:
     name: Python 3.10 syntax compatibility
     runs-on: ubuntu-22.04

@@ -30,6 +30,14 @@ def test_library_is_valid():
     assert techniques.validate(DATA) == []
 
 
+GL_TRANSITIONS_DIR = ROOT / "assets" / "gl-transitions"
+
+
+def _gl_shader(e: dict) -> Path:
+    # gl-* entries point at a real GLSL file shipped in-repo — that is their build artifact.
+    return GL_TRANSITIONS_DIR / Path(e.get("glsl_file", "")).name
+
+
 def test_library_shape():
     picks = DATA["techniques"]
     assert len(picks) >= 30, "a draw from fewer than 30 entries converges again"
@@ -38,7 +46,12 @@ def test_library_shape():
     order = DATA["format"]["reel"]["order"]
     assert set(order) <= {e["category"] for e in picks}
     for e in picks:
-        assert len(e["how"]) > 60, f"{e['id']}: 'how' must be a build step, not a mood"
+        if e.get("source") == "gl-transitions":
+            # shader references: the "how" is one line by design; the artifact must exist
+            assert e["glsl_file"], f"{e['id']}: gl-transition entry without glsl_file"
+            assert _gl_shader(e).is_file(), f"{e['id']}: missing shader {e['glsl_file']}"
+        else:
+            assert len(e["how"]) > 60, f"{e['id']}: 'how' must be a build step, not a mood"
         assert e["primitive"] in techniques.PRIMITIVES
         assert e["role"] in techniques.ROLES
 
@@ -52,9 +65,33 @@ API_SURFACE = sorted({
 
 
 def test_each_recipe_names_a_real_api():
-    """A recipe must point at code this studio actually has, so it is buildable the day it is drawn."""
+    """Every entry must be buildable the day it is drawn — via the contract of its family.
+
+    The library is a merge of three authoring contracts, and the check honours all three
+    instead of forcing the studio-API rule onto imports that were never authored against it:
+
+    - studio-authored (`source` missing/"-"): `how` must name an API this studio ships,
+      so the agent can reach for real code the day it draws the move;
+    - rewritten imports (alansari-motion-library / opus-motion-library): measured recipe —
+      `how` must be a real build step (> 60 chars) with a concrete spec, not a mood;
+    - gl-transitions (GLSL shaders): `glsl_file` must reference a shader that ships in-repo,
+      and the entry must record its `uniforms` (possibly empty for parameterless shaders).
+    """
     for e in DATA["techniques"]:
-        assert any(api in e["how"] for api in API_SURFACE), f"{e['id']}: no known API in 'how'"
+        source = e.get("source", "-")
+        if source == "gl-transitions":
+            assert e.get("glsl_file"), f"{e['id']}: gl-transition entry without glsl_file"
+            assert _gl_shader(e).is_file(), f"{e['id']}: missing shader {e['glsl_file']}"
+            assert isinstance(e.get("uniforms"), list), f"{e['id']}: uniforms must be a list"
+        elif source == "-":
+            assert any(api in e["how"] for api in API_SURFACE), f"{e['id']}: no known API in 'how'"
+        else:  # rewritten imports: measured spec, reviewed and rewritten for this studio
+            assert len(e["how"]) > 60, f"{e['id']}: 'how' must be a build step, not a mood"
+            assert len(e["how"]) < 2000, f"{e['id']}: 'how' drifted into prose"
+            # `evidence` is a 0–9 score (0 = none), never falsy-checked; the authoring
+            # contract for imports is a complete, measured spec triple.
+            assert e.get("summary") and e.get("timing") and e.get("use_when"), \
+                f"{e['id']}: import missing summary/timing/use_when"
 
 
 def test_recipes_were_rewritten_for_this_studio():

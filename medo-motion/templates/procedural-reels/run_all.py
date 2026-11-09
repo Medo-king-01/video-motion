@@ -1,13 +1,16 @@
 """Chunked, restartable render with content-addressed cache and verified chunks."""
 import json
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-FF = os.environ.get("FFMPEG_BIN") or shutil.which("ffmpeg") or "ffmpeg"
-FFPROBE = os.environ.get("FFPROBE_BIN") or shutil.which("ffprobe") or "ffprobe"
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools" / "lib"))
+from media_bin import ffmpeg as _find_ffmpeg, ffprobe as _find_ffprobe  # noqa: E402
+
+# same precedence as every other tool: $FFMPEG_BIN/$FFPROBE_BIN -> tools/bin shim -> PATH (AGENTS.md §9)
+FF = _find_ffmpeg() or "ffmpeg"
+FFPROBE = _find_ffprobe() or "ffprobe"
 HERE = Path(__file__).resolve().parent
 PROJECT = Path(os.environ.get("REEL_DIR") or HERE).resolve()
 os.chdir(PROJECT)

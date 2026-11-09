@@ -34,15 +34,18 @@ FFMPEG = ffmpeg() or "ffmpeg"
 # ---------------------------------------------------------------- measurement
 def duration_of(path: Path) -> float:
     """Seconds of audio, via ffprobe (falls back to the wave module for plain .wav)."""
-    r = subprocess.run(
-        [FFPROBE, "-v", "error", "-show_entries", "format=duration", "-of", "json", str(path)],
-        capture_output=True, text=True,
-    )
-    if r.returncode == 0:
-        try:
-            return float(json.loads(r.stdout)["format"]["duration"])
-        except (KeyError, ValueError, json.JSONDecodeError):
-            pass
+    try:
+        r = subprocess.run(
+            [FFPROBE, "-v", "error", "-show_entries", "format=duration", "-of", "json", str(path)],
+            capture_output=True, text=True,
+        )
+        if r.returncode == 0:
+            try:
+                return float(json.loads(r.stdout)["format"]["duration"])
+            except (KeyError, ValueError, json.JSONDecodeError):
+                pass
+    except FileNotFoundError:
+        pass   # no ffprobe on this machine — the wave fallback below still measures a .wav
     with wave.open(str(path), "rb") as w:
         return w.getnframes() / float(w.getframerate())
 
