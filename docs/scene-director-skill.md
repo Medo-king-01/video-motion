@@ -34,7 +34,7 @@
 
 ### اكتشافات الانجراف (موجودة قبل هذا الشغل — لم تُلمس)
 
-1. **الخطوط:** `assets/fonts/fonts.json` فيه **125 عيلة** (كلها OFL) بينما `docs/fonts.md` و`AGENTS.md` و`tests/test_fonts.py` لسه على **21 عيلة** (12 عربي + 9 لاتيني). الاختبار `test_manifest_and_files_agree` و`test_every_family_is_documented` بيفشلوا على main من غير أي تدخل — والمهارة الجديدة عمداً مش بتذكر عدداً ثابتًا.
+1. **الخطوط:** ~~`assets/fonts/fonts.json` فيه 125 عيلة بينما الاختبارات والوثائق على 21~~ — **اتعالجت 2026-11-09** (P0 `p0_fonts`): المانيفست أُصلح واكتمل بـ`status` لكل عيلة، `tests/test_fonts.py` أخضر على الـ125، الترخيصان غير الـOFL (Permanent Marker Apache-2.0، Ubuntu UFL-1.0) سُجّلا مع ملفاتهما، الوثائق والـCREDITS اتحدّثوا، والقائمة المختصرة للنماذج الضعيفة في `medo-motion/looks/shortlist.json`.
 2. **مكتبة الحركات:** `tests/test_techniques.py` (3 اختبارات) لسه بيختبر شكل الـ59 حركة الأصلية بينما المكتبة بقت 2,239 (دمج cinetic + Alansari + gl-transitions) — README العربي محدّث والاختبارات قديمة.
 3. **عبارة "K-only Three bridge"** في `AGENTS.md` أضيق من الحقيقة: `docs/motion-three.md` المرحلة التاسعة بتفعّل `ThreeCanvas` في R أيضًا (والمهارة بتوصف K/R — الأدق).
 4. **`tests/test_workflow.py::test_one_engine_p_frame_has_brand_size`** بيفشل عند تشغيله معزولًا (تضارب import بين `tools/text_direction.py` ونسخة المحرك) وبينجح داخل الشبكة الكاملة بترتيب الاستيراد — مشكلة عزل اختبارات قديمة.

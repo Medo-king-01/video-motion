@@ -61,7 +61,7 @@ finished video on guessed timing without saying so.
    your creative choice**. `medo-motion/brand/BRAND.md` + `brand/brand.json` are the source of truth:
    **exactly 12 colours** (palette v2) plus the derived `ink_shadow`. Never improvise outside the
    palette — `brand_check.py` fails the build if you do.
-   **Type:** `assets/fonts/fonts.json` is the whole allowed set — 21 families, all SIL OFL 1.1
+   **Type:** `assets/fonts/fonts.json` is the whole allowed set — 125 families (61 Arabic + 64 Latin); 123 SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)
    (free, commercial, no on-screen attribution). **There is no forced default:** you pick the most
    attractive, reel-fitting face (Arabic or Latin) per scene/element and record it in
    `plan/text-direction.json` (`fontStyles`/`fontElements`, rule 11). Cairo/Inter are only a
@@ -319,7 +319,7 @@ folder is, and remind the user it is a working folder (outside the repo history)
 - Pillow here is built **without** libraqm. Engine P detects that and shapes Arabic with
   `arabic_shape.py` (HarfBuzz + FreeType). This is real shaping, not presentation forms.
   `doctor.py` reports which backend is active; both are acceptable.
-- Fonts: the 21-family OFL manifest lives in `assets/fonts/fonts.json`. The agent chooses
+- Fonts: the 125-family font manifest (123 SIL OFL 1.1 + Permanent Marker Apache-2.0 + Ubuntu UFL-1.0) lives in `assets/fonts/fonts.json`. The agent chooses
   faces per scene/element in `plan/text-direction.json`; Cairo/Inter are only a system-chrome
   fallback. Chromium picks fonts from the page (`/assets/fonts/...`), engine P from the
   project's `assets/fonts/`, and R from `public/fonts/` + generated `@font-face`.

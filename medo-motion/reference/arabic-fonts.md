@@ -4,7 +4,7 @@
 **طريقة الاستعمال:** اختر خط عرض (للعناوين والكلمة الرئيسية) وخط نص (للكابشن والجمل). **خطين عربي بالكثير لكل فيديو.**
 تنزيل أي خط مجاني مع رخصته:
 ```
-python3 tools/fonts_install.py            # كل العائلات المسجلة في النظام (SIL OFL 1.1)
+python3 tools/fonts_install.py            # العائلات الـ21 الأصلية المقيدة في tools/font-packages.lock.json (SIL OFL 1.1) — باقي المانيفست اتشحنت مع الدمج وشوف docs/fonts.md
 python3 tools/fonts_install.py --only kufam
 ```
 ينزل في `assets/fonts/<الخط>/` مع ملف الرخصة وملف `SOURCE.md`، ويسجله في `manifest.json`. شوف الكل بـ `--list`، وتأكد بدون تنزيل بـ `--check`.

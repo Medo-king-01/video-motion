@@ -24,7 +24,7 @@
 | هوية مقفولة | `medo-motion/brand/brand.json` | الأرقام الملزمة: ألوان، خلفيات، تباين، canvas، safe zones، أحجام دنيا، صوت، تصدير |
 | هوية للبني آدم | `medo-motion/brand/BRAND.md` | شرح الهوية والقواعد والتوقيعات البصرية |
 | مرايا الهوية | `brand.css` · `templates/render/lib/brand.js` · `templates/remotion/src/brand.ts` | نفس التوكنز للمحرك/الويب؛ `brand_check.py` بيكشف الانحراف |
-| الخطوط المسموحة | `assets/fonts/fonts.json` | ٢١ عيلة SIL OFL 1.1؛ المصدر الوحيد للخطوط على الشاشة |
+| الخطوط المسموحة | `assets/fonts/fonts.json` | ١٢٥ عيلة (٦١ عربي + ٦٤ لاتيني) — ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)؛ المصدر الوحيد للخطوط على الشاشة |
 | اختيار الخط والحركة | `projects/<slug>/plan/text-direction.json` | قرار الوكيل لكل مشهد/عنصر: `captionStyle`, `textStyles`, `fontStyles`, overrides وتبرير |
 | كتالوج الحركة | `medo-motion/motion/easings.json` · `transitions.json` · `text-animations.json` | منحنيات، ١٤ انتقال، ٥١ حركة نص |
 | مكتبة الحركات | `assets/techniques.json` + `docs/techniques.md` | ٥٩ حركة قابلة للسحب/الاختيار |
@@ -48,7 +48,7 @@
 - التفاصيل والأرقام في `brand.json` و`BRAND.md`؛ CSS في `brand.css`.
 
 ### الخطوط
-- ٢١ عيلة OFL في `assets/fonts/fonts.json` (١٢ عربي + ٩ لاتيني).
+- ١٢٥ عيلة في `assets/fonts/fonts.json` (٦١ عربي + ٦٤ لاتيني): ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0).
 - الوكيل يختار لكل مشهد/عنصر ويسجّل في `text-direction.json` (`fontStyles`/`fontElements`).
 - Cairo/Inter **شبكة أمان لكروم النظام فقط**، مش قرار إبداعي مفروض.
 - النص العربي لازم بخط بيدعم العربي؛ التشكيل كلمة-كلمة، RTL، من غير letter-spacing.
@@ -152,7 +152,7 @@
 
 - **توكنز هوية:** عدّل `brand.json` أولًا، ثم المرايا (CSS/JS/TS) و`BRAND.md`، ثم اختبار.
 - **خط جديد:** أضفه في `tools/fonts_install.py` → `fonts_install.py --only` → `docs/fonts.md`
-  و`assets/CREDITS.md` → اختبارات التشكيل/الترخيص. ممنوع خط مش OFL أو مش في المانيفست.
+  و`assets/CREDITS.md` → اختبارات التشكيل/الترخيص. ممنوع خط خارج المانيفست — كل اللي فيه برخص مجانية مسموحة (SIL OFL 1.1 / Apache-2.0 / UFL-1.0).
 - **حركة نص/انتقال:** حدّث الكتالوج/importer والdocs واختبارات التماثل بين المحركات.
 - **مكون جديد:** نفّذه في المحرك المستهدف، خلّيه يقرأ الهوية والنص الموجّه، وأضف اختبار/عاينة.
 - **قاعدة مشروع:** سجّلها في `TASTE.md` و`STYLE.md` و`design.html` مع بعض.

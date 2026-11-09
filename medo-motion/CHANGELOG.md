@@ -1,5 +1,32 @@
 # Changelog — Video Motion
 
+## 2026-11-09 — type system: 125 families, licence correction, curated shortlist (P0 `p0_fonts`)
+- **Manifest is now the truth:** `assets/fonts/fonts.json` — 125 families (61 Arabic + 64 Latin),
+  each with `status` (`ok` / `review`) + a `status_note` for the review set.
+- **Licence correction (was mislabelled):** Permanent Marker is **Apache-2.0** (Font Diner, 2010), not
+  OFL — now ships `assets/fonts/Permanent Marker/LICENSE.txt`. **Ubuntu** is **UFL-1.0** (Canonical,
+  2011) — now ships `assets/fonts/Ubuntu/UFL.txt` (from google/fonts). Manifest, tests and docs declare
+  the real licences; `test_every_family_carries_its_licence` checks per declared licence.
+- **15 Arabic families measured ≥ 0.20** outline/advance collision on «النهاردة» @ 54px (HarfBuzz +
+  FreeType, 2026-11-09): Jomhuria, Aref Ruqaa, Noto Nastaliq Urdu, Aref Ruqaa Ink, Gulzar, Noto Sans
+  Arabic, Estedad, Reem Kufi, Reem Kufi Fun, Mirza, Reem Kufi Ink, Noto Naskh Arabic, Noto Kufi Arabic,
+  Katibeh, Fustat. They stay in the manifest (`status: "review"`) and are documented in `docs/fonts.md` —
+  they are deliberately absent from the shortlist, never used for body text. No families were deleted.
+- **New curated shortlist for weak models:** `medo-motion/looks/shortlist.json` (8 Arabic + 5 Latin,
+  every pick `status: "ok"` and pairing recorded) + `medo-motion/looks/README.md` — first layer of the
+  proposed "locked Looks" system. Enforced by `test_looks_shortlist_is_manifest_backed`.
+- **Tests:** `tests/test_fonts.py` rewritten to pin the 125 count, the full manifest/files/licence
+  agreement (size budget raised 12 MB → 120 MB, documented), status coverage of every family and the
+  exact review set; both-direction honesty (a review family that now passes must flip back to `ok`).
+  **194/194 pass.** `docs/scene-director-skill.md` drift finding marked resolved.
+- **Docs:** `docs/fonts.md` (full 125-family index + quarantine table + shortlist section + lock-file
+  gap note), `assets/CREDITS.md` (all 125 credited with real licences), AGENTS.md, README.md,
+  DESIGN_SYSTEM.md, docs/README.md, docs/text-animations.md, docs/video-ad-editor-fit.md,
+  medo-motion/{SKILL.md, reference/*, templates/TASTE.md, brand/*}, tools/{README.md, new_project.py},
+  brand.json type_system — all counts updated with licence nuance.
+- **Known gap (not fixed here):** `tools/font-packages.lock.json` pins only the original 21 npm
+  `@expo-google-fonts/*` packages; the 104 Alansari additions are unpinned (documented in docs/fonts.md).
+
 ## 2026-11-02 — documentation correction
 - Replaced obsolete project-origin and licensing statements that had accumulated during iterative AI-assisted editing.
 - Aligned the root guide, toolkit guides, setup instructions and renderer playbook with the current Video Motion repository.

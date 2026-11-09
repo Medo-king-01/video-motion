@@ -45,6 +45,15 @@ jobs:
       - name: Test the scene-director skill drift guards
         run: python -m pytest tests/test_scene_director.py
 
+      - name: Test the remotion skill drift guards
+        run: python -m pytest tests/test_remotion_skill.py
+
+      - name: Install the font-suite dependencies
+        run: python -m pip install freetype-py uharfbuzz opencv-python-headless
+
+      - name: Test the type system (manifest, licences, shaping gate, shortlist)
+        run: python -m pytest tests/test_fonts.py
+
   python-310-syntax:
     name: Python 3.10 syntax compatibility
     runs-on: ubuntu-22.04

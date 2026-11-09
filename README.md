@@ -34,7 +34,7 @@
 **الاستوديو أداة، مش أرشيف فيديوهات:** مجلدات `projects/` مساحة شغل مؤقتة ومستثناة بالكامل من Git،
 والفيديو اللي بيخلص بيخرج مع مجلده — فيديوهاتك القديمة مش بتتخزن في المستودع ومش بتُستخدم كمرجع لفيديو جديد.
 
-**الخطوط مجانية كلها:** ٢١ عيلة (١٢ عربي + ٩ إنجليزي) SIL OFL 1.1 — الوكيل بيختار الأنسب والأجذب
+**الخطوط مجانية كلها:** ١٢٥ عيلة (٦١ عربي + ٦٤ إنجليزي) — ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)؛ الوكيل بيختار الأنسب والأجذب
 لكل مشهد/عنصر ويسجّل اختياره في `plan/text-direction.json`؛ مفيش خط افتراضي مفروض. Cairo/Inter
 مجرد شبكة أمان لكروم النظام. الأدوار والأزواج وشيت المعاينة في `docs/fonts.md`.
 
@@ -55,7 +55,7 @@
 (كلمات الشاشة، مدة القراءة، القطع على الشبكة، المساحات الفاضية، واللوكات الممنوعة) — الشرح والأرقام
 كلها في `docs/craft.md`، والمكتبة المقروءة في `docs/techniques.md`.
 
-**١٢٥ خط مجاني** (٦١ عربي + ٦٤ إنجليزي) SIL OFL 1.1 — مجموعة ضخمة من الخطوط العربية والإنجليزية تشمل Aref Ruqaa, Reem Kufi, Qahiri, Fustat, Lalezar وغيرها. الوكيل بيختار الأنسب لكل مشهد.
+**١٢٥ خط مجاني** (٦١ عربي + ٦٤ إنجليزي) — ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)، تشمل Aref Ruqaa, Reem Kufi, Qahiri, Fustat, Lalezar وغيرها. الوكيل بيختار الأنسب لكل مشهد (للنماذج الضعيفة: `medo-motion/looks/shortlist.json`).
 
 **١٦٣ ستايل بصري** (`assets/styles/styles.json`) — لغة بصرية كاملة لكل فيديو: باليت ألوان، خطوط، سطح، شخصية:
 - **١٧ ستايل** من Majed Video (keynote, paperCut, explainer, terminal, vhs, brutal...)
@@ -135,7 +135,7 @@ cd projects/my-reel && npm ci && npm run studio
 ```
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
 assets/                ← مدخلات مشتركة:
-  fonts/               ← ١٢٥ عيلة OFL (٦١ عربي + ٦٤ إنجليزي)
+  fonts/               ← ١٢٥ عيلة (٦١ عربي + ٦٤ إنجليزي): ١٢٣ OFL + Apache-2.0 + UFL-1.0
   styles/              ← ١٧ ستايل بصري (styles.json)
   techniques.json      ← ١٤٣٤ تقنية حركة
   poses/ · sfx/
@@ -197,7 +197,7 @@ medo-motion/           ← حزمة أدوات Video Motion: الهوية، ال
 | Arabic shaping: بديل HarfBuzz+FreeType (`arabic_shape.py`) لأن Pillow هنا من غير libraqm | ✅ |
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | Remotion 4 (محرك R) | ✅ القالب متكامل؛ كل مشروع Remotion يثبّت تبعياته عبر `npm ci` |
-| ٢١ عيلة خطوط OFL في `assets/fonts/` | ✅ |
+| ١٢٥ عيلة خطوط في `assets/fonts/` (١٢٣ OFL + ٢) | ✅ |
 | المحركان P وK | ✅ اتجربوا ورندروا فريمات عربية صح |
 | محرك R | ✅ رندر تجريبي بـRemotion/Chromium؛ `npm run render` يراجع WAV والتوقيت |
 | الاختبارات (`make test` · `make selftest`) | ✅ CI + اختبارات P/K/R؛ `python3 tools/selftest.py --hybrid` يرندر ويجمع محركات P/K/R مع صوت فعليًا |

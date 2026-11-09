@@ -19,7 +19,7 @@
 | Render engines | **P** (Python/OpenCV/HarfBuzz), **K** (Canvas2D + Playwright), **R** (Remotion/React), and sequential **Hybrid** (`tools/render_hybrid.py`) | Already covers procedural presenter reels, kinetic Canvas, and React scenes under one `1080×1920` contract without adding `puppeteer-core`. |
 | Script-to-VO alignment | `tools/caption_align.py` (`faster-whisper` + dynamic-programming `dp_align` + `speech_regions` + `snap_and_hold`) | Aligns ASR timestamps directly to the approved Arabic script words instead of trusting raw ASR spelling on screen. |
 | Brand & contrast lock | `medo-motion/brand/brand.json` (12 locked colours + `ink_shadow`), `brand_check.py`, `contrast.py` | Enforces WCAG contrast and forbids off-palette hexes across all three engines. |
-| Type & presenter kit | 21 OFL font families (`assets/fonts/`), 49 presenter poses (`assets/poses/`), 275 animated icons, 15 procedural SFX, 14 transitions, 12 backgrounds | Already verified offline and wired into `reel_lint.py` and `stage_gate.py`. |
+| Type & presenter kit | 125 font families (`assets/fonts/`: 123 OFL + Apache-2.0 Permanent Marker + UFL-1.0 Ubuntu), 49 presenter poses (`assets/poses/`), 275 animated icons, 15 procedural SFX, 14 transitions, 12 backgrounds | Already verified offline and wired into `reel_lint.py` and `stage_gate.py`. |
 | Post-render & layout QA | `tools/media_qa.py`, `tools/layout_audit.mjs` (K), `tools/layout_audit_p.py` (P), `tools/stage_gate.py` | Enforces `-14.5 ± 0.3 LUFS`, `-1.5 dBTP`, `faststart`, frame-0 presence, safe zones (`L00`–`L03`), and reverse-seek determinism (`R01`/`R02`). |
 
 ---

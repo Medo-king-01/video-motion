@@ -6,9 +6,10 @@ Usage (run from the project folder):
   python <skill>/scripts/get_fonts.py --check "Kufam" "Alexandria" # verify availability, download nothing
   python <skill>/scripts/get_fonts.py "Kufam" "Readex Pro"         # download into assets/fonts/<Family>/
 
-NOTE: the studio's curated 21-family type system lives in `assets/fonts/` and is managed by
-`tools/fonts_install.py` (npm `@expo-google-fonts/*`, TTF + OFL). Use this script only for a family
-outside that curated list — and register it in `assets/fonts/fonts.json` + `docs/fonts.md` afterwards.
+NOTE: the studio's 125-family type system lives in `assets/fonts/`; the 21 original families are
+managed by `tools/fonts_install.py` (npm `@expo-google-fonts/*`, TTF + OFL), the other 104 were
+bundled directly from google/fonts (see docs/fonts.md). Use this script only for a family outside
+the manifest — and register it in `assets/fonts/fonts.json` + `docs/fonts.md` afterwards.
 
 Source: the official github.com/google/fonts repository only. Saves the licence file beside the fonts,
 writes SOURCE.md, and appends an entry to manifest.json when it is a JSON list or {"assets": [...]}.

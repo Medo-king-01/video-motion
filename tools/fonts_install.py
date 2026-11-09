@@ -1,18 +1,25 @@
 #!/usr/bin/env python3
-"""Fetch the studio's type system into `assets/fonts/` — free (SIL OFL 1.1) only.
+"""Fetch the studio's ORIGINAL type system into `assets/fonts/` — free licences only.
 
-Every family here is on Google Fonts under the SIL Open Font License: free for commercial use,
-redistribution allowed, no attribution required on screen. We pull the actual `.ttf` files from the
+This script manages the original 21 npm-pinned families (see `tools/font-packages.lock.json`,
+SIL OFL 1.1). The manifest in `assets/fonts/fonts.json` is BIGGER than this script: the Alansari
+integration added 104 more families (mostly OFL; Permanent Marker is Apache-2.0 and Ubuntu is
+UFL-1.0) which are already on disk and are preserved on every run — this script never deletes or
+narrows the manifest, it only adds/updates the families listed in `FAMILIES`.
+
+Every family managed here is on Google Fonts; we pull the actual `.ttf` files from the
 `@expo-google-fonts/*` npm packages (same binaries Google serves, plus the OFL text), because npm is
 a host we can reach from a sandbox and it keeps the provenance reproducible.
 
-    python3 tools/fonts_install.py                 # all families that are missing
+    python3 tools/fonts_install.py                 # all managed families that are missing
     python3 tools/fonts_install.py --only tajawal   # one family
-    python3 tools/fonts_install.py --force          # re-fetch everything
+    python3 tools/fonts_install.py --force          # re-fetch the managed families
     python3 tools/fonts_install.py --list           # what is in the manifest
+    python3 tools/fonts_install.py --check          # read-only validation of the WHOLE manifest
 
-The result is `assets/fonts/<Family>/<File>.ttf` + `OFL.txt` per family, and `assets/fonts/fonts.json`
-— the single source of truth both engines read (`lib.font(size, family)` / `lib/fonts.js`).
+The result is `assets/fonts/<Family>/<File>.ttf` + `OFL.txt` per managed family, and
+`assets/fonts/fonts.json` — the single source of truth both engines read
+(`lib.font(size, family)` / `lib/fonts.js`).
 """
 from __future__ import annotations
 
@@ -251,8 +258,41 @@ def install(spec: dict, force: bool = False) -> dict:
 
 
 def build_manifest() -> dict:
-    """The manifest describes what is actually on disk — never a wish list."""
+    """The manifest describes what is actually on disk — never a wish list.
+
+    Merges with the existing manifest: families not managed by this script (the Alansari
+    additions) are preserved untouched, including their `status`/licence fields. Managed
+    families get their weights re-detected from disk; `status`, `licence` and `licence_file`
+    are preserved from the existing entry when present.
+    """
+    existing = {}
+    try:
+        existing = json.loads(MANIFEST.read_text(encoding="utf-8")).get("families", {})
+    except (OSError, ValueError):
+        existing = {}
+    families = dict(existing)
+    families.update(_build_managed_families())
+    try:
+        note = json.loads(MANIFEST.read_text(encoding="utf-8")).get("note")
+    except (OSError, ValueError):
+        note = None
+    if not note:
+        note = (
+            "Free type system — the only fonts allowed on screen. See each family's "
+            "licence/licence_file in this manifest for licence details. `status`: ok = passes "
+            "the shaping/collision gate (tests/test_fonts.py); review = measured >= 0.20 on "
+            "2026-11-09 (see docs/fonts.md)."
+        )
+    return {"note": note, "fallback": {"arabic": "Cairo", "latin": "Inter"}, "families": families}
+
+
+def _build_managed_families() -> dict:
     families = {}
+    existing = {}
+    try:
+        existing = json.loads(MANIFEST.read_text(encoding="utf-8")).get("families", {})
+    except (OSError, ValueError):
+        existing = {}
     for spec in FAMILIES:
         target = OUT / spec["family"]
         weights = []
@@ -263,31 +303,45 @@ def build_manifest() -> dict:
             weights.append({"weight": int(m.group("weight")), "style": "normal", "file": f.name})
         if not weights:
             continue
-        families[spec["family"]] = {
+        prev = existing.get(spec["family"], {})
+        entry = {
             "script": spec["script"],
             "role": spec["role"],
             "pairs": spec["pairs"],
             "tags": spec["tags"],
             "weights": sorted(weights, key=lambda w: w["weight"]),
-            "licence": "OFL-1.1",
-            "licence_file": f"{spec['family']}/OFL.txt" if (target / "OFL.txt").is_file() else None,
-            "source": f"https://fonts.google.com/specimen/{spec['family'].replace(' ', '+')}",
+            "licence": prev.get("licence", "OFL-1.1"),
+            "licence_file": f"{spec['family']}/OFL.txt" if (target / "OFL.txt").is_file() else prev.get("licence_file"),
+            "source": prev.get("source", f"https://fonts.google.com/specimen/{spec['family'].replace(' ', '+')}"),
             "npm": f"@expo-google-fonts/{spec['npm']}",
         }
-    return {
-        "note": "Free type system (SIL OFL 1.1) — the only fonts allowed on screen. The agent chooses "
-                "the most fitting face per scene/element (plan/text-direction.json); there is no "
-                "creative default. `fallback` is a last-resort safety net for system chrome only.",
-        "fallback": {"arabic": "Cairo", "latin": "Inter"},
-        "families": families,
-    }
+        # Preserve the curation fields from the curated manifest — regenerating must never erase them.
+        for key in ("status", "status_note"):
+            if key in prev:
+                entry[key] = prev[key]
+        families[spec["family"]] = entry
+    return families
 
 
 def check_type_system(base: Path = OUT) -> list[str]:
-    """Validate every expected family, weight and licence against actual files."""
+    """Validate every family in the manifest, its files, and each declared licence."""
     problems = []
     try:
         families = json.loads((base / "fonts.json").read_text(encoding="utf-8"))["families"]
+        for family, meta in families.items():
+            weights = meta.get("weights", [])
+            if not weights:
+                problems.append(f"{family}: no weights in manifest")
+            paths = [base / family / w["file"] for w in weights]
+            licence_file = meta.get("licence_file")
+            paths.append(base / licence_file if licence_file else base / family / "OFL.txt")
+            for path in paths:
+                if not path.resolve().is_relative_to(base.resolve()) or not path.is_file() or path.stat().st_size == 0:
+                    problems.append(f"{family}: missing/unsafe/empty file {path.name}")
+            if meta.get("status") not in {"ok", "review"}:
+                problems.append(f"{family}: status must be 'ok' or 'review' (got {meta.get('status')!r})")
+        # The 21 npm-managed families must keep at least their pinned weights —
+        # and every declared file (TTFs + OFL.txt) must exist.
         for spec in FAMILIES:
             family = spec["family"]
             meta = families.get(family, {})
@@ -314,7 +368,11 @@ def main() -> int:
 
     if a.check:
         problems = check_type_system()
-        print("\n".join(problems) if problems else f"Type system OK ({len(FAMILIES)} families, files verified)")
+        try:
+            n = len(json.loads(MANIFEST.read_text(encoding="utf-8"))["families"])
+        except (OSError, ValueError):
+            n = len(FAMILIES)
+        print("\n".join(problems) if problems else f"Type system OK ({n} families in manifest, files verified)")
         return int(bool(problems))
 
     if a.list:
