@@ -1,39 +1,191 @@
 {
+  "@expo-google-fonts/abril-fatface": {
+    "integrity": "sha512-OFschWuI/9M9JP2/ppdnlAHTF24UiZXMYBSbZhWq8lY5t8K4Fi9o+fJl5hseEGN+P8Rr+FMLUlaNR1FLXPmbJw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/alan-sans": {
+    "integrity": "sha512-fWVacrOxb6jD99VQEhW4MnKwjrVT/WwyowzftFvMdctv4Q4IyePwrJ+gkY+q/MedPlI1lZnZt9xSCFK8x40rjA==",
+    "version": "0.4.2"
+  },
   "@expo-google-fonts/alexandria": {
     "integrity": "sha512-maaOCuuDgt0ek1wxquTOgT4EKxDRvDxNSXuMyHP9esxFW56EZm9Xd+PTurzeYXHhDL6p9F5sn8AWVSXQ5wVlaQ==",
     "version": "0.4.2"
+  },
+  "@expo-google-fonts/alkalami": {
+    "integrity": "sha512-p1H1rrrZB/fvTT+TQ58ZRdX5lJ436kGNI9mlLaeevyTv81cNmb7LMeyeqNCzLvTouXIlsj0EzcwTLos47NNWjA==",
+    "version": "0.4.1"
   },
   "@expo-google-fonts/almarai": {
     "integrity": "sha512-mbFizbbS8JapmhR6/pWYLq5YAR+CX8VFIUjPC5Z0YIYy3rKz1X10DnU4WijgRASUniCyf10V84W3ws+NvtvqCA==",
     "version": "0.4.1"
   },
+  "@expo-google-fonts/alyamama": {
+    "integrity": "sha512-jyzIce4dQSIA6ZJtqkel7Ex+gUXJtyCyUNThKoBR8b+oPZd2hZW92ES1PBdBvu220Copy8IGUSZiGzQigpLAUQ==",
+    "version": "0.4.0"
+  },
   "@expo-google-fonts/amiri": {
     "integrity": "sha512-JTZUZ4olyqGeXu5UBWVEerrbym/MD9U3wU8qzSg8z4qEtHFKAI3uPg2DuytfeRmJ6EppaHLYsYqpGerMOrpJeA==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/amiri-quran": {
+    "integrity": "sha512-SvDvVzHTlD2qcD3YJF6d7ZfkVK3dSLZSWswmwoZthd7kFzlNOvOkKu1ph2CcEpd4+AsumMJMoMpUiyjM4BG3OA==",
     "version": "0.4.1"
   },
   "@expo-google-fonts/anton": {
     "integrity": "sha512-VXxS6ZppH1W/0ch06c52iVpZhVwHX9sXEctyFy/NiF/gb3i697R4va+qpiDQHB71NI8pLyecdBjNrc5FA9qKrw==",
     "version": "0.4.2"
   },
+  "@expo-google-fonts/archivo": {
+    "integrity": "sha512-FLhI4/ZVIFSHHxx15Z7Rr4QX/4ZrJozEebBEFSdHSRRwULGCuSIpbb3dz56Hslux6LZEnJ1mVpZ6CyVpUzLwIg==",
+    "version": "0.4.2"
+  },
   "@expo-google-fonts/archivo-black": {
     "integrity": "sha512-Zi4M9NPyKBllCd8TobvYRRAAm/dbhnrYTywbkfGVOJ7cThEetli+jYBh/deAjzOEqYMTrlSM89uEiherIPjkpQ==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/aref-ruqaa": {
+    "integrity": "sha512-LiFV81WxeFsgJ5Nc8admfW+HEpMLr8Q2k9QZ6L40O3+W2vXxJLH/Bka3UaQLP/GWRUQ/YsotaVKnAMYLE6Mkmw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/aref-ruqaa-ink": {
+    "integrity": "sha512-8HIJUhEWV2wLJ1Lxihw1VQEqrEO/RjKKPCs4bF626AI9RFUZ+wt5ESUYC4kqNsijsF3WKez1/hDrfaNyBuGQ/w==",
+    "version": "0.4.0"
+  },
+  "@expo-google-fonts/audiowide": {
+    "integrity": "sha512-/KQNDBg64y0xNEdWxLoFyvLTD7yoMM2sJOWJxU1FLcFdfGoRzpo0SdrBLif/janIpUmKvwbLD2KCj5Tc87BNTg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/badeen-display": {
+    "integrity": "sha512-m76pJIhhgyGrRkXn7EbVkuqV+qIHNU0VI64HadQSJQYuIoKeuUOpe+5PrOmtBXTNguw1AjxPHUHJf5RUij+j7w==",
+    "version": "0.4.0"
+  },
+  "@expo-google-fonts/baloo-bhaijaan-2": {
+    "integrity": "sha512-joARJUdbUZDBaMxi6aEe8hzfZuWM6o6cPJI7zsdFpdA9hoJDue5H+9q2Az+oKZjMHB4HqK931GANqNMOfk56jw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/bangers": {
+    "integrity": "sha512-yc/iz6OOs3b6JW5KXZFhiwyAxsZHR3JQC854frmsOVWcOeZzCuwvFE/dIywHR+wy6Y7pv0eBwgMJqO7gkav2mQ==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/barlow": {
+    "integrity": "sha512-ARAwBvQFGxOt2dfoQRVDRZghaStrXTIyI7oBD6/J4z2Iyr+0ME2HJq13RFhTuagCFrT4iapzuKHwOR3iLrNJrA==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/barlow-condensed": {
+    "integrity": "sha512-9yuXU1MpI4Dw/8rR4pj2EXcT4/31H5+DrrT47auF8IzD9r7SZPRoNVq8clRq7zxOTh7v1gJk3pBhydDVf2x/dA==",
     "version": "0.4.1"
   },
   "@expo-google-fonts/bebas-neue": {
     "integrity": "sha512-Ibnf0EQgMUj01tT/ws64RlsMQmOvDP+UDFW93bld0C/WwaOaCGWKgNnqxNkKxmL73y2kpT8EB4dkSNUOyAOEJA==",
     "version": "0.4.1"
   },
+  "@expo-google-fonts/beiruti": {
+    "integrity": "sha512-xqsg8neRumxJwKVXnm7QORIZ0BygvHIOqV9cxp4u7SFQi6ju6T7s3j52kU3WhnAwgPBybOnBbWC0RF6AuQKH3A==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/blaka": {
+    "integrity": "sha512-I0tqM079KtON8pQHvPOr447/xEYWV8gZH4UkB3I0pbbjfgiMFkGL9oa0mPxuRDJzrztwf5CB8tQxwI5hicK39A==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/blaka-hollow": {
+    "integrity": "sha512-AgnTSr1PDUwuREvq3N2DSc1WHVRTdL4F6aTJbu+33bcGqCV9ZMeSWrXceNIuhHN6JB4BLrVSyQk6sCKZ2OoAHw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/blaka-ink": {
+    "integrity": "sha512-sRVc3YGOcUMdm7gER6Jf/N31nHJN0aAEq3rRchjLKMNtPkUJYO4FZ82tr/kMIILuKVi+KrfbENB1pYxGiIG1DQ==",
+    "version": "0.4.0"
+  },
+  "@expo-google-fonts/bricolage-grotesque": {
+    "integrity": "sha512-uijLLg+thOrFgw+gXtYA3dQJTBqqqleabcNFpamaYXqUUcbFe0J18C+4nfL0CyGzSJUicxUBLY4Zv7jdHmTGMA==",
+    "version": "0.4.1"
+  },
   "@expo-google-fonts/cairo": {
     "integrity": "sha512-iWXHgE4MH6BfFqs8IxhbjNphAboUsb8NSEVIf1kWVGkiwCkAXDHxotgASabuPhhM1SQQXrgOPdmjT9VyeakM3Q==",
     "version": "0.4.2"
+  },
+  "@expo-google-fonts/cairo-play": {
+    "integrity": "sha512-MiyYQhH0JJgAbd1H2yoAqXsZAxETJb+5ISM8c1+F62T8AWMNpggaXCpI3VUsiTozkL+rxojgsJtBTmlmaw2HDg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/cascadia-code": {
+    "integrity": "sha512-od96PdcTrJ38MlIQaej+U5nt6eB3Ovk1epseZNTJ+cIoPeJ4kUX1YcHBWUCAlzQDn7lYAZZGi2Z0WG0MVJgYwg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/cascadia-mono": {
+    "integrity": "sha512-goT/Sza699h/qrloaWv9yal8qg/EiVuqZBd0+FecSbTZ4kdHlDqtELzSaXbfM9sxMnwMk6PW3FRJ4RQTAUYEuQ==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/caveat": {
+    "integrity": "sha512-kCG35tRUX8Wi+u0Jh5ck3K1u7vZkdLnwRTuKMrEnlVmikvxQFXN1KjF5cL2vqRG7Hwm7648Zl8xe1BWAoIsPCA==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/chakra-petch": {
+    "integrity": "sha512-a0Lf+kHUO1UrCWTylvfssuoIpyoU+4ey8HoHmu0XSutFbq2FqkAGYChaiaHksQqayqv+X2R7cUKcBY+4zFqr1w==",
+    "version": "0.4.1"
   },
   "@expo-google-fonts/changa": {
     "integrity": "sha512-RY8L/Fej6xm0R5LU3QL2CJ1W6vLVhhl2ZE5DJIdBOLS1jCKx4AwZFwRRkD8gMgPP4x6H7ZHAKKBPgnKX5PjcGw==",
     "version": "0.4.2"
   },
+  "@expo-google-fonts/chivo": {
+    "integrity": "sha512-Ov5CbwxPvRocO3qpyqrt8Y5PFew0OLvfKTZoc24JWUEzIZ49zt2UHCLgFPsasLSyEsCTQdTbshoWR4WZ6hh+4A==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/cormorant-garamond": {
+    "integrity": "sha512-e8J4Cn13K1txygamg50n3odLUsYP7Ck28XOGobMi7uDsWvFmp/jgK0qcALqJTlmi9NczSWUNdERxcLauHCBa/Q==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/dancing-script": {
+    "integrity": "sha512-5ASbxOM81Xm6nR9I0eE//l1PGgHtR4uGyMX3eUIw2Jeh+1LnlkrDPg55qjChGnkFfVwMge31vXEUyOZJiy9rxQ==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/dm-sans": {
+    "integrity": "sha512-e/fLH5aCJzkEenz7axvEn8N7IJAKhUwNjIxS75h9j+Ip1M9S7d22M19gJN3A7QW4egVkBJRyQh1hQFhngQn9yA==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/dm-serif-display": {
+    "integrity": "sha512-onlO8xAzsgMbKcwUE+fAgJ5AFHhk06VtaDN7eQOJwjV65QIciDKTiSNu1ymHc4m6g/x6D9OqPIYPXdTNIfaEaA==",
+    "version": "0.4.2"
+  },
   "@expo-google-fonts/el-messiri": {
     "integrity": "sha512-T6Vd8G8GfqxRq1Anth7KWOXAAzJ4Aq47JhAm4i62OhfSK9LZr49WzSHbA/jtjHPyyTp2EFmJ75Yovz9FVASXiw==",
     "version": "0.4.2"
+  },
+  "@expo-google-fonts/estedad": {
+    "integrity": "sha512-b3Vg0Wb0cIqCEoSO6jdjvhfkCj3QRlxV/WGoElDNGYLMX1cXaO5oVzNuDPgrIcz1j+mzyumxIzC3HZFPDs8ymg==",
+    "version": "0.4.0"
+  },
+  "@expo-google-fonts/exo-2": {
+    "integrity": "sha512-NHl98DsSHurvtGhOKeMAJsnaN+gVj+FMrlwVdAgiID1RfAKELhw0JojznSJ5cR91bIhiSkcrUMLjYieDQe7RAQ==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/fira-code": {
+    "integrity": "sha512-b0fx07WCnZoM1epBJUfZQX36zs2W3ASfVneIsn1hNGc8xNHMBRDnI0vUdNJsb8ix0wkcilwJknyYhCoX5a3lMA==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/fira-sans": {
+    "integrity": "sha512-zQVs67baYyBVEScaCGKG3MBtGe2hPNc7R3Axmj7JmWs310kOem4poL1mB+O52rwfFqiigzxV876BHFZBxoie1Q==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/fraunces": {
+    "integrity": "sha512-gYc9P92ObyWvz1rWPOeWSvVKyBFIuA8hgOdhvo4DSiPBaWLbFA6v8uLIEIBwW+0oWTlXbBzjeBReHQI2H7UNjQ==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/fustat": {
+    "integrity": "sha512-MinvDa5bUJeHmEI0SiYfBVPXpGorFzmkgip8n46lmou3nzwseV4cMHpjrKfzKWGSetc4vhA/4vNYiiXWB5BWbQ==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/gulzar": {
+    "integrity": "sha512-3fE3HYezbXR0AICzI8eeFNBiRUYVs7o3UW0PJIogi9cCekCW19Yz6cxTdTmESd5rMlLB7a4d2urTetIpPav7WQ==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/handjet": {
+    "integrity": "sha512-JkgP5PCCbMyBRS+j+UXwrgqLGhX1iwnsj8phnG8m1egBG2RWnvwev4oWmbV0Lg7nMYeTJDaJxStR/AOpDom03Q==",
+    "version": "0.4.3"
+  },
+  "@expo-google-fonts/harmattan": {
+    "integrity": "sha512-oGjSW0h9+qVHPmXNwLdzm1X96/tigpHu307llMSBy2c4x9Ib3NUDCxR48a+9zS/umWbciL3/0x5r5vCTW7xTWg==",
+    "version": "0.4.1"
   },
   "@expo-google-fonts/ibm-plex-mono": {
     "integrity": "sha512-/yYz1mPZq8Nd4tSiH0SBDPEdJUqiOGBwVgSrQvLuw7SPh6C7ezBzmi6eFyHY4QaQwjHDmOLSBKsxzq8ZDFXVAg==",
@@ -47,6 +199,10 @@
     "integrity": "sha512-Cx24iSo/4pWBKHVf69tbVLDUiHWCSTHrhKPw/+SYWLDnyiX10WXh+amNWRSo9N3ruwd+qk9AQgDaIY1KO0u1Ig==",
     "version": "0.4.2"
   },
+  "@expo-google-fonts/ibm-plex-serif": {
+    "integrity": "sha512-fmgEtxo2iSMYWd4G8OnDskV7kfAxiXfekEBgiObs39itAj7vk1d71UUdwDJ8QbzygqgA0EQ3oqPB05KqP/Dwnw==",
+    "version": "0.4.1"
+  },
   "@expo-google-fonts/instrument-serif": {
     "integrity": "sha512-1CgCrLbTSgE7RV8ZrTT7i06UAyNQDBrhxQuxkReNnfq5yvUhTmvpOK17grlEsXG5p04lJ1ZXGiIjPeHo6X0sXg==",
     "version": "0.4.1"
@@ -54,6 +210,26 @@
   "@expo-google-fonts/inter": {
     "integrity": "sha512-syfiImMaDmq7cFi0of+waE2M4uSCyd16zgyWxdPOY7fN2VBmSLKEzkfbZgeOjJq61kSqPBNNtXjggiQiSD6gMQ==",
     "version": "0.4.2"
+  },
+  "@expo-google-fonts/jetbrains-mono": {
+    "integrity": "sha512-CslACrtMOcRwoWXCO7OMEI+9w3fukWSoBtvNz46OqPoogEuuoY0tkDY1O8sFumk8t0pC6Cx0Xr95O0TOQhpkug==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/jomhuria": {
+    "integrity": "sha512-gXV2sQrWK7Fs0tpkdeQ/py4TEsnmQeaEw1BWtGWbyuwqK2JhmF3a0Guv0ec7eiq2WJxysQxA58I2TNrbqFyYeA==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/josefin-sans": {
+    "integrity": "sha512-aVxfoUme2j7eQlPQzfXLPhqn3rimsMPH7QcsBhSP2PqXAkAgcbBhmYd2X1XIrxvXTQBAIHVWE8AgmoVIcnrYmw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/jost": {
+    "integrity": "sha512-3iFG70tU53VEt+SRz6ItDUH7S8xBv/m2NNfE3aVRfpZgdLus8HmE1Bjib9iAni/nr0hqT06pfL56ahHjCR6uiw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/katibeh": {
+    "integrity": "sha512-dPGH2F8UNIdh8l6nh29t90CkPQslWekeDDf3S6ARE3VbClo1LHC2g/5O3f/LmqYdYMGCi4R0FIZk7xIDn6Hv2w==",
+    "version": "0.4.1"
   },
   "@expo-google-fonts/kufam": {
     "integrity": "sha512-9Yey5dNLXTU9G4TaolH+P7itq1FJN6aYpKynwlxljSGoIu8CL7OyL9jHevww6EWq+MwLvA/TrhsksP+R4SIl7A==",
@@ -63,24 +239,248 @@
     "integrity": "sha512-1bSXcPR+lO+BB8k2Zuz3oPWAmt4TXRyhNsEwnBTvzPqijqaZ6fPJwpWNbkBd9uMWaStF0yLt/q6WT1RJajdYiw==",
     "version": "0.4.1"
   },
+  "@expo-google-fonts/lateef": {
+    "integrity": "sha512-3ZVk5MNEPVzYfsj/UHYR2v8gE6KZ/JOF1GlXGKqq/rHQrrLVHvi5aut+kgnLYMpK8Bo13nVak/pyzQ19OFLA0w==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/lemonada": {
+    "integrity": "sha512-B4D94Sw4Lsm971+1l87UGgYHZ4eN/90mN5sqGyJHTjgyhvUAoRsyOinffnoMqN0JZhBnPErX76R0um/ISXRatA==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/lexend": {
+    "integrity": "sha512-uddqvCw9zFeYVUqUmPkCxFqEd+YbmCKqpNpdzj+LhJwYM2AwjR8i+Zq5Qx7KhbP/vzIZUfSwC5bnZ3cx2ltqGw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/libre-baskerville": {
+    "integrity": "sha512-EUd0gcmJ2C9ZzobNFe5ohFEOyfZFAy5rA8qluzl32VJCqdysRO1RjU2uxmK4g5EUxwCq4UHVHVzp3sPS7+Ubrw==",
+    "version": "0.4.3"
+  },
+  "@expo-google-fonts/lobster": {
+    "integrity": "sha512-oQGNAlr9/9XlWQk270QUmvqbgGRZjXbEW6FwGxn5ZK6RHyVRAL1MtCbunjjyV3O5aLoZ4Cmh1CuYCHyIMqLe0w==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/lora": {
+    "integrity": "sha512-Bnofh2mIOUKp4KUS48VjaBgug4lQOcw/ftU0NFv5OPtiutL422//G1v63xDZEMUEL6ft4fi5q94/uKcpDjbPag==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/mada": {
+    "integrity": "sha512-FSAGj3RAur4wKfvhB8rCE1GHrlCOeNtwapVIlr57o/R0bPVZkFTZ56af0sC8Ar5y28ApX1FElVZjhiRxOZQMaw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/manrope": {
+    "integrity": "sha512-Jvu9AYoSfjum1maq5JT01OLj1xlr90/tmb+6beHRhL1bC/lYzXMrieH6PzACP7YcE03PT9/Ks9l0WphoLEV/wg==",
+    "version": "0.4.3"
+  },
+  "@expo-google-fonts/marhey": {
+    "integrity": "sha512-XZ3bVxfsBLpnBtvLhTmwA4OS1MlaIh+sv8LJqb5xppUtjEw6k4EfgO3R1jt8qAhbIa9WBGkCgfd4uRmC4arhQg==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/markazi-text": {
+    "integrity": "sha512-A5quzgA5V9pWZ8ErLMBUzPDFdFPLkwWMwgh18d8x/xJlNG0kLCt8l4E7L+4Dh1En1XOLmFlfqqqe9sHDZBfT2g==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/merriweather": {
+    "integrity": "sha512-jUlmDzo5hQ36fPDXZvdt2VIZGCFkdg2Gfx+oWnbzvfygdCvx3AIe8O74IdsN1IZ65mxSSgsajM1c2XV2L/eYkw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/michroma": {
+    "integrity": "sha512-Z5qNDpcZnDNFcX668OqaFFUZ0qrazi8BDrgjylE41RDbMY6S5qYjZsnggnaXUOidKl7V1Zqypb09XjNF0nbqBw==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/mirza": {
+    "integrity": "sha512-BuKCtm28MZv++NvNK+gwIoNCJC3mxWZzw/ya4aTbVwXIXiqT9MVjduk0CukYRQaOycPhZOm2U974HiVrqSLqDg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/monoton": {
+    "integrity": "sha512-Yk229NM3zUJbwPRkllRW8svBeLKS2NbWuJhvWu8hSly7Y+h7MibhYxcbzcp0ovkEnTlXLQZRwDUbClrUgOP2Zg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/montserrat": {
+    "integrity": "sha512-Xyq7rKJhhZOE1Xk4wKSSVoUeOkFmQEMhtZ3pdFrgYckGZMs115Apmld1AI8Ju+yrl5GzDdfRCCqRr33dvEDYUA==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/noto-kufi-arabic": {
+    "integrity": "sha512-6rcatVgSElgvvDJWSuedvlIc2rfwj3PJIbtDJojRSXdXPWXJ3ANcRcpYJ+MQMNpQyH3YNC6jVDi8FlvUezl5gA==",
+    "version": "0.4.3"
+  },
+  "@expo-google-fonts/noto-naskh-arabic": {
+    "integrity": "sha512-KN73tROdoKQubTZ/ZsERCdAlZ1cBLRbRIe196tISAcPLgIqMvIgFCUs1xsrS/pe3fIYxT9l+c95sQF8wv48ijA==",
+    "version": "0.4.5"
+  },
+  "@expo-google-fonts/noto-nastaliq-urdu": {
+    "integrity": "sha512-ciSPIxljdusLFb66Ov5uP8vXNuP2/CPAxwHqF2lIHqQwxZ8YtYf1B9VGiK0hcwp4XqmX6/hog8QNgViWoY9KGg==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/noto-sans-arabic": {
+    "integrity": "sha512-YvtxyuegxPegu2g5urXJ+gQxRp8i798nQswTmEjwXOWR/fqy0Gvey6h5IoNRBrc43SxRxPezqCiR9ivpfPAXSg==",
+    "version": "0.4.3"
+  },
+  "@expo-google-fonts/nunito": {
+    "integrity": "sha512-1KCWphw/I2ugqfs9iRHUCkPTnomNgGPtF4AvqVquoEKxr0EL+mcLNLgeixsslbaSFevRR6/KJAE3sc8g0VaY0Q==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/oi": {
+    "integrity": "sha512-Kla9bRH2UeCrfbGM3Xft0f16JadIxg82wGU5PFfqNLl2rsfmY9kFCyTOaCM0WWGCeHcNqCUSZKZrgAD8CFMY1w==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/open-sans": {
+    "integrity": "sha512-gvhPqLXYnltWgll3iBwRGUwf5yN2HCh4mgQmFoQ8oU66LTs23oX4N7T3t0BDsKfP/1Z8F8+4c7wSkA11Nnk4kA==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/orbitron": {
+    "integrity": "sha512-lp92oZ6FF1tA9dzJxKYPHae8hVxfVJzh5jRvjPCN8P1kkF615n/mq0U4ZQ7EXiEJvO7Cpwg+lZlkSbRw7CiDug==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/oswald": {
+    "integrity": "sha512-ZLB8ou0SmSWThyLDCHQdFnbMrj93hRrpkKMLLoPrIs4QTrPxZyOxHoJ4mFoFCs0efZdV1Yd8mULfaggAblX5Mg==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/outfit": {
+    "integrity": "sha512-2uQmDVJencWLllxds6SG92E+SjxyZfvg7eZKZ5XLHggmm5AuUyQK7lzMAFOUzT6kheq2kJ7BAiubMdjKT32fJg==",
+    "version": "0.4.3"
+  },
+  "@expo-google-fonts/pacifico": {
+    "integrity": "sha512-w21ZIeNdwVWPH173HNszX8ML1deogOsHcxhJ0ghpbyBzr7R6PGSJ6yWL5jBixvWV/E34xDk28aNn/cX+gqzf3Q==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/parastoo": {
+    "integrity": "sha512-9A48eGD8gAqkZD0ELccjcK0JgUmdxeTfhL00it34ISFhX13vdGVool0lGVjd/306Izmrx16gLy26sh9jhxtdrw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/permanent-marker": {
+    "integrity": "sha512-yqKSFt3Wu/06XAGFNlT4z5iLmnjtAuSV/vkeumnM/2cgbEv3dQVKDbcdQnowW8N3vNOABGqWxbs4KEiewNOzqA==",
+    "version": "0.4.0"
+  },
+  "@expo-google-fonts/playfair-display": {
+    "integrity": "sha512-mWhBV59RUjSS3aYpytUb7UyHHTnXcHh7epAn7gq+M4XAEh5PuMKUrP8eiUfkJLb6UwHZCi7EhQpUzxHu5OL96w==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/playpen-sans-arabic": {
+    "integrity": "sha512-hRrN+97YTKGGSD0xo1OCtrq6UzD2NqN0HAjiSB09N2Plw0OnUfShv6PGm5ttSKyZcTfzCd3fVZNU1QTZ5AuCBw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/plus-jakarta-sans": {
+    "integrity": "sha512-6LYVmVGwjQvH+uzzWlVc9+oMj4lkNQ41aymVDjO+x8aFk8kCye20wOyLomYMZaMezA++Uf1mZRCw3W3Fy/hxEA==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/poppins": {
+    "integrity": "sha512-LiX5oEryJqDt3UmWwr4oqf11hGMz/JEffkkNcZ3UtGwyoMFzXmBmTwcrAWrEttxypxmLNmPykDg+CY2VjKve9A==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/qahiri": {
+    "integrity": "sha512-ZAboxqcAWYkmanpSv6rhEdPqMF14KgOBeOvj1OlriNY7Yzx+/7MZc8wYqodfMXNF9CBA9cv+Mp+JQ2sANYHOqA==",
+    "version": "0.4.3"
+  },
+  "@expo-google-fonts/quicksand": {
+    "integrity": "sha512-LpGdmY+CDm/GTv29qDPy8Nz1a3idWO1R6Bb+ty7flS6vfHXsdOQTRKNz93SFHdXQj0FSvVhvMLe3wTtMgf312A==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/rajdhani": {
+    "integrity": "sha512-AQS+20ymwULMvlT9AJlsrgjK2KSI6jW+WenVeFdZgmjC2ZYbWQSotm6PQe9tZx74mBvw+J6X6WorW2B+ISmncg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/rakkas": {
+    "integrity": "sha512-5KRizMJoxOfEajIeldl92rGrkMvBwPY8I13Li9oR8OGyi1Zly/WAE1FnN3iyz/8k7FwOR9YTTlvejoZILEbg4Q==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/raleway": {
+    "integrity": "sha512-EFHYXFx9/M+6kGt/T2/y2Aqo30SosZUp4d8Dd7aLumhacrwlcRL6GYMqwIYQpLbR0xh5Vn4/APH5N72tEkoKRA==",
+    "version": "0.4.2"
+  },
   "@expo-google-fonts/readex-pro": {
     "integrity": "sha512-BADsKySd3E/KIHvm5rHNvaRGTM2WmJ6EgnLAaj3ksgV+wyBbRaOSvqik2gYh00vb74AUSZGmvei/YeAv3Korsw==",
     "version": "0.4.1"
+  },
+  "@expo-google-fonts/reem-kufi": {
+    "integrity": "sha512-FpCXAqBGD3OZumykv4kTMA64S/24U6I4RkiVwq0VkVEQ2NmSv+pxCWbyyi0DQ6Ky5voLo2BrAKnypFUYRb545Q==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/reem-kufi-fun": {
+    "integrity": "sha512-CIm/HmfRGCSOt0HyWB60mEsROXskMaDFWZK2Hr3P86gOdIttLDGxGZj6kNd8FYMARqcCOmQFmOgTpCeJq/uxHg==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/reem-kufi-ink": {
+    "integrity": "sha512-T8f62KEWVzLPjPFyp9j9fDDAqhwdP1AuauOXuTe0Mfg+KFMlcNDRnivLCDBHfk5Z93Ss2T6nGhXBF3ozYOggyQ==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/righteous": {
+    "integrity": "sha512-oWlxXmRNYRN5aHW2cLJopUTr7T+mNRGfKjBeQlYLbOIf1yn6UF5kcg9PqkD6gG8BG1pKxzT3jXzcRvFSRL1HKA==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/roboto": {
+    "integrity": "sha512-kX3wmpmu06fN1yOwYWMdjYJWNUYW6xUiAGeHbvPzzSEb3A3j23JelQ3tAgwQNKgEKRq6wtMmzixy2r7y9c8dsA==",
+    "version": "0.4.3"
   },
   "@expo-google-fonts/rubik": {
     "integrity": "sha512-WJtpQEw4lDKjCVnVIBF9qiZn+BTOB3juWvSchpZ+mnHFFV0gh4PyOvLLJCOMmKVgSj/pzFDtNe4apqexrD0+pA==",
     "version": "0.4.2"
   },
+  "@expo-google-fonts/russo-one": {
+    "integrity": "sha512-RPpUR3ZzgXr3fOHIImNJtUwy3IPnyiAX+FewYW6NTqkConBaJbkCGA160xCvmqoo5iqxNB4XheTHsgyYM+gHIQ==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/ruwudu": {
+    "integrity": "sha512-hfaeM80bkdYAVurq8J4eFQ0XAQe5pimp7CpXeBw8FFMlk+849jW5YjqN1NZmQvsHDJ3vt4+iEtXMFf1eOEvlWg==",
+    "version": "0.4.0"
+  },
+  "@expo-google-fonts/scheherazade-new": {
+    "integrity": "sha512-22XxEdPlhZTdeCJEvcKB9MUrSIxQa0cL4yYFqNIuxgIPzkn0xX3aO/OGl5kYT1gaQn8dVsyeWJlBX0IzQk56Iw==",
+    "version": "0.4.3"
+  },
   "@expo-google-fonts/sora": {
     "integrity": "sha512-X86Kl1cfObcSUzTLIbtmrPCLRlIbCNh0uBOo8bjmXb8gWgVVhnI8CZJEK2btsdq85JPn5k4P6sbV9JLbAm7dqQ==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/source-sans-3": {
+    "integrity": "sha512-pqnxji7ox1jwLGnX5xSGDpk7C5F6VjyQnBe4NT0xrcBFTW+oxxF4ug6eol3y7ucCk/bYjgg3GFLeKvKbFlHnHA==",
     "version": "0.4.2"
   },
   "@expo-google-fonts/space-grotesk": {
     "integrity": "sha512-ZVQYw4Ok/pgcSJiufP8oRZE3AVxS9xtmKEUfsurbHkHNdMc/GA1gDXP9G4Cr7KL4KqSc0haexR2TuMigotCn4Q==",
     "version": "0.4.1"
   },
+  "@expo-google-fonts/space-mono": {
+    "integrity": "sha512-soYY/qcKcnY7xjIhuMAVzJYxSdJ3Z8TjrtFHOB5SK7/4MEMGpoaw+CAVyvXnA3fsO7J7waIW+/5Z0Y0i/CfSeg==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/syne": {
+    "integrity": "sha512-H8VJqvbZRfbfhzAcBa0N++j/2b//RuadZE+VhZ6hzUUtlCw4CyTBrQN7G2UZ+w5DCkFQyRgZ17pmFYy6b0or4Q==",
+    "version": "0.4.2"
+  },
   "@expo-google-fonts/tajawal": {
     "integrity": "sha512-cxbpKCUn8784UwrUQz/YLz8eHbqXN1vWjx5oyvf481pxho+CQR8QfoaeCS0LJ03Op2HG8SMCxRbPopNHebPR5Q==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/tektur": {
+    "integrity": "sha512-KNDfB+3mGQDY8/XmAI+e10EwZGmN/V0V8D4Rqd+11B1I0ugZqhLQ/QpUUHIxAqteQLHE3pW+bC7oAPXbHDBGDA==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/ubuntu": {
+    "integrity": "sha512-dwfRVuLkdFJH/D9iVMYZXDBwbCEKGLfH53AqBMyKhATYBs21iDxkf3NjyjI0MYEHm24mOM7i236idCfyF23Z6Q==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/unbounded": {
+    "integrity": "sha512-L5wlbPo/TWCmkNwtxeurXxo8D8koCPzajYWIMBqVRmcW1riG48fiK2bOBwopVzL/ifWvuAUXYvcunIMcem/2Dg==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/urbanist": {
+    "integrity": "sha512-n7adboEbLKfJ60xHunRutK8ndLbwSIntCO7/HDYuNJMN9Hw4mE0R9Wq7KLmSPfipf/qBogRyXruRVnSg8WFNqg==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/vazirmatn": {
+    "integrity": "sha512-sznMvxt99C4bsEcWCebs3XWb/av8z9a/Y4OQo8F7VPFT0xzzn7Whkkw6dqxcAyLYEiNNpTpa3/vp8t1/koK6Jw==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/vibes": {
+    "integrity": "sha512-qO7Ziauw4/yldw6noyHPp75g5Tf0ezk0/CC0tQrW+hnnTX8jVZnWSv1Y7BcKvxGGGKWVNXFBChcJ+6ZHF/BFdQ==",
+    "version": "0.4.1"
+  },
+  "@expo-google-fonts/work-sans": {
+    "integrity": "sha512-v+I8jQgoOAmI77v1V0EXvgKA4NGg8Agy2BCHAI6sswAKTub2sKsi6PXT4vLBn95dbbTqelSlcT79YRDTlCBrRg==",
+    "version": "0.4.2"
+  },
+  "@expo-google-fonts/zain": {
+    "integrity": "sha512-/roukwnlOZSneK5Lm2BR7bmBzaililocrFGO2fY6P60wsqCyBI4T4Jh6naTAmTwaAgZveW/JzcCBJwfGZeiWrw==",
     "version": "0.4.1"
   }
 }

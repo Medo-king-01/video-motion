@@ -55,7 +55,7 @@
 (كلمات الشاشة، مدة القراءة، القطع على الشبكة، المساحات الفاضية، واللوكات الممنوعة) — الشرح والأرقام
 كلها في `docs/craft.md`، والمكتبة المقروءة في `docs/techniques.md`.
 
-**١٢٥ خط مجاني** (٦١ عربي + ٦٤ إنجليزي) — ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)، تشمل Aref Ruqaa, Reem Kufi, Qahiri, Fustat, Lalezar وغيرها. الوكيل بيختار الأنسب لكل مشهد (للنماذج الضعيفة: `medo-motion/looks/shortlist.json`).
+**١٢٥ خط مجاني** (٦١ عربي + ٦٤ إنجليزي) — ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)، تشمل Aref Ruqaa, Reem Kufi, Qahiri, Fustat, Lalezar وغيرها. الوكيل بيختار الأنسب لكل مشهد (للنماذج الضعيفة: `medo-motion/looks/shortlist.json` + `medo-motion/looks/looks.json` — ٦ Looks مقفولة: house, tech-dark, explain-paper, kinetic-hook, swiss-data, warm-story).
 
 **١٦٣ ستايل بصري** (`assets/styles/styles.json`) — لغة بصرية كاملة لكل فيديو: باليت ألوان، خطوط، سطح، شخصية:
 - **١٧ ستايل** من Majed Video (keynote, paperCut, explainer, terminal, vhs, brutal...)

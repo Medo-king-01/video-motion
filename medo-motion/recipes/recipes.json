@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "status": "curated",
+  "date": "2026-11-09",
+  "note": "Named scene recipes — the archetypes the studio ships whole: which engine renders them, which plan files they require, which validators gate them, which looks and signature moves fit. A recipe answers «لمشهد زي ده أعمل إيه؟» with the studio's real contracts instead of improvisation. Recipes name plan files the projects write (relative to the project root); validators and docs are paths inside this repository and are checked by the test suite.",
+  "policy": {
+    "weak_models": "State the recipe id (e.g. recipe: \"tech-demo-ui\") and let it fill the engine hint, the required plans and the validators. Do not blend halves of two recipes without saying so.",
+    "strong_agents": "A recipe is a checklist, not a straitjacket. Deviating is allowed — every plan file it names is still required, and its validators must pass before render.",
+    "engines": "engines[0] is the preferred engine for this scene type; the rest are proven fallbacks (AGENTS.md §4). Hybrid is a pipeline decision, not a scene recipe.",
+    "ui": "ui: true mirrors beats.json scene \"ui\": true — the scene shows an interface that must change (tools/reel_lint.py U01). Set the same flag on the scene.",
+    "looks": "Looks are recommendations, any look from medo-motion/looks/looks.json is valid; per-element agent choice still applies (TASTE.md §3)."
+  },
+  "recipes": [
+    {
+      "id": "tech-demo-ui",
+      "name_ar": "شاشة منتج تتفاعل",
+      "name_en": "Interactive product screen",
+      "engines": ["k", "p", "r"],
+      "ui": true,
+      "looks": ["tech-dark", "house"],
+      "techniques": ["pd-cursor-does-the-demo", "pd-app-window-builds", "ui-state-change-on-tap", "ui-checklist-ticks-on-beat", "mi-press-has-depth"],
+      "use_when": "شرح منتج/أداة عبر واجهة مرسومة فعليًا: نافذة تبني نفسها، مؤشر يعمل clicks، لستة تتملي — للمشاهد اللي بتعرض app/tool",
+      "avoid_when": "مفيش واجهة فعلًا في القصة — الشاشة الزائفة اللي مش بتتغير أسوأ من مفيش شاشة",
+      "arc": [
+        "0.0s — الفريم الأول في حركة: النافذة/الكارت موجود أصلًا، أول tap خلال أول ثانية",
+        "1–3s — المؤشر يعمل أول فعل (click) والشاشة تتغير فعلًا (U01)",
+        "منتصف — كل tap يفتح حالة جديدة؛ التتابع هو القصة",
+        "آخر ثانية — النتيجة تثبت: check نهائي أو الرقم النهائي، مع hit على الحدث المرئي"
+      ],
+      "requires": ["plan/copy.json", "plan/text-direction.json", "plan/techniques.json"],
+      "validators": ["tools/reel_lint.py"],
+      "docs": "docs/craft.md"
+    },
+    {
+      "id": "machine-explainer",
+      "name_ar": "قطعة هارد موثقة بمصدر",
+      "name_en": "Sourced hardware explainer",
+      "engines": ["p", "k"],
+      "ui": false,
+      "looks": ["tech-dark", "explain-paper"],
+      "techniques": ["cam-isolating-push", "d3-extruded-slab-orbit", "ty-masked-baseline-rise", "dn-unit-arrives-after", "sn-hit-on-visible-event"],
+      "use_when": "شرح قطعة عتاد/نظام (NVMe، CPU، SSD…) بأجزاء وأسهم ومصدر لكل ادعاء — كل خطوة مربوطة بكلمة مقاسة في الصوت",
+      "avoid_when": "لا يوجد مصدر قابل للتحقق — الوضع illustrative فقط، مع تصريح disclaimer ظاهر وبدون أرقام مواصفات غير موثقة",
+      "arc": [
+        "القطعة تملأ الكادر — حركة واحدة فقط في أول 800ms",
+        "كل خطوة = anchor على كلمة مقاسة (reveal على VO، لا قبلها)",
+        "X01/X02: كل claim بمصدر+locator أو illustrative موسوم بشريط ظاهر",
+        "الختام — إعادة تجميع القطعة أو pull-back للوحدة كاملة مع الاسم"
+      ],
+      "requires": ["plan/machines/<id>.json", "plan/word-timings.json", "plan/visual-direction.json", "plan/copy.json", "plan/text-direction.json"],
+      "validators": ["tools/machine_explainer.py", "tools/reel_lint.py"],
+      "docs": "docs/machine-explainer.md"
+    },
+    {
+      "id": "kinetic-hook",
+      "name_ar": "هوك تايبوغرافي",
+      "name_en": "Kinetic type hook",
+      "engines": ["k", "p"],
+      "ui": false,
+      "looks": ["kinetic-hook", "house"],
+      "techniques": ["oh-one-beat-of-still-then-slam", "oh-word-arrives-with-the-move", "ty-oversize-blur-slide-in", "ty-inplace-light-up-on-beats", "dn-one-number-full-bleed"],
+      "use_when": "مشهد الافتتاح أو الرقم الصادم — كلمة واحدة أو رقم يحمل المشهد كاملًا، للحظة لازم تشد قبل ما المشاهد يكمّل scroll",
+      "avoid_when": "أطول من 3 ثوانٍ أو أكتر من عنصرين متزامنين — الهوك بيستهلك بسرعة",
+      "arc": [
+        "0.0s — نصف لمعة سكون: الكلمة الأساسية بس",
+        "على الضربة — slam أو oversize blur slide-in (stagger ≤ 60ms)",
+        "hold قصير — المتلقي يقرأ، ثم قراءتها خروج reading-order",
+        "سلّم بسرعة للمشهد التالي — لا تطيل الوقوف"
+      ],
+      "requires": ["plan/copy.json", "plan/text-direction.json", "plan/techniques.json"],
+      "validators": ["tools/reel_lint.py", "tools/text_direction.py"],
+      "docs": "docs/text-animations.md"
+    },
+    {
+      "id": "list-steps",
+      "name_ar": "قائمة خطوات",
+      "name_en": "Numbered list / steps",
+      "engines": ["k", "p", "r"],
+      "ui": true,
+      "looks": ["swiss-data", "explain-paper"],
+      "techniques": ["ui-list-row-insert", "ui-checklist-ticks-on-beat", "mi-check-draws-itself", "ty-recentre-line-build"],
+      "use_when": "قائمة خطوات/أسباب/أخطاء (3–6 بنود) — السطر الجديد يظهر مع الكلمة المقاسة في الصوت، كل بند له tick",
+      "avoid_when": "أكتر من 6 بنود أو بنود طويلة (> 8 كلمات للبند) — القائمة بتتكسر؛ استخدم مرحلتين أو مشهد تاني",
+      "arc": [
+        "البند الأول يظهر فورًا — من غير مقدمة أو عنوان فرعي",
+        "كل بند: row insert + tick على الكلمة اللي بتقوله",
+        "بين البنود 4–10f — مفيش فراغ طويل",
+        "البند الأخير — hold على CTA أو الكلمة الأهم"
+      ],
+      "requires": ["plan/copy.json", "plan/text-direction.json", "plan/techniques.json"],
+      "validators": ["tools/reel_lint.py"],
+      "docs": "docs/craft.md"
+    },
+    {
+      "id": "counter-proof",
+      "name_ar": "رقم/مقارنة موثقة",
+      "name_en": "Sourced number / comparison",
+      "engines": ["r", "k"],
+      "ui": false,
+      "looks": ["swiss-data", "tech-dark"],
+      "techniques": ["dn-counter-rolls-on-beat", "dn-bar-grows-to-value", "dn-one-number-full-bleed", "dn-unit-arrives-after"],
+      "use_when": "رقم كبير، نسبة، مقارنة عمودين — أي claim رقمي لازم يقابل كلمة مقاسة في الصوت ومصدر أو disclaimer",
+      "avoid_when": "الرقم مجرد زينة بلا معنى في الجملة — رقم بلا Anchor يمر خطأ في V01",
+      "arc": [
+        "الهيكل قبل الرقم — frame/شريط بد fact:false وبحد أقصى 6f قبل الكلمة",
+        "العدّاد يطلع sync على الكلمة المقاسة (لا lead للأرقام)",
+        "الوحدة تظهر بعد الأرقام (dn-unit-arrives-after)",
+        "المصدر/السنة بحجم 40px أسفل الرقم — دائمًا"
+      ],
+      "requires": ["plan/visual-direction.json", "plan/word-timings.json", "plan/data/<name>.json", "plan/copy.json", "plan/text-direction.json"],
+      "validators": ["tools/data_recipe.py", "tools/visual_direction.py", "tools/reel_lint.py"],
+      "docs": "docs/visual-data-qa.md"
+    },
+    {
+      "id": "one-take",
+      "name_ar": "لقطة واحدة مستمرة",
+      "name_en": "One-take continuous shot",
+      "engines": ["p", "k", "r"],
+      "ui": true,
+      "looks": ["tech-dark", "house"],
+      "techniques": ["pd-cursor-does-the-demo", "cam-parallax-truck", "cam-pull-lands-event", "ui-state-change-on-tap"],
+      "use_when": "مشهد UI/منتج واحد بكاميرا مستمرة ومؤشر حتمي — flow واحد من فتح التطبيق للنتيجة، من غير أي قطع",
+      "avoid_when": "تحتاج أكتر من flow أو مقارنة بين شاشتين — One-take قانونه flow واحد؛ الكسر = مشهد تاني",
+      "arc": [
+        "المدة = beats.json المقاسة — لا يوجد target length",
+        "كاميرا 2D مستمرة: zoom واحد بطيء من 0.88 إلى ~1.06 عبر المشهد كله",
+        "المؤشر + clicks فقط — ممنوع typing/drag",
+        "كل state = مرحلة من نفس الـflow، بترتيب لا يقبل اللبس"
+      ],
+      "requires": ["plan/one-take.json", "plan/beats.json", "plan/copy.json", "plan/text-direction.json"],
+      "validators": ["tools/reel_lint.py"],
+      "docs": "docs/one-take.md"
+    },
+    {
+      "id": "slide-wall",
+      "name_ar": "حائط شرائح 3D",
+      "name_en": "3D slide wall",
+      "engines": ["k", "p", "r"],
+      "ui": false,
+      "looks": ["house", "kinetic-hook"],
+      "techniques": ["d3-extruded-slab-orbit", "tr-shape-match-cut", "cam-crane-push", "ty-oversize-blur-slide-in"],
+      "use_when": "مقارنة/تجميع شرائح بأرقام كبيرة داخل منظور ثلاثي — عرض مهيكل لمجموعة نتائج أو مفاتيح، مع هبوط داخل شريحة واحدة في كل مرة",
+      "avoid_when": "نص طويل على الشرائح (> 5 كلمات) أو شرائح أكتر من 6 — المنظور بيتلخبط والقراءة بتتعب",
+      "arc": [
+        "0.0s — overview: الحائط كامل قدّام الكاميرا (ids 01..N)",
+        "الهبوط على أول شريحة — يبدأ عند الكلمة المقاسة في الـVO",
+        "match cut: نهاية الهبوط = أول فريم للشريحة من جوّا",
+        "الختام — return إلى overview، ثم CTA أو اللوجو التايبوغرافي"
+      ],
+      "requires": ["plan/slide-wall.json", "plan/beats.json", "plan/copy.json", "plan/text-direction.json"],
+      "validators": ["tools/reel_lint.py"],
+      "docs": "docs/slide-wall.md"
+    },
+    {
+      "id": "presenter-overlay",
+      "name_ar": "ميدو بيتكلم + عناصر فوقه",
+      "name_en": "Presenter + overlay graphics",
+      "engines": ["p"],
+      "ui": false,
+      "looks": ["warm-story", "house"],
+      "techniques": ["ty-pose-occlusion-title-reveal", "cam-living-hold-creep", "ps-breath-envelope", "sn-hit-on-visible-event"],
+      "use_when": "ميدو ظاهر بيتكلم مع أرقام/كلمات/دياجرام بتظهر فوقه — beat يقرر: presenter ولا overlay ولا cover لكل جملة",
+      "avoid_when": "العنصر بيغطي الوش أكثر من ثانية أو framing بيتغير أكتر من مرة لكل جملة — القراءة بتكسر",
+      "arc": [
+        "الجملة الأولى — ميدو standalone، framing واحد ثابت",
+        "الـoverlay يظهر sync على الكلمة المقاسة بس، ويخرج معاها",
+        "framing واحد لكل جملة (full ↔ bust فقط)",
+        "وقفة ≥ 0.8s لكل وجه — مينفعش frozen pose"
+      ],
+      "requires": ["plan/visual-direction.json", "plan/word-timings.json", "plan/copy.json", "plan/text-direction.json", "plan/beats.json"],
+      "validators": ["tools/visual_direction.py", "tools/reel_lint.py"],
+      "docs": "docs/presenter.md"
+    }
+  ]
+}

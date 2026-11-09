@@ -10,12 +10,17 @@ narrows the manifest, it only adds/updates the families listed in `FAMILIES`.
 Every family managed here is on Google Fonts; we pull the actual `.ttf` files from the
 `@expo-google-fonts/*` npm packages (same binaries Google serves, plus the OFL text), because npm is
 a host we can reach from a sandbox and it keeps the provenance reproducible.
+The lock file (`tools/font-packages.lock.json`) pins the npm coordinates (version + SHA-512
+integrity) of the 21 managed families AND of the 100 Alansari-added families that
+`@expo-google-fonts` publishes (pinned 2026-11-09 from the registry's `dist.integrity`).
+The four Alansari families in `LOCK_EXCEPTIONS` have no npm package — see the constant's comment.
 
     python3 tools/fonts_install.py                 # all managed families that are missing
     python3 tools/fonts_install.py --only tajawal   # one family
     python3 tools/fonts_install.py --force          # re-fetch the managed families
     python3 tools/fonts_install.py --list           # what is in the manifest
     python3 tools/fonts_install.py --check          # read-only validation of the WHOLE manifest
+    python3 tools/fonts_install.py --verify-lock    # read-only audit of tools/font-packages.lock.json
 
 The result is `assets/fonts/<Family>/<File>.ttf` + `OFL.txt` per managed family, and
 `assets/fonts/fonts.json` — the single source of truth both engines read
@@ -40,6 +45,15 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "assets" / "fonts"
 MANIFEST = OUT / "fonts.json"
 CACHE = ROOT / "cache" / "fonts-pack"
+LOCK = ROOT / "tools" / "font-packages.lock.json"
+
+# Alansari-added families with NO @expo-google-fonts package (HTTP 404 on the registry,
+# 2026-11-09) — variable fonts that are only published via fonts.google.com specimens.
+# They ship in the repo with their specimen source and OFL licence (see the manifest's
+# `source` and `licence_file`). This set is not a waiver for licence review: adding a
+# lock entry for any of them later is a deliberate act — update this constant in the
+# same commit.
+LOCK_EXCEPTIONS = ("firjar", "thabit", "noto-naskh-arabic-ui", "noto-sans-arabic-ui")
 
 # Curated, not exhaustive: each family has one job. `pairs` is the Arabic↔Latin pairing that shares
 # proportions, so a mixed line looks designed rather than assembled.
@@ -189,7 +203,7 @@ def _safe_extract(tar: tarfile.TarFile, dest: Path) -> None:
 def pack(npm_name: str, dest: Path) -> Path:
     """`npm pack` one family and extract it; returns the extracted package dir."""
     dest.mkdir(parents=True, exist_ok=True)
-    lock = json.loads((ROOT / "tools" / "font-packages.lock.json").read_text())
+    lock = json.loads(LOCK.read_text(encoding="utf-8"))
     spec = lock[f"@expo-google-fonts/{npm_name}"]
     version = spec["version"]
     tgz = dest / f"{npm_name}-{version}.tgz"
@@ -358,13 +372,111 @@ def check_type_system(base: Path = OUT) -> list[str]:
     return problems
 
 
+_SHA512_RE = re.compile(r"^sha512-[A-Za-z0-9+/]{86}={0,2}$")
+_SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$")
+FREE_LICENCES = {"OFL-1.1", "Apache-2.0", "UFL-1.0"}
+
+
+def _slugify(name: str) -> str:
+    """The @expo-google-fonts slug for a family name (lowercase, hyphenated)."""
+    s = name.lower().replace(" ", "-")
+    s = re.sub(r"[^a-z0-9-]", "", s)
+    return re.sub(r"-+", "-", s).strip("-")
+
+
+def verify_lock(base: Path = OUT) -> list[str]:
+    """Read-only audit of tools/font-packages.lock.json against the manifest and disk.
+
+    The lock must cover the 21 managed families (pack() consumes it) and exactly the
+    Alansari families that @expo-google-fonts publishes — no missing pins, no stale ones,
+    no silent exceptions. Every locked Alansari family must carry a declared free licence
+    and its licence file on disk (the mechanical half of the OFL review).
+    """
+    problems: list[str] = []
+    try:
+        lock = json.loads(LOCK.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        return [f"cannot read {LOCK.relative_to(ROOT)}: {error}"]
+    if not isinstance(lock, dict):
+        return [f"{LOCK.relative_to(ROOT)} must be a JSON object of package -> pin"]
+    for key, spec in sorted(lock.items()):
+        if not key.startswith("@expo-google-fonts/"):
+            problems.append(f"{key}: lock keys must be @expo-google-fonts/<slug>")
+            continue
+        if not isinstance(spec, dict) or set(spec) != {"integrity", "version"}:
+            problems.append(f"{key}: entry must be exactly {{integrity, version}}")
+            continue
+        integrity, version = spec["integrity"], spec["version"]
+        if not isinstance(integrity, str) or not _SHA512_RE.match(integrity):
+            problems.append(f"{key}: integrity must be sha512-<base64 of 64 bytes>")
+        else:
+            try:
+                if len(base64.b64decode(integrity[len("sha512-"):])) != 64:
+                    problems.append(f"{key}: integrity payload is not 64 bytes")
+            except Exception:  # noqa: BLE001 - any decode failure is a bad pin
+                problems.append(f"{key}: integrity is not valid base64")
+        if not isinstance(version, str) or not _SEMVER_RE.match(version):
+            problems.append(f"{key}: version {version!r} is not semver")
+
+    try:
+        manifest = json.loads((base / "fonts.json").read_text(encoding="utf-8"))["families"]
+    except (OSError, ValueError) as error:
+        return problems + [f"cannot read the manifest: {error}"]
+
+    managed_names = {spec["family"] for spec in FAMILIES}
+    managed_slugs = {f"@expo-google-fonts/{spec['npm']}" for spec in FAMILIES}
+    for key in sorted(managed_slugs - set(lock)):
+        problems.append(f"{key}: managed family missing from the lock")
+
+    alansari = {name: meta for name, meta in manifest.items() if name not in managed_names}
+    slug_of = {name: _slugify(name) for name in alansari}
+    for name, slug in sorted(slug_of.items()):
+        key = f"@expo-google-fonts/{slug}"
+        if slug in LOCK_EXCEPTIONS:
+            if key in lock:
+                problems.append(f"{name}: pinned in the lock but listed in LOCK_EXCEPTIONS — pick one")
+            continue
+        if key not in lock:
+            problems.append(f"{name}: {key} missing from the lock "
+                            f"(pin it, or add {slug!r} to LOCK_EXCEPTIONS with its specimen source)")
+            continue
+        meta = manifest[name]
+        if meta.get("licence") not in FREE_LICENCES:
+            problems.append(f"{name}: licence {meta.get('licence')!r} is not one of {sorted(FREE_LICENCES)}")
+        licence_file = meta.get("licence_file")
+        if not licence_file or not (base / licence_file).is_file() or (base / licence_file).stat().st_size == 0:
+            problems.append(f"{name}: declared licence file {licence_file!r} missing/empty on disk")
+
+    covered = set(managed_slugs) | {f"@expo-google-fonts/{slug_of[n]}" for n in alansari
+                                     if slug_of[n] not in LOCK_EXCEPTIONS}
+    for key in sorted(set(lock) - covered):
+        problems.append(f"{key}: lock entry matches no family in the manifest (stale pin?)")
+    for slug in LOCK_EXCEPTIONS:
+        if slug not in set(slug_of.values()):
+            problems.append(f"LOCK_EXCEPTIONS lists {slug!r} but no Alansari family slugifies to it")
+    return problems
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="read-only check of every family and file")
     ap.add_argument("--only", action="append", help="family name (repeatable)")
     ap.add_argument("--force", action="store_true", help="re-fetch even if the files exist")
     ap.add_argument("--list", action="store_true", help="print the manifest and exit")
+    ap.add_argument("--verify-lock", action="store_true",
+                    help="read-only audit of tools/font-packages.lock.json against the manifest and disk")
     a = ap.parse_args()
+
+    if a.verify_lock:
+        problems = verify_lock()
+        try:
+            pinned = len(json.loads(LOCK.read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            pinned = 0
+        print("\n".join(problems) if problems
+              else f"Font packages lock OK ({pinned} pinned packages, "
+                   f"{len(LOCK_EXCEPTIONS)} documented exceptions, licence files verified)")
+        return int(bool(problems))
 
     if a.check:
         problems = check_type_system()

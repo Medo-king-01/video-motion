@@ -159,6 +159,19 @@ def test_one_engine_p_frame_has_brand_size(project, monkeypatch):
     """Real frame from the real engine: 1080x1920, uint8, with Arabic ink on it."""
     monkeypatch.chdir(project)
     import importlib
+    import sys
+
+    # The engine ships `text_direction.py` and tools/ ships a CLI of the same name.
+    # Every tool that needs the library puts the toolkit ahead of `tools/` deliberately
+    # (see stage_gate.py's "Put toolkit libraries ahead of `tools/`" comment); the test
+    # must do the same or `from text_direction import font_for` binds the CLI and the
+    # outcome depends on what the rest of the suite imported first.
+    sys.path.insert(0, str(ENGINE_P))
+    # If a previous test already bound the name to the CLI, drop it so the engine copy wins.
+    if (getattr(sys.modules.get("text_direction"), "__file__", "") or "").endswith(
+        "tools/text_direction.py"
+    ):
+        del sys.modules["text_direction"]
 
     import scenes
     importlib.reload(scenes)

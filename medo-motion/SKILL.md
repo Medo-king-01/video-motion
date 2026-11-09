@@ -62,7 +62,7 @@ intake → analyse the VO (`silencedetect`) → lock `plan/beats.json` → draw 
 text motion AND font for EVERY on-screen text element (`tools/text_direction.py <project> --init`,
 then fill `plan/text-direction.json` + a `role` for every `plan/copy.json` fragment; no default
 style or font) → sync `TASTE.md` / `STYLE.md` / `plan/design.html` (see `../DESIGN_SYSTEM.md`) →
-**lint** (`tools/reel_lint.py <project> --scan-code`) → scene prototype (3 stills)
+optional macro-choices: a locked `look` (`medo-motion/looks/looks.json`) or a scene `recipe` (`medo-motion/recipes/recipes.json`) — both just fill the same per-element decisions, they never bypass the lint → **lint** (`tools/reel_lint.py <project> --scan-code`) → scene prototype (3 stills)
 → contact sheet → assets → engine render (or sequential hybrid render) → mix (−14.5 LUFS) → master (CRF 13 ≥2.5 Mbps)
 → ≥3 visual QC rounds → deliver with an 8–10 line Arabic message.
 

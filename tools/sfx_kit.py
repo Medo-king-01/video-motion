@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -38,6 +37,7 @@ sys.path.insert(0, str(P_DIR))
 sys.path.insert(0, str(ROOT / "tools" / "lib"))
 import sfx  # noqa: E402
 from media_bin import ffmpeg as find_ffmpeg  # noqa: E402
+from media_bin import ffprobe as find_ffprobe  # noqa: E402
 
 
 def _to_mp3(wav: Path, out: Path) -> Path:
@@ -82,7 +82,8 @@ def demo(out: Path, limit_db: float = -1.5, sr: int = sfx.SR) -> Path:
 
 def audio_duration(path: Path) -> float:
     """Length of an audio file in seconds (the reel is as long as its voice-over)."""
-    r = subprocess.run([shutil.which("ffprobe") or "ffprobe", "-v", "error", "-show_entries",
+    probe = find_ffprobe() or "ffprobe"  # env override -> tools/bin shim -> PATH (AGENTS.md §9)
+    r = subprocess.run([probe, "-v", "error", "-show_entries",
                         "format=duration", "-of", "json", str(path)], capture_output=True, text=True)
     if r.returncode == 0:
         try:

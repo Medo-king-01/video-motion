@@ -36,3 +36,63 @@
 - أي عيلة تعدّي الحاجز بعد تحديث الخط: اقلبها لـ`ok` في المانيفست + حدّث `docs/fonts.md`
   واختياريًا ضيفها للقائمة — اختبار `test_looks_shortlist_is_manifest_backed` بيمنع اختيار
   عائلة `review` أو غير موجودة في المانيفست.
+
+---
+
+# Looks المقفولة | Locked Looks — `looks.json`
+
+**الحالة:** قرار تسجيل (2026-11-09) · يكمل «Looks مقفولة» المقترحة — الملف بقى هو المرجع.
+
+`shortlist.json` حلّ مشكلة «منين أختار الخط». `looks.json` بيحل مشكلة «ستايل + خطوط + تقنيات +
+انتقال + خلفية + موسيقى» كحزمة واحدة: **look** واحد هتعرّفه بسطر واحد:
+
+```json
+{"look": "tech-dark"}
+```
+
+## اللي بيلفّه الـLook
+
+كل لوك في `looks.json` بياخد: `style` (مرجع بصري من `assets/styles/styles.json` أو
+`medo-motion/styles/<name>.md` — اتجاه إبداعي فقط، مش باليت) + زوج خطوط من `shortlist.json`
+(display عربي + body عربي + latin، واختياريًا mono) + `techniques` (3–8 ids موجودة فعلًا في
+`assets/techniques.json`) + `transitions` من `medo-motion/motion/transitions.json` +
+`background` من `medo-motion/motion/backgrounds.json` + `music` preset من
+`medo-motion/motion/music-presets.json`. والباليت **مش موجود جوّاه**: أي لون في الريل بيتنقل
+لـ`medo-motion/brand/brand.json` (palette v2.6 Muted) — وده مفروض آليًا في
+`tests/test_looks.py` (مفيش مفاتيح palette/colors/hex جوّه أي Look).
+
+## القواعد
+
+- **موديل ضعيف (أو رخيص):** قول `look: "<id>"` وامضِ — اللوك جاهز. لو البريف محتاج حاجة تانية
+  قولها صراحة؛ لا تقرّب اللوك في السر.
+- **موديل قوي / الوكيل الأساسي:** الـLook نقطة انطلاق مش سقف. الاختيار لكل عنصر يفضل هو القانون
+  (`TASTE.md` §3): الباليت من `brand.json`، الخطوط من المانيفست، والنص الموجه لكل fragment.
+  سجّل أي انحراف في `TASTE.md`.
+- **الافتراضي** هو `house` (الدايرة الحمرا) — واتفاق الاستوديو: الافتراضي ما بيترفضش ولا بيتفرض،
+  لكن الـlint وgates الرندر قافلين على كل حال.
+- الـLook ما بيتعداش الـlint: `reel_lint.py` (T03/T05/T06)، حاجز التشكيل، وحد `no-fallback-look`
+  في بوابات الرندر كلها زي ما هي.
+- **تبديل بين dark/light لكل مشهد** قاعدة الهوية (`brand.json` → `backgrounds.rule`) —
+  الـLook بيعلن الثيمين المضبوط عليهم بس (`themes`)، مش بيبدل القاعدة.
+- كل الـLooks السيتة بيستخدموا الـ6 presets كل واحد مرة واحدة (وركّة للمراجعة: لو ضفت لوك سابع،
+  وزّع الموسيقى بوعي أو سجّل السبب).
+
+## الـLooks المتاحة (2026-11-09)
+
+| id | الاسم | الطاقة | الثيم | للـ |
+|---|---|---|---|---|
+| `house` | الدايرة الحمرا | high | dark/light | الريلز الافتراضية للاستوديو |
+| `tech-dark` | تكنولوجي غامق | high | dark | منتج/أداة تقنية، شاشات وداتا |
+| `explain-paper` | شرح ورقي | medium | light | شرح معلومة واحدة على ورق |
+| `kinetic-hook` | هوك حركي | high | dark/light | هوك/رقم صاخب بكلمة واحدة |
+| `swiss-data` | سويسري للداتا | medium | light | مقارنة/خطوات بشبكة صارمة |
+| `warm-story` | قصة دافئة | calm | dark/light | سرد قصصي بشري |
+
+## الأدلة وإعادة التدقيق
+
+- `python3 -m pytest tests/test_looks.py` — كل id في كل Look موجود في مانيفستاته (انحراف أي
+  manifest = فشل الاختبار)، والخطوط من المختصرة و`status: ok`، واللوك الافتراضي هو `house`،
+  ومفيش باليت جوّه أي لوك.
+- اللوك مش بيحدد طول الريل — الطول = مدة الـVO المقاسة (`tools/vo_length.py`).
+- إضافة Look جديد: نفس البروتوكول — `style` يتحل لمرجع موجود، الخطوط من المختصرة، التقنيات
+  بتتحقق `python3 tools/techniques.py --validate`، والاختبار لازم يفضل أخضر.

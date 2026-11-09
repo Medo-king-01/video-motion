@@ -1,5 +1,72 @@
 # Changelog — Video Motion
 
+## 2026-11-09 — Looks مقفولة + وصفات المشاهد + سكيما beats.json
+The «Move the intelligence into the system» slice, completed after the network went green.
+Weak/cheap models now state a `look` (or a `recipe`) instead of improvising art direction —
+two locked, machine-checked layers on top of `medo-motion/looks/shortlist.json`:
+
+- **`medo-motion/looks/looks.json`** — six locked named Looks (`house` default, `tech-dark`,
+  `explain-paper`, `kinetic-hook`, `swiss-data`, `warm-story`). Each bundles: a style reference
+  (`styles.json` id or `medo-motion/styles/*.md`), a font pair **from the curated shortlist**
+  (display/body Arabic + Latin ± mono), 3–8 signature technique ids, catalog transitions, a
+  catalogued background and one music preset (all six presets used, one look each). **A Look
+  carries no palette and no colors** — brand v2.6 Muted stays the only color authority
+  (`tests/test_looks.py` walks every look and fails on any palette/color/hex key — the brand
+  lock is now mechanical). Style references are creative direction only; `README.md` rewritten
+  to document the two-layer system (shortlist → looks).
+- **`medo-motion/recipes/recipes.json`** — eight named scene recipes (`tech-demo-ui`,
+  `machine-explainer`, `kinetic-hook`, `list-steps`, `counter-proof`, `one-take`, `slide-wall`,
+  `presenter-overlay`): preferred engine (+ proven fallbacks), `plan/` files required, the
+  validators that gate the scene, recommended looks and signature techniques, playable arc,
+  `ui` flag mirroring beats.json. `tests/test_recipes.py` resolves every id, every validator
+  path and every doc — a recipe cannot rot silently.
+- **`medo-motion/schema/beats.schema.json`** — the first official schema (JSON Schema draft
+  2020-12) for the studio's oldest plan file, with `medo-motion/schema/README.md`. Documented
+  contract for editors/external tooling; enforced in-repo by **`tools/beats_check.py`**
+  (stdlib-only — no jsonschema dependency), which adds the cross-field invariants a schema
+  cannot express: bounds↔scenes↔duration agreement, `frames == round(duration × fps)` at both
+  levels, index sequence 1..N, contiguity, event containment, duplicate-id detection. Codes
+  `B01`–`B07`. **The reel still has no target length** — anything other than the two legal
+  states (`duration: null` draft / measured) fails. `tests/test_beats_schema.py` holds schema
+  ↔ checker in lockstep and covers the fixtures, the VO round-trip (writer output must pass),
+  and a 23-case negative matrix. The `bad` craft fixture passes the schema by design — craft
+  failures stay with `reel_lint.py`.
+- **`tools/vo_length.py`**: a missing `ffprobe` binary now falls back to the wave-module
+  measurement instead of crashing (mirrors the non-zero-exit fallback; `ffmpeg` paths unchanged).
+- Fast CI now also runs `tests/test_beats_schema.py`, `tests/test_looks.py`, `tests/test_recipes.py`.
+
+## 2026-11-09 — full green network + technique-library contracts + import-order isolation
+Follows the merged fonts P0 (`7ab90c9`, PR #42). The 19 pre-existing suite failures are gone —
+fourteen were environment (missing `tools/bin/ffmpeg`+`ffprobe` shim and `tools/toolkit` node
+modules — both produced by `bash tools/setup.sh`, now present), and the rest were real bugs or
+stale tests that this change fixes:
+
+- **`tools/sfx_kit.py`**: `audio_duration()` discovered ffprobe with its own `shutil.which`
+  instead of `tools/lib/media_bin.py` — broke in any shell without `tools/bin` on PATH. Now uses
+  the shared precedence (env override → `tools/bin/ffprobe` shim → PATH), like every other tool.
+- **`medo-motion/templates/procedural-reels/run_all.py`**: same unification for its ffmpeg/ffprobe
+  discovery (was inline `shutil.which` chains).
+- **`tests/test_techniques.py` — the library's three authoring contracts** (the 59-studio-move
+  assertions could never pass on the 2,239-entry merged library): studio-authored entries must
+  still name a real studio API; the 616 opus + 1,375 Alansari rewritten imports must carry a
+  measured build step (> 60 chars) plus summary/timing/use_when (`evidence` is a 0–9 score and is
+  never falsy-tested); the 189 gl-transitions must reference a shader that really ships in
+  `assets/gl-transitions/` with a `uniforms` list. 19/19 pass.
+- **`docs/techniques.md` regenerated** from the library via `tools/techniques.py --markdown`
+  (27,439 lines; `--check` = OK).
+- **`tests/test_workflow.py::test_one_engine_p_frame_has_brand_size`**: no longer depends on
+  suite import order — puts `ENGINE_P` ahead of `tools/` and drops a stale CLI binding before
+  importing the scene (the rule every tool applies deliberately; `conftest.py`'s targeted
+  `audio_mix` claim and `test_import_precedence.py` are untouched).
+- **`AGENTS.md`**: "K-only Three bridge" → "Optional Three bridge for K and R (`ThreeCanvas`,
+  phase 9)" — matches `docs/motion-three.md` and the Remotion template.
+- **`docs/scene-director-skill.md`**: drift findings #2 (technique tests), #3 (Three bridge
+  wording), #4 (workflow-test isolation) marked resolved.
+- **CI**: Fast CI now also runs `tests/test_techniques.py` and `tests/test_file_safety.py`
+  (stdlib-only, < 2 s each).
+- Also verified the whole suite end-to-end: **1279 passed, 20 skipped** (Python 3.11, Node 22),
+  including the previously order-dependent and environment-dependent replays.
+
 ## 2026-11-09 — type system: 125 families, licence correction, curated shortlist (P0 `p0_fonts`)
 - **Manifest is now the truth:** `assets/fonts/fonts.json` — 125 families (61 Arabic + 64 Latin),
   each with `status` (`ok` / `review`) + a `status_note` for the review set.

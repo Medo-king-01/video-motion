@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Medo-king-01/video-motion/blob/main/medo-motion/schema/beats.schema.json",
+  "title": "plan/beats.json — the reel timeline, derived from the measured voice-over",
+  "description": "The single timing source of an Arabic reel. Written by tools/vo_length.py from the measured VO (helpers fill fps/frames/bounds/scenes), then completed by the agent (theme, events, id, ui). Two legal shapes: the draft (duration null, scenes empty — the new_project scaffold before the VO is measured) and the measured one (duration > 0, contiguous scenes covering [0, duration]). Cross-field invariants (bounds ↔ scenes ↔ duration, frames arithmetic, event containment) are NOT expressible here; they are enforced by tools/beats_check.py and by tools/reel_lint.py. The reel has no target length — duration is the VO length, never a plan.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "duration",
+    "scenes"
+  ],
+  "properties": {
+    "duration": {
+      "type": ["number", "null"],
+      "description": "seconds. null = the VO has not been measured yet (draft); otherwise the exact VO length"
+    },
+    "fps": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 240,
+      "description": "frames per second the reel will render at (vo_length.py defaults to 30)"
+    },
+    "frames": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "round(duration * fps) — the render range of the whole composition"
+    },
+    "bounds": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "number",
+        "minimum": 0
+      },
+      "description": "scene cut points in seconds: starts at 0, ends at duration, non-decreasing, len == scenes + 1"
+    },
+    "audio": {
+      "type": "string",
+      "minLength": 1,
+      "description": "path of the VO file the timeline was measured from (as passed to vo_length.py --json)"
+    },
+    "note": {
+      "type": "string"
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/scene"
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "title": "draft",
+      "description": "scaffold written by tools/new_project.py before tools/vo_length.py ran — not renderable",
+      "properties": {
+        "duration": {
+          "const": null
+        },
+        "scenes": {
+          "maxItems": 0
+        }
+      }
+    },
+    {
+      "title": "measured",
+      "description": "output of tools/vo_length.py, completed by the agent — renderable once reel_lint passes",
+      "required": [
+        "fps",
+        "frames",
+        "bounds",
+        "scenes"
+      ],
+      "properties": {
+        "duration": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "scenes": {
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/scene"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "scene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index",
+        "start",
+        "end"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based, sequential, no gaps"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "stable slug for the scene (e.g. \"one-take\"); unique within the file when present"
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0,
+          "description": "scene start in seconds, on the VO clock (vo_seconds)"
+        },
+        "end": {
+          "type": "number",
+          "minimum": 0,
+          "description": "scene end in seconds; scenes are contiguous — no gaps, no overlaps"
+        },
+        "dur": {
+          "type": "number",
+          "minimum": 0,
+          "description": "end - start (written by vo_length.py; kept for convenience)"
+        },
+        "frames": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "round((end - start) * fps); sums to the top-level frames"
+        },
+        "theme": {
+          "enum": [
+            "dark",
+            "light"
+          ],
+          "description": "alternating locked-brand ground for the scene; feeds the T06 contrast checks"
+        },
+        "ui": {
+          "type": "boolean",
+          "description": "true = the scene shows an interface that must change (reel_lint U01)"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/event"
+          },
+          "description": "picture events inside the scene (reveal, cut-in, interaction) with their time"
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "t",
+        "what"
+      ],
+      "properties": {
+        "t": {
+          "type": "number",
+          "minimum": 0,
+          "description": "event time on the VO clock in seconds; must lie inside its scene"
+        },
+        "what": {
+          "type": "string",
+          "minLength": 1,
+          "description": "one line describing the visible change (\"counter runs\", \"pose swap\")"
+        }
+      }
+    }
+  }
+}

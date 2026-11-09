@@ -126,7 +126,7 @@ finished video on guessed timing without saying so.
    helpers (`drawDirectedText` K, `draw_directed_text` P, `DirectedText` R); raw `fillText`/`text_sprite`
    is lint error T04. There is no fallback look: the render gates and lint fail closed if any text
    has no chosen style. Timing still comes from the measured VO/scene bounds; the style only shapes
-   how the element moves. Keep it unboxed, whole-word Arabic, brand colors.
+   how the element moves. Keep it unboxed, whole-word Arabic, brand colors. A broad brief with a weak model may state a locked `look: <id>` (`medo-motion/looks/looks.json`) or a scene `recipe: <id>` (`medo-motion/recipes/recipes.json`) instead of improvising every choice; neither bypasses the lint.
 
 13. **The studio is a tool, not a video archive.** The studio's memory is this toolkit —
     `assets/` inputs, `templates/`, `brand/`, `tools/`. `projects/` is not: it is a scratch
@@ -165,8 +165,9 @@ these do not cover arbitrary DOM/CSS/SVG or prove VO gates. For bounded SVG prep
 for opt-in reduced decorative motion and resource/profiling limits see `docs/motion-render.md`.
 For bounded nested timelines and compatible multi-contour morph see `docs/motion-nested-morph.md`;
 never treat polygon checks as a universal SVG/topology guarantee. GPU feasibility and licensing are documented in
-`docs/motion-gpu-feasibility.md`; a local API pass is not proof of hardware or Three/vgpu compatibility. Optional K-only Three bridge and
-resource ownership: `docs/motion-three.md`; do not claim general P/R/Hardware GPU or vgpu support. Keep VO word gates, palette, directed text and frame-replay verification intact.
+`docs/motion-gpu-feasibility.md`; a local API pass is not proof of hardware or Three/vgpu compatibility. Optional Three bridge for K and R (`ThreeCanvas`, see
+`docs/motion-three.md` phase 9) and
+resource ownership: `docs/motion-three.md`; do not claim general P, hardware GPU or vgpu support. Keep VO word gates, palette, directed text and frame-replay verification intact.
 
 ## 3. What YOU produce
 
