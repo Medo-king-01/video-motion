@@ -87,7 +87,7 @@ Pillow wheel has no libraqm. `lib.py` picks automatically; never letter-by-lette
 
 `reference/arabic-typography.md` is **mandatory** before any Arabic appears on screen: whole
 words only, RTL, real shaping, no letter-spacing, keep the dots, no word broken across lines.
-Fonts: the agent chooses from the 21-family OFL manifest (`assets/fonts/fonts.json`) per scene/element
+Fonts: the agent chooses from the 125-family manifest (`assets/fonts/fonts.json`: 123 SIL OFL 1.1 + Permanent Marker Apache-2.0 + Ubuntu UFL-1.0) per scene/element
 and records it in `plan/text-direction.json` — no forced default. Install with `tools/fonts_install.py`
 (or `tools/setup.sh`); preview with `tools/fonts_preview.py`.
 

@@ -1,9 +1,9 @@
-"""The type system: 21 free families, real shaping, and a gate against broken ones.
+"""The type system: 125 free families (61 Arabic + 64 Latin), real shaping, and a gate against broken ones.
 
-Everything on screen must be free (SIL OFL 1.1) and must actually render Arabic correctly with the
-engine's own stack. The overlap check below is a regression test for a real failure: Reem Kufi's
-static instants have advances narrower than their outlines, so words collided — 0.27 overlap against
-≤ 0.14 for every healthy family.
+Everything on screen must be free (123 SIL OFL 1.1 families + Permanent Marker, Apache-2.0, Font Diner + Ubuntu, UFL-1.0, Canonical) and must actually render Arabic correctly with the engine's own stack. The overlap
+check below is a regression test for a real failure: advances narrower than outlines make words
+collide. Families measured >= 0.20 on 2026-11-09 carry status="review" in the manifest and are
+kept out of the recommended shortlist (medo-motion/looks/shortlist.json) — see docs/fonts.md.
 """
 from __future__ import annotations
 
@@ -30,28 +30,46 @@ def files_of(family: str) -> list[Path]:
     return [FONTS / family / w["file"] for w in FAMILIES[family]["weights"]]
 
 
+REVIEWED = {
+    # measured >= 0.20 collision ratio on 'النهاردة' @ 54px (2026-11-09) — see docs/fonts.md
+    "Jomhuria", "Aref Ruqaa", "Aref Ruqaa Ink", "Noto Nastaliq Urdu", "Gulzar",
+    "Noto Sans Arabic", "Estedad", "Reem Kufi", "Reem Kufi Fun", "Reem Kufi Ink",
+    "Mirza", "Noto Naskh Arabic", "Noto Kufi Arabic", "Katibeh", "Fustat",
+}
+
+
 def test_manifest_and_files_agree():
-    assert len(FAMILIES) >= 21, "the curated set is 21 families (12 Arabic + 9 Latin)"
-    assert len(ARABIC) == 12 and len(LATIN) == 9
+    assert len(FAMILIES) == 125, "the manifest is the curated set: 125 families (61 Arabic + 64 Latin)"
+    assert len(ARABIC) == 61 and len(LATIN) == 64
     for family, meta in FAMILIES.items():
         assert (FONTS / family).is_dir(), family
         assert meta["weights"], family
         for path in files_of(family):
             assert path.is_file(), f"{family}: missing {path.name}"
             assert path.stat().st_size > 20_000, f"{family}: {path.name} looks truncated"
-        assert meta["licence"] == "OFL-1.1"
+        assert meta["licence"] in {"OFL-1.1", "Apache-2.0", "UFL-1.0"}
         assert meta["role"] and meta["pairs"], family
     total = sum(p.stat().st_size for p in FONTS.rglob("*.ttf"))
-    assert total < 12_000_000, f"the type system should stay lean (now {total / 1e6:.1f} MB)"
+    # The 125-family inventory is ~86 MB on disk; the per-family tests are the real gate.
+    # Kept as a regression alarm — investigate any growth beyond this, don't just raise it silently.
+    assert total < 120_000_000, f"unexpected growth — re-audit the inventory (now {total / 1e6:.1f} MB)"
 
 
 def test_every_family_carries_its_licence():
-    for family in FAMILIES:
-        ofl = FONTS / family / "OFL.txt"
-        assert ofl.is_file(), f"{family} has no OFL.txt"
-        text = ofl.read_text(encoding="utf-8", errors="ignore")
-        assert "SIL OPEN FONT LICENSE" in text.upper(), family
-        assert "SIL Open Font License" in text or "OFL" in text, family
+    """Each family ships the licence file its manifest entry declares.
+
+    Most families are OFL-1.1; Permanent Marker is Apache-2.0 (Font Diner) and Ubuntu is
+    UFL-1.0 (Canonical). The test reads the declared licence rather than assuming one —
+    mislabelling was a real bug.
+    """
+    markers = {"OFL-1.1": ("SIL OPEN FONT LICENSE",), "Apache-2.0": ("APACHE LICENSE",), "UFL-1.0": ("UBUNTU FONT LICENCE",)}
+    for family, meta in FAMILIES.items():
+        declared = meta["licence"]
+        assert declared in markers, f"{family}: unknown licence {declared!r}"
+        licence_file = ROOT / "assets" / "fonts" / meta["licence_file"]
+        assert licence_file.is_file(), f"{family} has no {meta['licence_file']}"
+        text = licence_file.read_text(encoding="utf-8", errors="ignore").upper()
+        assert any(marker in text for marker in markers[declared]), family
 
 
 def test_fallback_is_available_but_not_a_creative_default():
@@ -78,16 +96,54 @@ def _ink_spans(path: Path, text: str = WORD, size: int = 54):
     return width, spans
 
 
-@pytest.mark.parametrize("family", ARABIC)
-def test_arabic_families_shape_without_collisions(family: str):
+def _worst_collision_ratio(family: str) -> float:
+    worst = 0.0
     for path in files_of(family):
         width, spans = _ink_spans(path)
         assert spans and width > 0, f"{family}: no ink for {WORD}"
         overlap = sum(max(0, spans[i][1] - spans[i + 1][0]) for i in range(len(spans) - 1))
-        ratio = overlap / width
+        worst = max(worst, overlap / width)
+    return worst
+
+
+@pytest.mark.parametrize("family", ARABIC)
+def test_arabic_families_shape_without_collisions(family: str):
+    ratio = _worst_collision_ratio(family)
+    status = FAMILIES[family].get("status")
+    if status == "ok":
         assert ratio < 0.20, (
-            f"{family} {path.name}: glyphs overlap ({ratio:.2f}) — advances are narrower than the "
-            "outlines, so words collide (see docs/fonts.md 'tested and rejected')")
+            f"{family}: glyphs overlap ({ratio:.2f}) across the shipped weights — advances are narrower "
+            "than the outlines, so words collide (flip status to 'review' and update docs/fonts.md)")
+    else:
+        assert status == "review", f"{family}: missing status in the manifest"
+        assert family in REVIEWED, f"{family}: not in the measured review set — update REVIEWED + docs/fonts.md"
+        assert ratio >= 0.20, (
+            f"{family} now measures {ratio:.2f} (< 0.20) — flip status back to 'ok', "
+            "update REVIEWED, docs/fonts.md and medo-motion/looks/shortlist.json")
+
+
+def test_manifest_status_covers_every_family_and_pins_the_review_set():
+    for family, meta in FAMILIES.items():
+        assert meta.get("status") in {"ok", "review"}, f"{family}: status must be 'ok' or 'review'"
+    review = {f for f, m in FAMILIES.items() if m["status"] == "review"}
+    assert review == REVIEWED, f"the measured review set drifted: {sorted(review ^ REVIEWED)}"
+    for family in REVIEWED:
+        assert FAMILIES[family]["script"] == "arabic"
+
+
+def test_looks_shortlist_is_manifest_backed():
+    shortlist = json.loads((ROOT / "medo-motion" / "looks" / "shortlist.json").read_text(encoding="utf-8"))
+    picks = shortlist["families"]
+    assert shortlist["status"] == "curated-for-weak-models"
+    assert len(picks) >= 8
+    for entry in picks:
+        family = entry["family"]
+        assert family in FAMILIES, f"{family}: shortlisted but not in the manifest"
+        assert FAMILIES[family]["status"] == "ok", f"{family}: shortlisted but not collision-clean"
+        assert FAMILIES[family]["script"] == entry["script"]
+        assert entry["role"] and entry["pairs"], family
+    scripts = [entry["script"] for entry in picks]
+    assert scripts.count("arabic") >= 6 and scripts.count("latin") >= 4
 
 
 @pytest.mark.parametrize("family", ARABIC)

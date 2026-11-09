@@ -1,0 +1,27 @@
+{
+  "note": "Recommended type shortlist for weak/cheap models. The full manifest stays the single source of truth — this file is a curation layer on top of it, not a replacement. Every family here is status=ok in assets/fonts/fonts.json (passes the 2026-11-09 shaping/collision gate, < 0.20 on 'النهاردة' @ 54px). Families measured >= 0.20 carry status=review in the manifest and are deliberately absent from this list.",
+  "status": "curated-for-weak-models",
+  "date": "2026-11-09",
+  "evidence": "tests/test_fonts.py (shape/collision gate) · assets/fonts/fonts.json (status per family) · docs/fonts.md (measured ratios)",
+  "policy": {
+    "weak_models": "Pick from shortlist.json only; anything else needs a written reason and still goes through the collision gate.",
+    "strong_models": "May pick any manifest family with status=ok; status=review only deliberately (texture-driven), never for body text.",
+    "review_families": "Jomhuria, Aref Ruqaa, Aref Ruqaa Ink, Noto Nastaliq Urdu, Gulzar, Noto Sans Arabic, Estedad, Reem Kufi, Reem Kufi Fun, Reem Kufi Ink, Mirza, Noto Naskh Arabic, Noto Kufi Arabic, Katibeh, Fustat — measured >= 0.20 on 2026-11-09; see docs/fonts.md.",
+    "fallback": "Cairo (Arabic) / Inter (Latin) remain last-resort system-chrome nets, not creative picks."
+  },
+  "families": [
+    { "family": "Alexandria", "script": "arabic", "role": "display_heavy", "pairs": "Anton", "why": "heavy display for the hook word and big numbers — the studio's proven loud opener" },
+    { "family": "Tajawal", "script": "arabic", "role": "geometric_headline", "pairs": "Space Grotesk", "why": "geometric headline + Latin digits; short confident lines for tools/product reels" },
+    { "family": "Cairo", "script": "arabic", "role": "neutral_workhorse", "pairs": "Inter", "why": "neutral body and system-chrome fallback — versatile, never a forced creative default" },
+    { "family": "IBM Plex Sans Arabic", "script": "arabic", "role": "technical_ui_data", "pairs": "IBM Plex Mono", "why": "technical/UI: data rows, device screens, label+number pairs — one superfamily feel" },
+    { "family": "Almarai", "script": "arabic", "role": "legible_small_body", "pairs": "Inter", "why": "small captions and long body — maximum legibility where personality is secondary" },
+    { "family": "Kufam", "script": "arabic", "role": "kufic_statement", "pairs": "Space Grotesk", "why": "kufic statement for chapter cards, poster frames, one-word impact lines" },
+    { "family": "Readex Pro", "script": "arabic", "role": "modern_ui_display", "pairs": "Sora", "why": "modern clean Arabic+Latin — UI/body with a contemporary display edge" },
+    { "family": "El Messiri", "script": "arabic", "role": "display_warm_egyptian", "pairs": "Inter", "why": "warm Egyptian display — personal, human openers without a corporate feel" },
+    { "family": "Inter", "script": "latin", "role": "neutral_latin_body", "pairs": "Cairo", "why": "neutral Latin body — matches Cairo; the Latin half of the fallback net" },
+    { "family": "Space Grotesk", "script": "latin", "role": "technical_display", "pairs": "Tajawal", "why": "technical display — product names, engineering-flavored headers" },
+    { "family": "IBM Plex Mono", "script": "latin", "role": "mono_numbers_specs", "pairs": "IBM Plex Sans Arabic", "why": "code, specs, telemetry — figures that must line up in columns" },
+    { "family": "Anton", "script": "latin", "role": "latin_heavy_display", "pairs": "Alexandria", "why": "one heavy weight — hook, one huge number, CTA; pairs with the Arabic display tier" },
+    { "family": "IBM Plex Sans", "script": "latin", "role": "latin_plex_body", "pairs": "IBM Plex Sans Arabic", "why": "the Latin half of the Plex superfamily — sits 1:1 against Plex Sans Arabic" }
+  ]
+}

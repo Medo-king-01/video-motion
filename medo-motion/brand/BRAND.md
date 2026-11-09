@@ -49,7 +49,7 @@
 - شغّل `python scripts/brand_check.py --project <مجلد المشروع>` للتحقق.
 
 ## 4) الخطوط ✅ (اختيار الوكيل من المانيفست)
-مفيش خط إبداعي مفروض. الوكيل بيختار الأنسب والأجذب للريل — عربي أو إنجليزي — من `assets/fonts/fonts.json` (٢١ عيلة SIL OFL 1.1)، وبيسجّل الاختيار وتبريره في `plan/text-direction.json` (`fontStyles`/`fontElements`). Cairo/Inter مجرد شبكة أمان لكروم النظام (preview/progress)، مش default للشاشة. لو محتاج عيلة جديدة: `tools/fonts_install.py` + توثيق في `docs/fonts.md` و`assets/CREDITS.md`، ولازم تعدّي اختبار التشكيل. النص العربي لازم بخط بيدعم العربي. أرقام غربية 0–9. العربي: كلمات كاملة، RTL، `direction='rtl', language='ar'` مع raqm أو HarfBuzz، **ممنوع** arabic_reshaper/python-bidi مع Pillow.
+مفيش خط إبداعي مفروض. الوكيل بيختار الأنسب والأجذب للريل — عربي أو إنجليزي — من `assets/fonts/fonts.json` (١٢٥ عيلة: ١٢٣ SIL OFL 1.1 + Permanent Marker Apache-2.0 + Ubuntu UFL-1.0)، وبيسجّل الاختيار وتبريره في `plan/text-direction.json` (`fontStyles`/`fontElements`). Cairo/Inter مجرد شبكة أمان لكروم النظام (preview/progress)، مش default للشاشة. لو محتاج عيلة جديدة: `tools/fonts_install.py` + توثيق في `docs/fonts.md` و`assets/CREDITS.md`، ولازم تعدّي اختبار التشكيل. النص العربي لازم بخط بيدعم العربي. أرقام غربية 0–9. العربي: كلمات كاملة، RTL، `direction='rtl', language='ar'` مع raqm أو HarfBuzz، **ممنوع** arabic_reshaper/python-bidi مع Pillow.
 أحجام دنيا على موبايل: label الكارت ≥44px · chip ≥40px · أيقونة ≥128px · كابشن ≥58px.
 
 ## 5) الإحساس (سجلّين)

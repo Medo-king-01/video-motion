@@ -69,7 +69,7 @@ BRIEF = """# BRIEF — {slug}
 ## قرارات الوكيل — Agent decisions (auto-filled)
 - engine: `—`            <!-- P = Pillow، K = Canvas/Playwright، R = Remotion، Hybrid = مقاطع متتابعة -->
 - text motion: `plan/text-direction.json` — الوكيل بيختار ستايل حركة **كل نص ظاهر** (كابشن، عنوان، رقم، CTA، ليبل، UI) لكل مشهد ويبرّره (مفيش default)
-- font: الوكيل بيختار من `assets/fonts/fonts.json` (٢١ عيلة OFL) لكل مشهد/عنصر — مفيش خط افتراضي مفروض
+- font: الوكيل بيختار من `assets/fonts/fonts.json` (١٢٥ عيلة: ١٢٣ OFL + Apache-2.0 Permanent Marker + UFL-1.0 Ubuntu) لكل مشهد/عنصر — مفيش خط افتراضي مفروض
 - music: `Am–F–C–G · 76 BPM · ducked` (locked) / none
 - sfx source: `procedural` → Openverse → (ElevenLabs with approval)
 - assumptions: `—`
@@ -215,8 +215,9 @@ def _public_fonts(project: Path) -> None:
     for family_dir in sorted(d for d in fonts.iterdir() if d.is_dir()):
         destination = public_fonts / family_dir.name
         destination.mkdir(parents=True, exist_ok=True)
+        licence_names = {"OFL.txt", "LICENSE.txt", "LICENCE.txt", "UFL.txt", "LICENSE", "SOURCE.md"}
         for font_file in family_dir.iterdir():
-            if font_file.is_file() and (font_file.suffix == ".ttf" or font_file.name == "OFL.txt"):
+            if font_file.is_file() and (font_file.suffix in {".ttf", ".otf"} or font_file.name in licence_names):
                 shutil.copy2(font_file, destination / font_file.name)
     if (fonts / "fonts.json").is_file():
         shutil.copy2(fonts / "fonts.json", public_fonts / "fonts.json")

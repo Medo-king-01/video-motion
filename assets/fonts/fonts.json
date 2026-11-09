@@ -1,5 +1,5 @@
 {
-  "note": "Free type system (SIL OFL 1.1) — the only fonts allowed on screen. The agent chooses the most fitting face per scene/element (plan/text-direction.json); there is no creative default. `fallback` is a last-resort safety net for system chrome only.",
+  "note": "Free type system — the only fonts allowed on screen. 123 families are SIL OFL 1.1; Permanent Marker is Apache-2.0 (Font Diner) and Ubuntu is Ubuntu Font Licence 1.0 (Canonical) — see each family's licence/licence_file. The agent chooses the most fitting face per scene/element (plan/text-direction.json); there is no creative default. `fallback` is a last-resort safety net for system chrome only. `status`: ok = passes the shaping/collision gate (ratio < 0.20, see tests/test_fonts.py); review = measured >= 0.20 on 2026-11-09 — still usable deliberately for texture, but not offered as a starting point (see docs/fonts.md 'quarantine' and medo-motion/looks/shortlist.json).",
   "fallback": {
     "arabic": "Cairo",
     "latin": "Inter"
@@ -40,7 +40,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Cairo/OFL.txt",
       "source": "https://fonts.google.com/specimen/Cairo",
-      "npm": "@expo-google-fonts/cairo"
+      "npm": "@expo-google-fonts/cairo",
+      "status": "ok"
     },
     "Tajawal": {
       "script": "arabic",
@@ -76,7 +77,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Tajawal/OFL.txt",
       "source": "https://fonts.google.com/specimen/Tajawal",
-      "npm": "@expo-google-fonts/tajawal"
+      "npm": "@expo-google-fonts/tajawal",
+      "status": "ok"
     },
     "IBM Plex Sans Arabic": {
       "script": "arabic",
@@ -102,7 +104,8 @@
       "licence": "OFL-1.1",
       "licence_file": "IBM Plex Sans Arabic/OFL.txt",
       "source": "https://fonts.google.com/specimen/IBM+Plex+Sans+Arabic",
-      "npm": "@expo-google-fonts/ibm-plex-sans-arabic"
+      "npm": "@expo-google-fonts/ibm-plex-sans-arabic",
+      "status": "ok"
     },
     "Almarai": {
       "script": "arabic",
@@ -128,7 +131,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Almarai/OFL.txt",
       "source": "https://fonts.google.com/specimen/Almarai",
-      "npm": "@expo-google-fonts/almarai"
+      "npm": "@expo-google-fonts/almarai",
+      "status": "ok"
     },
     "Alexandria": {
       "script": "arabic",
@@ -154,7 +158,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Alexandria/OFL.txt",
       "source": "https://fonts.google.com/specimen/Alexandria",
-      "npm": "@expo-google-fonts/alexandria"
+      "npm": "@expo-google-fonts/alexandria",
+      "status": "ok"
     },
     "Kufam": {
       "script": "arabic",
@@ -180,7 +185,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Kufam/OFL.txt",
       "source": "https://fonts.google.com/specimen/Kufam",
-      "npm": "@expo-google-fonts/kufam"
+      "npm": "@expo-google-fonts/kufam",
+      "status": "ok"
     },
     "El Messiri": {
       "script": "arabic",
@@ -206,7 +212,8 @@
       "licence": "OFL-1.1",
       "licence_file": "El Messiri/OFL.txt",
       "source": "https://fonts.google.com/specimen/El+Messiri",
-      "npm": "@expo-google-fonts/el-messiri"
+      "npm": "@expo-google-fonts/el-messiri",
+      "status": "ok"
     },
     "Amiri": {
       "script": "arabic",
@@ -232,7 +239,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Amiri/OFL.txt",
       "source": "https://fonts.google.com/specimen/Amiri",
-      "npm": "@expo-google-fonts/amiri"
+      "npm": "@expo-google-fonts/amiri",
+      "status": "ok"
     },
     "Rubik": {
       "script": "arabic",
@@ -274,7 +282,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Rubik/OFL.txt",
       "source": "https://fonts.google.com/specimen/Rubik",
-      "npm": "@expo-google-fonts/rubik"
+      "npm": "@expo-google-fonts/rubik",
+      "status": "ok"
     },
     "Changa": {
       "script": "arabic",
@@ -310,7 +319,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Changa/OFL.txt",
       "source": "https://fonts.google.com/specimen/Changa",
-      "npm": "@expo-google-fonts/changa"
+      "npm": "@expo-google-fonts/changa",
+      "status": "ok"
     },
     "Readex Pro": {
       "script": "arabic",
@@ -342,7 +352,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Readex Pro/OFL.txt",
       "source": "https://fonts.google.com/specimen/Readex+Pro",
-      "npm": "@expo-google-fonts/readex-pro"
+      "npm": "@expo-google-fonts/readex-pro",
+      "status": "ok"
     },
     "Lalezar": {
       "script": "arabic",
@@ -364,7 +375,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Lalezar/OFL.txt",
       "source": "https://fonts.google.com/specimen/Lalezar",
-      "npm": "@expo-google-fonts/lalezar"
+      "npm": "@expo-google-fonts/lalezar",
+      "status": "ok"
     },
     "Inter": {
       "script": "latin",
@@ -396,7 +408,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Inter/OFL.txt",
       "source": "https://fonts.google.com/specimen/Inter",
-      "npm": "@expo-google-fonts/inter"
+      "npm": "@expo-google-fonts/inter",
+      "status": "ok"
     },
     "Space Grotesk": {
       "script": "latin",
@@ -422,7 +435,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Space Grotesk/OFL.txt",
       "source": "https://fonts.google.com/specimen/Space+Grotesk",
-      "npm": "@expo-google-fonts/space-grotesk"
+      "npm": "@expo-google-fonts/space-grotesk",
+      "status": "ok"
     },
     "IBM Plex Sans": {
       "script": "latin",
@@ -448,7 +462,8 @@
       "licence": "OFL-1.1",
       "licence_file": "IBM Plex Sans/OFL.txt",
       "source": "https://fonts.google.com/specimen/IBM+Plex+Sans",
-      "npm": "@expo-google-fonts/ibm-plex-sans"
+      "npm": "@expo-google-fonts/ibm-plex-sans",
+      "status": "ok"
     },
     "IBM Plex Mono": {
       "script": "latin",
@@ -474,7 +489,8 @@
       "licence": "OFL-1.1",
       "licence_file": "IBM Plex Mono/OFL.txt",
       "source": "https://fonts.google.com/specimen/IBM+Plex+Mono",
-      "npm": "@expo-google-fonts/ibm-plex-mono"
+      "npm": "@expo-google-fonts/ibm-plex-mono",
+      "status": "ok"
     },
     "Anton": {
       "script": "latin",
@@ -495,7 +511,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Anton/OFL.txt",
       "source": "https://fonts.google.com/specimen/Anton",
-      "npm": "@expo-google-fonts/anton"
+      "npm": "@expo-google-fonts/anton",
+      "status": "ok"
     },
     "Instrument Serif": {
       "script": "latin",
@@ -516,7 +533,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Instrument Serif/OFL.txt",
       "source": "https://fonts.google.com/specimen/Instrument+Serif",
-      "npm": "@expo-google-fonts/instrument-serif"
+      "npm": "@expo-google-fonts/instrument-serif",
+      "status": "ok"
     },
     "Archivo Black": {
       "script": "latin",
@@ -538,7 +556,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Archivo Black/OFL.txt",
       "source": "https://fonts.google.com/specimen/Archivo+Black",
-      "npm": "@expo-google-fonts/archivo-black"
+      "npm": "@expo-google-fonts/archivo-black",
+      "status": "ok"
     },
     "Bebas Neue": {
       "script": "latin",
@@ -560,7 +579,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Bebas Neue/OFL.txt",
       "source": "https://fonts.google.com/specimen/Bebas+Neue",
-      "npm": "@expo-google-fonts/bebas-neue"
+      "npm": "@expo-google-fonts/bebas-neue",
+      "status": "ok"
     },
     "Sora": {
       "script": "latin",
@@ -592,7 +612,8 @@
       "licence": "OFL-1.1",
       "licence_file": "Sora/OFL.txt",
       "source": "https://fonts.google.com/specimen/Sora",
-      "npm": "@expo-google-fonts/sora"
+      "npm": "@expo-google-fonts/sora",
+      "status": "ok"
     },
     "Alan Sans": {
       "script": "arabic",
@@ -611,7 +632,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Alan Sans/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Alan+Sans"
+      "source": "https://fonts.google.com/specimen/Alan+Sans",
+      "status": "ok"
     },
     "Alkalami": {
       "script": "arabic",
@@ -630,7 +652,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Alkalami/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Alkalami"
+      "source": "https://fonts.google.com/specimen/Alkalami",
+      "status": "ok"
     },
     "Alyamama": {
       "script": "arabic",
@@ -649,7 +672,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Alyamama/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Alyamama"
+      "source": "https://fonts.google.com/specimen/Alyamama",
+      "status": "ok"
     },
     "Amiri Quran": {
       "script": "arabic",
@@ -668,7 +692,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Amiri Quran/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Amiri+Quran"
+      "source": "https://fonts.google.com/specimen/Amiri+Quran",
+      "status": "ok"
     },
     "Aref Ruqaa": {
       "script": "arabic",
@@ -692,7 +717,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Aref Ruqaa/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Aref+Ruqaa"
+      "source": "https://fonts.google.com/specimen/Aref+Ruqaa",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.421 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Aref Ruqaa Ink": {
       "script": "arabic",
@@ -716,7 +743,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Aref Ruqaa Ink/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Aref+Ruqaa+Ink"
+      "source": "https://fonts.google.com/specimen/Aref+Ruqaa+Ink",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.342 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Badeen Display": {
       "script": "arabic",
@@ -735,7 +764,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Badeen Display/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Badeen+Display"
+      "source": "https://fonts.google.com/specimen/Badeen+Display",
+      "status": "ok"
     },
     "Baloo Bhaijaan 2": {
       "script": "arabic",
@@ -754,7 +784,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Baloo Bhaijaan 2/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Baloo+Bhaijaan+2"
+      "source": "https://fonts.google.com/specimen/Baloo+Bhaijaan+2",
+      "status": "ok"
     },
     "Beiruti": {
       "script": "arabic",
@@ -773,7 +804,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Beiruti/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Beiruti"
+      "source": "https://fonts.google.com/specimen/Beiruti",
+      "status": "ok"
     },
     "Blaka": {
       "script": "arabic",
@@ -792,7 +824,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Blaka/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Blaka"
+      "source": "https://fonts.google.com/specimen/Blaka",
+      "status": "ok"
     },
     "Blaka Hollow": {
       "script": "arabic",
@@ -811,7 +844,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Blaka Hollow/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Blaka+Hollow"
+      "source": "https://fonts.google.com/specimen/Blaka+Hollow",
+      "status": "ok"
     },
     "Blaka Ink": {
       "script": "arabic",
@@ -830,7 +864,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Blaka Ink/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Blaka+Ink"
+      "source": "https://fonts.google.com/specimen/Blaka+Ink",
+      "status": "ok"
     },
     "Cairo Play": {
       "script": "arabic",
@@ -849,7 +884,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Cairo Play/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Cairo+Play"
+      "source": "https://fonts.google.com/specimen/Cairo+Play",
+      "status": "ok"
     },
     "Cascadia Code": {
       "script": "arabic",
@@ -873,7 +909,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Cascadia Code/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Cascadia+Code"
+      "source": "https://fonts.google.com/specimen/Cascadia+Code",
+      "status": "ok"
     },
     "Cascadia Mono": {
       "script": "arabic",
@@ -897,7 +934,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Cascadia Mono/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Cascadia+Mono"
+      "source": "https://fonts.google.com/specimen/Cascadia+Mono",
+      "status": "ok"
     },
     "Estedad": {
       "script": "arabic",
@@ -916,7 +954,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Estedad/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Estedad"
+      "source": "https://fonts.google.com/specimen/Estedad",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.247 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Firjar": {
       "script": "arabic",
@@ -935,7 +975,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Firjar/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Firjar"
+      "source": "https://fonts.google.com/specimen/Firjar",
+      "status": "ok"
     },
     "Fustat": {
       "script": "arabic",
@@ -954,7 +995,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Fustat/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Fustat"
+      "source": "https://fonts.google.com/specimen/Fustat",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.207 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Gulzar": {
       "script": "arabic",
@@ -973,7 +1016,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Gulzar/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Gulzar"
+      "source": "https://fonts.google.com/specimen/Gulzar",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.317 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Handjet": {
       "script": "arabic",
@@ -992,7 +1037,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Handjet/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Handjet"
+      "source": "https://fonts.google.com/specimen/Handjet",
+      "status": "ok"
     },
     "Harmattan": {
       "script": "arabic",
@@ -1026,7 +1072,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Harmattan/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Harmattan"
+      "source": "https://fonts.google.com/specimen/Harmattan",
+      "status": "ok"
     },
     "Jomhuria": {
       "script": "arabic",
@@ -1045,7 +1092,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Jomhuria/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Jomhuria"
+      "source": "https://fonts.google.com/specimen/Jomhuria",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.495 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Katibeh": {
       "script": "arabic",
@@ -1064,7 +1113,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Katibeh/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Katibeh"
+      "source": "https://fonts.google.com/specimen/Katibeh",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.214 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Lateef": {
       "script": "arabic",
@@ -1113,7 +1164,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Lateef/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Lateef"
+      "source": "https://fonts.google.com/specimen/Lateef",
+      "status": "ok"
     },
     "Lemonada": {
       "script": "arabic",
@@ -1132,7 +1184,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Lemonada/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Lemonada"
+      "source": "https://fonts.google.com/specimen/Lemonada",
+      "status": "ok"
     },
     "Mada": {
       "script": "arabic",
@@ -1151,7 +1204,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Mada/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Mada"
+      "source": "https://fonts.google.com/specimen/Mada",
+      "status": "ok"
     },
     "Marhey": {
       "script": "arabic",
@@ -1170,7 +1224,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Marhey/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Marhey"
+      "source": "https://fonts.google.com/specimen/Marhey",
+      "status": "ok"
     },
     "Markazi Text": {
       "script": "arabic",
@@ -1189,7 +1244,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Markazi Text/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Markazi+Text"
+      "source": "https://fonts.google.com/specimen/Markazi+Text",
+      "status": "ok"
     },
     "Mirza": {
       "script": "arabic",
@@ -1223,7 +1279,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Mirza/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Mirza"
+      "source": "https://fonts.google.com/specimen/Mirza",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.246 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Noto Kufi Arabic": {
       "script": "arabic",
@@ -1242,7 +1300,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Noto Kufi Arabic/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Noto+Kufi+Arabic"
+      "source": "https://fonts.google.com/specimen/Noto+Kufi+Arabic",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.223 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Noto Naskh Arabic": {
       "script": "arabic",
@@ -1261,7 +1321,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Noto Naskh Arabic/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Noto+Naskh+Arabic"
+      "source": "https://fonts.google.com/specimen/Noto+Naskh+Arabic",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.231 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Noto Naskh Arabic UI": {
       "script": "arabic",
@@ -1280,7 +1342,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Noto Naskh Arabic UI/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Noto+Naskh+Arabic+UI"
+      "source": "https://fonts.google.com/specimen/Noto+Naskh+Arabic+UI",
+      "status": "ok"
     },
     "Noto Nastaliq Urdu": {
       "script": "arabic",
@@ -1299,7 +1362,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Noto Nastaliq Urdu/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Noto+Nastaliq+Urdu"
+      "source": "https://fonts.google.com/specimen/Noto+Nastaliq+Urdu",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.371 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Noto Sans Arabic": {
       "script": "arabic",
@@ -1318,7 +1383,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Noto Sans Arabic/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Noto+Sans+Arabic"
+      "source": "https://fonts.google.com/specimen/Noto+Sans+Arabic",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.272 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Noto Sans Arabic UI": {
       "script": "arabic",
@@ -1337,7 +1404,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Noto Sans Arabic UI/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Noto+Sans+Arabic+UI"
+      "source": "https://fonts.google.com/specimen/Noto+Sans+Arabic+UI",
+      "status": "ok"
     },
     "Oi": {
       "script": "arabic",
@@ -1356,7 +1424,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Oi/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Oi"
+      "source": "https://fonts.google.com/specimen/Oi",
+      "status": "ok"
     },
     "Parastoo": {
       "script": "arabic",
@@ -1375,7 +1444,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Parastoo/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Parastoo"
+      "source": "https://fonts.google.com/specimen/Parastoo",
+      "status": "ok"
     },
     "Playpen Sans Arabic": {
       "script": "arabic",
@@ -1394,7 +1464,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Playpen Sans Arabic/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Playpen+Sans+Arabic"
+      "source": "https://fonts.google.com/specimen/Playpen+Sans+Arabic",
+      "status": "ok"
     },
     "Qahiri": {
       "script": "arabic",
@@ -1413,7 +1484,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Qahiri/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Qahiri"
+      "source": "https://fonts.google.com/specimen/Qahiri",
+      "status": "ok"
     },
     "Rakkas": {
       "script": "arabic",
@@ -1432,7 +1504,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Rakkas/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Rakkas"
+      "source": "https://fonts.google.com/specimen/Rakkas",
+      "status": "ok"
     },
     "Reem Kufi": {
       "script": "arabic",
@@ -1451,7 +1524,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Reem Kufi/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Reem+Kufi"
+      "source": "https://fonts.google.com/specimen/Reem+Kufi",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.247 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Reem Kufi Fun": {
       "script": "arabic",
@@ -1470,7 +1545,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Reem Kufi Fun/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Reem+Kufi+Fun"
+      "source": "https://fonts.google.com/specimen/Reem+Kufi+Fun",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.247 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Reem Kufi Ink": {
       "script": "arabic",
@@ -1489,7 +1566,9 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Reem Kufi Ink/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Reem+Kufi+Ink"
+      "source": "https://fonts.google.com/specimen/Reem+Kufi+Ink",
+      "status": "review",
+      "status_note": "advance/outline collision ratio 0.241 (>= 0.20 gate) on 'النهاردة' at 54px, HarfBuzz/FreeType — qa measured 2026-11-09 (see docs/fonts.md)"
     },
     "Ruwudu": {
       "script": "arabic",
@@ -1523,7 +1602,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Ruwudu/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Ruwudu"
+      "source": "https://fonts.google.com/specimen/Ruwudu",
+      "status": "ok"
     },
     "Scheherazade New": {
       "script": "arabic",
@@ -1557,7 +1637,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Scheherazade New/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Scheherazade+New"
+      "source": "https://fonts.google.com/specimen/Scheherazade+New",
+      "status": "ok"
     },
     "Thabit": {
       "script": "arabic",
@@ -1591,7 +1672,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Thabit/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Thabit"
+      "source": "https://fonts.google.com/specimen/Thabit",
+      "status": "ok"
     },
     "Vazirmatn": {
       "script": "arabic",
@@ -1610,7 +1692,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Vazirmatn/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Vazirmatn"
+      "source": "https://fonts.google.com/specimen/Vazirmatn",
+      "status": "ok"
     },
     "Vibes": {
       "script": "arabic",
@@ -1629,7 +1712,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Vibes/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Vibes"
+      "source": "https://fonts.google.com/specimen/Vibes",
+      "status": "ok"
     },
     "Zain": {
       "script": "arabic",
@@ -1683,7 +1767,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Zain/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Zain"
+      "source": "https://fonts.google.com/specimen/Zain",
+      "status": "ok"
     },
     "Abril Fatface": {
       "script": "latin",
@@ -1702,7 +1787,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Abril Fatface/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Abril+Fatface"
+      "source": "https://fonts.google.com/specimen/Abril+Fatface",
+      "status": "ok"
     },
     "Archivo": {
       "script": "latin",
@@ -1726,7 +1812,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Archivo/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Archivo"
+      "source": "https://fonts.google.com/specimen/Archivo",
+      "status": "ok"
     },
     "Audiowide": {
       "script": "latin",
@@ -1745,7 +1832,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Audiowide/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Audiowide"
+      "source": "https://fonts.google.com/specimen/Audiowide",
+      "status": "ok"
     },
     "Bangers": {
       "script": "latin",
@@ -1764,7 +1852,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Bangers/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Bangers"
+      "source": "https://fonts.google.com/specimen/Bangers",
+      "status": "ok"
     },
     "Barlow": {
       "script": "latin",
@@ -1868,7 +1957,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Barlow/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Barlow"
+      "source": "https://fonts.google.com/specimen/Barlow",
+      "status": "ok"
     },
     "Barlow Condensed": {
       "script": "latin",
@@ -1972,7 +2062,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Barlow Condensed/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Barlow+Condensed"
+      "source": "https://fonts.google.com/specimen/Barlow+Condensed",
+      "status": "ok"
     },
     "Bricolage Grotesque": {
       "script": "latin",
@@ -1991,7 +2082,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Bricolage Grotesque/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Bricolage+Grotesque"
+      "source": "https://fonts.google.com/specimen/Bricolage+Grotesque",
+      "status": "ok"
     },
     "Caveat": {
       "script": "latin",
@@ -2010,7 +2102,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Caveat/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Caveat"
+      "source": "https://fonts.google.com/specimen/Caveat",
+      "status": "ok"
     },
     "Chakra Petch": {
       "script": "latin",
@@ -2084,7 +2177,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Chakra Petch/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Chakra+Petch"
+      "source": "https://fonts.google.com/specimen/Chakra+Petch",
+      "status": "ok"
     },
     "Chivo": {
       "script": "latin",
@@ -2108,7 +2202,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Chivo/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Chivo"
+      "source": "https://fonts.google.com/specimen/Chivo",
+      "status": "ok"
     },
     "Cormorant Garamond": {
       "script": "latin",
@@ -2132,7 +2227,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Cormorant Garamond/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Cormorant+Garamond"
+      "source": "https://fonts.google.com/specimen/Cormorant+Garamond",
+      "status": "ok"
     },
     "Dancing Script": {
       "script": "latin",
@@ -2151,7 +2247,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Dancing Script/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Dancing+Script"
+      "source": "https://fonts.google.com/specimen/Dancing+Script",
+      "status": "ok"
     },
     "DM Sans": {
       "script": "latin",
@@ -2175,7 +2272,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "DM Sans/OFL.txt",
-      "source": "https://fonts.google.com/specimen/DM+Sans"
+      "source": "https://fonts.google.com/specimen/DM+Sans",
+      "status": "ok"
     },
     "DM Serif Display": {
       "script": "latin",
@@ -2199,7 +2297,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "DM Serif Display/OFL.txt",
-      "source": "https://fonts.google.com/specimen/DM+Serif+Display"
+      "source": "https://fonts.google.com/specimen/DM+Serif+Display",
+      "status": "ok"
     },
     "Exo 2": {
       "script": "latin",
@@ -2223,7 +2322,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Exo 2/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Exo+2"
+      "source": "https://fonts.google.com/specimen/Exo+2",
+      "status": "ok"
     },
     "Fira Code": {
       "script": "latin",
@@ -2242,7 +2342,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Fira Code/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Fira+Code"
+      "source": "https://fonts.google.com/specimen/Fira+Code",
+      "status": "ok"
     },
     "Fira Sans": {
       "script": "latin",
@@ -2346,7 +2447,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Fira Sans/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Fira+Sans"
+      "source": "https://fonts.google.com/specimen/Fira+Sans",
+      "status": "ok"
     },
     "Fraunces": {
       "script": "latin",
@@ -2370,7 +2472,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Fraunces/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Fraunces"
+      "source": "https://fonts.google.com/specimen/Fraunces",
+      "status": "ok"
     },
     "IBM Plex Serif": {
       "script": "latin",
@@ -2454,7 +2557,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "IBM Plex Serif/OFL.txt",
-      "source": "https://fonts.google.com/specimen/IBM+Plex+Serif"
+      "source": "https://fonts.google.com/specimen/IBM+Plex+Serif",
+      "status": "ok"
     },
     "JetBrains Mono": {
       "script": "latin",
@@ -2478,7 +2582,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "JetBrains Mono/OFL.txt",
-      "source": "https://fonts.google.com/specimen/JetBrains+Mono"
+      "source": "https://fonts.google.com/specimen/JetBrains+Mono",
+      "status": "ok"
     },
     "Josefin Sans": {
       "script": "latin",
@@ -2502,7 +2607,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Josefin Sans/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Josefin+Sans"
+      "source": "https://fonts.google.com/specimen/Josefin+Sans",
+      "status": "ok"
     },
     "Jost": {
       "script": "latin",
@@ -2526,7 +2632,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Jost/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Jost"
+      "source": "https://fonts.google.com/specimen/Jost",
+      "status": "ok"
     },
     "Lexend": {
       "script": "latin",
@@ -2545,7 +2652,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Lexend/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Lexend"
+      "source": "https://fonts.google.com/specimen/Lexend",
+      "status": "ok"
     },
     "Libre Baskerville": {
       "script": "latin",
@@ -2569,7 +2677,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Libre Baskerville/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Libre+Baskerville"
+      "source": "https://fonts.google.com/specimen/Libre+Baskerville",
+      "status": "ok"
     },
     "Lobster": {
       "script": "latin",
@@ -2588,7 +2697,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Lobster/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Lobster"
+      "source": "https://fonts.google.com/specimen/Lobster",
+      "status": "ok"
     },
     "Lora": {
       "script": "latin",
@@ -2612,7 +2722,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Lora/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Lora"
+      "source": "https://fonts.google.com/specimen/Lora",
+      "status": "ok"
     },
     "Manrope": {
       "script": "latin",
@@ -2631,7 +2742,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Manrope/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Manrope"
+      "source": "https://fonts.google.com/specimen/Manrope",
+      "status": "ok"
     },
     "Merriweather": {
       "script": "latin",
@@ -2655,7 +2767,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Merriweather/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Merriweather"
+      "source": "https://fonts.google.com/specimen/Merriweather",
+      "status": "ok"
     },
     "Michroma": {
       "script": "latin",
@@ -2674,7 +2787,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Michroma/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Michroma"
+      "source": "https://fonts.google.com/specimen/Michroma",
+      "status": "ok"
     },
     "Monoton": {
       "script": "latin",
@@ -2693,7 +2807,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Monoton/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Monoton"
+      "source": "https://fonts.google.com/specimen/Monoton",
+      "status": "ok"
     },
     "Montserrat": {
       "script": "latin",
@@ -2717,7 +2832,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Montserrat/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Montserrat"
+      "source": "https://fonts.google.com/specimen/Montserrat",
+      "status": "ok"
     },
     "Nunito": {
       "script": "latin",
@@ -2741,7 +2857,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Nunito/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Nunito"
+      "source": "https://fonts.google.com/specimen/Nunito",
+      "status": "ok"
     },
     "Open Sans": {
       "script": "latin",
@@ -2765,7 +2882,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Open Sans/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Open+Sans"
+      "source": "https://fonts.google.com/specimen/Open+Sans",
+      "status": "ok"
     },
     "Orbitron": {
       "script": "latin",
@@ -2784,7 +2902,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Orbitron/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Orbitron"
+      "source": "https://fonts.google.com/specimen/Orbitron",
+      "status": "ok"
     },
     "Oswald": {
       "script": "latin",
@@ -2803,7 +2922,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Oswald/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Oswald"
+      "source": "https://fonts.google.com/specimen/Oswald",
+      "status": "ok"
     },
     "Outfit": {
       "script": "latin",
@@ -2822,7 +2942,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Outfit/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Outfit"
+      "source": "https://fonts.google.com/specimen/Outfit",
+      "status": "ok"
     },
     "Pacifico": {
       "script": "latin",
@@ -2841,7 +2962,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Pacifico/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Pacifico"
+      "source": "https://fonts.google.com/specimen/Pacifico",
+      "status": "ok"
     },
     "Permanent Marker": {
       "script": "latin",
@@ -2858,9 +2980,11 @@
           "style": "normal"
         }
       ],
-      "licence": "OFL-1.1",
-      "licence_file": "Permanent Marker/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Permanent+Marker"
+      "licence": "Apache-2.0",
+      "licence_file": "Permanent Marker/LICENSE.txt",
+      "source": "https://fonts.google.com/specimen/Permanent+Marker",
+      "status": "ok",
+      "npm": "@expo-google-fonts/permanent-marker"
     },
     "Playfair Display": {
       "script": "latin",
@@ -2884,7 +3008,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Playfair Display/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Playfair+Display"
+      "source": "https://fonts.google.com/specimen/Playfair+Display",
+      "status": "ok"
     },
     "Plus Jakarta Sans": {
       "script": "latin",
@@ -2908,7 +3033,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Plus Jakarta Sans/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Plus+Jakarta+Sans"
+      "source": "https://fonts.google.com/specimen/Plus+Jakarta+Sans",
+      "status": "ok"
     },
     "Poppins": {
       "script": "latin",
@@ -3012,7 +3138,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Poppins/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Poppins"
+      "source": "https://fonts.google.com/specimen/Poppins",
+      "status": "ok"
     },
     "Quicksand": {
       "script": "latin",
@@ -3031,7 +3158,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Quicksand/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Quicksand"
+      "source": "https://fonts.google.com/specimen/Quicksand",
+      "status": "ok"
     },
     "Rajdhani": {
       "script": "latin",
@@ -3070,7 +3198,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Rajdhani/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Rajdhani"
+      "source": "https://fonts.google.com/specimen/Rajdhani",
+      "status": "ok"
     },
     "Raleway": {
       "script": "latin",
@@ -3094,7 +3223,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Raleway/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Raleway"
+      "source": "https://fonts.google.com/specimen/Raleway",
+      "status": "ok"
     },
     "Righteous": {
       "script": "latin",
@@ -3113,7 +3243,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Righteous/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Righteous"
+      "source": "https://fonts.google.com/specimen/Righteous",
+      "status": "ok"
     },
     "Roboto": {
       "script": "latin",
@@ -3137,7 +3268,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Roboto/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Roboto"
+      "source": "https://fonts.google.com/specimen/Roboto",
+      "status": "ok"
     },
     "Russo One": {
       "script": "latin",
@@ -3156,7 +3288,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Russo One/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Russo+One"
+      "source": "https://fonts.google.com/specimen/Russo+One",
+      "status": "ok"
     },
     "Source Sans 3": {
       "script": "latin",
@@ -3180,7 +3313,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Source Sans 3/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Source+Sans+3"
+      "source": "https://fonts.google.com/specimen/Source+Sans+3",
+      "status": "ok"
     },
     "Space Mono": {
       "script": "latin",
@@ -3214,7 +3348,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Space Mono/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Space+Mono"
+      "source": "https://fonts.google.com/specimen/Space+Mono",
+      "status": "ok"
     },
     "Syne": {
       "script": "latin",
@@ -3233,7 +3368,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Syne/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Syne"
+      "source": "https://fonts.google.com/specimen/Syne",
+      "status": "ok"
     },
     "Tektur": {
       "script": "latin",
@@ -3252,7 +3388,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Tektur/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Tektur"
+      "source": "https://fonts.google.com/specimen/Tektur",
+      "status": "ok"
     },
     "Ubuntu": {
       "script": "latin",
@@ -3304,9 +3441,10 @@
           "style": "normal"
         }
       ],
-      "licence": "OFL-1.1",
-      "licence_file": "Ubuntu/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Ubuntu"
+      "licence": "UFL-1.0",
+      "licence_file": "Ubuntu/UFL.txt",
+      "source": "https://fonts.google.com/specimen/Ubuntu",
+      "status": "ok"
     },
     "Unbounded": {
       "script": "latin",
@@ -3325,7 +3463,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Unbounded/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Unbounded"
+      "source": "https://fonts.google.com/specimen/Unbounded",
+      "status": "ok"
     },
     "Urbanist": {
       "script": "latin",
@@ -3349,7 +3488,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Urbanist/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Urbanist"
+      "source": "https://fonts.google.com/specimen/Urbanist",
+      "status": "ok"
     },
     "Work Sans": {
       "script": "latin",
@@ -3373,7 +3513,8 @@
       ],
       "licence": "OFL-1.1",
       "licence_file": "Work Sans/OFL.txt",
-      "source": "https://fonts.google.com/specimen/Work+Sans"
+      "source": "https://fonts.google.com/specimen/Work+Sans",
+      "status": "ok"
     }
   }
 }

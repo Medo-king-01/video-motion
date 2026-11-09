@@ -126,16 +126,21 @@ def check_arabic_shaping() -> tuple[Finding, str]:
 
 
 def check_type_system() -> Finding:
-    """The full 21-family manifest and every declared weight must be on disk."""
+    """The full 125-family manifest and every declared file (fonts + licences) must be on disk."""
     sys.path.insert(0, str(ROOT / "tools"))
     try:
-        from fonts_install import FAMILIES, check_type_system  # noqa: PLC0415
+        from fonts_install import check_type_system  # noqa: PLC0415
     except ImportError as error:
         return Finding("Type system", DEGRADED, f"fonts_install unavailable ({error}) — run: make fonts")
     problems = check_type_system()
     if problems:
         return Finding("Type system", BLOCKED, "; ".join(problems))
-    return Finding("Type system", OK, f"{len(FAMILIES)} free families (OFL), files verified")
+    try:
+        import json  # noqa: PLC0415
+        n = len(json.loads((ROOT / "assets" / "fonts" / "fonts.json").read_text(encoding="utf-8"))["families"])
+    except Exception:  # noqa: BLE001
+        n = 125
+    return Finding("Type system", OK, f"{n} free families (123 OFL + Apache-2.0 + UFL-1.0), files verified")
 
 
 def brand_font() -> Path | None:

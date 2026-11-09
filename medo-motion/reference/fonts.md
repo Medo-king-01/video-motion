@@ -8,8 +8,10 @@ face (Arabic or Latin) for every on-screen text element and records it in
 
 ## 1) Choose from the manifest
 
-- The only fonts allowed on screen are in `assets/fonts/fonts.json` — 21 SIL OFL 1.1 families
-  (12 Arabic + 9 Latin), free for commercial use and redistribution.
+- The only fonts allowed on screen are in `assets/fonts/fonts.json` — 125 families (61 Arabic + 64 Latin):
+  123 SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0), free for commercial use and redistribution.
+- Choose from the curated shortlist (`medo-motion/looks/shortlist.json`) unless a reason is recorded;
+  families measured >= 0.20 collision ratio are `status: review` in the manifest — see docs/fonts.md.
 - Cairo/Inter are a last-resort fallback for system chrome only, not a creative default.
 - Arabic text must use an Arabic-capable family. Keep whole-word shaping, RTL, no letter-spacing.
 - Prefer an Arabic↔Latin pair with the same feel; at most two families per scene unless a
