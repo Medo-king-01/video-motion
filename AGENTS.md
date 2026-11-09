@@ -126,7 +126,7 @@ finished video on guessed timing without saying so.
    helpers (`drawDirectedText` K, `draw_directed_text` P, `DirectedText` R); raw `fillText`/`text_sprite`
    is lint error T04. There is no fallback look: the render gates and lint fail closed if any text
    has no chosen style. Timing still comes from the measured VO/scene bounds; the style only shapes
-   how the element moves. Keep it unboxed, whole-word Arabic, brand colors.
+   how the element moves. Keep it unboxed, whole-word Arabic, brand colors. A broad brief with a weak model may state a locked `look: <id>` (`medo-motion/looks/looks.json`) or a scene `recipe: <id>` (`medo-motion/recipes/recipes.json`) instead of improvising every choice; neither bypasses the lint.
 
 13. **The studio is a tool, not a video archive.** The studio's memory is this toolkit —
     `assets/` inputs, `templates/`, `brand/`, `tools/`. `projects/` is not: it is a scratch

@@ -1,5 +1,40 @@
 # Changelog — Video Motion
 
+## 2026-11-09 — Looks مقفولة + وصفات المشاهد + سكيما beats.json
+The «Move the intelligence into the system» slice, completed after the network went green.
+Weak/cheap models now state a `look` (or a `recipe`) instead of improvising art direction —
+two locked, machine-checked layers on top of `medo-motion/looks/shortlist.json`:
+
+- **`medo-motion/looks/looks.json`** — six locked named Looks (`house` default, `tech-dark`,
+  `explain-paper`, `kinetic-hook`, `swiss-data`, `warm-story`). Each bundles: a style reference
+  (`styles.json` id or `medo-motion/styles/*.md`), a font pair **from the curated shortlist**
+  (display/body Arabic + Latin ± mono), 3–8 signature technique ids, catalog transitions, a
+  catalogued background and one music preset (all six presets used, one look each). **A Look
+  carries no palette and no colors** — brand v2.6 Muted stays the only color authority
+  (`tests/test_looks.py` walks every look and fails on any palette/color/hex key — the brand
+  lock is now mechanical). Style references are creative direction only; `README.md` rewritten
+  to document the two-layer system (shortlist → looks).
+- **`medo-motion/recipes/recipes.json`** — eight named scene recipes (`tech-demo-ui`,
+  `machine-explainer`, `kinetic-hook`, `list-steps`, `counter-proof`, `one-take`, `slide-wall`,
+  `presenter-overlay`): preferred engine (+ proven fallbacks), `plan/` files required, the
+  validators that gate the scene, recommended looks and signature techniques, playable arc,
+  `ui` flag mirroring beats.json. `tests/test_recipes.py` resolves every id, every validator
+  path and every doc — a recipe cannot rot silently.
+- **`medo-motion/schema/beats.schema.json`** — the first official schema (JSON Schema draft
+  2020-12) for the studio's oldest plan file, with `medo-motion/schema/README.md`. Documented
+  contract for editors/external tooling; enforced in-repo by **`tools/beats_check.py`**
+  (stdlib-only — no jsonschema dependency), which adds the cross-field invariants a schema
+  cannot express: bounds↔scenes↔duration agreement, `frames == round(duration × fps)` at both
+  levels, index sequence 1..N, contiguity, event containment, duplicate-id detection. Codes
+  `B01`–`B07`. **The reel still has no target length** — anything other than the two legal
+  states (`duration: null` draft / measured) fails. `tests/test_beats_schema.py` holds schema
+  ↔ checker in lockstep and covers the fixtures, the VO round-trip (writer output must pass),
+  and a 23-case negative matrix. The `bad` craft fixture passes the schema by design — craft
+  failures stay with `reel_lint.py`.
+- **`tools/vo_length.py`**: a missing `ffprobe` binary now falls back to the wave-module
+  measurement instead of crashing (mirrors the non-zero-exit fallback; `ffmpeg` paths unchanged).
+- Fast CI now also runs `tests/test_beats_schema.py`, `tests/test_looks.py`, `tests/test_recipes.py`.
+
 ## 2026-11-09 — full green network + technique-library contracts + import-order isolation
 Follows the merged fonts P0 (`7ab90c9`, PR #42). The 19 pre-existing suite failures are gone —
 fourteen were environment (missing `tools/bin/ffmpeg`+`ffprobe` shim and `tools/toolkit` node
