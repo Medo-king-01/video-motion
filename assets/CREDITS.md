@@ -139,8 +139,12 @@
 ## Type system — `assets/fonts/` (125 families: 61 Arabic + 64 Latin)
 الكل من Google Fonts/fonts.google.com. الـ21 عائلة الأصلية اتسحبت كـTTF من حزم npm `@expo-google-fonts/*`
 بـ`tools/fonts_install.py` (مقفولة في `tools/font-packages.lock.json` بإصدارات وSHA-512)، والـ104 عائلة
-اللي اتضافت في دمج Alansari اتحمّلت مباشرة من مستودع google/fonts (OFL/UFL) مع ملفات ترخيصها؛ **وليست
-كلها مقفولة في ملف الـlock** — الفجوة موثقة في `docs/fonts.md`. التراخيص المعلنة: **123 SIL OFL 1.1** +
+اللي اتضافت في دمج Alansari اتحمّلت مباشرة من مستودع google/fonts (OFL/UFL) مع ملفات ترخيصها.
+**تحديث 2026-11-09:** القفل بقى مثبّت ١٢١ حزمة — الـ21 الأصلية + ١٠٠ عائلة Alansari اتضافت من سجل npm
+(`dist.integrity`، اتحقق باستيفاء عيّنات بالتنزيل ومقارنة SHA-512). الاستثناءات الأربع (مفيش ليها حزمة npm:
+**Firjar**، **Thabit**، **Noto Naskh Arabic UI**، **Noto Sans Arabic UI** — كلهم OFL-1.1 ومساراتهم
+وملفات ترخيصهم على القرص) موثقة في `docs/fonts.md` و`tools/fonts_install.py` (`LOCK_EXCEPTIONS`).
+الفحص: `python3 tools/fonts_install.py --verify-lock` + `tests/test_fonts_lock.py`. التراخيص المعلنة: **123 SIL OFL 1.1** +
 **Permanent Marker** (**Apache-2.0**، Font Diner, 2010 — `assets/fonts/Permanent Marker/LICENSE.txt`) +
 **Ubuntu** (**Ubuntu Font Licence 1.0**، Canonical, 2011 — `assets/fonts/Ubuntu/UFL.txt`). التراخيص
 بتسمح بالاستخدام التجاري وإعادة التوزيع من غير أي حقوق على الشاشة؛ لو عدّلت ملف خط لازم تغيّر اسمه.

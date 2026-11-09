@@ -73,6 +73,7 @@ def test_pack_rejects_bad_checksum_before_extract(tmp_path, monkeypatch):
     cache.mkdir()
     (cache / 'inter-1.2.3.tgz').write_bytes(b'not a tarball')
     monkeypatch.setattr(fonts_install, 'ROOT', root)
+    monkeypatch.setattr(fonts_install, 'LOCK', root / 'tools' / 'font-packages.lock.json')
     with pytest.raises(SystemExit, match='checksum mismatch'):
         fonts_install.pack('inter', cache)
     assert not (cache / 'inter-1.2.3').exists()
@@ -91,6 +92,7 @@ def test_pack_uses_pinned_version_and_validates_integrity(tmp_path, monkeypatch)
     (root / 'tools' / 'font-packages.lock.json').write_text(json.dumps({
         '@expo-google-fonts/inter': {'version': '1.2.3', 'integrity': integrity}}))
     monkeypatch.setattr(fonts_install, 'ROOT', root)
+    monkeypatch.setattr(fonts_install, 'LOCK', root / 'tools' / 'font-packages.lock.json')
     cache = tmp_path / 'cache'
     def run(command, **kwargs):
         assert '@expo-google-fonts/inter@1.2.3' in command
@@ -105,5 +107,13 @@ def test_pack_uses_pinned_version_and_validates_integrity(tmp_path, monkeypatch)
 def test_font_lock_covers_exact_expected_families():
     import json
     lock = json.loads((ROOT / 'tools' / 'font-packages.lock.json').read_text())
-    assert set(lock) == {f"@expo-google-fonts/{spec['npm']}" for spec in fonts_install.FAMILIES}
+    managed = {f"@expo-google-fonts/{spec['npm']}" for spec in fonts_install.FAMILIES}
+    assert managed <= set(lock), "every managed family must be pinned in the lock"
+    exceptions = {f"@expo-google-fonts/{slug}" for slug in fonts_install.LOCK_EXCEPTIONS}
+    assert not (exceptions & set(lock)), "documented exceptions must not be pinned"
+    # lock = managed + every Alansari family @expo-google-fonts publishes
+    manifest = json.loads((ROOT / 'assets' / 'fonts' / 'fonts.json').read_text(encoding='utf-8'))['families']
+    alansari = set(manifest) - {spec['family'] for spec in fonts_install.FAMILIES}
+    published = {f"@expo-google-fonts/{fonts_install._slugify(name)}" for name in alansari} - exceptions
+    assert set(lock) == managed | published
     assert all(item['version'] and item['integrity'].startswith('sha512-') for item in lock.values())

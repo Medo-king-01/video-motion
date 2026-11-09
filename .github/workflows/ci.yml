@@ -1,0 +1,88 @@
+name: Fast CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fast-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast-static-checks:
+    name: Fast static checks (Python 3.12)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install linter
+        run: python -m pip install ruff pillow numpy pytest
+
+      - name: Check Python syntax
+        run: python -m compileall -q tools medo-motion tests
+
+      - name: Run Ruff
+        run: python -m ruff check .
+
+      - name: Test cover and thumbnail generator
+        run: python -m pytest tests/test_cover_generator.py
+
+      - name: Test the scene-director skill drift guards
+        run: python -m pytest tests/test_scene_director.py
+
+      - name: Test the remotion skill drift guards
+        run: python -m pytest tests/test_remotion_skill.py
+
+      - name: Install the font-suite dependencies
+        run: python -m pip install freetype-py uharfbuzz opencv-python-headless
+
+      - name: Test the npm download lock (coverage, exceptions, licence files)
+        run: python -m pytest tests/test_fonts_lock.py
+
+      - name: Verify the fonts lock against the manifest (read-only)
+        run: python tools/fonts_install.py --verify-lock
+
+      - name: Test the type system (manifest, licences, shaping gate, shortlist)
+        run: python -m pytest tests/test_fonts.py
+
+      - name: Test the technique library contract (families, gl-transitions, generated docs)
+        run: python -m pytest tests/test_techniques.py
+
+      - name: Test font-path safety guards
+        run: python -m pytest tests/test_file_safety.py
+
+      - name: Test the beats.json contract (schema lockstep, checker, negative matrix)
+        run: python -m pytest tests/test_beats_schema.py
+
+      - name: Test the locked Looks and the scene recipes (drift guards)
+        run: python -m pytest tests/test_looks.py tests/test_recipes.py
+
+  python-310-syntax:
+    name: Python 3.10 syntax compatibility
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Verify Python 3.10 syntax compatibility
+        run: python -m compileall -q tools medo-motion tests
