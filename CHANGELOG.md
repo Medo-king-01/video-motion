@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased — 2026-11-09 (Remotion agent skills integrated as an adapted optional add-on)
+
+- **`medo-motion/skills/remotion/SKILL.md` (optional add-on for Engine R)**: audited and adapted the official `remotion-dev/skills` pack (v4.0.541, commit `a2824c6`, 13 skills; upstream declares no license — Remotion itself is source-available under the Remotion License) into a studio-native playbook: the studio R path (`tools/new_project.py --engine r` → `npm ci` → `typecheck` / `npm run studio` / `npm run stills` → VO-gated `npm run render -- --audio`), explicit studio-wins overrides of upstream defaults (local OFL fonts only — no Google Fonts during render; Medo's VO is the single timing master; `npm run studio` + shared Chromium instead of `npx remotion studio`; no `@remotion/*` packages installed without a deliberate aligned decision; the Interactivity API flagged unverified on the scaffold's `remotion` 4.0.539 pin), and a per-skill disposition table covering all 13 upstream skills (adapted / reference-only). No upstream file is copied or redistributed; the add-on is original writing.
+- **Drift guards** (`tests/test_remotion_skill.py`, 14 tests) pin the scaffold versions, the allowed command path, the 13-skill disposition coverage, the provenance tokens, the absence of vendored upstream files, and the report's completeness; wired into Fast CI. Integration report in `docs/remotion-skill.md`; attribution in `assets/CREDITS.md`; indexed in `docs/README.md`.
+
 ## Unreleased — 2026-11-04 (Native Machine Explainer workflow & X01–X04 geometric occlusion QA across P/K/R)
 
 Standalone Phase 1 native studio implementation (`docs/machine-explainer.md`, zero new dependencies):
