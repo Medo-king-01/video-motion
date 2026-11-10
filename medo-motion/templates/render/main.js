@@ -24,6 +24,9 @@ const canvas = document.getElementById('c');
 canvas.width = Math.max(2, 2 * Math.round((W * scale) / 2));
 canvas.height = Math.max(2, 2 * Math.round((H * scale) / 2));
 const auditing = new URLSearchParams(location.search).has('audit');
+// Overlay renders leave the canvas transparent so the frame can be composited on top of
+// another engine's output (hybrid layers). The scene must not paint a full-bleed background.
+const transparent = params.get('alpha') === '1';
 // Readback QA must not trigger a mid-run GPU→CPU raster-mode change.
 const ctx = canvas.getContext('2d', auditing ? { willReadFrequently: true } : {});
 const layout = auditing ? captureLayout(ctx) : null;
@@ -138,8 +141,12 @@ window.renderFrame = async (t) => {
   }
   layout?.begin();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (transparent) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 
   const activeIndices = [];
   for (let i = 0; i < scenes.length; i += 1) {

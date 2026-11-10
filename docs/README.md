@@ -32,7 +32,9 @@
 | `charlie-motion-review.md` | انتقاء 15 skill من Charlie: استمرارية كارت K/R وفحص RGBA/metadata عند seek عكسي، مع القرارات والتراخيص والحدود |
 | `visual-data-qa.md` | خطة دلالية لكل beat، بيانات ووحدات وتوقيت مقاس لـK/R، وفحص تصادم/أمان نصوص K بصور وتقارير |
 | `remotion.md` | محرك R: إنشاء المشروع، الإعداد، preview/render، مشاركة الهوية والتوقيت، والحدود الحالية |
-| `hybrid.md` | مشروع P/K/R واحد: segments متتابعة، عقد الإطارات والصوت، scaffold واختبار end-to-end |
+| `hybrid.md` | **Hybrid P/K/R**: v1 مقاطع متتالية، v2 طبقة K شفافة متزامنة فوق أساس P/R، القواعد المرفوضة، وأوامر الدمج |
+| `qa-report.md` | **تقرير QA مرئي**: صفحة HTML واحدة (lint + Final Media QA + contact sheet) لعرض القطع على إنسان بدل سجل طرفية |
+| `ttfv.md` | **زمن أول فيديو**: الطريقة، المراحل المقاسة، الهدف الرقمي لجهاز M3000M، وكيف تُقرأ النتيجة |
 | `hyperframes-fit.md` | مراجعة HyperFrames (HTML←فيديو): ما اتقاس فعليًا، ليه مش محرّكًا رابعًا، والفكرتان المأخوذتان منه (تباين WCAG وفريم أول غير فاضي) |
 | `openmontage-fit.md` | مراجعة OpenMontage النظيفة: إيه اللي كان عندنا، والأربع قدرات الأصلية الجديدة (`media_qa.py`، `layout_audit_p.py`، `stage_gate.py`، `doctor.py --json`)، واللي رفضناه |
 | `video-ad-editor-fit.md` | مراجعة `majedphotos/video-ad-editor` (MIT): الكشيدة العربية الآمنة وترتيب العبارات المختلطة، كابشن الجُمل (`2–4` كلمات)، kit القطع الأيزومتري لـP/K/R، shutter blur، ومعاينة شبكة الموبايل وفحص الـASR |

@@ -5,7 +5,9 @@
 | الأداة | بتعمل إيه | مثال |
 |---|---|---|
 | `setup.sh` | بتثبت كل الناقص: python deps (من `requirements.txt`) · ffmpeg · بديل ffprobe · الخطوط (المخزّنة محليًا في `assets/fonts/`، <!-- AUTO:fonts -->125<!-- /AUTO --> عيلة — <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> OFL + ٢) · كروميوم | `bash tools/setup.sh` |
-| `doctor.py` | تقرير READY / DEGRADED / BLOCKED لكل قدرة، بسبب واضح | `python3 tools/doctor.py` |
+| `doctor.py` | تقرير READY / DEGRADED / BLOCKED لكل قدرة، بسبب واضح + أمر الإصلاح المقترح؛ `--fix` يطبع الأوامر فقط و`--json` يضمّها | `python3 tools/doctor.py` |
+| `qa_report.py` | صفحة HTML واحدة: lint + Final Media QA + contact sheet مضمّن، بلا شبكة وبلا كتابة فوق تقرير قديم | `python3 tools/qa_report.py <project> --media out/master.mp4` |
+| `time_to_first_video.py` | قياس «زمن أول فيديو» على خمس مراحل مع هدف رقمي موثَّق وتحقق من المدة الناتجة | `python3 tools/time_to_first_video.py --json docs/metrics/ttfv.json` |
 | `selftest.py` | اختبار كامل: doctor + unit tests + رندر P/K؛ `--remotion` يضيف R منفردًا، و`--hybrid` يرندر ويجمع P/K/R + صوت end-to-end | `python3 tools/selftest.py --hybrid` |
 | `render_hybrid.py` | يرندر مخطط `plan/hybrid.json`: يتحقق من مقاطع P/K/R المتتابعة، ثم يوحّد الفيديو ويضيف الصوت مرة واحدة | `python3 ../../tools/render_hybrid.py --project .` من جذر المشروع |
 | `render_p_segment.py` | adapter داخلي لرندر مدى إطارات محدد من P بصيغة الفيديو المشتركة | يستخدمه `render_hybrid.py` |

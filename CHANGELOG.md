@@ -1,5 +1,40 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (batch 3: alpha layers · HTML QA report · time to first video · doctor fixes)
+
+**Hybrid v2 — a transparent K layer over a P/R base.** `plan/hybrid.json` version 2 replaces
+"one engine owns the whole frame" with `layers`: an opaque base plus at most one K layer rendered
+with `--alpha`. `render/main.js` clears the canvas instead of filling it black when
+`params.alpha=1`; `render/render.js --alpha` writes a transparent PNG sequence (refuses `--jpg`,
+forces 30 fps, no encoder); `tools/render_hybrid.py` composites with
+`[0:v][1:v]overlay=format=auto` and `-frames:v` from the frame delta (not `-shortest`), writes
+through a temp file plus `os.replace`, and reports `overlays` under `--profile`. v1 plans are
+normalised on read, so no existing project breaks; `engine`+`layers` together, an alpha P/R base,
+or two overlays are explicit errors. Pinned by `tests/test_hybrid.py` (25) and
+`tests/test_hybrid_layers.py` (3 real-FFmpeg renders).
+
+**`tools/qa_report.py` — the QA page a human can actually read.** One self-contained HTML page
+(RTL Arabic) with the status, the media facts, the contact sheet, every Final Media QA item, the
+`reel_lint` findings, the thresholds that were applied, and the raw JSON. The sheet is embedded as
+base64, so the page has no network references and works from `file://`. It never overwrites an
+existing report without `--force`, and exits `0` when the page was written even if the video failed
+QA — the failure belongs on the page, not in the exit code. `tests/test_qa_report.py` (4).
+
+**`tools/time_to_first_video.py` — "time to first video" is a number now.** Scaffolds a real K
+project from nothing, times the five phases separately (toolkit deps, scaffold, plan, Chromium
+render, ffprobe verification), and refuses to call a run successful unless the produced MP4 has the
+requested duration. The documented target is 180 s on the reference laptop (Quadro M3000M, 4 GB,
+2 vCPU) — `docs/ttfv.md` states it, `docs/metrics/ttfv.json` carries the measured runs, and
+`tests/test_ttfv.py` keeps the prose equal to `TARGET_SECONDS` and exercises one real render.
+
+**`make doctor` now suggests the repair.** Every `Finding` carries a `fix` command (pip package,
+`make fonts`, `npm ci --prefix tools/toolkit`, `bash tools/setup.sh`, `nvm install 20`, …). The
+report prints `fix:` under each capability that is not OK, then one deduplicated numbered
+"Suggested fixes" list; `--json` exposes `fix` per finding plus a top-level `fixes` array;
+`--fix` prints the commands only (no prose) and exits non-zero while anything is BLOCKED. Nothing
+is executed: the doctor stays read-only. `tests/test_doctor.py` (6) and a rename of the R
+capability to `engine R scaffold`.
+
 ## Unreleased — 2026-11-10 (one copy of the shared JS · skips instead of red tests · coverage · smaller functions)
 
 **A5 — one copy of the shared JS.** 27 libraries (7,277 lines) were byte-identical copies in

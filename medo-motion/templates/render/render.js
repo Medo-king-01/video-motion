@@ -27,6 +27,12 @@ if(!['normal','reduced'].includes(motionMode))throw Error('motion-mode must be n
 if(![from,to,fps,scale].every(Number.isFinite)||from<0||to<=from||fps<=0||scale<=0||scale>1)throw Error('Invalid range, fps or scale');
 if(!Number.isFinite(crf)||crf<0||crf>51)throw Error('Invalid crf');
 const count=Math.ceil((to-from)*fps-1e-8),out=path.resolve(opt('out','cache/smoke')),jpg=a.includes('--jpg');
+// --alpha renders a transparent PNG sequence (no encoder) so a hybrid plan can composite the
+// result over another engine's footage. JPEG cannot carry alpha, so the two modes are exclusive.
+const alpha=a.includes('--alpha');
+if(alpha&&jpg)throw Error('--alpha cannot be combined with --jpg');
+if(alpha&&fps!==30)throw Error('--alpha requires the locked 30 fps');
+const seq=jpg||alpha;
 const audit=a.includes('--audit'), replay=a.includes('--replay'), platformUi=a.includes('--platform-ui'), profile=a.includes('--profile'), every=Number(opt('every',1));
 if(replay&&!audit)throw Error('--replay requires --audit');
 if(audit&&(!Number.isInteger(every)||every<1))throw Error('--every must be a positive frame stride');
@@ -87,9 +93,9 @@ async function probeDuration(file){
 }
 if(audit&&existsSync(out))throw Error('Audit output exists; choose a fresh directory');
 if(profile&&existsSync(path.join(out,'render-profile.json')))throw Error('Profile already exists; choose a fresh directory');
-if(!audit&&!jpg&&existsSync(dest))throw Error('Output exists; use a new version name');
+if(!audit&&!seq&&existsSync(dest))throw Error('Output exists; use a new version name');
 await mkdir(out,{recursive:true});
-if(jpg&&(await readdir(out)).some(f=>/^\d{5}\.(jpg|png)$/.test(f)))throw Error('Frame output already exists; choose a fresh cache directory');
+if(seq&&(await readdir(out)).some(f=>/^\d{5}\.(jpg|png)$/.test(f)))throw Error('Frame output already exists; choose a fresh cache directory');
 const setting=name=>process.env['MEDO_'+name]||process.env['KHAAM_'+name];
 const configCandidates=process.env.MEDO_CONFIG
   ? [process.env.MEDO_CONFIG]
@@ -145,11 +151,11 @@ try{
   }
   page.on('pageerror',e=>errors.push(e.message));
   const initStarted=performance.now();
-  await page.goto(`http://127.0.0.1:${server.address().port}${srcUrl}/index.html?scale=${scale}&motionMode=${motionMode}&rangeStart=${from}&rangeEnd=${from+count/fps}${audit?'&audit=1':''}`);
+  await page.goto(`http://127.0.0.1:${server.address().port}${srcUrl}/index.html?scale=${scale}&motionMode=${motionMode}&rangeStart=${from}&rangeEnd=${from+count/fps}${audit?'&audit=1':''}${alpha?'&alpha=1':''}`);
   await page.waitForFunction(()=>window.__ready===true||window.__error,{},{timeout:30000});
   const initError=await page.evaluate(()=>window.__error||null);if(initError)throw Error(initError);
   const initMs=performance.now()-initStarted,profileTimes=[],captureTimes=[];let encoderFinalizeMs=null;
-  if(!audit&&!jpg){
+  if(!audit&&!seq){
     const args=['-hide_banner','-n','-f','image2pipe','-framerate',String(fps),'-i','pipe:0'];
     if(audio)args.push('-ss',String(from),'-t',String(to-from),'-i',path.resolve(audio));
     args.push('-map','0:v:0');if(audio)args.push('-map','1:a:0','-af','apad','-c:a','aac','-b:a','192k','-ar','48000');
@@ -194,7 +200,7 @@ try{
     const captureStarted=profile?performance.now():0;
     const data=await page.evaluate(type=>window.grab(type),jpg?'image/jpeg':'image/png');
     const bytes=Buffer.from(data.slice(data.indexOf(',')+1),'base64');
-    if(jpg)await writeFile(path.join(out,String(i).padStart(5,'0')+'.jpg'),bytes);
+    if(seq)await writeFile(path.join(out,String(i).padStart(5,'0')+(alpha?'.png':'.jpg')),bytes);
     else if(!encoder.stdin.write(bytes))await Promise.race([once(encoder.stdin,'drain'),encodeResult.then(()=>{throw Error('Encoder ended early');})]);
     if(profile)captureTimes.push(performance.now()-captureStarted);
   }
@@ -230,7 +236,7 @@ try{
     console.log('Layout audit PASS');
   }
   if(encoder){const finishStarted=profile?performance.now():0;encoder.stdin.end();await encodeResult;if(profile)encoderFinalizeMs=performance.now()-finishStarted;}
-  if(audio&&!jpg&&!audit){
+  if(audio&&!seq&&!audit){
     const dur=await probeDuration(audio);
     if(dur!==null&&Math.abs(dur-to)>0.15)console.warn(
       `!! audio is ${dur.toFixed(2)}s but the render window ends at ${to.toFixed(2)}s — `
@@ -240,7 +246,7 @@ try{
     const summary=values=>{if(!values.length)return null;const sorted=[...values].sort((a,b)=>a-b),quantile=q=>sorted[Math.min(sorted.length-1,Math.ceil(q*sorted.length)-1)];return {mean:values.reduce((a,b)=>a+b,0)/values.length,p50:quantile(.5),p95:quantile(.95),max:sorted.at(-1)};};
     await writeFile(path.join(out,'render-profile.json'),JSON.stringify({version:2,frames:profileTimes.length,motionMode,initMs,frameEvaluateMs:summary(profileTimes),captureAndWriteMs:summary(captureTimes),encoderFinalizeMs,wallMs:performance.now()-invocationStarted,audit,scope:'Frame evaluation includes IPC; capture/write includes browser data URL, decode and disk or encoder backpressure; FFmpeg overlaps capture. Finalize measures remaining flush only. Replay/audit work included only in wall; not GPU instrumentation.'},null,2),{flag:'wx'});
   }
-  if(!audit)console.log(`Rendered ${count} frames at ${fps} fps${jpg?'':audio?' with audio':' (silent; supply --audio for sound)'}`);
+  if(!audit)console.log(`Rendered ${count} frames at ${fps} fps${alpha?' as a transparent PNG sequence':jpg?' as JPEG frames':audio?' with audio':' (silent; supply --audio for sound)'}`);
   completed=true;
 }finally{
   let cleanupError;
