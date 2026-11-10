@@ -5,6 +5,15 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-10 (the weights Git does not see)
+
+**First run needs a network and ~1.5 GB of untracked state; nothing said so.** `tools/toolkit/node_modules`
+is 85 MB, `.venv` 648 MB, `.git` 114 MB, and an Engine-R project another ~400 MB — all correctly
+ignored by Git, none of them documented, so a fresh clone looked like it should render immediately.
+`docs/repository-weight.md` now carries that table with how each piece is obtained, why the answer is
+**not** to vendor a cache in Git (that would recreate the exact weight problem the ratchet measures),
+and what `--prefer-offline` / the pip cache buy you on the second run.
+
 ## Unreleased — 2026-11-10 (R renders ranges — the contract said otherwise)
 
 **"R has no range API" was false in three places.** `tools/render_scenes.py`'s docstring,
