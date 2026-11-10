@@ -9,7 +9,7 @@ import subprocess
 from decimal import Inexact, localcontext
 
 import pytest
-from conftest import ROOT, SKILL
+from conftest import ROOT, SKILL, requires_toolkit
 from test_motion_plan import assert_same
 from test_visual_tools import js
 
@@ -192,6 +192,7 @@ def test_sources_identical_and_physics_rejects_nonfinite():
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_real_state_frames_and_reverse_replay(tmp_path):
     project = tmp_path / 'project'
     shutil.copytree(SKILL / 'templates/render', project / 'src')

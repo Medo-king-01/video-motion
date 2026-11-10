@@ -26,6 +26,15 @@ docs-sync:       ## rewrite the AUTO numbers from the libraries
 ci-groups:       ## show/verify the pytest groups the CI jobs run
 	$(PY) tools/ci_groups.py $(if $(CHECK),--check,)
 
+sync-libs:       ## copy shared/js into the K (render) and R (remotion) engines
+	$(PY) tools/sync_shared_libs.py --write
+
+check-libs:      ## verify the two engines still match shared/js
+	$(PY) tools/sync_shared_libs.py --check
+
+coverage:        ## full suite with a coverage report (informational, no threshold)
+	$(PY) -m pytest -q -n 2 --cov --cov-report=term-missing --cov-report=xml
+
 ci:              ## lint + unit tests + brand audit (what CI would run)
 	bash tools/ci.sh
 
@@ -119,4 +128,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup setup-dev doctor test docs-numbers docs-sync ci-groups ci selftest new brand icons studio theatre techniques techniques-doc lint layout-p qa gate poses backgrounds sfx sfx-bank transitions cover pipeline clean
+.PHONY: help setup setup-dev doctor test docs-numbers docs-sync sync-libs check-libs ci-groups coverage ci selftest new brand icons studio theatre techniques techniques-doc lint layout-p qa gate poses backgrounds sfx sfx-bank transitions cover pipeline clean

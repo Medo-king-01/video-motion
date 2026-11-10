@@ -5,7 +5,7 @@ import copy
 import json
 
 import pytest
-from conftest import SKILL
+from conftest import SKILL, requires_toolkit
 from motion_plan import compile_nested_sequence
 from svg_compile import compile_svg
 from svg_morph import compile_svg_morph
@@ -149,6 +149,7 @@ def test_morph_and_nested_reject_nonfinite_sample_times():
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_real_nested_svg_morph_reverse_replay(tmp_path):
     import shutil
     import subprocess

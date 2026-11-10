@@ -2,4 +2,5 @@
 -r requirements.txt
 pytest
 pytest-xdist     # CI runs the three groups in parallel
+pytest-cov       # coverage report only: no threshold, see `make coverage`
 ruff

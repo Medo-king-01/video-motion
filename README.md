@@ -143,7 +143,8 @@ projects/<slug>/       ← مساحة شغل مؤقتة للفيديو (مستث
 tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · machine_explainer.py · layout_audit.mjs · layout_audit_p.py · media_qa.py · stage_gate.py · phone_preview.py · asr_check.py · ffprobe_shim.py · chromium.mjs
                        · audio_generate.py (توليد موسيقى numpy/scipy بلا حقوق)
                        · icons_sheet.py · icons_preview.mjs
-                       · merge_alansari.py · add_variants.py · extract_styles.py
+                       · dev/_archive/ (6 سكربتات هجرة one-off: نتيجة تشغيلها محفوظة في assets/)
+shared/js/             ← المصدر الوحيد لمكتبات JS المشتركة بين K وR (`make sync-libs` ينسخهم)
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
 docs/                  ← التحليل + قواعد الاتساق + STYLES.md · COMPARISON_MAJED.md · ALANSARI_INTEGRATION.md
 medo-motion/           ← حزمة أدوات Video Motion: الهوية، المراجع، الأيقونات، وقوالب المحركات

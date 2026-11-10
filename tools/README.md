@@ -11,8 +11,9 @@
 | `render_p_segment.py` | adapter داخلي لرندر مدى إطارات محدد من P بصيغة الفيديو المشتركة | يستخدمه `render_hybrid.py` |
 | `new_project.py` | سكافولد مشروع (مدخلات + مجلدات + خط + محرك P/K/R) | `python3 tools/new_project.py my-reel --engine r` |
 | `ffprobe_shim.py` | بديل `ffprobe` متوافق (JSON) مبني على PyAV — لأن FFmpeg الستاتيك بييجي من غير ffprobe | `ffprobe -v error -show_streams -of json in.mp4` |
-| `ci.sh` | نفس اللي الـCI بيعمله: ruff + pytest + أرقام الوثائق + مجموعات الاختبار + تدقيق البراند | `bash tools/ci.sh` |
+| `ci.sh` | نفس اللي الـCI بيعمله: ruff + pytest + أرقام الوثائق + مجموعات الاختبار + تطابق مكتبات K/R + تدقيق البراند | `bash tools/ci.sh` |
 | `sync_docs_numbers.py` | بيحسب أرقام المكتبة الحقيقية (تقنيات، خطوط، أيقونات…) ويكتبها جوه علامات `<!-- AUTO:key -->` في الوثائق؛ `--check` يفشل عند أي انحراف | `python3 tools/sync_docs_numbers.py` · `make docs-sync` |
+| `sync_shared_libs.py` | مصدر واحد لمكتبات JS المشتركة: `shared/js/` يتنسخ لمحركَين K (`render/lib`) وR (`remotion/src/lib`)؛ `--check` يفشل عند أي انحراف أو نسخة مكرّرة بإيد | `python3 tools/sync_shared_libs.py --check` · `make sync-libs` |
 | `ci_groups.py` | بيقسّم الاختبارات لمجموعات `contracts` / `unit` / `render` اللي شغّالة كـjobs متوازية، و`--check` بيثبت إن مفيش ملف خارج التقسيم | `python3 tools/ci_groups.py --check` · `make ci-groups` |
 | `gpu_preflight.mjs` | فحص WebGL2 وWebGPU محلي ومحدود، بدون استنتاج وجود تسريع عتادي أو تثبيت حزم | `node tools/gpu_preflight.mjs --require webgl2` |
 | `chromium.mjs` | كروميوم مشترك لمحركَي K وR، من غير تنزيلات متصفح من CDN | `eval "$(node tools/chromium.mjs --env)"` |
@@ -41,7 +42,8 @@
 make setup      # تثبيت
 make doctor     # فحص
 make test       # الحزمة الكاملة (~9 دقائق على جهازين؛ استخدم pytest -n auto لتقليلها)
-pytest -m 'not slow'  # الحلقة السريعة: 858 اختبارًا في ~30 ثانية (تتخطى التصيير وChromium)
+pytest -m 'not slow'  # الحلقة السريعة: 938 اختبارًا في ~32 ثانية (تتخطى التصيير وChromium)
+make coverage         # الحزمة كاملة + تقرير تغطية بدون عتبة (coverage.xml)
 make ci         # lint + tests + تدقيق براند
 make selftest   # فحص كامل + رندر
 make new SLUG=my-reel ENGINE=p

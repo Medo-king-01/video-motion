@@ -321,63 +321,21 @@ def _safe_abs(path: Path) -> Path:
     return checked_path(path.resolve())
 
 
-def inspect_media(
-    media_path: Path,
-    *,
-    mode: str = "master",
-    vo_path: Path | None = None,
-    beats_path: Path | None = None,
-    expected_frames: int | None = None,
-    min_mbps: float | None = None,
-    max_hold_s: float | None = None,
-    lufs_target: float | None = None,
-    lufs_tol: float | None = None,
-    tp_max_dbtp: float | None = None,
-    sheet_path: Path | None = None,
-    strict: bool = False,
-) -> dict[str, Any]:
-    """Inspect a rendered MP4 and return a structured `PASS / FAIL / INCOMPLETE` report."""
-    if mode not in ("master", "preview", "video-only"):
-        raise ValueError(f"Unsupported QA mode: {mode}")
-    media = _safe_abs(media_path)
-    if vo_path is not None:
-        vo_path = _safe_abs(vo_path)
-    if beats_path is not None:
-        beats_path = _safe_abs(beats_path)
-    if sheet_path is not None:
-        sheet_path = _safe_abs(sheet_path)
-        if sheet_path.exists():
-            raise ValueError(f"Refusing to overwrite existing contact sheet: {sheet_path}")
+def _failed_report(mode: str, media: Path, items: list[dict[str, str]]) -> dict[str, Any]:
+    """The minimal report for media that cannot be inspected at all."""
+    return {
+        "version": 1,
+        "status": "fail",
+        "mode": mode,
+        "media": str(media),
+        "items": items,
+        "errors": [i for i in items if i["level"] == "error"],
+        "warnings": [i for i in items if i["level"] == "warn"],
+    }
 
-    brand = load_brand_defaults()
-    req_w, req_h, req_fps = brand["width"], brand["height"], brand["fps"]
-    hold_limit = float(brand["idle_hold_max_s"] if max_hold_s is None else max_hold_s)
-    mbps_floor = float(brand["min_mbps"] if min_mbps is None else min_mbps)
-    mbps_reject = float(brand["reject_mbps"]) if min_mbps is None else mbps_floor
-    target_lufs = float(brand["lufs"] if lufs_target is None else lufs_target)
-    tol_lufs = float(brand["lufs_tolerance"] if lufs_tol is None else lufs_tol)
-    ceil_tp = float(brand["true_peak_max_dbtp"] if tp_max_dbtp is None else tp_max_dbtp)
 
-    items: list[dict[str, str]] = []
-    incomplete_reasons: list[str] = []
-
-    def add(level: str, code: str, msg: str) -> None:
-        items.append({"level": level, "code": code, "msg": msg})
-
-    if not media.is_file() or media.stat().st_size == 0:
-        add("error", "Q00", f"Media file missing or empty: {media}")
-        return {
-            "version": 1,
-            "status": "fail",
-            "mode": mode,
-            "media": str(media),
-            "items": items,
-            "errors": [i for i in items if i["level"] == "error"],
-            "warnings": [],
-        }
-
-    import av  # noqa: PLC0415
-
+def _check_faststart(media: Path, mode: str, add) -> dict[str, Any]:
+    """Q00: is the MP4 `moov` atom before `mdat` (progressive playback)?"""
     atom_info = scan_mp4_atoms(media) if media.suffix.lower() in (".mp4", ".m4v", ".mov") else {
         "atoms": [], "moov_offset": None, "mdat_offset": None, "faststart": False
     }
@@ -388,164 +346,167 @@ def inspect_media(
             add("error", "Q00", "MP4 is missing +faststart (`moov` atom appears after `mdat`)")
         else:
             add("warn", "Q00", "MP4 does not have `moov` before `mdat` (+faststart recommended)")
+    return atom_info
 
-    try:
-        container = av.open(str(media))
-    except Exception as error:  # noqa: BLE001
-        add("error", "Q00", f"Cannot open media container: {error}")
-        return {
-            "version": 1,
-            "status": "fail",
-            "mode": mode,
-            "media": str(media),
-            "items": items,
-            "errors": [i for i in items if i["level"] == "error"],
-            "warnings": [i for i in items if i["level"] == "warn"],
-        }
 
+def _probe_streams(container, mode, media, items, req_w, req_h, req_fps, add):
+    """Q00/Q01: exactly one H.264 yuv420p stream on the locked canvas and frame rate."""
+    v_streams = [s for s in container.streams if s.type == "video"]
+    if len(v_streams) != 1:
+        add("error", "Q00", f"Expected exactly 1 video stream, found {len(v_streams)}")
+        return None, _failed_report(mode, media, items)
+    vs = v_streams[0]
+    v_codec = str(vs.codec_context.name or "")
+    v_profile = str(getattr(vs.codec_context, "profile", "") or "")
+    v_pix_fmt = str(getattr(vs.codec_context, "pix_fmt", "") or "")
+    width = int(vs.codec_context.width or 0)
+    height = int(vs.codec_context.height or 0)
+    rate = float(vs.average_rate) if vs.average_rate else (float(vs.guessed_rate) if vs.guessed_rate else 0.0)
+
+    if v_codec != "h264":
+        add("error", "Q00", f"Video codec must be h264, got {v_codec!r}")
+    else:
+        add("ok", "Q00", f"Video stream codec h264 ({v_profile or 'unspecified profile'}, {v_pix_fmt})")
+    if v_pix_fmt == "yuv420p":
+        pass
+    elif v_pix_fmt == "yuvj420p":
+        add("warn", "Q00", "Pixel format is yuvj420p (full-range); yuv420p is the studio standard")
+    else:
+        add("error", "Q00", f"Pixel format must be yuv420p, got {v_pix_fmt!r}")
+    if mode == "master" and v_codec == "h264" and v_profile and "high" not in v_profile.lower():
+        add("warn", "Q00", f"Master expects H.264 High profile, got {v_profile!r}")
+
+    # Geometry & FPS
+    if (width, height) == (req_w, req_h):
+        add("ok", "Q01", f"Canvas matches locked {req_w}x{req_h}")
+    elif mode == "preview" and width > 0 and height > 0 and abs((width / height) - (req_w / req_h)) < 0.015:
+        add("warn", "Q01", f"Scaled 9:16 preview resolution {width}x{height} (master requires {req_w}x{req_h})")
+    else:
+        add("error", "Q01", f"Canvas must be {req_w}x{req_h}, got {width}x{height}")
+
+    if abs(rate - req_fps) <= 0.05:
+        add("ok", "Q01", f"Frame rate {rate:.2f} fps matches locked {req_fps} fps")
+    elif mode == "preview" and rate > 0:
+        add("warn", "Q01", f"Preview frame rate is {rate:.2f} fps (master requires {req_fps} fps)")
+    else:
+        add("error", "Q01", f"Frame rate must be {req_fps} fps, got {rate:.3f} fps")
+
+    return {
+        "vs": vs,
+        "codec": v_codec,
+        "profile": v_profile,
+        "pix_fmt": v_pix_fmt,
+        "width": width,
+        "height": height,
+        "rate": rate,
+    }, None
+
+
+def _scan_frames(container, vs, *, width, height, fps_eff, hold_limit, sheet_path, add):
+    """Decode every frame once: geometry guard, frame-0 metrics, black runs, static holds."""
+    first_frame_metrics: dict[str, float] | None = None
     black_runs: list[dict[str, Any]] = []
     freeze_runs: list[dict[str, Any]] = []
     sampled_sheet: list[tuple[int, float, np.ndarray, str]] = []
-    first_frame_metrics: dict[str, float] | None = None
+    issue_thumbs: dict[int, tuple[float, np.ndarray, str]] = {}
+    decoded_frames = 0
+    prev_sub: np.ndarray | None = None
+    black_start: int | None = None
+    freeze_start: int | None = None
+    estimated_total = int(vs.frames or 0)
+    sample_stride = max(1, (estimated_total // 7)) if estimated_total > 8 else 15
 
-    with container:
-        v_streams = [s for s in container.streams if s.type == "video"]
-        if len(v_streams) != 1:
-            add("error", "Q00", f"Expected exactly 1 video stream, found {len(v_streams)}")
-            return {
-                "version": 1,
-                "status": "fail",
-                "mode": mode,
-                "media": str(media),
-                "items": items,
-                "errors": [i for i in items if i["level"] == "error"],
-                "warnings": [i for i in items if i["level"] == "warn"],
-            }
-        vs = v_streams[0]
-        v_codec = str(vs.codec_context.name or "")
-        v_profile = str(getattr(vs.codec_context, "profile", "") or "")
-        v_pix_fmt = str(getattr(vs.codec_context, "pix_fmt", "") or "")
-        width = int(vs.codec_context.width or 0)
-        height = int(vs.codec_context.height or 0)
-        rate = float(vs.average_rate) if vs.average_rate else (float(vs.guessed_rate) if vs.guessed_rate else 0.0)
+    try:
+        for frame in container.decode(vs):
+            rgb = frame.to_ndarray(format="rgb24")
+            if rgb.shape[:2] != (height, width):
+                add("error", "Q01", f"Decoded frame {decoded_frames} changed geometry to {rgb.shape[1]}x{rgb.shape[0]}")
+                break
+            metrics = _frame_visual_metrics(rgb)
+            ts = decoded_frames / fps_eff
+            if decoded_frames == 0:
+                first_frame_metrics = {k: round(v, 3) for k, v in metrics.items() if k != "sub"}
 
-        if v_codec != "h264":
-            add("error", "Q00", f"Video codec must be h264, got {v_codec!r}")
-        else:
-            add("ok", "Q00", f"Video stream codec h264 ({v_profile or 'unspecified profile'}, {v_pix_fmt})")
-        if v_pix_fmt == "yuv420p":
-            pass
-        elif v_pix_fmt == "yuvj420p":
-            add("warn", "Q00", "Pixel format is yuvj420p (full-range); yuv420p is the studio standard")
-        else:
-            add("error", "Q00", f"Pixel format must be yuv420p, got {v_pix_fmt!r}")
-        if mode == "master" and v_codec == "h264" and v_profile and "high" not in v_profile.lower():
-            add("warn", "Q00", f"Master expects H.264 High profile, got {v_profile!r}")
-
-        # Geometry & FPS
-        if (width, height) == (req_w, req_h):
-            add("ok", "Q01", f"Canvas matches locked {req_w}x{req_h}")
-        elif mode == "preview" and width > 0 and height > 0 and abs((width / height) - (req_w / req_h)) < 0.015:
-            add("warn", "Q01", f"Scaled 9:16 preview resolution {width}x{height} (master requires {req_w}x{req_h})")
-        else:
-            add("error", "Q01", f"Canvas must be {req_w}x{req_h}, got {width}x{height}")
-
-        if abs(rate - req_fps) <= 0.05:
-            add("ok", "Q01", f"Frame rate {rate:.2f} fps matches locked {req_fps} fps")
-        elif mode == "preview" and rate > 0:
-            add("warn", "Q01", f"Preview frame rate is {rate:.2f} fps (master requires {req_fps} fps)")
-        else:
-            add("error", "Q01", f"Frame rate must be {req_fps} fps, got {rate:.3f} fps")
-
-        fps_eff = rate if rate > 0 else float(req_fps)
-        decoded_frames = 0
-        prev_sub: np.ndarray | None = None
-        black_start: int | None = None
-        freeze_start: int | None = None
-        estimated_total = int(vs.frames or 0)
-        sample_stride = max(1, (estimated_total // 7)) if estimated_total > 8 else 15
-        issue_thumbs: dict[int, tuple[float, np.ndarray, str]] = {}
-
-        try:
-            for frame in container.decode(vs):
-                rgb = frame.to_ndarray(format="rgb24")
-                if rgb.shape[:2] != (height, width):
-                    add("error", "Q01", f"Decoded frame {decoded_frames} changed geometry to {rgb.shape[1]}x{rgb.shape[0]}")
-                    break
-                metrics = _frame_visual_metrics(rgb)
-                ts = decoded_frames / fps_eff
-                if decoded_frames == 0:
-                    first_frame_metrics = {k: round(v, 3) for k, v in metrics.items() if k != "sub"}
-
-                is_black = metrics["luma_p99"] < 12.0 and metrics["grad_max"] < 12.0
-                if is_black:
-                    if black_start is None:
-                        black_start = decoded_frames
-                        if len(issue_thumbs) < 4:
-                            issue_thumbs[decoded_frames] = (ts, rgb.copy(), "Q03-black")
-                elif black_start is not None:
-                    black_runs.append({
-                        "start_frame": black_start,
-                        "end_frame": decoded_frames,
-                        "frames": decoded_frames - black_start,
-                        "start_s": round(black_start / fps_eff, 3),
-                        "end_s": round(decoded_frames / fps_eff, 3),
-                    })
-                    black_start = None
-
-                if prev_sub is not None:
-                    diff = np.abs(metrics["sub"] - prev_sub)
-                    is_static = float(diff.mean()) < 0.25 and float(np.percentile(diff, 99)) < 3.0
-                    if is_static:
-                        if freeze_start is None:
-                            freeze_start = decoded_frames - 1
-                    elif freeze_start is not None:
-                        span_frames = decoded_frames - freeze_start
-                        span_s = (span_frames - 1) / fps_eff
-                        if span_s > hold_limit:
-                            freeze_runs.append({
-                                "start_frame": freeze_start,
-                                "end_frame": decoded_frames,
-                                "frames": span_frames,
-                                "start_s": round(freeze_start / fps_eff, 3),
-                                "end_s": round((decoded_frames - 1) / fps_eff, 3),
-                                "duration_s": round(span_s, 3),
-                            })
-                        freeze_start = None
-
-                if sheet_path is not None and (decoded_frames == 0 or decoded_frames % sample_stride == 0) and len(sampled_sheet) < 8:
-                    sampled_sheet.append((decoded_frames, ts, rgb.copy(), ""))
-                if sheet_path is not None and freeze_start is not None:
-                    span_s = (decoded_frames - freeze_start) / fps_eff
-                    if span_s > hold_limit and freeze_start not in issue_thumbs and len(issue_thumbs) < 4:
-                        issue_thumbs[decoded_frames] = (ts, rgb.copy(), "Q04-hold")
-
-                prev_sub = metrics["sub"]
-                decoded_frames += 1
-        except Exception as error:  # noqa: BLE001
-            add("error", "Q01", f"Frame decode failed at frame {decoded_frames}: {error}")
-
-        if black_start is not None:
-            black_runs.append({
-                "start_frame": black_start,
-                "end_frame": decoded_frames,
-                "frames": decoded_frames - black_start,
-                "start_s": round(black_start / fps_eff, 3),
-                "end_s": round(decoded_frames / fps_eff, 3),
-            })
-        if freeze_start is not None:
-            span_frames = decoded_frames - freeze_start
-            span_s = max(0.0, (span_frames - 1) / fps_eff)
-            if span_s > hold_limit:
-                freeze_runs.append({
-                    "start_frame": freeze_start,
+            is_black = metrics["luma_p99"] < 12.0 and metrics["grad_max"] < 12.0
+            if is_black:
+                if black_start is None:
+                    black_start = decoded_frames
+                    if len(issue_thumbs) < 4:
+                        issue_thumbs[decoded_frames] = (ts, rgb.copy(), "Q03-black")
+            elif black_start is not None:
+                black_runs.append({
+                    "start_frame": black_start,
                     "end_frame": decoded_frames,
-                    "frames": span_frames,
-                    "start_s": round(freeze_start / fps_eff, 3),
-                    "end_s": round(max(0, decoded_frames - 1) / fps_eff, 3),
-                    "duration_s": round(span_s, 3),
+                    "frames": decoded_frames - black_start,
+                    "start_s": round(black_start / fps_eff, 3),
+                    "end_s": round(decoded_frames / fps_eff, 3),
                 })
+                black_start = None
 
+            if prev_sub is not None:
+                diff = np.abs(metrics["sub"] - prev_sub)
+                is_static = float(diff.mean()) < 0.25 and float(np.percentile(diff, 99)) < 3.0
+                if is_static:
+                    if freeze_start is None:
+                        freeze_start = decoded_frames - 1
+                elif freeze_start is not None:
+                    span_frames = decoded_frames - freeze_start
+                    span_s = (span_frames - 1) / fps_eff
+                    if span_s > hold_limit:
+                        freeze_runs.append({
+                            "start_frame": freeze_start,
+                            "end_frame": decoded_frames,
+                            "frames": span_frames,
+                            "start_s": round(freeze_start / fps_eff, 3),
+                            "end_s": round((decoded_frames - 1) / fps_eff, 3),
+                            "duration_s": round(span_s, 3),
+                        })
+                    freeze_start = None
+
+            if sheet_path is not None and (decoded_frames == 0 or decoded_frames % sample_stride == 0) and len(sampled_sheet) < 8:
+                sampled_sheet.append((decoded_frames, ts, rgb.copy(), ""))
+            if sheet_path is not None and freeze_start is not None:
+                span_s = (decoded_frames - freeze_start) / fps_eff
+                if span_s > hold_limit and freeze_start not in issue_thumbs and len(issue_thumbs) < 4:
+                    issue_thumbs[decoded_frames] = (ts, rgb.copy(), "Q04-hold")
+
+            prev_sub = metrics["sub"]
+            decoded_frames += 1
+    except Exception as error:  # noqa: BLE001
+        add("error", "Q01", f"Frame decode failed at frame {decoded_frames}: {error}")
+
+    if black_start is not None:
+        black_runs.append({
+            "start_frame": black_start,
+            "end_frame": decoded_frames,
+            "frames": decoded_frames - black_start,
+            "start_s": round(black_start / fps_eff, 3),
+            "end_s": round(decoded_frames / fps_eff, 3),
+        })
+    if freeze_start is not None:
+        span_frames = decoded_frames - freeze_start
+        span_s = max(0.0, (span_frames - 1) / fps_eff)
+        if span_s > hold_limit:
+            freeze_runs.append({
+                "start_frame": freeze_start,
+                "end_frame": decoded_frames,
+                "frames": span_frames,
+                "start_s": round(freeze_start / fps_eff, 3),
+                "end_s": round(max(0, decoded_frames - 1) / fps_eff, 3),
+                "duration_s": round(span_s, 3),
+            })
+    return {
+        "decoded_frames": decoded_frames,
+        "black_runs": black_runs,
+        "freeze_runs": freeze_runs,
+        "sampled_sheet": sampled_sheet,
+        "issue_thumbs": issue_thumbs,
+        "first_frame_metrics": first_frame_metrics,
+    }
+
+
+def _check_durations(decoded_frames, expected_frames, beats_path, vo_path, fps_eff, add):
+    """Q01: frame count, duration vs beats.json, duration vs the VO track."""
     if decoded_frames <= 0:
         add("error", "Q01", "Video contains 0 decodable frames")
         video_duration = 0.0
@@ -588,7 +549,11 @@ def inspect_media(
                     add("ok", "Q01", f"Video duration {video_duration:.3f}s matches VO ({vo_duration:.3f}s)")
             except Exception as error:  # noqa: BLE001
                 add("error", "Q01", f"Could not inspect VO file {vo_path}: {error}")
+    return video_duration, vo_max_silence
 
+
+def _check_bitrate(media, video_duration, mode, mbps_floor, mbps_reject, add) -> float:
+    """Q02: master bitrate against the floor and reject thresholds."""
     # Q02: Bitrate
     file_bytes = media.stat().st_size
     bitrate_mbps = (file_bytes * 8.0 / max(video_duration, 1e-6)) / 1_000_000.0 if video_duration > 0 else 0.0
@@ -601,8 +566,11 @@ def inspect_media(
             add("ok", "Q02", f"Master bitrate {bitrate_mbps:.2f} Mbps clears {mbps_floor:.2f} Mbps floor")
     else:
         add("ok", "Q02", f"Bitrate {bitrate_mbps:.2f} Mbps ({mode} mode)")
+    return bitrate_mbps
 
-    # Q03: First frame & black runs
+
+def _check_frame_zero(first_frame_metrics, sampled_sheet, sheet_path, add):
+    """Q03: frame 0 is the player thumbnail, so it must not be blank."""
     if first_frame_metrics is not None:
         f0_strong = first_frame_metrics["strong_pct"]
         f0_grad = first_frame_metrics["grad_p995"]
@@ -618,7 +586,11 @@ def inspect_media(
             add("warn", "Q03", f"Frame 0 has low foreground contrast (grad_p995={f0_grad:.1f}); verify visible subject at t=0")
         else:
             add("ok", "Q03", f"Frame 0 carries visible contrast (grad_p995={f0_grad:.1f}, strong_edges={f0_strong:.2f}%)")
+    return sampled_sheet
 
+
+def _report_black_runs(black_runs, add) -> None:
+    """Q03: distinguish multi-frame dropouts from a single stray black frame."""
     severe_black = [r for r in black_runs if r["frames"] >= 2 or r["start_frame"] == 0]
     brief_black = [r for r in black_runs if r["frames"] == 1 and r["start_frame"] > 0]
     if severe_black:
@@ -630,14 +602,18 @@ def inspect_media(
     else:
         add("ok", "Q03", "No black frame dropouts detected")
 
-    # Q04: Static hold / freeze
+
+def _report_freeze_runs(freeze_runs, hold_limit, add) -> None:
+    """Q04: static holds longer than the brand limit."""
     if freeze_runs:
         spans_desc = ", ".join(f"{r['start_s']:.2f}s–{r['end_s']:.2f}s ({r['duration_s']:.2f}s)" for r in freeze_runs[:4])
         add("error", "Q04", f"Static hold exceeds {hold_limit:.1f}s limit: {spans_desc}")
     else:
         add("ok", "Q04", f"No static hold exceeds {hold_limit:.1f}s")
 
-    # Q05: Audio & loudness
+
+def _check_audio(media, mode, *, video_duration, vo_max_silence, target_lufs, tol_lufs, ceil_tp, add, incomplete_reasons):
+    """Q05: codec, in-container drift, silence, clipping, EBU R128 loudness."""
     audio_report: dict[str, Any]
     if mode == "video-only":
         audio_info = _decode_audio_mono(media)
@@ -711,7 +687,11 @@ def inspect_media(
                         audio_report = {"status": "pass" if (lufs_ok and tp_ok) else "fail", **audio_info}
             if "audio_report" not in locals():
                 audio_report = {"status": "fail", **audio_info}
+    return audio_report
 
+
+def _write_sheet(sheet_path, sampled_sheet, issue_thumbs) -> None:
+    """Write the sampled contact sheet plus the first frame of every flagged issue."""
     if sheet_path is not None:
         merged_thumbs = list(sampled_sheet)
         existing_indices = {f_idx for f_idx, _, _, _ in merged_thumbs}
@@ -721,6 +701,9 @@ def inspect_media(
         merged_thumbs.sort(key=lambda item: item[0])
         _write_contact_sheet(sheet_path, merged_thumbs)
 
+
+def _verdict(items, incomplete_reasons, strict):
+    """PASS / FAIL / INCOMPLETE from the collected items (strict promotes warnings)."""
     errors = [i for i in items if i["level"] == "error"]
     warnings = [i for i in items if i["level"] == "warn"]
     if errors or (strict and warnings):
@@ -729,6 +712,110 @@ def inspect_media(
         status = "incomplete"
     else:
         status = "pass"
+    return status, errors, warnings
+
+
+def inspect_media(
+    media_path: Path,
+    *,
+    mode: str = "master",
+    vo_path: Path | None = None,
+    beats_path: Path | None = None,
+    expected_frames: int | None = None,
+    min_mbps: float | None = None,
+    max_hold_s: float | None = None,
+    lufs_target: float | None = None,
+    lufs_tol: float | None = None,
+    tp_max_dbtp: float | None = None,
+    sheet_path: Path | None = None,
+    strict: bool = False,
+) -> dict[str, Any]:
+    """Inspect a rendered MP4 and return a structured `PASS / FAIL / INCOMPLETE` report."""
+    if mode not in ("master", "preview", "video-only"):
+        raise ValueError(f"Unsupported QA mode: {mode}")
+    media = _safe_abs(media_path)
+    if vo_path is not None:
+        vo_path = _safe_abs(vo_path)
+    if beats_path is not None:
+        beats_path = _safe_abs(beats_path)
+    if sheet_path is not None:
+        sheet_path = _safe_abs(sheet_path)
+        if sheet_path.exists():
+            raise ValueError(f"Refusing to overwrite existing contact sheet: {sheet_path}")
+
+    brand = load_brand_defaults()
+    req_w, req_h, req_fps = brand["width"], brand["height"], brand["fps"]
+    hold_limit = float(brand["idle_hold_max_s"] if max_hold_s is None else max_hold_s)
+    mbps_floor = float(brand["min_mbps"] if min_mbps is None else min_mbps)
+    mbps_reject = float(brand["reject_mbps"]) if min_mbps is None else mbps_floor
+    target_lufs = float(brand["lufs"] if lufs_target is None else lufs_target)
+    tol_lufs = float(brand["lufs_tolerance"] if lufs_tol is None else lufs_tol)
+    ceil_tp = float(brand["true_peak_max_dbtp"] if tp_max_dbtp is None else tp_max_dbtp)
+
+    items: list[dict[str, str]] = []
+    incomplete_reasons: list[str] = []
+
+    def add(level: str, code: str, msg: str) -> None:
+        items.append({"level": level, "code": code, "msg": msg})
+
+    if not media.is_file() or media.stat().st_size == 0:
+        add("error", "Q00", f"Media file missing or empty: {media}")
+        return _failed_report(mode, media, items)
+
+    import av  # noqa: PLC0415
+
+    atom_info = _check_faststart(media, mode, add)
+
+    try:
+        container = av.open(str(media))
+    except Exception as error:  # noqa: BLE001
+        add("error", "Q00", f"Cannot open media container: {error}")
+        return _failed_report(mode, media, items)
+
+    with container:
+        probe, early = _probe_streams(container, mode, media, items, req_w, req_h, req_fps, add)
+        if early is not None:
+            return early
+        fps_eff = probe["rate"] if probe["rate"] > 0 else float(req_fps)
+        scan = _scan_frames(
+            container,
+            probe["vs"],
+            width=probe["width"],
+            height=probe["height"],
+            fps_eff=fps_eff,
+            hold_limit=hold_limit,
+            sheet_path=sheet_path,
+            add=add,
+        )
+
+    v_codec, v_profile, v_pix_fmt = probe["codec"], probe["profile"], probe["pix_fmt"]
+    width, height, rate = probe["width"], probe["height"], probe["rate"]
+    decoded_frames = scan["decoded_frames"]
+    black_runs, freeze_runs = scan["black_runs"], scan["freeze_runs"]
+    issue_thumbs = scan["issue_thumbs"]
+    first_frame_metrics = scan["first_frame_metrics"]
+    sampled_sheet = scan["sampled_sheet"]
+
+    video_duration, vo_max_silence = _check_durations(
+        decoded_frames, expected_frames, beats_path, vo_path, fps_eff, add
+    )
+    bitrate_mbps = _check_bitrate(media, video_duration, mode, mbps_floor, mbps_reject, add)
+    sampled_sheet = _check_frame_zero(first_frame_metrics, sampled_sheet, sheet_path, add)
+    _report_black_runs(black_runs, add)
+    _report_freeze_runs(freeze_runs, hold_limit, add)
+    audio_report = _check_audio(
+        media,
+        mode,
+        video_duration=video_duration,
+        vo_max_silence=vo_max_silence,
+        target_lufs=target_lufs,
+        tol_lufs=tol_lufs,
+        ceil_tp=ceil_tp,
+        add=add,
+        incomplete_reasons=incomplete_reasons,
+    )
+    _write_sheet(sheet_path, sampled_sheet, issue_thumbs)
+    status, errors, warnings = _verdict(items, incomplete_reasons, strict)
 
     return {
         "version": 1,
@@ -775,7 +862,6 @@ def inspect_media(
         "errors": errors,
         "warnings": warnings,
     }
-
 
 def render_human(report: dict[str, Any]) -> str:
     lines = [f"media_qa · {report['status'].upper()} ({report['mode']}) · {report['media']}"]

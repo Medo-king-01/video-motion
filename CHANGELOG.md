@@ -1,5 +1,57 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (one copy of the shared JS · skips instead of red tests · coverage · smaller functions)
+
+**A5 — one copy of the shared JS.** 27 libraries (7,277 lines) were byte-identical copies in
+`templates/render/lib` and `templates/remotion/src/lib`; one forgotten copy meant silent
+divergence. `shared/js/` is now the only editable copy, `tools/sync_shared_libs.py --write`
+(`make sync-libs`) refreshes both engines, and `--check` (`make check-libs`, wired into
+`tools/ci.sh`) fails on a missing copy, a drifted copy, or a file that appears in both engines
+but not in `shared/js`. `tests/test_shared_libs.py` pins it with 35 tests, including one `cmp`
+per shared file. No bundler, no build step: both engines still ship real, self-contained files.
+
+**A2 — the absolute-path migration scripts are archived.** `add_variants`, `merge_alansari`,
+`merge_opus`, `merge_gl_transitions`, `extract_styles` and `generate_techniques_docs` all read
+`/home/user/video-motion/...` (four also read `/tmp/...`) and none is referenced by code, tests
+or CI. They now live in `tools/dev/_archive/` with a README mapping each script to the asset it
+produced and to the test that guards that asset today; README and `docs/ALANSARI_INTEGRATION.md`
+point at the archive instead of implying they run.
+
+**A7 — a Python-only checkout skips the browser tests instead of failing them.** Eight tests
+turned red on a machine that had installed only the Python side, because they launched Chromium
+without a guard. `conftest.py` now exposes `requires_toolkit` (node + `tools/toolkit`'s
+playwright-core and bundled Chromium) and the eight tests carry it; the opt-in Render-Smoke
+helpers use `pytest.skip` with the install command instead of `pytest.fail`. Result: `8 skipped`
+with an actionable reason, not a red build.
+
+**A12 — `inspect_media` is 159 lines, not 454.** Split into eleven helpers
+(`_check_faststart`, `_probe_streams`, `_scan_frames`, `_check_durations`, `_check_bitrate`,
+`_check_frame_zero`, `_report_black_runs`, `_report_freeze_runs`, `_check_audio`, `_write_sheet`,
+`_verdict`) around one orchestrator. Behaviour is pinned: reports for eight scenarios (master,
+preview, video-only, black first frame, short clip, strict, missing file, bad mode) are
+byte-identical before and after (`diff` = 0), and `tests/test_media_qa.py` still passes.
+
+**A11 — the palette says what it is.** `lib.py` defines `BLUSH/MAUVE/SALMON` and keeps
+`EMER/TEAL/YEL` as documented aliases; `scenes.py` aliases `GOLD` to `BLUSH` (same colour, honest
+name). `tests/test_brand.py` checks the descriptive names against `brand.json` and asserts the
+aliases still resolve.
+
+**Tests — `audio_generate.py` has contracts now.** 45 tests for the 565-line SFX/bed generator:
+48 kHz constant, dB helper, constant-power pan, 24-bit WAV round-trip, the sample-rate guard,
+every documented SFX kind (stereo, finite, ≤ 1.0, deterministic per seed, anchor ≥ 0), bed length
+and reproducibility, every `resolve_at` cue form, the limiter ceiling, and the `--audition` CLI
+path. Writing them found a real bug: `read_wav` decoded 24-bit files — the exact format
+`write_wav` produces — as if they were 32-bit, so a round-trip lost half the frames. Fixed, and
+both WAV helpers now accept `Path` objects.
+
+**Coverage — a number, not a gate.** `pytest-cov` is in `tools/requirements-dev.txt`
+(pinned in `constraints.txt`), `make coverage` writes a terminal report plus `coverage.xml`, and
+a non-blocking CI job keeps the XML. No `fail_under`: this first full run measures
+**60% (7,763 of 19,346 statements missed)**. The gap is concentrated in tools nobody exercises
+(`gen_tts_elevenlabs` 0%, `selftest` 0%, `beats_check` 0%, `music_kit` 0%), `reel_lint` at 19%,
+and `scenes.py` at 38%; subprocess-only tools (`brand_check`) read as 0% because coverage does
+not follow children.
+
 ## Unreleased — 2026-11-10 (docs numbers are generated · PRs run the whole suite · explicit license)
 
 **A1 — one source for every documented count.** `tools/sync_docs_numbers.py` measures the
@@ -16,7 +68,7 @@ is **2,239 techniques in 44 categories**. The SFX row was also wrong (15 → 20)
 
 **A14 — a real quick loop.** The `slow` marker was decorative (it skipped 25 of 1,394 tests and
 saved a minute). The heavy render/synthesis/Chromium modules are now marked at module level:
-`pytest -m 'not slow'` runs **858 tests in ~30s**, and `pytest -m slow` keeps the 553 rendering
+`pytest -m 'not slow'` runs **938 tests in ~32s**, and `pytest -m slow` keeps the 553 rendering
 tests for when you want them. The marker stays local — CI ignores it and runs every group.
 
 **A3 — pull requests run all 1,394 tests, in three parallel groups.** `tools/ci_groups.py`

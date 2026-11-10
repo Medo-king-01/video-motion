@@ -41,3 +41,15 @@ ignore = [
 testpaths = ["tests"]
 addopts = "-q"
 markers = ["slow: real synthesis/render/Chromium work — `-m 'not slow'` runs the quick loop (CI ignores the marker and runs every group)"]
+
+[tool.coverage.run]
+# The studio ships as scripts, not an installed package: measure what the tests import.
+source = ["tools", "medo-motion/scripts", "medo-motion/templates/procedural-reels"]
+omit = ["*/node_modules/*", "*/tests/*"]
+
+[tool.coverage.report]
+# Report only. No `fail_under`: the point of the first pass is to see the real gap.
+skip_covered = true
+skip_empty = true
+show_missing = true
+exclude_lines = ['pragma: no cover', 'if TYPE_CHECKING:', 'raise SystemExit(main())']

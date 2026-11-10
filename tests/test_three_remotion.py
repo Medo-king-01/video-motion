@@ -43,7 +43,7 @@ def r_project(tmp_path):
     for name in ('three','@remotion/cli','@remotion/renderer','typescript','react','esbuild'):
         if not (modules/name).is_dir(): pytest.fail(f'Optional test modules incomplete: {name}')
     browser=subprocess.run(['node',str(ROOT/'tools/chromium.mjs'),'--json'],capture_output=True,text=True,timeout=90)
-    if browser.returncode: pytest.fail('Chromium unavailable for explicitly requested R Three test')
+    if browser.returncode: pytest.skip('Chromium unavailable for the opt-in R Three test (install the K toolkit first)')
     config=json.loads(browser.stdout);proj=tmp_path/'r';shutil.copytree(R,proj)
     (proj/'node_modules').symlink_to(modules,target_is_directory=True)
     for name,dest in [('ThreeReview.tsx','Root.tsx'),('three-r-scene.js','three-r-scene.js'),('three-r-harness.tsx','three-r-harness.tsx')]:

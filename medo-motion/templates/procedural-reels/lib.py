@@ -90,8 +90,11 @@ def font(size, family=None, weight=800):
     except Exception: pass
     return f
 BLACK=(3,3,3); INK=(10,10,10); RED=(203,39,27); DRED=(159,8,3); WHITE=(243,242,241)
-# palette v2 aliases (see brand/brand.json): positive=blush, device bars=mauve, numbers/keywords=salmon
-EMER=(213,174,166); TEAL=(113,113,122); YEL=(217,127,104); GRAY=(163,162,160); LGRAY=(201,197,194)
+# Palette v2 in descriptive names (see brand/brand.json): positive=blush, device bars=mauve,
+# numbers/keywords=salmon. The short historic names on the next line are aliases kept for the
+# existing call sites and tests; write new code against BLUSH/MAUVE/SALMON.
+BLUSH=(213,174,166); MAUVE=(113,113,122); SALMON=(217,127,104); GRAY=(163,162,160); LGRAY=(201,197,194)
+EMER = BLUSH; TEAL = MAUVE; YEL = SALMON
 SS=3
 # ---------- easing ----------
 def clamp(x,a=0,b=1): return max(a,min(b,x))

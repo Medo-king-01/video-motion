@@ -5,7 +5,7 @@ import json
 import subprocess
 
 import pytest
-from conftest import ROOT, SKILL
+from conftest import ROOT, SKILL, requires_toolkit
 from test_visual_tools import canvas_project as canvas_project
 from test_visual_tools import js, set_scenes
 
@@ -67,6 +67,7 @@ const s={json.dumps(spec())};console.log(JSON.stringify(Array.from({{length:61}}
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_k_replay_good_and_history_dependent_pixels_fail(canvas_project, tmp_path):
     set_scenes(canvas_project, ['counter'])
     command = ['node', str(ROOT / 'tools/layout_audit.mjs'), '--project', str(canvas_project), '--replay', '--every', '6']
@@ -93,6 +94,7 @@ def test_k_replay_good_and_history_dependent_pixels_fail(canvas_project, tmp_pat
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_k_replay_checks_metadata_even_if_pixels_match(canvas_project, tmp_path):
     set_scenes(canvas_project, ['counter'])
     (canvas_project / 'src/scenes/counter.js').write_text('''import {withLayout} from '../lib/layout.js';

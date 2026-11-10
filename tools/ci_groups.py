@@ -41,9 +41,11 @@ ASSIGNED: dict[str, tuple[str, ...]] = {
         "test_text_animations", "test_video_motion_paths", "test_vo_length",
     ),
     "unit": (
-        "test_arabic_shape", "test_audio_engine", "test_caption_align", "test_frame_graph",
+        "test_arabic_shape", "test_audio_engine", "test_audio_generate", "test_caption_align",
+        "test_frame_graph",
         "test_icons", "test_motion", "test_motion_effects", "test_motion_final", "test_music",
-        "test_presenter", "test_render_policy", "test_rhythm", "test_sfx", "test_sfx_engine",
+        "test_presenter", "test_render_policy", "test_rhythm", "test_shared_libs", "test_sfx",
+        "test_sfx_engine",
         "test_space3d_offline", "test_text_direction", "test_transitions",
     ),
 }

@@ -31,3 +31,9 @@ out/
 .env.*
 .env-*
 !.env.example
+
+# coverage reports (informational)
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/

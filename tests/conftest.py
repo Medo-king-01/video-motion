@@ -70,6 +70,31 @@ if not any(isinstance(_f, _EngineModuleFinder) for _f in sys.meta_path):
     sys.meta_path.insert(0, _EngineModuleFinder())
 
 
+# ── environment guards ────────────────────────────────────────────────────────
+# The K/R renderers need a Node toolkit (`tools/toolkit/`) plus a Node binary.
+# A Python-only checkout (or a fresh clone before `npm ci`) must *skip* the browser
+# tests with an actionable message, not fail them: the audit counted 8 red tests
+# on a machine that had only installed the Python side of the studio.
+TOOLKIT = ROOT / "tools" / "toolkit"
+
+
+def toolkit_missing_reason() -> str | None:
+    """Why the shared render toolkit cannot run here, or None when it is ready."""
+    import shutil
+
+    if shutil.which("node") is None:
+        return "node is not installed"
+    if not (TOOLKIT / "node_modules" / "playwright-core").is_dir():
+        return "K toolkit not installed — run: npm ci --prefix tools/toolkit"
+    if not (TOOLKIT / "node_modules" / "@sparticuz" / "chromium").is_dir():
+        return "bundled Chromium missing — run: npm ci --prefix tools/toolkit"
+    return None
+
+
+_TOOLKIT_REASON: str | None = toolkit_missing_reason()
+requires_toolkit = pytest.mark.skipif(_TOOLKIT_REASON is not None, reason=_TOOLKIT_REASON or "")
+
+
 @pytest.fixture(scope="session")
 def cairo_bold() -> str:
     font = FONTS / "Cairo_800ExtraBold.ttf"

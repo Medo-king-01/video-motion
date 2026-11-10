@@ -150,8 +150,8 @@ for tech in captions:
 
 ## الأدوات
 
-- `tools/merge_alansari.py` - سكريبت الدمج
-- `tools/generate_techniques_docs.py` - توليد التوثيق
+- `tools/dev/_archive/merge_alansari.py` - سكريبت الدمج (مؤرشف؛ نتيجته محفوظة في `assets/techniques.json`)
+- `tools/dev/_archive/generate_techniques_docs.py` - توليد التوثيق (مؤرشف؛ الأرقام الرسمية يولّدها `tools/sync_docs_numbers.py`)
 - `tools/techniques.py` - أدوات الاستيديو الأصلية (تدعم التقنيات الجديدة)
 
 ## الإحصائيات
