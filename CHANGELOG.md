@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (N7, measured: the zod warning is the price of a patched zod)
+
+**The zod override is not laziness, and now the numbers say so.** Every Engine-R render logs
+`Version mismatch: zod: installed 4.6.7, required 4.5.4` because Remotion 4.0.539 pins `zod@4.5.4`
+exactly (`@remotion/studio-shared`'s `extraPackages`), and the scaffold overrides it to `^4.6.7`.
+Removing the override does silence the warning — `npx remotion versions` then prints
+`All packages have the correct version.` — but the same swap re-opens a high advisory:
+
+| scaffold | `npm audit` | `npx remotion versions` |
+|---|---|---|
+| `overrides: zod ^4.6.7` (current) | **0 vulnerabilities** | `zod: installed 4.6.7, required 4.5.4` |
+| no override (4.5.4) | **10 high** — zod "can exhaust memory while validating oversized constrained collections" plus nine Remotion packages | `All packages have the correct version.` |
+
+Both rows were measured here with `npm ci` on the same template, so the trade-off is evidence rather
+than an assumption. The override stays; `tests/test_remotion_skill.py` now asserts it is present,
+that the lockfile actually resolves zod ≥ 4.6.7 (an override that never reached the lock would leave
+4.5.4 installed), and that `docs/remotion.md` still explains why. That doc carries the table, and
+`medo-motion/skills/remotion/SKILL.md` tells the next upgrade to keep the override until Remotion
+requires a patched zod — instead of "fixing" the warning.
+
 ## Unreleased — 2026-11-10 (repository weight has a gate, and ffprobe stops being a subset)
 
 **Nothing noticed when the repository got heavier.** 165 MB of tracked assets (81.7 MB fonts,

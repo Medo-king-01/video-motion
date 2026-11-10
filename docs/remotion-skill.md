@@ -34,7 +34,7 @@
 | 9 | `remotion-interactivity` | **مرجع فقط — غير متحقق** | `Interactive.*` موثقة في upstream 4.0.541؛ القالب مثبت على **4.0.539** → غير متاحة/غير مختبرة على نسخة الاستوديو. تُفعَّل فقط بعد ترقية مقصودة + `selftest --remotion` + مراجعة |
 | 10 | `remotion-multimedia` | **مرجع فقط** | Mediabunny في المتصفح ≠ مسار الاستوديو؛ القياس بـ`tools/ffprobe_shim.py` و`tools/vo_length.py` وffmpeg — بدون شبكة |
 | 11 | `remotion-license` | **متكيف** | روابط الترخيص/FAQ/الشروط + remotion.pro أُبقيت كمؤشر؛ ترخيص Remotion مستقل عن ترخيص المستودع وعن OFL؛ يُراجع قبل أي استخدام تجاري/توزيع |
-| 12 | `remotion-upgrade` | **متكيف** | الترقية: `npx remotion upgrade` داخل المشروع (أو يدويًا بتوحيد كل `@remotion/*` على نسخة واحدة + محاذاة `mediabunny`/`zod` + الإبقاء على zod override لحد ما Remotion يدعم Zod 4.6.x أصيلًا + `selftest --remotion`). خطوة `npx skills update` من upstream **لا تُستخدم** — لا شيء نسخة في المستودع |
+| 12 | `remotion-upgrade` | **متكيف** | الترقية: `npx remotion upgrade` داخل المشروع (أو يدويًا بتوحيد كل `@remotion/*` على نسخة واحدة + محاذاة `mediabunny`/`zod` + الإبقاء على zod override على أحدث 4.6.x لحد ما النسخة المطلوبة نفسها تتصلح (4.5.4 فيها advisory عالي) + `npm audit` نظيف + `selftest --remotion`). خطوة `npx skills update` من upstream **لا تُستخدم** — لا شيء نسخة في المستودع |
 | 13 | `remotion-docs` | **متكيف (معتمدة)** | Algolia + إلحاق `.md` لكل رابط وثائق — مفيد وبدون تثبيت؛ يحتاج شبكة، والتحقق دائمًا من النسخة المثبتة 4.0.539 لا من الذاكرة |
 
 ## التعارضات البنيوية وكيف اتحلت
@@ -43,7 +43,7 @@
 2. **الخطوط:** upstream يوصي بـ`@remotion/google-fonts`؛ الاستوديو رندره offline بلا أي جلب من الشبكة أثناء الرندر، والخطوط OFL محلية (`public/fonts/` متولدة عند الاسكفولد؛ `assets/fonts/fonts.json` هو المانيفست). **الحل:** خطوط محلية فقط.
 3. **الصوت/المدة:** upstream يبني VO بـElevenLabs + `calculateMetadata`؛ عقد الاستوديو: التعليق ملك ميدو، المدة من `tools/vo_length.py`، و`calculateMetadata` لا يخترع مدة أبدًا. **الحل:** رفض مسار TTS في أي تسليم.
 4. **الحزم:** upstream يستخدم `@remotion/media` و`@remotion/effects` بكثرة؛ القالب لا يبيع إلا remotion core. **الحل:** الإضافة فقط بقرار مقصود (`npx remotion add`) + توحيد النسخ + قيد في CREDITS + `selftest --remotion`.
-5. **النسخ:** upstream يصف 4.0.541؛ القالب مثبت 4.0.539 (react 19.3.1، zod override ^4.6.7). **الحل:** كل ادعاء حساس للنسخة معرَّف كـ"غير متحقق" مع مسار تفعيل صريح (§8 في المهارة).
+5. **النسخ:** upstream يصف 4.0.541؛ القالب مثبت 4.0.539 (react 19.3.1، وzod override ^4.6.7 لأن 4.5.4 اللي Remotion بيطلبها فيها advisory). **الحل:** كل ادعاء حساس للنسخة معرَّف كـ"غير متحقق" مع مسار تفعيل صريح (§8 في المهارة).
 6. **التثبيت نفسه:** `npx skills add/update` يكتب مجلدات خاصة بالوكلاء؛ الاستوديو عام (host-agnostic). **الحل:** لا تثبيت؛ المهارة نفسها هي الدمج المحكوم.
 
 ## ما أُنشئ / اتعدل

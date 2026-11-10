@@ -232,16 +232,20 @@ is the authority.
 
 1. Read `package.json` and `package-lock.json` — the scaffold pins exact versions
    (`remotion` = `4.0.539`, `@remotion/cli`/`@remotion/renderer` = `4.0.539`,
-   react `19.3.1`, `typescript` `5.9.3`, with a deliberate `zod: ^4.6.7` override).
+   react `19.3.1`, `typescript` `5.9.3`, and a deliberate `zod: ^4.6.7` override). The override
+   exists because Remotion pins `zod 4.5.4`, which carries a high memory-exhaustion advisory; with
+   the override `npm audit` is clean, and the price is Remotion's own warning
+   *"zod: installed 4.6.7, required 4.5.4"* on every render. Do not "fix" the warning — dropping
+   the override re-opens the advisory for zod and nine Remotion packages.
 2. With `@remotion/cli` present, `npx remotion upgrade` is the supported path (it also
    tries to update agent skills — harmless here, this repo vendors none). The
    upstream-only `npx skills update` step is **not** used in this repository.
 3. Manual path otherwise: `npm view remotion version`; bump **every** `remotion` and
    `@remotion/*` to that one version; align `mediabunny`/`zod`/
    `@huggingface/transformers` with `npm view @remotion/studio@<version> dependencies
-   --json`; keep the `zod` override until a Remotion release natively supports the
-   installed Zod (see the compatibility note in `docs/remotion.md`); refresh the
-   lockfile with the project's package manager.
+   --json`; keep the `zod` override on the newest 4.6.x until the required version is itself
+   patched (see the trade-off in `docs/remotion.md`), then refresh the lockfile with the project's
+   package manager and confirm `npm audit` is still clean.
 4. Verify: `npm run typecheck` → `npm run stills` (visual unchanged) →
    `python3 tools/selftest.py --remotion`. Review the full lockfile diff; never mix
    Remotion versions across workspace packages.
