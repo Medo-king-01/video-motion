@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (batch 3, part 2: draft preview)
+
+**`pipeline.py --draft` — a review copy in a fraction of the render time.** Engine K renders at
+`--scale 0.5 --fps 15 --crf 30` straight from the same scene code into `out/draft.mp4`
+(540×960); the temporary `Draft.mp4` is renamed, so `out/` never holds two copies. A draft runs
+the `render` step only — there is no master to mux, no QA against it, and no delivery gate, and
+the timing still lands in `cache/pipeline-timings.json` so preview-vs-final is two numbers.
+`--draft` on P/R/hybrid exits `2` with a reason: those templates have no scale knob, and
+rendering at full quality then downscaling would be a lie. Measured here on a 2-second K scene:
+4.3 s master → 1.4 s draft. `tests/test_pipeline.py` +4 (command shape, rename, missing-output
+failure, one real 540×960 render).
+
 ## Unreleased — 2026-11-10 (batch 3: alpha layers · HTML QA report · time to first video · doctor fixes)
 
 **Hybrid v2 — a transparent K layer over a P/R base.** `plan/hybrid.json` version 2 replaces

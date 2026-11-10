@@ -139,3 +139,78 @@ def test_main_full_run_sequence_and_report(tmp_path, monkeypatch, capsys):
     timings = json.loads((proj / "cache" / "pipeline-timings.json").read_text(encoding="utf-8"))
     assert timings["ok"] and len(timings["steps"]) == len(pipeline.STEPS)
     assert any("already exists" in s["note"] for s in timings["steps"] if s["step"] == "mix")
+
+
+def test_draft_is_rejected_for_engines_without_a_scale_knob(tmp_path, monkeypatch, capsys):
+    proj = make_project(tmp_path, "p")
+    monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
+    monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
+    assert pipeline.main() == 2
+    assert "engine K only" in capsys.readouterr().err
+
+
+def test_draft_renders_only_half_resolution_and_never_muxes(tmp_path, monkeypatch, capsys):
+    proj = make_project(tmp_path, "k")
+    seen = []
+
+    def fake_run(cmd, cwd, env=None, timeout=1800, log=None):
+        joined = " ".join(str(c) for c in cmd)
+        seen.append(joined)
+        if "src/render.js" in joined:
+            (proj / "out" / "Draft.mp4").write_bytes(b"fake draft")
+        return 0
+
+    monkeypatch.setattr(pipeline, "run_cmd", fake_run)
+    monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
+    monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
+    assert pipeline.main() == 0
+    out = capsys.readouterr().out
+    assert "DRAFT · 540x960 @15fps" in out
+    render_calls = [c for c in seen if "src/render.js" in c]
+    assert render_calls and "--fps 15" in render_calls[0] and "--scale 0.5" in render_calls[0]
+    assert "--name Draft" in render_calls[0]
+    assert (proj / "out" / "draft.mp4").is_file()
+    assert not (proj / "out" / "Draft.mp4").exists()  # renamed, one canonical name
+    assert not any("ffmpeg" in c for c in seen)  # no mux in a draft
+    timings = json.loads((proj / "cache" / "pipeline-timings.json").read_text(encoding="utf-8"))
+    assert [step["step"] for step in timings["steps"]] == ["render"]
+
+
+def test_draft_that_produces_nothing_fails_loudly(tmp_path, monkeypatch):
+    proj = make_project(tmp_path, "k")
+    monkeypatch.setattr(pipeline, "run_cmd", lambda *a, **k: 0)
+    monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
+    monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
+    assert pipeline.main() == 1
+
+
+@pytest.mark.slow
+def test_draft_real_render_is_playable_half_size(tmp_path):
+    """One real Chromium render: the preview must be 540x960 at 15fps, not a relabelled master."""
+    import shutil
+    import subprocess
+
+    toolkit = ROOT / "tools" / "toolkit" / "node_modules" / "playwright-core"
+    if not toolkit.is_dir() or not shutil.which("node"):
+        pytest.skip("toolkit node_modules missing — run: npm ci --prefix tools/toolkit")
+    spec = importlib.util.spec_from_file_location("ttfv_helpers", ROOT / "tools" / "time_to_first_video.py")
+    ttfv = importlib.util.module_from_spec(spec)
+    sys.modules["ttfv_helpers"] = ttfv
+    spec.loader.exec_module(ttfv)
+    proj = tmp_path / "draft"
+    subprocess.run([sys.executable, str(ROOT / "tools" / "new_project.py"), "draft", "--engine", "k",
+                    "--out", str(proj)], check=True, capture_output=True)
+    (proj / "node_modules").symlink_to(ROOT / "tools" / "toolkit" / "node_modules")
+    ttfv.write_plan(proj, 1.0)
+    result = subprocess.run([sys.executable, str(ROOT / "tools" / "pipeline.py"), str(proj), "--draft"],
+                            capture_output=True, text=True, cwd=str(ROOT))
+    assert result.returncode == 0, result.stdout + result.stderr
+    media = proj / "out" / "draft.mp4"
+    assert media.is_file()
+    info = ttfv.probe(media)
+    assert (info["width"], info["height"]) == (540, 960)
+    assert info["duration_s"] == pytest.approx(1.0, abs=0.1)
+    assert info["frames"] == "15"
