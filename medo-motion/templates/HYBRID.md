@@ -95,7 +95,7 @@ A v2 plan uses `layers` instead of `engine` for that segment (`version: 2` at th
 
 ## 2. Configure and render
 
-Install the R scaffold dependencies once with `npm ci`. K uses the configured shared toolkit/Chromium described in `medo-motion/reference/planning-and-tracking.md` and `tools/chromium.mjs`; no browser or packages are downloaded automatically by the hybrid renderer.
+Install the R scaffold dependencies once with `npm ci`. K uses the configured shared toolkit/Chromium described in `medo-motion/reference/planning-and-tracking.md` and `tools/chromium.mjs`. When `MEDO_TOOLKIT`/`MEDO_CHROMIUM` are not set, the hybrid renderer asks `tools/chromium.mjs --json` for the bundled browser and uses `tools/toolkit` if it is installed — nothing is downloaded; if neither exists the K render reports it itself.
 
 From this project directory:
 

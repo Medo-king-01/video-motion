@@ -264,6 +264,53 @@ def _validate_mask(layer: dict[str, Any], sid: str, position: int, alpha: bool) 
     return {"type": "image", "path": path}
 
 
+TOOLKIT = ROOT / "tools" / "toolkit"
+
+
+def chromium_config(node: str) -> dict[str, Any] | None:
+    """The repo's bundled Chromium, or None. `tools/chromium.mjs` unpacks the npm package, so this
+    needs no network — it only fails when the toolkit was never installed."""
+    helper = ROOT / "tools" / "chromium.mjs"
+    if not helper.is_file():
+        return None
+    result = subprocess.run([node, str(helper), "--json"], capture_output=True, text=True,
+                            timeout=180, check=False)
+    if result.returncode:
+        return None
+    try:
+        config = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return None
+    return config if isinstance(config, dict) and config.get("executablePath") else None
+
+
+def needs_engine_k(plan: dict[str, Any]) -> bool:
+    """A K base or any overlay launches Chromium."""
+    return any(segment["layers"][0]["engine"] == "k" or len(segment["layers"]) > 1
+               for segment in plan["segments"])
+
+
+def ensure_engine_k_environment(env: dict[str, str], node: str) -> dict[str, str]:
+    """Fill the toolkit/Chromium variables Engine K needs when the caller did not.
+
+    Never fatal: a missing browser is reported by the K render itself, and a hybrid of P/R segments
+    must keep working on a machine without Chromium installed.
+    """
+    if not env.get("MEDO_TOOLKIT") and (TOOLKIT / "node_modules" / "playwright-core").is_dir():
+        env["MEDO_TOOLKIT"] = str(TOOLKIT)
+    if env.get("MEDO_CHROMIUM"):
+        return env
+    config = chromium_config(node)
+    if config is None:
+        return env
+    env["MEDO_CHROMIUM"] = str(config["executablePath"])
+    library = config.get("libraryPath")
+    if library:
+        existing = env.get("LD_LIBRARY_PATH", "")
+        env["LD_LIBRARY_PATH"] = f"{library}:{existing}" if existing else str(library)
+    return env
+
+
 def _as_program(candidate: str) -> str | None:
     """A CLI flag or `<NAME>_BIN` value: a path, or a name on PATH. Symlinks stay unresolved so a
     venv/managed-tool path keeps pointing at its own interpreter."""
@@ -615,6 +662,12 @@ def main() -> int:
         "MEDO_FFPROBE": ffprobe,
     }
     env.setdefault("PYTHONUNBUFFERED", "1")
+    if needs_engine_k(plan):
+        try:
+            ensure_engine_k_environment(env, node)
+        except (OSError, subprocess.SubprocessError) as error:
+            print(f"note: could not resolve the toolkit Chromium automatically ({error}); "
+                  "set MEDO_CHROMIUM or a .video-motion/config.json", file=sys.stderr)
 
     segment_times = []
     for segment in plan["segments"]:

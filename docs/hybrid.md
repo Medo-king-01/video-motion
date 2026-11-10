@@ -117,7 +117,15 @@ color=c=black:...,drawbox=...,format=gray,gblur=sigma=…,negate,setsar=1[mi];
 
 ## ملاحظة تشغيل
 
-طبقة K محتاجة Chromium و`playwright-core`، فالتشغيل لازم يلاقيهم: إما
-`.video-motion/config.json` فيه `toolkit_dir`/`chromium`، أو
-`MEDO_TOOLKIT=tools/toolkit MEDO_CHROMIUM=$(node tools/chromium.mjs --json | python3 -c "import json,sys;print(json.load(sys.stdin)['executablePath'])")`.
-`tools/pipeline.py` بيظبطهم لوحده؛ `render_hybrid.py` لسه بيحتاجهم من البيئة (بند معروف).
+طبقة K محتاجة Chromium و`playwright-core`. `render_hybrid.py` بقى يحلّها لوحده بدل ما يفشل جوه
+Node برسالة `Cannot find module 'playwright-core'`:
+
+1. لو `MEDO_TOOLKIT`/`MEDO_CHROMIUM` متظبطين في البيئة → بيحترمهم زي ما هما (مش بيلمسهم).
+2. لو مش متظبطين → بياخد `tools/toolkit` لو فيه `node_modules/playwright-core`، ويسأل
+   `node tools/chromium.mjs --json` عن الـChromium المرفق. الـhelper ده **بيفك ضغط** المتصفح من
+   حزمة npm المحلية، **ما بينزّلش** حاجة.
+3. لو الاتنين مش موجودين → مابيفشلش من نفسه؛ الـK render هو اللي بيقول الرسالة، والريل اللي كله
+   P/R بيكمّل عادي على جهاز من غير Chromium.
+
+التحقق: تشغيل من شل نضيف (`env -u MEDO_TOOLKIT -u MEDO_CHROMIUM -u LD_LIBRARY_PATH`) على مشروع
+hybrid بطبقة K وماسك → `HYBRID OK · 1 layered, 1 K overlay(s) (1 masked) · 30 frames` في 31s.

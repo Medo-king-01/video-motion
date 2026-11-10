@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (hybrid: Engine K finds its own browser)
+
+**A hybrid reel no longer needs a pre-configured shell.** `render_hybrid.py` now resolves the
+toolkit and bundled Chromium itself when `MEDO_TOOLKIT`/`MEDO_CHROMIUM` are unset: it uses
+`tools/toolkit` when `playwright-core` is installed there and asks `tools/chromium.mjs --json` for
+the browser path, which only unpacks the npm package on disk — it downloads nothing. A caller that
+already set the variables is left untouched, a broken or missing helper is not fatal (the K render
+still reports its own error), and a plan with no K layer never probes the browser at all.
+
+Before this, a hybrid reel with a K overlay run from a clean shell died inside Node with
+`Cannot find module 'playwright-core'` while `pipeline.py` worked — the same plan behaving
+differently depending on who started it. Verified from a clean shell
+(`env -u MEDO_TOOLKIT -u MEDO_CHROMIUM -u LD_LIBRARY_PATH`): a masked K overlay renders and the
+plan reports `HYBRID OK · 1 layered, 1 K overlay(s) (1 masked) · 30 frames` in 31 s.
+`tests/test_hybrid_env.py` (6: needs-k detection, fill rules, caller wins, broken helper, no
+subprocess when the helper is absent).
+
 ## Unreleased — 2026-11-10 (hybrid v2.2: several K overlays)
 
 **Up to four transparent Engine-K overlays above one base, stacked in plan order.** One K project
