@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (tool contracts · binary attributes · graceful optional dependency)
+
+**The seven untested tools now have contracts.** `tests/test_tool_contracts.py` (18 tests) pins
+what a CLI owes its caller, not its internals: every one of `fonts_preview`, `itshover_import`,
+`transitions_sheet`, `visual_verify`, `whisper_align` and `whisper_fetch` answers `--help` and
+rejects unknown flags with exit `2`; `ffprobe_shim` answers the exact subset the studio uses
+(`format=duration`, stream `codec_name`/`sample_rate` on a real WAV) and fails loudly on a missing
+file; `fonts_preview` writes a sheet at the requested width; `transitions_sheet --only <name>`
+renders one cell; `itshover_import --list` prints the registry.
+
+**`whisper_align` no longer explodes on import.** It imported `faster_whisper` at module level, so
+`--help` — and any test that imports the file — died with `ModuleNotFoundError` instead of saying
+what to install. The dependency is now loaded at call time and a missing one exits `2` with
+`pip install faster-whisper` and the fetch hint; the contract test asserts that message and that no
+traceback is printed. Everything else in the studio already runs without it.
+
+**`.gitattributes` — binaries stay binary, text stays LF.** There is deliberately **no Git LFS**:
+history is ~112MB, LFS would add a dependency to every clone and to CI, and the real decision
+(whether the repo is shared widely) belongs to the owner. What is pinned instead: `* text=auto`,
+`binary` for fonts/images/audio/video, `text eol=lf` for code and docs. `tests/test_repo_hygiene.py`
+(7 tests) checks it through `git check-attr`, so deleting or narrowing the file fails the suite
+rather than silently rewriting a font.
+
 ## Unreleased — 2026-11-10 (contract↔capability guard · deterministic render group · coverage floor)
 
 **The operating contract can no longer drift from the renderer.** Hybrid v2 shipped while

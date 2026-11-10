@@ -37,7 +37,8 @@ ASSIGNED: dict[str, tuple[str, ...]] = {
         "test_design_system", "test_docs_numbers", "test_file_safety", "test_fonts",
         "test_fonts_install", "test_fonts_lock", "test_hyperframes_fit", "test_import_precedence",
         "test_looks", "test_openmontage_fit", "test_recipes", "test_reel_lint",
-        "test_reference_report", "test_remotion_skill", "test_scene_director", "test_setup",
+        "test_reference_report", "test_remotion_skill", "test_repo_hygiene", "test_scene_director",
+        "test_setup",
         "test_skillry_fit", "test_studio_not_archive", "test_styles", "test_techniques",
         "test_text_animations", "test_video_motion_paths", "test_vo_length",
     ),
@@ -47,7 +48,7 @@ ASSIGNED: dict[str, tuple[str, ...]] = {
         "test_icons", "test_motion", "test_motion_effects", "test_motion_final", "test_music",
         "test_presenter", "test_render_policy", "test_rhythm", "test_shared_libs", "test_sfx",
         "test_sfx_engine",
-        "test_space3d_offline", "test_text_direction", "test_transitions",
+        "test_space3d_offline", "test_text_direction", "test_tool_contracts", "test_transitions",
     ),
 }
 
