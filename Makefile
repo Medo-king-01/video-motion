@@ -71,6 +71,9 @@ qa:              ## post-render Final Media QA on an MP4: make qa MP4=projects/x
 gate:            ## cumulative stage & delivery-promise gate: make gate P=projects/x [STAGE=plan] [MP4=...]
 	$(PY) tools/stage_gate.py $(or $(P),.) --stage $(or $(STAGE),plan) $(if $(MP4),--media $(MP4),) $(if $(LAYOUT),--layout-report $(LAYOUT),) $(if $(CKPT),--write-checkpoint,)
 
+pipeline:        ## deterministic render pipeline (vo -> lint -> brand -> mix -> render -> mux -> qa -> gate) + timings: make pipeline P=projects/x [ENGINE=p|k|r|hybrid] [FROM=mix]
+	$(PY) tools/pipeline.py $(or $(P),.) $(if $(ENGINE),--engine $(ENGINE),) $(if $(FROM),--from $(FROM),) $(if $(LAYOUT),--layout-report $(LAYOUT),)
+
 phone-preview:   ## mobile grid & platform UI safe-zone sheet: make phone-preview MEDIA=out/master.mp4 [OUT=cache/phone-preview.png]
 	$(PY) tools/phone_preview.py $(MEDIA) --out $(or $(OUT),cache/phone-preview.png) $(if $(AT),--at $(AT),) $(if $(REPORT),--report $(REPORT),)
 
@@ -107,4 +110,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup setup-dev doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint layout-p qa gate poses backgrounds sfx sfx-bank transitions cover clean
+.PHONY: help setup setup-dev doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint layout-p qa gate poses backgrounds sfx sfx-bank transitions cover pipeline clean

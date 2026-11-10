@@ -69,6 +69,9 @@ jobs:
       - name: Test the engine-P media resolution (standalone template)
         run: python -m pytest tests/test_engine_p_media.py
 
+      - name: Test the deterministic pipeline runner (engine detection, fail-fast, timings)
+        run: python -m pytest tests/test_pipeline.py
+
       - name: Test the beats.json contract (schema lockstep, checker, negative matrix)
         run: python -m pytest tests/test_beats_schema.py
 
