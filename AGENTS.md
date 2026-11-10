@@ -333,11 +333,25 @@ presenter) · assets used + licence line · 2–3 next improvements. **Never men
 or a series title** — there is none, and never suggest adding one. Say where the project
 folder is, and remind the user it is a working folder (outside the repo history).
 
+## 8a. Repository weight
+
+Tracked assets are 165 MB of a 1,899-file tree (81.7 MB fonts, 64.4 MB images, 35.6 MB of
+`assets/poses/source`). There is **no Git LFS** on purpose: a filter would tax every clone and CI
+job, and rewriting history is an owner decision. `tools/repo_weight.py --check` is the gate instead
+— total weight may not grow more than 2 MB past `docs/repo-weight-baseline.json`, and any tracked
+file of 3 MB or more has to be named in that baseline. A new heavy asset therefore needs a
+deliberate `--update`, which prints the delta so the diff shows the weight change. Details and the
+LFS recipe (if that decision ever flips): `docs/repository-weight.md`.
+
 ## 9. Environment notes (this sandbox)
 
 - If `ffmpeg` is not on PATH, the engines honour `FFMPEG_BIN=/path/to/ffmpeg`.
 - `ffmpeg` = static build from `imageio-ffmpeg`; there is no `ffprobe` binary, so
-  `tools/ffprobe_shim.py` is installed as `ffprobe` (ffprobe-compatible JSON subset).
+  `tools/ffprobe_shim.py` is installed as `ffprobe` (ffprobe-compatible JSON subset). It is a
+  **fallback**: when a real `ffprobe` is on PATH (or named by `MEDO_REAL_FFPROBE`) the shim execs it,
+  so every other option works; `MEDO_FFPROBE_SHIM_ONLY=1` forces the PyAV path. It never delegates to
+  `tools/bin/ffprobe` or to itself. `python3 tools/ffprobe_shim.py --supported` prints the fields the
+  fallback promises, and `tests/test_tool_contracts.py` keeps that list honest.
 - Chromium for engine K comes from `@sparticuz/chromium` (npm) because the Playwright
   CDN is blocked; `tools/chromium.mjs --env` resolves the Chromium executable and prepares the required shared-library environment.
 - Engine R uses the Remotion packages pinned in the project scaffold (`npm install` inside
@@ -359,7 +373,7 @@ DESIGN_SYSTEM.md       ← unified design system reference
 README.md              ← Arabic overview
 assets/                ← shared inputs: fonts/, poses/, sfx/
 projects/<slug>/       ← scratch folder for one video (Git-ignored, not an archive)
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · media_qa.py · layout_audit.mjs · layout_audit_p.py · stage_gate.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · media_qa.py · repo_weight.py · layout_audit.mjs · layout_audit_p.py · stage_gate.py · ffprobe_shim.py · chromium.mjs
 tests/                 ← pytest: Arabic shaping invariants, brand lock, scaffold, one real frame
 docs/                  ← analysis + conventions + Skillry fit review (docs/README.md)
 medo-motion/           ← the toolkit

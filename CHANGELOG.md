@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (repository weight has a gate, and ffprobe stops being a subset)
+
+**Nothing noticed when the repository got heavier.** 165 MB of tracked assets (81.7 MB fonts,
+64.4 MB images, 35.6 MB of `assets/poses/source`) sat behind a `.git` of ~112 MB and only a review
+ever looked. `tools/repo_weight.py --check` now guards it in CI with two rules: total tracked weight
+may not exceed `docs/repo-weight-baseline.json` by more than 2 MB, and any tracked file of 3 MB or
+more must be named in that baseline. A new heavy asset therefore needs a deliberate `--update`,
+which prints the delta so the weight change appears in the same diff as the code that caused it.
+No Git LFS was added, and `docs/repository-weight.md` says why plus the exact migration recipe if
+that decision ever flips. `tests/test_repo_weight.py` (7: categories, ratchet, heavy-file rule,
+update-then-check, missing baseline, and the committed baseline still matching the tree).
+
+**`tools/ffprobe_shim.py` is a fallback again, not a ceiling.** It only understood the option
+subset the studio used by hand; anything else (`-of csv`, `-read_intervals`, `-show_packets`) was
+silently ignored. It now execs a real `ffprobe` when one is on PATH (or named by
+`MEDO_REAL_FFPROBE`) and keeps the PyAV path only as the fallback — never delegating to
+`tools/bin/ffprobe` or to itself, which would loop forever. `--supported` prints the field
+catalogue the fallback promises, `MEDO_FFPROBE_SHIM_ONLY=1` pins the fallback, and
+`tests/test_tool_contracts.py` proves delegation, the no-self-delegation rule, the escape hatch, and
+that every emitted field is declared.
+
 ## Unreleased — 2026-11-10 (hybrid: a real draft preview, and a shim that survives any cwd)
 
 **A hybrid reel can be previewed in half the time.** `pipeline.py <project> --draft` now accepts

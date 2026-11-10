@@ -12,6 +12,9 @@ $PY -m ruff check . 2>/dev/null || ruff check .
 echo "== pytest =="
 $PY -m pytest -q
 
+echo "== repository weight =="
+$PY tools/repo_weight.py --check
+
 echo "== docs numbers =="
 $PY tools/sync_docs_numbers.py --check
 
