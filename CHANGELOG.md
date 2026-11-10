@@ -5,6 +5,25 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-10 (the real-Remotion suite stops failing only when it runs in parallel)
+
+`pytest -n 2` over the modules that do real Remotion renders failed about one run in two, with either
+`The requested path (/tmp/remotion-webpack-bundle-.../index.html) could not be found` or `Error: The
+bundler completed without emitting bundle.js`. Both are one collision: Remotion derives its bundle
+work directory from the **entry point** (`src/index.ts`) under the shared OS temp root, and every
+scaffolded project has the same relative entry, so two workers building at the same instant resolve
+to the same directory — one cleans up while the other is still writing or serving it. The retry
+wrapper added earlier treated the symptom.
+
+`tests/conftest.py` now gives each test process its own `TMPDIR` (`remotion_env()`), which Remotion
+and webpack both honour; every Remotion subprocess in the suite receives it. Evidence: **2 failures
+in 3 parallel runs before, 0 in 5 after**. `tests/test_remotion_isolation.py` guards the property —
+stable within a process, different across processes, and actually present in the environment handed
+to the renderer — so replacing `mkdtemp` with a fixed path fails loudly.
+
+Deliberately scoped to tests: isolating every render process also throws away Remotion's bundle reuse
+between consecutive renders of the same project, which is a speed feature the product relies on.
+
 ## Unreleased — 2026-11-10 (the soft glow stops blurring pixels the halo cannot show)
 
 Profiling a master engine-P chunk (8 frames, `REEL_SS=3`) put `gaussian_blur` at **3.07 s of 8.34 s**

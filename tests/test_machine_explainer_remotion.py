@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from conftest import remotion_env
 
 pytestmark = pytest.mark.slow
 
@@ -78,12 +79,14 @@ def _remotion_runtime(tmp_path_factory):
             pytest.skip(f"Remotion npm ci unavailable offline: {ci_res.stderr[:240]}")
         modules_dir = deps_dir / "node_modules"
 
-    env = {
-        **os.environ,
-        "MEDO_TOOLKIT": str(ROOT / "tools" / "toolkit"),
-        "MEDO_CHROMIUM": chrom["executablePath"],
-        "REMOTION_BROWSER_EXECUTABLE": chrom["executablePath"],
-    }
+    env = remotion_env(
+        {
+            **os.environ,
+            "MEDO_TOOLKIT": str(ROOT / "tools" / "toolkit"),
+            "MEDO_CHROMIUM": chrom["executablePath"],
+            "REMOTION_BROWSER_EXECUTABLE": chrom["executablePath"],
+        }
+    )
     if chrom.get("args"):
         env["REMOTION_CHROMIUM_ARGS"] = " ".join(chrom["args"])
     if chrom.get("libraryPath"):

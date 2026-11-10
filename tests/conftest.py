@@ -1,6 +1,8 @@
 """Shared fixtures: import paths and the brand font."""
 from __future__ import annotations
 
+import atexit
+import functools
 import importlib.abc
 import importlib.util
 import json
@@ -8,6 +10,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import wave  # noqa: F401  — see below: import it BEFORE any test module touches sys.path
 from pathlib import Path
 
@@ -133,6 +136,32 @@ def project(tmp_path):
     shutil.rmtree(proj, ignore_errors=True)
 
 
+# --- Remotion temp isolation ---------------------------------------------------
+#
+# Remotion names its webpack bundle output after the entry point (`src/index.ts`), not after the
+# project, so two projects built at the same time resolve to the same /tmp/remotion-webpack-bundle-*
+# directory. Under `pytest -n 2` that collides: one process finishes and deletes the directory while
+# the other is still serving it ("The requested path .../index.html could not be found"), or webpack
+# exits reporting "The bundler completed without emitting bundle.js". Both were seen intermittently
+# only in parallel runs, and both disappear once each test process owns its TMPDIR.
+
+
+@functools.lru_cache(maxsize=1)
+def remotion_tmpdir() -> Path:
+    """One scratch TMPDIR per test process, so parallel workers never share a bundle directory."""
+    path = Path(tempfile.mkdtemp(prefix=f"medo-remotion-{os.getpid()}-"))
+    atexit.register(shutil.rmtree, path, ignore_errors=True)
+    return path
+
+
+def remotion_env(base: dict[str, str] | None = None) -> dict[str, str]:
+    """`base` (usually os.environ) plus the per-process temp dirs Remotion's bundler reads."""
+    env = dict(os.environ if base is None else base)
+    tmp = str(remotion_tmpdir())
+    env.update({"TMPDIR": tmp, "TMP": tmp, "TEMP": tmp})
+    return env
+
+
 # --- Fixed Stage suite infrastructure -----------------------------------------
 #
 # The Chromium/Remotion runtimes are expensive and were duplicated across three test modules when
@@ -155,13 +184,15 @@ def _chromium_env():
     if chrom_proc.returncode != 0:
         pytest.skip(f"Chromium unavailable: {chrom_proc.stderr}")
     chrom = json.loads(chrom_proc.stdout)
-    env = {
-        **os.environ,
-        "PATH": f"{ROOT / 'tools' / 'bin'}:{ROOT / '.venv' / 'bin'}:{os.environ.get('PATH', '')}",
-        "MEDO_TOOLKIT": str(ROOT / "tools" / "toolkit"),
-        "MEDO_CHROMIUM": chrom["executablePath"],
-        "REMOTION_BROWSER_EXECUTABLE": chrom["executablePath"],
-    }
+    env = remotion_env(
+        {
+            **os.environ,
+            "PATH": f"{ROOT / 'tools' / 'bin'}:{ROOT / '.venv' / 'bin'}:{os.environ.get('PATH', '')}",
+            "MEDO_TOOLKIT": str(ROOT / "tools" / "toolkit"),
+            "MEDO_CHROMIUM": chrom["executablePath"],
+            "REMOTION_BROWSER_EXECUTABLE": chrom["executablePath"],
+        }
+    )
     if chrom.get("args"):
         env["REMOTION_CHROMIUM_ARGS"] = " ".join(chrom["args"])
     if chrom.get("libraryPath"):
@@ -175,8 +206,6 @@ def _chromium_env():
 def _cleanup_stage_tmp(request):
     """Reclaim multi-hundred-MB scaffolded assets/fonts/bundles right after each test
     so multi-pass CI jobs (`ci.sh` + `selftest.py --remotion --hybrid`) never hit ENOSPC."""
-    import tempfile  # noqa: PLC0415
-
     tmp_root = Path(tempfile.gettempdir())
     before_bundles = set(tmp_root.glob("remotion-webpack-bundle-*"))
     yield
