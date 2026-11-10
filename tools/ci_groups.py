@@ -32,7 +32,8 @@ GROUPS = ("contracts", "unit", "render")
 
 ASSIGNED: dict[str, tuple[str, ...]] = {
     "contracts": (
-        "test_beats_schema", "test_brand", "test_capability_contract", "test_ci_groups", "test_contrast",
+        "test_beats_schema", "test_brand", "test_capability_contract", "test_changelogs", "test_ci_groups",
+        "test_contrast",
         "test_dependencies",
         "test_design_system", "test_docs_numbers", "test_file_safety", "test_fonts",
         "test_fonts_install", "test_fonts_lock", "test_hyperframes_fit", "test_import_precedence",

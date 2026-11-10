@@ -1,5 +1,10 @@
 # Changelog — Video Motion
 
+**Frozen archive — scaffold 1.0 → 2.7 (2026-11-01 → 2026-11-09).** This is the toolkit's own version
+history: what each template version added to engines, looks, fonts, poses and the type system. It is
+kept because the versions are referenced by projects. **Studio changes from 2026-11-09 onward live in
+`../CHANGELOG.md`** — one entry, one place. Nothing is added here any more.
+
 ## 2026-11-09 — Looks مقفولة + وصفات المشاهد + سكيما beats.json
 The «Move the intelligence into the system» slice, completed after the network went green.
 Weak/cheap models now state a `look` (or a `recipe`) instead of improvising art direction —

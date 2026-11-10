@@ -1,5 +1,24 @@
 # Changelog
 
+**Scope:** the studio as it ships — engines P/K/R, the hybrid renderer, `tools/`, tests, contracts and
+documentation. It starts at **2026-11-09** and is newest-first. The toolkit's own version history
+(scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
+**here**, never in both (there is a test for that).
+
+## Unreleased — 2026-11-10 (the two changelogs are consecutive, and now say so)
+
+**`CHANGELOG.md` and `medo-motion/CHANGELOG.md` were read as duplicates — they are not.** Comparing
+them section by section: 27 and 22 headings, **zero** shared, and the split is chronological — the
+toolkit's own scaffold 1.0 → 2.7 (2026-11-01 → 11-09) against the studio log that starts 2026-11-09.
+Merging would rewrite a versioned archive, so instead the boundary is explicit and enforced: the root
+log is the live one, `medo-motion/CHANGELOG.md` is marked a frozen archive that points here,
+`AGENTS.md` §10a tells an agent to write exactly one entry and never in both, and
+`tests/test_changelogs.py` fails on a shared heading, an `Unreleased` section in the archive, or a
+missing scope banner. The docs index names both files and their scope.
+
+The 6.3 MB of `docs/audition` MP3s stay: they are the listening evidence for the mixes, and the new
+weight ratchet (`tools/repo_weight.py`) is what stops them from growing.
+
 ## Unreleased — 2026-11-10 (N7, measured: the zod warning is the price of a patched zod)
 
 **The zod override is not laziness, and now the numbers say so.** Every Engine-R render logs

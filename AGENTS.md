@@ -385,6 +385,14 @@ medo-motion/           ← the toolkit
   scripts/             ← fonts, SFX, TTS, preflight, brand guard, preview
 ```
 
+## 10a. Recording what changed
+
+Every behavioural change ends with **one entry in `CHANGELOG.md`** (newest first, under `Unreleased`
+with the date): what was wrong, what the evidence is, and how it is guarded. `medo-motion/CHANGELOG.md`
+is a **frozen archive** of the toolkit's own 1.0 → 2.7 history — never add to it, and never write the
+same entry in both places (`tests/test_changelogs.py` enforces that). Numbers you cite must come from a
+run you can repeat; if you did not run it, say so in the entry.
+
 ## 11. Never do this
 
 - Ask for a logo, a series name, an episode number, or "your brand colours". The name/
