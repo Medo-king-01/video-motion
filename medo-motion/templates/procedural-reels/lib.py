@@ -216,14 +216,30 @@ def fill_rect(fr,x0,y0,x1,y1,color,alpha=1.0):
     if x1<=x0 or y1<=y0: return
     roi=fr[y0:y1,x0:x1]; roi[:]=roi*(1-alpha)+np.array(color,np.float32)*alpha
 # ---------- reusable sprites ----------
+def soft_glow(size,box,color,sigma):
+    """A blurred disc, computed at the coarsest grid the gradient can still carry.
+
+    A Gaussian of sigma s has no detail finer than s, so blurring a 4100x4100 canvas to reach
+    sigma=96 bought 60x more pixels than the halo can show - it was 37% of a master frame here.
+    Draw the disc at sigma ~= 4 px on the reduced grid, blur there, and scale up with BILINEAR: the
+    upscale of an already-smooth field is a wider blur of the same shape, not a visible change.
+    """
+    k=max(1,int(round(sigma/4.0)))
+    w,h=size
+    small=Image.new('RGBA',(max(1,round(w/k)),max(1,round(h/k))),(0,0,0,0))
+    ImageDraw.Draw(small).ellipse([v/k for v in box],fill=color)
+    small=small.filter(__import__('PIL.ImageFilter',fromlist=['x']).GaussianBlur(sigma/k))
+    return small if k==1 else small.resize(size,Image.BILINEAR)
 @functools.lru_cache(maxsize=None)
 def circle_spr(r,color,glow=0):
-    pad=glow*2+4; d=D(2*r+2*pad,2*r+2*pad)
-    if glow:
-        g=Image.new('RGBA',d.im.size,(0,0,0,0)); gd=ImageDraw.Draw(g)
-        gd.ellipse([pad*SS,pad*SS,(pad+2*r)*SS,(pad+2*r)*SS],fill=color+(150,))
-        g=g.filter(__import__('PIL.ImageFilter',fromlist=['x']).GaussianBlur(glow*SS*0.8)); d.im.alpha_composite(g)
-    d.circ(pad+r,pad+r,r,fill=color); return d.done()
+    pad=glow*2+4; d=D(2*r+2*pad,2*r+2*pad); d.circ(pad+r,pad+r,r,fill=color)
+    if not glow: return d.done()
+    # The halo is composited UNDER the disc at logical size, not at the supersampled size: the glow
+    # is a smooth field, so paying 9x the pixels (4104^2 instead of 1368^2) to upsample it before the
+    # downsample bought nothing but time.
+    im=d.im.resize((d.w,d.h),Image.LANCZOS)
+    return prem(np.array(Image.alpha_composite(
+        soft_glow((d.w,d.h),(pad,pad,pad+2*r,pad+2*r),color+(150,),glow*0.8),im)))
 @functools.lru_cache(maxsize=None)
 def sparkle(r,color=(243,242,241)):
     d=D(r*2+4,r*2+4); c=r+2

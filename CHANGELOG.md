@@ -5,6 +5,32 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-10 (the soft glow stops blurring pixels the halo cannot show)
+
+Profiling a master engine-P chunk (8 frames, `REEL_SS=3`) put `gaussian_blur` at **3.07 s of 8.34 s**
+and `resize` at another 20%. The cause was `lib.circle_spr`: the halo behind a disc was drawn on the
+whole supersampled canvas and blurred there — a 600 px radius with a 40 px glow is a 4104x4104 canvas
+blurred with sigma 96. A sigma-96 Gaussian carries no detail finer than 96 px, so ~60x more pixels
+were processed than the result could show, once per frame (the radius animates, so the sprite cache
+never hit).
+
+The halo is now drawn on the coarsest grid that still resolves its gradient (sigma ~= 4 px), blurred
+there, upscaled with BILINEAR, and composited **under** the disc at logical size (1368x1368 instead
+of 4104x4104). Measurements on the same material:
+
+| | before | after |
+|---|---|---|
+| 9-frame master chunk, `REEL_SS=3` | 9.19-9.65 s | **4.96-5.20 s** (1.85x) |
+| draft pipeline, 30 frames, `SS=3` | 22.8 s | **13.4 s** (1.70x) |
+| draft pipeline, 30 frames, `SS=1` | 7.5 s | 7.3 s (unchanged: drafts never paid this) |
+| `circle_spr(600, RED, 40)` alone | 1224 ms | **453 ms** (2.7x) |
+
+Quality on a real 1080x1920 master frame: MAE 0.477/255, PSNR 42.0 dB, and the difference sits on the
+halo feather (largest alpha delta 25/255 at the rim) — see `previews/glow-edge.png`.
+`tests/test_glow_sprite.py` guards it: the blur must see a canvas at least 8x smaller than the sprite
+(so going back to full-canvas blurring fails), the sprite keeps its bbox and solid core against an
+exact reference blur, it stays deterministic and cached, and the halo survives every `REEL_SS` value.
+
 ## Unreleased — 2026-11-10 (the two monster test files, split without losing a test)
 
 `tests/test_fixed_stage.py` was 2,434 lines and `tests/test_machine_explainer.py` 1,558; changing one
