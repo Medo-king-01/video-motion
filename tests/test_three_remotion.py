@@ -56,6 +56,7 @@ def r_project(tmp_path):
 
 
 @pytest.mark.slow
+@pytest.mark.xdist_group("remotion-bundler")
 def test_three_component_actual_react_reverse_and_remotion_stills(r_project):
     project,env=r_project
     def run(command):
@@ -83,6 +84,7 @@ def test_three_component_actual_react_reverse_and_remotion_stills(r_project):
 
 
 @pytest.mark.slow
+@pytest.mark.xdist_group("remotion-bundler")
 def test_three_arabic_directed_fact_gate_preserved_in_both_modes(r_project):
     project,env=r_project
     shutil.copy2(ROOT/'tests/fixtures/visual/ThreeArabicReview.tsx',project/'src/Root.tsx')

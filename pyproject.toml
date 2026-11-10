@@ -40,7 +40,10 @@ ignore = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-markers = ["slow: real synthesis/render/Chromium work — `-m 'not slow'` runs the quick loop (CI ignores the marker and runs every group)"]
+markers = [
+    "slow: real synthesis/render/Chromium work — `-m 'not slow'` runs the quick loop (CI ignores the marker and runs every group)",
+    "xdist_group: pin tests that share a Remotion bundler onto one worker (`-n` runs must not collide on a webpack bundle)",
+]
 
 [tool.coverage.run]
 # The studio ships as scripts, not an installed package: measure what the tests import.

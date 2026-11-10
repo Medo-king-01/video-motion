@@ -931,6 +931,7 @@ def _make_remotion_project(tmp_path: Path, modules_dir: Path, root_tsx: str) -> 
     return proj
 
 
+@pytest.mark.xdist_group("remotion-bundler")
 def test_remotion_machine_diagram_real_render_active_and_inactive_states(tmp_path: Path, _remotion_runtime):
     from PIL import Image, ImageChops  # noqa: PLC0415
 
@@ -1077,6 +1078,7 @@ export const RemotionRoot: React.FC = () => (
     assert int(txt_act.max()) > 180, "DirectedText Arabic callout must render visible ink during active step"
 
 
+@pytest.mark.xdist_group("remotion-bundler")
 def test_remotion_layout_audit_catches_multiline_arabic_overflow_and_right_rail(tmp_path: Path, _remotion_runtime):
     modules_dir, env = _remotion_runtime
     spec = {

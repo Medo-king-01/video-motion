@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (CI: Remotion bundlers no longer race)
+
+**Remotion render tests are pinned to one xdist worker.** The two real-render tests in
+`test_machine_explainer.py` and the two bundling tests in `test_three_remotion.py` now carry
+`@pytest.mark.xdist_group("remotion-bundler")` (registered in `pyproject.toml`). Under
+`pytest -n 2 $(tools/ci_groups.py render)` they occasionally collided on a webpack bundle and one
+failed with `The requested path (/tmp/remotion-webpack-bundle-…/index.html) could not be found`;
+the same tests pass solo and serially. Grouping removes the race without slowing the cheap tests
+in those files (only the four bundling ones are pinned).
+
+Separately observed and **not** changed here: `templates/remotion/package.json` forces
+`overrides: {"zod": "^4.6.7"}` while Remotion 4.0.539 requires zod 4.5.4, so every R render logs
+`Version mismatch: zod: installed 4.6.7, required 4.5.4`. Dropping the override regenerates a
+lock with nested zod 4.5.4 and no top-level copy (verified in a scratch copy); it needs a full R
+lane pass, so it is queued as its own change rather than folded into this batch.
+
 ## Unreleased — 2026-11-10 (batch 3, part 3: per-scene cache)
 
 **`tools/render_scenes.py` + `pipeline.py --scene-cache` — editing one scene costs one scene.**
