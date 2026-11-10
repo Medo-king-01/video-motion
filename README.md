@@ -106,7 +106,7 @@ python3 tools/selftest.py --remotion # كمان npm ci + typecheck + رندر ف
 python3 tools/selftest.py --hybrid   # رندر فعلي لمقاطع P + K + R وتجميعها مع مسار صوت
 ```
 
-أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=my-reel` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make fonts` · `make length VO=…` · `make techniques PLAN=…` · `make lint P=…` · `make layout-p P=…` · `make qa MP4=…` · `make gate P=…`
+أو باختصار: `make setup` · `make doctor` · `make selftest` · `make test` · `make new SLUG=my-reel` · `make studio` · `make transitions` · `make sfx` · `make poses` · `make fonts` · `make length VO=…` · `make techniques PLAN=…` · `make lint P=…` · `make layout-p P=…` · `make qa MP4=…` · `make gate P=…` · `make pipeline P=…`
 
 مشروع جديد:
 
