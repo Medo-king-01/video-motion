@@ -7,8 +7,10 @@
 `@pytest.mark.xdist_group("remotion-bundler")` (registered in `pyproject.toml`). Under
 `pytest -n 2 $(tools/ci_groups.py render)` they occasionally collided on a webpack bundle and one
 failed with `The requested path (/tmp/remotion-webpack-bundle-…/index.html) could not be found`;
-the same tests pass solo and serially. Grouping removes the race without slowing the cheap tests
-in those files (only the four bundling ones are pinned).
+the same tests pass solo and serially. Grouping removes the first race without slowing the cheap
+tests in those files (only the four bundling ones are pinned), and the shared `_run_remotion`
+helper retries **once** when the launcher reports that exact bundler 404 — never on a layout or
+render assertion, so a real failure still fails the first time.
 
 Separately observed and **not** changed here: `templates/remotion/package.json` forces
 `overrides: {"zod": "^4.6.7"}` while Remotion 4.0.539 requires zod 4.5.4, so every R render logs
