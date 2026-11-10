@@ -2,6 +2,8 @@ import pytest
 
 from tools.render_hybrid import PlanError, executable, validate_plan
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 
 def valid_plan():
     return {

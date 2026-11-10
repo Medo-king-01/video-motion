@@ -5,12 +5,16 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
 sys.path.insert(0, str(ROOT / "tools"))
 
 import layout_audit_p  # noqa: E402
 import layout_p  # noqa: E402
+
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 
 def test_layout_p_audit_rules_and_camera_projection():

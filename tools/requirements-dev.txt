@@ -1,4 +1,5 @@
 # Runtime + local quality gates. Install in a virtual environment.
 -r requirements.txt
 pytest
+pytest-xdist     # CI runs the three groups in parallel
 ruff

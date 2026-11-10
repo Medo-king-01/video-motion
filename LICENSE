@@ -1,0 +1,42 @@
+# Video Motion — License
+
+Copyright (c) 2026 Video Motion (Medo). **All rights reserved.**
+
+Video Motion is a proprietary production studio: its original code, documentation,
+brand tokens, templates, tools, assets and rendered visual language are the property of
+the project owner. This file is **not** an open-source license.
+
+**No permission is granted** to use, copy, modify, merge, publish, distribute,
+sublicense, sell, or create derivative works from the project's original material
+without a separate, explicit written license from the owner. Evaluation, reading and
+running the studio locally for the owner's own productions are permitted.
+
+Third-party components that are bundled, downloaded or invoked by this repository
+(fonts, icons, shader shards, Remotion, Playwright, Chromium, FFmpeg, Python and npm
+packages) remain under their own licenses and notices. Those licenses are **not**
+superseded by the paragraph above, and their notices must not be removed. See:
+
+- [`NOTICE`](NOTICE) — the component-by-component summary,
+- [`assets/CREDITS.md`](assets/CREDITS.md) — provenance of every external asset,
+- [`medo-motion/LICENSE.md`](medo-motion/LICENSE.md) — the owner's statement in Arabic,
+- the license file kept next to each component (`OFL.txt`, `LICENSE`, `LICENCE`, …).
+
+The name "Video Motion", the studio's visual identity and any project names are not
+licensed for use as a trademark or as the branding of a derived product.
+
+The software is provided "as is", without warranty of any kind. The owner is not liable
+for any claim, damage or other liability arising from its use.
+
+---
+
+## بالعربي
+
+هذا المستودع **ليس مفتوح المصدر**. الكود والتوثيق والهوية والقوالب والأدوات والمواد
+الأصلية مملوكة لصاحب المشروع، وكل الحقوق محفوظة. لا يُمنح إذن بالاستخدام أو النسخ أو
+التعديل أو النشر أو إعادة التوزيع أو الترخيص من الباطن أو البيع دون ترخيص كتابي منفصل
+وصريح من صاحب المشروع.
+
+مكونات الطرف الثالث (الخطوط، الأيقونات، الـshaders، Remotion، Playwright، Chromium،
+FFmpeg، وحزم Python وnpm) تظل خاضعة لتراخيصها وإشعاراتها الأصلية، ولا يُلغي هذا الملف
+تلك التراخيص ولا يسمح بحذف إشعاراتها. التفاصيل في [`NOTICE`](NOTICE) و
+[`assets/CREDITS.md`](assets/CREDITS.md).

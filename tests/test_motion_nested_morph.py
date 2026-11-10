@@ -12,6 +12,8 @@ from svg_morph import compile_svg_morph
 from test_motion_plan import assert_same
 from test_visual_tools import js
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 NESTED = SKILL / 'templates/render/lib/motion-plan.js'
 MORPH = SKILL / 'templates/render/lib/svg-morph.js'
 

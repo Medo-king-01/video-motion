@@ -11,6 +11,8 @@ from svg_compile import compile_svg, parse_d
 from test_motion_plan import assert_same
 from test_visual_tools import js
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 MODEL = SKILL / 'templates/render/lib/svg-art.js'
 SVG = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
 <g fill="#CB271B" fill-rule="evenodd" stroke="#0A0A0A" stroke-width="2"><path d="M10 10 H90 V90 H10 Z M30 30 h40 v40 h-40 Z"/></g>

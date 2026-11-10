@@ -69,7 +69,16 @@ projects/my-reel/
 
 ## سياسة الاعتماديات
 
-- `tools/requirements.txt`: runtime؛ `requirements-dev.txt`: runtime + pytest/Ruff.
+- **الاختبارات في الـCI مقسومة 3 مجموعات متوازية**: `contracts` (عقود ووثائق وبراند)
+  · `unit` (تشكيل عربي/صوت/رياضيات الحركة) · `render` (Chromium وFFmpeg ووسائط).
+  `python3 tools/ci_groups.py --check` بيمنع أي ملف اختبار إنه يقع بره التقسيم،
+  والـPR بيشغّل التلاتة كلهم — مش عيّنة.
+- **أرقام الوثائق مولّدة**: أي رقم محصور بين علامتَي `AUTO` (تعليق HTML فيه اسم المفتاح)
+  بيتحسب من المكتبة بـ`tools/sync_docs_numbers.py`؛ عدّل المكتبة ثم `make docs-sync`،
+  و`make docs-numbers` هو فحص الـCI. ممنوع كتابة رقم المكتبة بإيدك.
+- **حلقة سريعة محليًا**: وحدات التصيير وChromium والمزج موسومة بـ`slow`، فـ`pytest -m 'not slow'`
+  بيجيب 858 اختبار في ~30 ثانية بدل ~9 دقايق. العلامة محلية بس؛ مجموعات الـCI بتشغّل كل حاجة.
+- `tools/requirements.txt`: runtime؛ `requirements-dev.txt`: runtime + pytest/Ruff/pytest-xdist.
 - الاتنين بيستخدموا `tools/constraints.txt`: إصدارات مراجعة للتبعيات الأساسية والمتعدية المعروفة، مش lock شامل
   لكل نظام/معمارية أو لحزم ASR الاختيارية. حدّث القيود عمدًا وجرب مصفوفة CI والـselftest؛ متشيلهاش عشان تعدّي install.
 - Python 3.10 بيستخدم Pillow 12.3؛ Python 3.11+ بيستخدم Pillow 13.0. **تنبيه أمني:** إصلاحات Pillow الأحدث

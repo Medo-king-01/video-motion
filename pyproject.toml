@@ -40,4 +40,4 @@ ignore = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-markers = ["slow: needs ffmpeg/chromium and takes a few seconds"]
+markers = ["slow: real synthesis/render/Chromium work — `-m 'not slow'` runs the quick loop (CI ignores the marker and runs every group)"]

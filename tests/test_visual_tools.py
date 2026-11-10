@@ -11,6 +11,8 @@ import pytest
 import visual_direction as vd
 from conftest import ROOT, SKILL
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 K = SKILL / 'templates/render'
 
 

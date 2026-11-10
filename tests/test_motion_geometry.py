@@ -11,6 +11,8 @@ from conftest import ROOT, SKILL
 from test_motion_plan import assert_same
 from test_visual_tools import js
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 mg = importlib.import_module('motion_geometry')
 MODEL = SKILL / 'templates/render/lib/motion-geometry.js'
 TIMES = [-1, 0, .2, .3, .5, .6, .8, 1.1, 2, .3]

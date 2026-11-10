@@ -10,6 +10,8 @@ import numpy as np
 import pytest
 from conftest import SKILL
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
 
 SPEC = json.loads((SKILL / "motion" / "transitions.json").read_text(encoding="utf-8"))["transitions"]

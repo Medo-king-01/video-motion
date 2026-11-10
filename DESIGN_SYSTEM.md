@@ -24,10 +24,10 @@
 | هوية مقفولة | `medo-motion/brand/brand.json` | الأرقام الملزمة: ألوان، خلفيات، تباين، canvas، safe zones، أحجام دنيا، صوت، تصدير |
 | هوية للبني آدم | `medo-motion/brand/BRAND.md` | شرح الهوية والقواعد والتوقيعات البصرية |
 | مرايا الهوية | `brand.css` · `templates/render/lib/brand.js` · `templates/remotion/src/brand.ts` | نفس التوكنز للمحرك/الويب؛ `brand_check.py` بيكشف الانحراف |
-| الخطوط المسموحة | `assets/fonts/fonts.json` | ١٢٥ عيلة (٦١ عربي + ٦٤ لاتيني) — ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)؛ المصدر الوحيد للخطوط على الشاشة |
+| الخطوط المسموحة | `assets/fonts/fonts.json` | <!-- AUTO:fonts -->125<!-- /AUTO --> عيلة (<!-- AUTO:fonts_arabic -->61<!-- /AUTO --> عربي + <!-- AUTO:fonts_latin -->64<!-- /AUTO --> لاتيني) — <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)؛ المصدر الوحيد للخطوط على الشاشة |
 | اختيار الخط والحركة | `projects/<slug>/plan/text-direction.json` | قرار الوكيل لكل مشهد/عنصر: `captionStyle`, `textStyles`, `fontStyles`, overrides وتبرير |
-| كتالوج الحركة | `medo-motion/motion/easings.json` · `transitions.json` · `text-animations.json` | منحنيات، ١٤ انتقال، ٥١ حركة نص |
-| مكتبة الحركات | `assets/techniques.json` + `docs/techniques.md` | ٥٩ حركة قابلة للسحب/الاختيار |
+| كتالوج الحركة | `medo-motion/motion/easings.json` · `transitions.json` · `text-animations.json` | منحنيات، <!-- AUTO:transitions -->14<!-- /AUTO --> انتقال، <!-- AUTO:text_animations -->51<!-- /AUTO --> حركة نص |
+| مكتبة الحركات | `assets/techniques.json` + `docs/techniques.md` | <!-- AUTO:techniques -->2,239<!-- /AUTO --> حركة قابلة للسحب/الاختيار |
 | ذاكرة المشروع | `projects/<slug>/TASTE.md` · `STYLE.md` · `plan/design.html` | التصميم المعتمد للمشروع الحالي؛ لازم يتزامنوا |
 | المكونات | `templates/procedural-reels/` · `templates/render/lib/` · `templates/remotion/src/` | helpers ومكونات كل محرك |
 | الفرض | `tools/reel_lint.py` · `medo-motion/scripts/brand_check.py` · `tests/` · بوابات الرندر | منع الانحراف قبل التسليم |
@@ -48,7 +48,7 @@
 - التفاصيل والأرقام في `brand.json` و`BRAND.md`؛ CSS في `brand.css`.
 
 ### الخطوط
-- ١٢٥ عيلة في `assets/fonts/fonts.json` (٦١ عربي + ٦٤ لاتيني): ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0).
+- <!-- AUTO:fonts -->125<!-- /AUTO --> عيلة في `assets/fonts/fonts.json` (<!-- AUTO:fonts_arabic -->61<!-- /AUTO --> عربي + <!-- AUTO:fonts_latin -->64<!-- /AUTO --> لاتيني): <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0).
 - الوكيل يختار لكل مشهد/عنصر ويسجّل في `text-direction.json` (`fontStyles`/`fontElements`).
 - Cairo/Inter **شبكة أمان لكروم النظام فقط**، مش قرار إبداعي مفروض.
 - النص العربي لازم بخط بيدعم العربي؛ التشكيل كلمة-كلمة، RTL، من غير letter-spacing.
@@ -63,13 +63,14 @@
 
 ### الحركة
 - منحنيات مشتركة في `easings.json`؛ تايملاين واحد بيشتغل في P/K/R.
-- ١٤ انتقال في `transitions.json`؛ ٥١ حركة نص في `text-animations.json`.
+- <!-- AUTO:transitions -->14<!-- /AUTO --> انتقال في `transitions.json`؛ <!-- AUTO:text_animations -->51<!-- /AUTO --> حركة نص في `text-animations.json`.
 - شبكة BPM واحدة للقطع والـhits والميكرو-حركة؛ velocity blur من السرعة الحقيقية.
 - كل نص ظاهر له حركة صريحة من الخطة؛ الكابشن بتوقيت مقاس، unboxed، كلمة كاملة.
 
 ### الصوت (جزء من نظام الاستوديو)
 - طول الفيديو = طول التعليق الصوتي.
 - Mix: −14.5 ±0.3 LUFS، TP ≤ −1.5 dBTP. SFX ≈0.40× ذروة الصوت.
+- الموسيقى مولّدة برمجيًا: <!-- AUTO:sfx -->20<!-- /AUTO --> مؤثرًا و<!-- AUTO:music_presets -->6<!-- /AUTO --> قوالب موسيقية (+<!-- AUTO:transitions -->14<!-- /AUTO --> انتقالًا مرتبطًا بصوته).
 - التفاصيل في `docs/audio.md` و`brand.json`.
 
 ## 4) قاعدة النص الشاملة

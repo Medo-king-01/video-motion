@@ -1,0 +1,127 @@
+"""Docs numbers are generated, never typed (A1 drift guard).
+
+The operating contract is prose, so a wrong count is a wrong production decision:
+the technique library was documented as 59, 334, 1,434 and 2,239 in four places.
+`tools/sync_docs_numbers.py` owns the numbers now; these tests keep it honest.
+"""
+from __future__ import annotations
+
+import importlib.util
+import re
+
+import pytest
+from conftest import ROOT
+
+TOOL = ROOT / "tools" / "sync_docs_numbers.py"
+
+
+def _load():
+    spec = importlib.util.spec_from_file_location("sync_docs_numbers", TOOL)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+sync_docs_numbers = _load()
+
+
+@pytest.fixture(scope="module")
+def values():
+    return sync_docs_numbers.metrics(ROOT)
+
+
+def test_the_committed_docs_match_the_libraries():
+    """Every AUTO slot in every doc equals the value measured from the library on disk."""
+    problems, changes = sync_docs_numbers.sync(ROOT, write=False)
+    assert problems == [], problems
+    assert changes == [], "run: python3 tools/sync_docs_numbers.py\n" + "\n".join(changes)
+
+
+def test_every_required_key_is_still_visible_somewhere():
+    seen = set()
+    for path in sync_docs_numbers.doc_files(ROOT):
+        seen.update(match.group(1) for match in sync_docs_numbers.MARKER.finditer(path.read_text(encoding="utf-8")))
+    missing = [key for key in sync_docs_numbers.REQUIRED if key not in seen]
+    assert missing == [], f"no AUTO slot for: {missing}"
+
+
+def test_the_measured_values_come_from_the_libraries(values):
+    """Spot-check the keys that used to drift, against the source files themselves."""
+    import json
+
+    techniques = json.loads((ROOT / "assets" / "techniques.json").read_text(encoding="utf-8"))["techniques"]
+    fonts = json.loads((ROOT / "assets" / "fonts" / "fonts.json").read_text(encoding="utf-8"))["families"]
+    poses = json.loads((ROOT / "assets" / "poses" / "poses.json").read_text(encoding="utf-8"))["poses"]
+    assert values["techniques"] == len(techniques)
+    assert values["technique_categories"] == len({item["category"] for item in techniques})
+    assert values["fonts"] == len(fonts)
+    assert values["fonts"] == values["fonts_arabic"] + values["fonts_latin"]
+    assert values["poses"] == len(poses)
+    assert values["techniques"] == (
+        values["techniques_studio"]
+        + values["techniques_alansari"]
+        + values["techniques_opus"]
+        + values["techniques_glsl"]
+    )
+    assert sum(1 for family in fonts.values()
+               if (family.get("licence") or family.get("license")) == "OFL-1.1") == values["fonts_ofl"]
+
+
+def test_thousands_separator_is_canonical():
+    assert sync_docs_numbers.format_number(2239) == "2,239"
+    assert sync_docs_numbers.format_number(59) == "59"
+
+
+def test_replace_fills_slots_and_reports_drift():
+    text = "there are <!-- AUTO:poses -->1<!-- /AUTO --> poses"
+    new, problems, changes = sync_docs_numbers.replace_markers(text, {"poses": 49}, source="doc.md")
+    assert new == "there are <!-- AUTO:poses -->49<!-- /AUTO --> poses"
+    assert problems == []
+    assert changes == ["poses: 1 -> 49"]
+
+
+def test_replace_is_idempotent():
+    text = "<!-- AUTO:techniques -->2,239<!-- /AUTO -->"
+    new, problems, changes = sync_docs_numbers.replace_markers(text, {"techniques": 2239})
+    assert new == text and problems == [] and changes == []
+
+
+def test_unknown_key_is_an_error_not_a_silent_skip():
+    text = "<!-- AUTO:mystery -->3<!-- /AUTO -->"
+    new, problems, _ = sync_docs_numbers.replace_markers(text, {"poses": 49}, source="doc.md")
+    assert new == text
+    assert problems and "unknown AUTO key 'mystery'" in problems[0]
+
+
+def test_sync_writes_the_measured_value_into_a_temp_tree(tmp_path):
+    """A wrong number is corrected by the default (write) mode, and a second run is a no-op."""
+    doc = tmp_path / "notes.md"
+    doc.write_text("poses: <!-- AUTO:poses -->7<!-- /AUTO -->\n", encoding="utf-8")
+    # Only the slots are under test: the measured values are handed in, not read from the tree.
+    problems, changes = sync_docs_numbers.sync(
+        tmp_path, write=True, values={"poses": 49}, require_slots=False)
+    assert problems == [] and changes == ["notes.md: poses: 7 -> 49"]
+    assert doc.read_text(encoding="utf-8") == "poses: <!-- AUTO:poses -->49<!-- /AUTO -->\n"
+    problems, changes = sync_docs_numbers.sync(
+        tmp_path, write=True, values={"poses": 49}, require_slots=False)
+    assert problems == [] and changes == []
+
+
+def test_docs_contain_no_hand_written_technique_total():
+    """The four historic spellings must not come back outside an AUTO slot or a historical note."""
+    offenders = []
+    for path in sync_docs_numbers.doc_files(ROOT):
+        relative = path.relative_to(ROOT)
+        if relative.as_posix() in {
+            "docs/techniques.md",  # generated by tools/techniques.py from the JSON
+            "docs/ALANSARI_INTEGRATION.md",  # a dated integration snapshot, labelled as such
+            "CHANGELOG.md", "medo-motion/CHANGELOG.md",
+            "docs/repository-audit-2026-11-10.md",
+        }:
+            continue
+        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            stripped = re.sub(r"<!--\s*AUTO:[a-z0-9_]+\s*-->.*?<!--\s*/AUTO\s*-->", "", line)
+            if re.search(r"(?<![\d,])1[,.]?434(?![\d,])", stripped) or "**334 techniques**" in stripped:
+                offenders.append(f"{relative}:{line_no}: {line.strip()[:90]}")
+    assert offenders == [], "\n".join(offenders)

@@ -1,5 +1,51 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (docs numbers are generated · PRs run the whole suite · explicit license)
+
+**A1 — one source for every documented count.** `tools/sync_docs_numbers.py` measures the
+libraries on disk (techniques and their four sources, fonts and their licences, poses, icons,
+styles, GLSL transitions, catalog transitions, text animations, backgrounds, looks, recipes,
+SFX, music presets) and writes the value between named `AUTO` slots (small HTML comments) in
+the docs. `--check` is a CI gate; `tests/test_docs_numbers.py` (9 tests) fails on drift, on an
+unknown key, on a deleted slot, and on the four historic technique totals coming back as
+hand-written numbers. Wired into `make docs-numbers` / `make docs-sync` and `tools/ci.sh`.
+The stale values are gone: README said 1,434 in one place and 2,239 in another, AGENTS.md and
+DESIGN_SYSTEM.md said 59, the legacy `generate_techniques_docs.py` said 334 — the real library
+is **2,239 techniques in 44 categories**. The SFX row was also wrong (15 → 20).
+`tools/README.md` no longer claims `make test` takes "~3 seconds" (measured: ~9 minutes serial).
+
+**A14 — a real quick loop.** The `slow` marker was decorative (it skipped 25 of 1,394 tests and
+saved a minute). The heavy render/synthesis/Chromium modules are now marked at module level:
+`pytest -m 'not slow'` runs **858 tests in ~30s**, and `pytest -m slow` keeps the 553 rendering
+tests for when you want them. The marker stays local — CI ignores it and runs every group.
+
+**A3 — pull requests run all 1,394 tests, in three parallel groups.** `tools/ci_groups.py`
+splits the suite into `contracts` (28 files: docs, schemas, brand, fonts, lint policy, skills),
+`unit` (17: Arabic shaping, audio DSP, motion maths, icons) and `render` (35: Chromium, FFmpeg,
+media QA), with unassigned files defaulting to `render`. `--check` fails if a test file is
+unassigned, listed twice, or missing, and if `ci.yml` stops running a group.
+`tests/test_ci_groups.py` (9 tests) guards the split. `ci.yml` is now four jobs — static
+contracts, contracts, unit, render-smoke — all installing `tools/requirements-dev.txt` and
+running with `pytest-xdist -n 2`; the render job also keeps the 3-frame Engine-P smoke render.
+Measured on this machine: contracts 12s, unit 29s, render 5m31s (full suite was 8m49s serial
+and the PR job ran only 12 of 78 files). `pytest-xdist==3.8.0` + `execnet==2.1.2` pinned in
+`tools/constraints.txt`.
+
+**A6 + A15 — CI hygiene.** The dead `feat/deterministic-motion-effects` push triggers are gone
+(`full-renderers` is nightly/manual only, the two Remotion workflows push on `main`), every
+action is pinned to a commit SHA, the fast job installs the pinned requirements instead of
+unversioned packages, and Node caches now include both lockfiles.
+
+**A9 — explicit licence.** Root `LICENSE` (proprietary, all rights reserved, Arabic + English)
+and `NOTICE` (bundled assets, adapted methodologies, runtime dependencies, trademarks) make the
+posture visible without changing it; `medo-motion/LICENSE.md` and `assets/CREDITS.md` stay the
+detailed records.
+
+**Fix found by the parallel run:** `new_project.py` copied a template's `node_modules` into the
+new project when a developer had installed the R dependencies inside the template, which made
+scaffolds huge and collided with the test fixture's staged `node_modules`. `_copy_template()`
+now ignores `node_modules`, `out`, `cache`, `.remotion`, `dist`, `__pycache__` and `*.mp4`.
+
 ## Unreleased — 2026-11-09 (deterministic pipeline runner — option 3 of the stage-gate discussion)
 
 - **`tools/pipeline.py` (new) + `make pipeline P=projects/<slug>`**: the deterministic steps of a reel run end-to-end with fail-fast and per-step timing — `vo` (vo_length --check) → `lint` → `brand` → `mix` (audio_mix.py; skipped when `out/final_audio.wav` exists, SKIP note when no `plan/cues.json`) → `render` (engine dispatch: P = `run_all.py` with `REEL_DIR`; K = `src/render.js --crf 13` the full `plan/beats.json` timeline with optional `--audio`; R = `npm ci` when needed + the VO-gated `npm run render -- --audio <vo> --out out/master.mp4`; Hybrid = `tools/render_hybrid.py`) → `mux` (P only, the documented `-map 0:v -map 1:a -shortest +faststart` ffmpeg line into `out/master.mp4`) → `qa` (`media_qa.py`; master mode with audio, honest video-only mode without) → `gate` (`stage_gate.py --stage deliver --media <master>`; pass `LAYOUT=report.json` for the layout audit). **No creative decisions are made anywhere** — looks, recipes, styles, fonts, copy remain agent/human choices upstream.

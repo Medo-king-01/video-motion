@@ -5,7 +5,10 @@ import json
 import subprocess
 import sys
 
+import pytest
 from conftest import ENGINE_P, ROOT, SKILL
+
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 
 def test_brief_asks_for_four_inputs_only():

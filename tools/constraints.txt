@@ -12,6 +12,8 @@ freetype-py==2.5.1
 svgpathtools==1.7.2
 svgwrite==1.4.3
 pytest==9.2.0
+pytest-xdist==3.8.0
+execnet==2.1.2
 ruff==0.17.3
 iniconfig==2.1.0
 packaging==25.0

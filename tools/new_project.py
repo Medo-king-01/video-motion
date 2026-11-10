@@ -201,6 +201,19 @@ def copy_assets(project: Path) -> None:
             shutil.copy2(template, project / name)
 
 
+# A template is read-only source, but a developer may legitimately have installed the
+# R dependencies inside it. Copying node_modules (or render output) into a project makes
+# the scaffold huge and breaks the tests that stage their own node_modules.
+TEMPLATE_IGNORE = shutil.ignore_patterns(
+    "node_modules", ".git", "out", "cache", ".remotion", "dist", "__pycache__", "*.mp4",
+)
+
+
+def _copy_template(source: Path, destination: Path) -> None:
+    """Copy a template tree without install/build artefacts."""
+    shutil.copytree(source, destination, dirs_exist_ok=True, ignore=TEMPLATE_IGNORE)
+
+
 def _copy_flat(source: Path, destination: Path) -> None:
     for item in source.iterdir():
         if item.is_file():
@@ -243,17 +256,17 @@ def install_engine(project: Path, engine: str) -> None:
     if engine == "p":
         _copy_flat(procedural, project)
     elif engine == "k":
-        shutil.copytree(render, project / "src", dirs_exist_ok=True)
+        _copy_template(render, project / "src")
         (project / "package.json").write_text('{"type":"module","private":true}\n', encoding="utf-8")
     elif engine in {"r", "hybrid"}:
-        shutil.copytree(remotion, project, dirs_exist_ok=True)
+        _copy_template(remotion, project)
         _public_fonts(project)
         _public_poses(project)
         if engine == "hybrid":
             # Keep P, K and R as separate, inspectable engines: the hybrid runner renders
             # sequential full-frame segments and then normalizes/assembles them.
             _copy_flat(procedural, project)
-            shutil.copytree(render, project / "src", dirs_exist_ok=True)
+            _copy_template(render, project / "src")
             shutil.copy2(SKILL / "templates" / "HYBRID.md", project / "HYBRID.md")
             (project / "plan" / "hybrid.json").write_text(json.dumps({
                 "version": 1, "fps": 30, "width": 1080, "height": 1920,

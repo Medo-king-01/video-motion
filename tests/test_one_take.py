@@ -24,6 +24,8 @@ sys.path.insert(0, str(P))
 
 import one_take  # noqa: E402
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 RENDER_SMOKE = os.environ.get("ONE_TAKE_RENDER_SMOKE") == "1"
 render_smoke = pytest.mark.skipif(not RENDER_SMOKE, reason="Opt-in short P/K/R renders: ONE_TAKE_RENDER_SMOKE=1")
 

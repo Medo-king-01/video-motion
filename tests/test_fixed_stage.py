@@ -34,6 +34,8 @@ import stage  # noqa: E402
 import transition  # noqa: E402
 from lib import INK, RED, WHITE, YEL, fill_rect  # noqa: E402
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 
 def _sample_stage_spec(*, radius: float = 48.0, with_header: bool = True) -> dict:
     hdr_slots = (

@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "medo-motion"
 ENGINE_P = SKILL / "templates" / "procedural-reels"

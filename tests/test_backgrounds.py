@@ -26,6 +26,8 @@ for _p in (str(ROOT / "tools"), str(P_DIR)):
 import backgrounds as bg  # noqa: E402
 import backgrounds_sheet  # noqa: E402
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 
 @pytest.fixture(scope="module")
 def catalog():

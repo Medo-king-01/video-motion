@@ -19,6 +19,8 @@ sys.path.insert(0, str(ROOT / "tools" / "lib"))
 import media_qa  # noqa: E402
 from media_bin import ffmpeg  # noqa: E402
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 
 def _write_speech_like_wav(path: Path, duration: float = 3.0, sr: int = 24000) -> Path:
     n = int(round(duration * sr))

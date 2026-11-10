@@ -26,6 +26,8 @@ import layout_p  # noqa: E402
 import slide_wall  # noqa: E402
 from stage import normalize_stage_spec, stage_state_at, validate_stage_spec  # noqa: E402
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 RENDER_SMOKE = os.environ.get("SLIDE_WALL_RENDER_SMOKE") == "1"
 render_smoke = pytest.mark.skipif(not RENDER_SMOKE, reason="Opt-in real P/K/R renders: SLIDE_WALL_RENDER_SMOKE=1")
 

@@ -11,6 +11,8 @@ import pytest
 from conftest import ROOT, SKILL
 from test_visual_tools import js
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 P = SKILL / 'templates/procedural-reels'
 sys.path.append(str(P))
 mp = importlib.import_module('motion_plan')

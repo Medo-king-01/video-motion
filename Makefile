@@ -17,6 +17,15 @@ doctor:          ## print READY / DEGRADED / BLOCKED per capability
 test:            ## unit tests (no renders)
 	$(PY) -m pytest
 
+docs-numbers:    ## verify every AUTO number in the docs against the libraries (--check)
+	$(PY) tools/sync_docs_numbers.py --check
+
+docs-sync:       ## rewrite the AUTO numbers from the libraries
+	$(PY) tools/sync_docs_numbers.py
+
+ci-groups:       ## show/verify the pytest groups the CI jobs run
+	$(PY) tools/ci_groups.py $(if $(CHECK),--check,)
+
 ci:              ## lint + unit tests + brand audit (what CI would run)
 	bash tools/ci.sh
 
@@ -110,4 +119,4 @@ clean:           ## remove caches and render output (keeps sources)
 	rm -rf .pytest_cache .ruff_cache
 	rm -rf projects/*/out projects/*/cache cache
 
-.PHONY: help setup setup-dev doctor test ci selftest new brand icons studio theatre techniques techniques-doc lint layout-p qa gate poses backgrounds sfx sfx-bank transitions cover pipeline clean
+.PHONY: help setup setup-dev doctor test docs-numbers docs-sync ci-groups ci selftest new brand icons studio theatre techniques techniques-doc lint layout-p qa gate poses backgrounds sfx sfx-bank transitions cover pipeline clean

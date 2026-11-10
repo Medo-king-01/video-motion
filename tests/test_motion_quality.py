@@ -9,6 +9,8 @@ from conftest import ROOT, SKILL
 from test_visual_tools import canvas_project as canvas_project
 from test_visual_tools import js, set_scenes
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 MODEL = SKILL / 'templates/render/lib/shared-element.js'
 
 

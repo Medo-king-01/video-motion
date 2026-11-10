@@ -59,7 +59,8 @@ def generate_markdown():
     lines = []
     lines.append('# Technique library')
     lines.append('')
-    lines.append('**334 techniques** — 59 original studio techniques + 275 motions from [Alansari Motion Library](https://github.com/alansariteach/motion-library).')
+    studio_count = len([tech for tech in techniques if not tech.get('source')])
+    lines.append(f'**{len(techniques)} techniques** — {studio_count} original studio techniques + the Alansari, Opus and gl-transitions libraries.')
     lines.append('')
     lines.append('Draw a plan with `python3 tools/techniques.py --draw --from-plan plan/beats.json`.')
     lines.append('This page is generated from `assets/techniques.json`, so edit the JSON, not this file.')

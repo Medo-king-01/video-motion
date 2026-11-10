@@ -13,6 +13,8 @@ from conftest import ROOT, SKILL
 from test_motion_plan import assert_same
 from test_visual_tools import js
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 ms = importlib.import_module('motion_state')
 MODEL = SKILL / 'templates/render/lib/motion-state.js'
 TIMES = [-.2, 0, .05, .2, .4, .6, .85, 1.2, 2, 10, .2]
