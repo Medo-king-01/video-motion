@@ -5,6 +5,27 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-10 (the two monster test files, split without losing a test)
+
+`tests/test_fixed_stage.py` was 2,434 lines and `tests/test_machine_explainer.py` 1,558; changing one
+category meant scrolling past four others, and a failing line number told you nothing about which
+engine phase it belonged to. Both are now split along the categories they already had:
+
+| was | now |
+|---|---|
+| `test_fixed_stage.py` 2,434 | `test_fixed_stage.py` 591 (A–D geometry/clipping/audits) · `_remotion.py` 441 (E1–E2) · `_scaffold.py` 813 (E3–E5) · `_determinism.py` 430 (F–G) · `fixed_stage_support.py` |
+| `test_machine_explainer.py` 1,558 | `test_machine_explainer.py` (X01–X03) · `_parity.py` (X04, P/K/R parity, archetypes, CLI) · `_remotion.py` (2 real renders) · `machine_explainer_support.py` |
+
+Nothing was deleted, rewritten or re-marked: the Fixed Stage suite still collects exactly 18 tests and
+the Machine Explainer suite exactly 13, and both were re-run green (18 in 235 s, 13 in 73 s). The
+Chromium/Remotion fixtures moved to `tests/conftest.py` and became session-scoped — splitting one
+module into three must not buy three `npm ci` runs and three browser boots per CI job.
+
+Two new guards in `tests/test_test_layout.py` (in the fast `contracts` CI group): no test module past
+900 lines (largest today is 813), and no `test_` function inside a `*_support.py` file — pytest never
+collects those, so such a test fails silently forever. CI groups are now 104 files (contracts 33 ·
+unit 26 · render 45).
+
 ## Unreleased — 2026-11-10 (N4 decided with measurements, not taste)
 
 **The Git LFS question finally has numbers behind it.** Current `.git`: 111.5 MiB pack, 17 commits.

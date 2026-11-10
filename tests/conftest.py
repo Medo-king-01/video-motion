@@ -3,6 +3,10 @@ from __future__ import annotations
 
 import importlib.abc
 import importlib.util
+import json
+import os
+import shutil
+import subprocess
 import sys
 import wave  # noqa: F401  — see below: import it BEFORE any test module touches sys.path
 from pathlib import Path
@@ -12,7 +16,9 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 SKILL = ROOT / "medo-motion"
 ENGINE_P = SKILL / "templates" / "procedural-reels"
+ENGINE_R = SKILL / "templates" / "remotion"
 FONTS = ROOT / "assets" / "fonts" / "Cairo"
+TOOLS = ROOT / "tools"
 
 
 # Import paths at collection time: test modules import the engine directly and we
@@ -125,3 +131,94 @@ def project(tmp_path):
         shutil.copy2(f, font_dir / f.name)
     yield proj
     shutil.rmtree(proj, ignore_errors=True)
+
+
+# --- Fixed Stage suite infrastructure -----------------------------------------
+#
+# The Chromium/Remotion runtimes are expensive and were duplicated across three test modules when
+# the category A-G file was split. They live here so the modules can stay about one concern each,
+# and they are session-scoped: splitting one module into three must not mean three `npm ci` runs and
+# three browser boots per CI job. Only the Fixed Stage modules request them, so everything else pays
+# nothing.
+
+
+@pytest.fixture(scope="session")
+def _chromium_env():
+    if shutil.which("node") is None:
+        pytest.skip("node is not installed")
+    chrom_proc = subprocess.run(
+        ["node", str(TOOLS / "chromium.mjs"), "--json"],
+        capture_output=True,
+        text=True,
+        timeout=90,
+    )
+    if chrom_proc.returncode != 0:
+        pytest.skip(f"Chromium unavailable: {chrom_proc.stderr}")
+    chrom = json.loads(chrom_proc.stdout)
+    env = {
+        **os.environ,
+        "PATH": f"{ROOT / 'tools' / 'bin'}:{ROOT / '.venv' / 'bin'}:{os.environ.get('PATH', '')}",
+        "MEDO_TOOLKIT": str(ROOT / "tools" / "toolkit"),
+        "MEDO_CHROMIUM": chrom["executablePath"],
+        "REMOTION_BROWSER_EXECUTABLE": chrom["executablePath"],
+    }
+    if chrom.get("args"):
+        env["REMOTION_CHROMIUM_ARGS"] = " ".join(chrom["args"])
+    if chrom.get("libraryPath"):
+        env["LD_LIBRARY_PATH"] = ":".join(
+            [p for p in (chrom["libraryPath"], env.get("LD_LIBRARY_PATH")) if p]
+        )
+    return chrom, env
+
+
+@pytest.fixture
+def _cleanup_stage_tmp(request):
+    """Reclaim multi-hundred-MB scaffolded assets/fonts/bundles right after each test
+    so multi-pass CI jobs (`ci.sh` + `selftest.py --remotion --hybrid`) never hit ENOSPC."""
+    import tempfile  # noqa: PLC0415
+
+    tmp_root = Path(tempfile.gettempdir())
+    before_bundles = set(tmp_root.glob("remotion-webpack-bundle-*"))
+    yield
+    tp = request.node.funcargs.get("tmp_path")
+    if isinstance(tp, Path) and tp.is_dir():
+        for child in tp.iterdir():
+            if child.is_symlink():
+                child.unlink(missing_ok=True)
+            elif child.is_dir():
+                shutil.rmtree(child, ignore_errors=True)
+            else:
+                child.unlink(missing_ok=True)
+    for leaked in set(tmp_root.glob("remotion-webpack-bundle-*")) - before_bundles:
+        shutil.rmtree(leaked, ignore_errors=True)
+
+
+@pytest.fixture(scope="session")
+def _remotion_runtime(_chromium_env, tmp_path_factory):
+    _chrom, env = _chromium_env
+    env_mods = os.environ.get("MEDO_REMOTION_TEST_NODE_MODULES")
+    owned_deps_dir: Path | None = None
+    if env_mods and Path(env_mods).is_dir():
+        modules_dir = Path(env_mods).resolve()
+    else:
+        if shutil.which("npm") is None:
+            pytest.skip("npm is not installed and MEDO_REMOTION_TEST_NODE_MODULES is unset")
+        owned_deps_dir = tmp_path_factory.mktemp("remotion_stage_deps")
+        shutil.copy2(ENGINE_R / "package.json", owned_deps_dir / "package.json")
+        shutil.copy2(ENGINE_R / "package-lock.json", owned_deps_dir / "package-lock.json")
+        ci_res = subprocess.run(
+            ["npm", "ci", "--prefer-offline", "--no-audit", "--no-fund"],
+            cwd=owned_deps_dir,
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        if ci_res.returncode != 0:
+            shutil.rmtree(owned_deps_dir, ignore_errors=True)
+            pytest.skip(f"Remotion npm ci unavailable offline: {ci_res.stderr[:240]}")
+        modules_dir = owned_deps_dir / "node_modules"
+    try:
+        yield modules_dir, env
+    finally:
+        if owned_deps_dir is not None:
+            shutil.rmtree(owned_deps_dir, ignore_errors=True)

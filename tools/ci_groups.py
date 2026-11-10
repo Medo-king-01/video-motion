@@ -41,7 +41,7 @@ ASSIGNED: dict[str, tuple[str, ...]] = {
         "test_reference_report", "test_remotion_skill", "test_repo_hygiene", "test_repo_weight",
         "test_scene_director",
         "test_setup",
-        "test_skillry_fit", "test_studio_not_archive", "test_styles", "test_techniques",
+        "test_skillry_fit", "test_studio_not_archive", "test_styles", "test_techniques", "test_test_layout",
         "test_text_animations", "test_video_motion_paths", "test_vo_length",
     ),
     "unit": (

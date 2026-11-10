@@ -375,6 +375,7 @@ assets/                ← shared inputs: fonts/, poses/, sfx/
 projects/<slug>/       ← scratch folder for one video (Git-ignored, not an archive)
 tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · media_qa.py · repo_weight.py · layout_audit.mjs · layout_audit_p.py · stage_gate.py · ffprobe_shim.py · chromium.mjs
 tests/                 ← pytest: Arabic shaping invariants, brand lock, scaffold, one real frame
+                         (≤900 lines per module; shared builders in `<feature>_support.py`, fixtures in conftest.py)
 docs/                  ← analysis + conventions + Skillry fit review (docs/README.md)
 medo-motion/           ← the toolkit
   SKILL.md             ← entry point (Claude Code reads this; it defers to AGENTS.md)
