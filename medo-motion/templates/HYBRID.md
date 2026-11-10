@@ -107,6 +107,16 @@ The renderer validates the plan before rendering, checks every silent engine seg
 
 Optional command-line overrides: `--plan`, `--out`, `--audio` (or `--audio -` to force silence), `--ffmpeg`, `--ffprobe`, `--node`, and `--python`.
 
+### Draft preview (never a master)
+
+`python3 ../../tools/render_hybrid.py --project . --draft` (or `pipeline.py . --draft`) writes
+`out/hybrid-draft.mp4` at 540×960 / 15 fps from the same plan and the same layer order: P bases take
+`--draft` (every other source frame), K bases and K overlays take `--fps 15 --scale 0.5`, and masks
+are built on the 540×960 canvas. Draft frame `k` is source frame `2k`, so the duration matches the
+master exactly. An R base is refused outright, `--audio`/`--qa` are refused, and a draft never
+touches the master, its cache, or the QA gate — 15 fps exists only in files named `*-draft.mp4` /
+`draft.mp4`.
+
 ## Scope and quality checks
 
 - Video contract: 1080×1920, 30 fps, exact integer frame count.

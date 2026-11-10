@@ -31,7 +31,8 @@ const count=Math.ceil((to-from)*fps-1e-8),out=path.resolve(opt('out','cache/smok
 // result over another engine's footage. JPEG cannot carry alpha, so the two modes are exclusive.
 const alpha=a.includes('--alpha');
 if(alpha&&jpg)throw Error('--alpha cannot be combined with --jpg');
-if(alpha&&fps!==30)throw Error('--alpha requires the locked 30 fps');
+// 30 fps is the master rate; the hybrid compositor asks for 15 when it builds a draft preview.
+if(alpha&&fps!==30&&fps!==15)throw Error('--alpha renders at 30 fps, or 15 for a hybrid draft');
 const seq=jpg||alpha;
 const audit=a.includes('--audit'), replay=a.includes('--replay'), platformUi=a.includes('--platform-ui'), profile=a.includes('--profile'), every=Number(opt('every',1));
 if(replay&&!audit)throw Error('--replay requires --audit');

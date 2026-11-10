@@ -79,7 +79,18 @@ CAPABILITIES = frozenset({
 FPS = 30
 WIDTH = 1080
 HEIGHT = 1920
+DRAFT_WIDTH, DRAFT_HEIGHT, DRAFT_FPS = WIDTH // 2, HEIGHT // 2, 15
 ENGINES = {"p", "k", "r"}
+
+
+def canvas(draft: bool) -> tuple[int, int, int]:
+    """Master canvas, or the half-size 15 fps one a draft preview is assembled on."""
+    return (DRAFT_WIDTH, DRAFT_HEIGHT, DRAFT_FPS) if draft else (WIDTH, HEIGHT, FPS)
+
+
+def draft_frames(start: int, end: int) -> int:
+    """Draft frames covered by source frames [start, end): draft frame k is source frame 2k."""
+    return end // 2 - start // 2
 
 
 class PlanError(ValueError):
@@ -409,53 +420,62 @@ def verify_audio_stream(ffprobe: str, path: Path) -> None:
         raise RuntimeError("audio was requested but the final file has no audio stream")
 
 
-def verify_segment(ffprobe: str, path: Path, expected_frames: int, sid: str) -> None:
+def verify_segment(ffprobe: str, path: Path, expected_frames: int, sid: str,
+                   width: int = WIDTH, height: int = HEIGHT, fps: int = FPS) -> None:
     if not path.is_file() or path.stat().st_size == 0:
         raise RuntimeError(f"engine output missing or empty for segment {sid}: {path}")
     metadata = probe(ffprobe, path)
     if (metadata["width"], metadata["height"], metadata["fps"], metadata["frames"]) != (
-        WIDTH, HEIGHT, float(FPS), expected_frames
+        width, height, float(fps), expected_frames
     ):
         raise RuntimeError(
             f"segment {sid} violates render contract: {metadata}; expected "
-            f"{WIDTH}x{HEIGHT}, {FPS} fps, {expected_frames} frames"
+            f"{width}x{height}, {fps} fps, {expected_frames} frames"
         )
 
 
 def build_segment_command(engine: str, *, python: str, node: str, ffmpeg: str,
                           project: Path, start: int, end: int, sid: str,
-                          target: Path, frames_dir: Path) -> list[str]:
+                          target: Path, frames_dir: Path, draft: bool = False) -> list[str]:
     """The CLI one engine needs to render [start, end) into its own output."""
+    if draft and engine == "r":
+        raise RuntimeError(
+            "a hybrid draft cannot use an R/Remotion base: its renderer has no half-size path, and "
+            "rendering at full quality then downscaling would cost the same and lie about the speed")
     if engine == "p":
-        return [python, str(ROOT / "tools" / "render_p_segment.py"), "--project", str(project),
-                "--from-frame", str(start), "--to-frame", str(end), "--out", str(target),
-                "--ffmpeg", ffmpeg, "--fps", str(FPS)]
+        command = [python, str(ROOT / "tools" / "render_p_segment.py"), "--project", str(project),
+                   "--from-frame", str(start), "--to-frame", str(end), "--out", str(target),
+                   "--ffmpeg", ffmpeg, "--fps", str(FPS)]
+        return command + ["--draft"] if draft else command
     if engine == "k":
+        fps, scale = (DRAFT_FPS, "0.5") if draft else (FPS, "1")
         return [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
-                "--fps", str(FPS), "--scale", "1", "--out", str(frames_dir), "--name", sid]
+                "--fps", str(fps), "--scale", scale, "--out", str(frames_dir), "--name", sid]
     return [node, "scripts/render.mjs", "--silent", "--from-frame", str(start),
             "--to-frame", str(end), "--out", str(target)]
 
 
 def build_alpha_command(node: str, start: int, end: int, frames_dir: Path,
-                        only: list[str] | None = None) -> list[str]:
+                        only: list[str] | None = None, draft: bool = False) -> list[str]:
     """Engine K, transparent: one RGBA PNG per frame, no encoder. `only` picks the scenes."""
+    fps, scale = (DRAFT_FPS, "0.5") if draft else (FPS, "1")
     command = [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
-               "--fps", str(FPS), "--scale", "1", "--alpha", "--out", str(frames_dir)]
+               "--fps", str(fps), "--scale", scale, "--alpha", "--out", str(frames_dir)]
     if only:
         command += ["--only", ",".join(only)]
     return command
 
 
-def build_mask_source(mask: dict[str, Any]) -> str:
+def build_mask_source(mask: dict[str, Any], width: int = WIDTH, height: int = HEIGHT,
+                      fps: int = FPS) -> str:
     """A gray generator where **white means the base wins** (the overlay is hidden there).
 
     Frame fractions keep the plan independent of the canvas constant; the rectangle is drawn at
     the locked 1080x1920 and optionally blurred, which is the cheapest honest feather.
     """
-    x, y = round(mask["x"] * WIDTH), round(mask["y"] * HEIGHT)
-    w, h = max(1, round(mask["w"] * WIDTH)), max(1, round(mask["h"] * HEIGHT))
-    chain = (f"color=c=black:s={WIDTH}x{HEIGHT}:r={FPS},"
+    x, y = round(mask["x"] * width), round(mask["y"] * height)
+    w, h = max(1, round(mask["w"] * width)), max(1, round(mask["h"] * height))
+    chain = (f"color=c=black:s={width}x{height}:r={fps},"
              f"drawbox=x={x}:y={y}:w={w}:h={h}:color=white:t=fill,format=gray")
     feather = float(mask.get("feather", 0) or 0)
     if feather > 0:
@@ -463,18 +483,19 @@ def build_mask_source(mask: dict[str, Any]) -> str:
     return chain
 
 
-def _composite_filter(mask: dict[str, Any] | None,
-                      mask_image: Path | None) -> tuple[str, list[str]]:
+def _composite_filter(mask: dict[str, Any] | None, mask_image: Path | None,
+                      width: int = WIDTH, height: int = HEIGHT,
+                      fps: int = FPS) -> tuple[str, list[str]]:
     """Overlay graph, with the overlay's own alpha multiplied by `1 - mask` when masked."""
     if mask is None:
         return "[0:v][1:v]overlay=format=auto", []
     if mask["type"] == "image":
         if mask_image is None:
             raise RuntimeError("image mask requires a resolved matte path")
-        source = "[2:v]format=gray,negate,fps=30,setsar=1"
-        extra_inputs = ["-loop", "1", "-framerate", str(FPS), "-i", str(mask_image)]
+        source = f"[2:v]format=gray,negate,fps={fps},setsar=1"
+        extra_inputs = ["-loop", "1", "-framerate", str(fps), "-i", str(mask_image)]
     else:
-        source = f"{build_mask_source(mask)},negate,setsar=1"
+        source = f"{build_mask_source(mask, width, height, fps)},negate,setsar=1"
         extra_inputs = []
     graph = (
         "[0:v]format=yuv420p,setsar=1[mb];"
@@ -489,7 +510,8 @@ def _composite_filter(mask: dict[str, Any] | None,
 
 
 def build_stack_command(ffmpeg: str, base: Path, overlays: list[dict[str, Any]],
-                        frames: int, out: Path) -> list[str]:
+                        frames: int, out: Path, *, width: int = WIDTH, height: int = HEIGHT,
+                        fps: int = FPS) -> list[str]:
     """Composite every overlay over the base in one encode, bottom-up as the plan lists them.
 
     Doing it in one pass matters: each extra FFmpeg pass would be another CRF-13 generation, so a
@@ -499,12 +521,12 @@ def build_stack_command(ffmpeg: str, base: Path, overlays: list[dict[str, Any]],
         raise RuntimeError("an overlay stack needs at least one overlay")
     if len(overlays) == 1 and not overlays[0].get("mask"):
         graph = "[0:v][1:v]overlay=format=auto"
-        inputs = ["-framerate", str(FPS), "-i", str(overlays[0]["frames_dir"] / "%05d.png")]
+        inputs = ["-framerate", str(fps), "-i", str(overlays[0]["frames_dir"] / "%05d.png")]
     else:
         inputs, streams = [], []
         next_input = 1
         for overlay in overlays:
-            inputs += ["-framerate", str(FPS), "-i", str(overlay["frames_dir"] / "%05d.png")]
+            inputs += ["-framerate", str(fps), "-i", str(overlay["frames_dir"] / "%05d.png")]
             png, next_input = next_input, next_input + 1
             mask = overlay.get("mask")
             mask_source = None
@@ -513,11 +535,11 @@ def build_stack_command(ffmpeg: str, base: Path, overlays: list[dict[str, Any]],
                     mask_image = overlay.get("mask_image")
                     if mask_image is None:
                         raise RuntimeError("image mask requires a resolved matte path")
-                    inputs += ["-loop", "1", "-framerate", str(FPS), "-i", str(mask_image)]
-                    mask_source = f"[{next_input}:v]format=gray,negate,fps=30,setsar=1"
+                    inputs += ["-loop", "1", "-framerate", str(fps), "-i", str(mask_image)]
+                    mask_source = f"[{next_input}:v]format=gray,negate,fps={fps},setsar=1"
                     next_input += 1
                 else:
-                    mask_source = f"{build_mask_source(mask)},negate,setsar=1"
+                    mask_source = f"{build_mask_source(mask, width, height, fps)},negate,setsar=1"
             streams.append((png, mask_source))
         parts = ["[0:v]format=yuv420p,setsar=1[acc0]"]
         for index, (png, mask_source) in enumerate(streams, 1):
@@ -537,7 +559,7 @@ def build_stack_command(ffmpeg: str, base: Path, overlays: list[dict[str, Any]],
     return [ffmpeg, "-hide_banner", "-loglevel", "error", "-n", "-i", str(base), *inputs,
             "-filter_complex", graph,
             "-frames:v", str(frames), "-c:v", "libx264", "-preset", "medium", "-crf", "13",
-            "-pix_fmt", "yuv420p", "-r", str(FPS), str(out)]
+            "-pix_fmt", "yuv420p", "-r", str(fps), str(out)]
 
 
 def build_composite_command(ffmpeg: str, base: Path, frames_dir: Path, frames: int, out: Path,
@@ -563,7 +585,8 @@ def resolve_mask_image(mask: dict[str, Any], project: Path, label: str) -> Path:
 
 
 def composite_stack(ffmpeg: str, base: Path, overlays: list[dict[str, Any]], frames: int,
-                    project: Path, env: dict[str, str], label: str) -> None:
+                    project: Path, env: dict[str, str], label: str, *,
+                    width: int = WIDTH, height: int = HEIGHT, fps: int = FPS) -> None:
     """Composite every overlay in one pass (via a temp file) and refuse a frame-count mismatch."""
     resolved: list[dict[str, Any]] = []
     for index, overlay in enumerate(overlays, 1):
@@ -578,7 +601,9 @@ def composite_stack(ffmpeg: str, base: Path, overlays: list[dict[str, Any]], fra
                       if mask and mask["type"] == "image" else None)
         resolved.append({**overlay, "mask_image": mask_image})
     temp = base.with_name(base.stem + ".overlay.mp4")
-    run(build_stack_command(ffmpeg, base, resolved, frames, temp), cwd=project, env=env, label=label)
+    run(build_stack_command(ffmpeg, base, resolved, frames, temp,
+                            width=width, height=height, fps=fps),
+        cwd=project, env=env, label=label)
     os.replace(temp, base)
 
 
@@ -606,6 +631,8 @@ def main() -> int:
     parser.add_argument("--ffprobe", default=None)
     parser.add_argument("--node", default=None)
     parser.add_argument("--python", default=None)
+    parser.add_argument("--draft", action="store_true",
+                        help="review copy at 540x960 / 15 fps -> out/hybrid-draft.mp4 (P/K bases only)")
     parser.add_argument("--profile", action="store_true", help="write end-to-end segment/assembly timing")
     parser.add_argument("--qa", action="store_true", help="run post-render Final Media QA before publishing output")
     parser.add_argument("--qa-mode", choices=("master", "preview", "video-only"), default=None,
@@ -616,7 +643,7 @@ def main() -> int:
 
     project = args.project.resolve()
     plan_path = (args.plan or project / "plan" / "hybrid.json").resolve()
-    output = (args.out or project / "out" / "hybrid.mp4").resolve()
+    output = (args.out or project / "out" / ("hybrid-draft.mp4" if args.draft else "hybrid.mp4")).resolve()
     profile_path = output.with_name(output.name + ".profile.json")
     if args.profile and profile_path.exists(): raise RuntimeError(f"profile already exists: {profile_path}")
     qa_report_path = args.qa_report.resolve() if args.qa_report else None
@@ -631,11 +658,22 @@ def main() -> int:
     plan = validate_plan(raw)
     if not project.is_dir():
         raise RuntimeError(f"project directory not found: {project}")
+    out_w, out_h, out_fps = canvas(args.draft)
+    if args.draft:
+        if args.qa or qa_report_path is not None:
+            raise RuntimeError("a draft preview is not QA'd: there is no master to measure; "
+                               "drop --qa/--qa-report")
+        if args.audio is not None:
+            raise RuntimeError("a draft preview has no soundtrack: drop --audio")
+        empty = [segment["id"] for segment in plan["segments"]
+                 if draft_frames(segment["start_frame"], segment["end_frame"]) <= 0]
+        if empty:
+            raise RuntimeError(f"a draft halves frames per segment; these are too short: {empty}")
     ffmpeg = executable(args.ffmpeg, "ffmpeg", str(ROOT / "tools" / "bin" / "ffmpeg"))
     ffprobe = executable(args.ffprobe, "ffprobe", str(ROOT / "tools" / "bin" / "ffprobe"))
     node = executable(args.node, "node")
     python = executable(args.python, "python", sys.executable)
-    audio_value = None if args.audio == Path("-") else (
+    audio_value = None if args.draft or args.audio == Path("-") else (
         args.audio if args.audio is not None else Path(plan["audio"]) if plan["audio"] is not None else None
     )
     audio_path = None
@@ -676,9 +714,11 @@ def main() -> int:
         target = run_dir / f"{sid}.mp4"
         base, overlays = segment["layers"][0], segment["layers"][1:]
         engine = base["engine"]
+        expected_frames = draft_frames(start, end) if args.draft else end - start
         t0 = time.perf_counter()
         run(build_segment_command(engine, python=python, node=node, ffmpeg=ffmpeg, project=project,
-                                  start=start, end=end, sid=sid, target=target, frames_dir=run_dir),
+                                  start=start, end=end, sid=sid, target=target, frames_dir=run_dir,
+                                  draft=args.draft),
             cwd=project, env=env, label=f"engine {engine.upper()} · {sid}")
         if overlays:
             prepared: list[dict[str, Any]] = []
@@ -686,7 +726,8 @@ def main() -> int:
                 frames_dir = run_dir / f"{sid}-overlay{index}"
                 frames_dir.mkdir(parents=True, exist_ok=False)
                 scenes = overlay.get("scenes")
-                run(build_alpha_command(node, start, end, frames_dir, only=scenes), cwd=project, env=env,
+                run(build_alpha_command(node, start, end, frames_dir, only=scenes, draft=args.draft),
+                    cwd=project, env=env,
                     label=f"engine K overlay {index} · {sid}"
                           + (f" · scenes {','.join(scenes)}" if scenes else ""))
                 # Fail before the composite if the matte is missing: a silent unmasked overlay
@@ -694,10 +735,12 @@ def main() -> int:
                 if overlay.get("mask", {}).get("type") == "image":
                     resolve_mask_image(overlay["mask"], project, f"segment {sid}")
                 prepared.append({"frames_dir": frames_dir, "mask": overlay.get("mask")})
-            composite_stack(ffmpeg, target, prepared, end - start, project, env,
-                            label=f"composite {len(prepared)} overlay(s) over {engine.upper()} · {sid}")
+            composite_stack(ffmpeg, target, prepared, expected_frames, project, env,
+                            label=f"composite {len(prepared)} overlay(s) over {engine.upper()} · {sid}",
+                            width=out_w, height=out_h, fps=out_fps)
         render_ms = (time.perf_counter()-t0)*1000
-        t0 = time.perf_counter(); verify_segment(ffprobe, target, end - start, sid)
+        t0 = time.perf_counter()
+        verify_segment(ffprobe, target, expected_frames, sid, out_w, out_h, out_fps)
         if args.profile: segment_times.append({'id': sid, 'engine': engine.upper(), 'frames': end-start,
                                                'overlays': len(overlays),
                                                'masked': sum(1 for o in overlays if o.get("mask")),
@@ -708,6 +751,7 @@ def main() -> int:
     list_file.write_text("".join(f"file '{escape_concat_path(run_dir / (s['id'] + '.mp4'))}'\n"
                                  for s in plan["segments"]), encoding="utf-8")
     total_seconds = plan["duration_frames"] / FPS
+    total_frames = draft_frames(0, plan["duration_frames"]) if args.draft else plan["duration_frames"]
     command = [ffmpeg, "-hide_banner", "-loglevel", "error", "-n", "-f", "concat", "-safe", "0",
                "-i", str(list_file)]
     if audio_path:
@@ -715,16 +759,16 @@ def main() -> int:
                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000"]
     else:
         command += ["-map", "0:v:0", "-an"]
-    command += ["-frames:v", str(plan["duration_frames"]), "-t", f"{total_seconds:.12g}",
+    command += ["-frames:v", str(total_frames), "-t", f"{total_seconds:.12g}",
                 "-c:v", "libx264", "-preset", "medium", "-crf", "13", "-pix_fmt", "yuv420p",
-                "-r", str(FPS), "-movflags", "+faststart", str(temp_out)]
+                "-r", str(out_fps), "-movflags", "+faststart", str(temp_out)]
     try:
         assembly_started = time.perf_counter()
         run(command, cwd=project, env=env, label="assemble final hybrid reel")
         assembly_ms = (time.perf_counter()-assembly_started)*1000
         final = probe(ffprobe, temp_out)
         if (final["width"], final["height"], final["fps"], final["frames"]) != (
-            WIDTH, HEIGHT, float(FPS), plan["duration_frames"]
+            out_w, out_h, float(out_fps), total_frames
         ):
             raise RuntimeError(f"final output violates timeline contract: {final}")
         if audio_path:
@@ -755,7 +799,8 @@ def main() -> int:
                 )
         os.replace(temp_out, output)
         if args.profile:
-            report = {'version': 1, 'engine': 'Hybrid', 'motionMode': args.motion_mode, 'frames': plan['duration_frames'],
+            report = {'version': 1, 'engine': 'Hybrid', 'motionMode': args.motion_mode,
+                      'draft': args.draft, 'frames': total_frames,
                       'segments': segment_times, 'assemblyMs': assembly_ms, 'wallMs': (time.perf_counter()-started)*1000,
                       'scope': 'Segment render subprocesses and verification measured separately; assembly includes final FFmpeg encode. No GPU metrics.'}
             with profile_path.open('x', encoding='utf-8') as stream: json.dump(report, stream, indent=2); stream.write('\n')
@@ -766,9 +811,11 @@ def main() -> int:
     overlay_count = sum(len(segment["layers"]) - 1 for segment in plan["segments"])
     masked = sum(1 for segment in plan["segments"] for layer in segment["layers"][1:]
                  if layer.get("mask"))
-    print(f"HYBRID OK · {len(plan['segments'])} sequential segments"
+    print(f"{'HYBRID DRAFT' if args.draft else 'HYBRID OK'} · "
+          f"{f'{out_w}x{out_h} @{out_fps}fps · ' if args.draft else ''}"
+          f"{len(plan['segments'])} sequential segments"
           f"{f' ({layered} layered, {overlay_count} K overlay(s))' if layered else ''}"
-          f"{f' ({masked} masked)' if masked else ''} · {plan['duration_frames']} frames "
+          f"{f' ({masked} masked)' if masked else ''} · {total_frames} frames "
           f"({total_seconds:.3f}s) · {output}")
     print(f"segment diagnostics retained at {run_dir}")
     return 0

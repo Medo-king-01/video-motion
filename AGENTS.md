@@ -258,6 +258,11 @@ is the portable inventory it extends. Do not install anything else "just in case
    "production" from the first attempt.
 5. **Assets** — code → AI → search, respect the ladder and the licence log.
 6. **Render** — use P, K, or R individually, or render sequential P/K/R segments with `tools/render_hybrid.py`; then mix/master as specified by that workflow.
+   For a review copy, `pipeline.py <project> --draft` renders 540×960 / 15 fps into
+   `out/draft.mp4` (engine K or P) or `out/hybrid-draft.mp4` (engine hybrid, same plan and layer
+   order, P bases `--draft`, K bases/overlays `--fps 15 --scale 0.5`, masks on the 540×960 canvas).
+   A draft is the one documented exception to the 30 fps lock: it never muxes, never passes a QA
+   gate, never overwrites a master, and R has no draft path at all. See `docs/preview.md`.
 7. **QC** — ≥3 visual rounds (contact sheets), probe the MP4, check loudness, check the
    Arabic with your eyes, run `brand_check.py`.
 8. **Deliver** — the master MP4 + an 8–10 line Arabic message (§8).

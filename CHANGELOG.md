@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (hybrid: a real draft preview, and a shim that survives any cwd)
+
+**A hybrid reel can be previewed in half the time.** `pipeline.py <project> --draft` now accepts
+`--engine hybrid` (it used to exit 2) and writes `out/hybrid-draft.mp4` at 540×960 / 15 fps from the
+same `plan/hybrid.json`: P bases take `--draft` (every other source frame), K bases and K overlays
+take `--fps 15 --scale 0.5`, and masks are generated on the 540×960 canvas (`drawbox` coordinates
+scaled, `color=540x960:r=15`). Draft frame `k` is source frame `2k`, so the reel keeps its duration
+to the millisecond and the soundtrack would still line up if you went back to the master. An R base
+is refused before rendering, and a draft refuses `--qa`/`--qa-report`/`--audio` and any segment
+shorter than two source frames. Measured on a 60-frame (2.000 s) plan — P base plus a masked K
+overlay — the master took 42.1 s and 516 KB, the draft 23.5 s and 177 KB (**1.79×**), with matching
+picture: frame 0 mean brightness 35.0 (master) vs 35.1 (draft) and draft frame 15 identical to
+master frame 30.
+
+**`tools/bin/ffprobe` no longer depends on where you stand.** `setup.sh` wrote the shim with
+`$(command -v "$PY")`, which is relative when setup is run as `.venv/bin/python`; every tool it
+launched from a project directory then died with `.venv/bin/python: not found` — exactly how the
+hybrid renderer is invoked. The shim now bakes in an absolute interpreter, and
+`tests/test_repo_hygiene.py` proves it answers from a foreign working directory.
+
+Contract updated in both directions: `AGENTS.md` step 6 and `medo-motion/templates/HYBRID.md` name
+the draft path and its 15 fps exception, `docs/preview.md` and `docs/hybrid.md` carry the numbers.
+`tests/test_hybrid_draft.py` (15: canvas, frame anchoring, every engine's flags, mask canvas, stack
+rate, and the three guards) plus two pipeline tests (routing, and one real half-size render).
+
 ## Unreleased — 2026-11-10 (hybrid: Engine K finds its own browser)
 
 **A hybrid reel no longer needs a pre-configured shell.** `render_hybrid.py` now resolves the

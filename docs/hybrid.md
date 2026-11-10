@@ -115,6 +115,14 @@ color=c=black:...,drawbox=...,format=gray,gblur=sigma=…,negate,setsar=1[mi];
 (17 اختبار وحدة) و`tests/test_hybrid_layers.py` +4 (طبقتين بالألوان، ماسك على العليا، و`--only`
 حقيقي على Chromium، ورفض اسم سين مجهول).
 
+## درافت سريع
+
+`python3 tools/pipeline.py <project> --draft` (أو `render_hybrid.py --draft` مباشرة) بيرندر نفس
+الخطة على 540×960 @15fps في `out/hybrid-draft.mp4`. الأساس P بياخد `--draft` (إطار من كل اتنين)،
+الأساس K والطبقات الشفافة بياخدوا `--fps 15 --scale 0.5`، والماسك بيتبني على كانفس 540×960.
+الأساس R مرفوض، والدرافت مابيدخلش QA ولا mux ولا بيلمس الماستر. التفاصيل والأرقام في
+`docs/preview.md`.
+
 ## ملاحظة تشغيل
 
 طبقة K محتاجة Chromium و`playwright-core`. `render_hybrid.py` بقى يحلّها لوحده بدل ما يفشل جوه

@@ -12,8 +12,21 @@ import tempfile
 import time
 from pathlib import Path
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "medo-motion" / "scripts"))
 from _safe_paths import checked_path  # noqa: E402
+
+
+def shrink(image: np.ndarray, width: int, height: int) -> np.ndarray:
+    """Half-size copy of one rendered frame (cv2 is the template's normal path)."""
+    try:
+        import cv2  # noqa: PLC0415  (optional fast path)
+    except ImportError:
+        from PIL import Image as PILImage  # noqa: PLC0415
+
+        return np.asarray(PILImage.fromarray(image).resize((width, height), PILImage.BILINEAR))
+    return cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA)
 
 
 def main() -> int:
@@ -25,6 +38,8 @@ def main() -> int:
     parser.add_argument("--ffmpeg", required=True)
     parser.add_argument("--fps", type=int, default=30)
     parser.add_argument("--motion-mode", choices=("normal", "reduced"), default=os.environ.get("MEDO_MOTION_MODE", "normal"))
+    parser.add_argument("--draft", action="store_true",
+                        help="hybrid draft preview: every other frame at 540x960 / 15 fps")
     parser.add_argument("--profile-out", type=Path, default=None, help="fresh JSON file for local render timing")
     args = parser.parse_args()
 
@@ -36,6 +51,13 @@ def main() -> int:
         if profile_path == output or profile_path.exists(): parser.error("profile output must be a fresh separate path")
         profile_path.parent.mkdir(parents=True, exist_ok=True)
     count = args.to_frame - args.from_frame
+    # A draft is addressed in *draft frames* (15 fps) so the timeline stays anchored to absolute
+    # frame numbers: draft frame k is source frame 2k. Segment [start, end) therefore covers
+    # draft frames [start // 2, end // 2), and the total stays duration_frames / 2.
+    draft_first = (args.from_frame // 2) * 2
+    draft_count = args.to_frame // 2 - args.from_frame // 2
+    if args.draft and draft_count <= 0:
+        parser.error("draft preview needs at least one whole draft frame in the range")
     if not (project / "scenes.py").is_file():
         parser.error(f"{project} is not an engine-P project (scenes.py missing)")
     if args.from_frame < 0 or count <= 0 or args.fps != 30:
@@ -75,10 +97,13 @@ def main() -> int:
                 raise RuntimeError("Text direction incomplete — the agent must choose styles per scene:\n"
                                    + "\n".join(report["errors"]))
 
+        out_w, out_h = (W // 2, H // 2) if args.draft else (W, H)
+        out_fps = args.fps // 2 if args.draft else args.fps
         command = [
             args.ffmpeg, "-hide_banner", "-loglevel", "error", "-y",
-            "-f", "rawvideo", "-pixel_format", "rgb24", "-video_size", f"{W}x{H}",
-            "-framerate", str(args.fps), "-i", "pipe:0", "-an", "-frames:v", str(count),
+            "-f", "rawvideo", "-pixel_format", "rgb24", "-video_size", f"{out_w}x{out_h}",
+            "-framerate", str(out_fps), "-i", "pipe:0", "-an",
+            "-frames:v", str(draft_count if args.draft else count),
             "-c:v", "libx264", "-preset", "medium", "-crf", "13", "-tune", "animation",
             "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(temp),
         ]
@@ -90,12 +115,16 @@ def main() -> int:
                 initializer(resources)
             encoder = subprocess.Popen(command, stdin=subprocess.PIPE)
             assert encoder.stdin is not None
-            for frame in range(args.from_frame, args.to_frame):
+            frames = (range(draft_first, args.to_frame, 2) if args.draft
+                      else range(args.from_frame, args.to_frame))
+            for frame in frames:
                 t0 = time.perf_counter() if profile_path else 0
                 image = render_frame(frame / args.fps)
                 if profile_path: render_times.append((time.perf_counter()-t0)*1000)
                 if image.shape != (H, W, 3) or image.dtype.name != "uint8":
                     raise RuntimeError(f"engine P returned an invalid frame at index {frame}: {image.shape} {image.dtype}")
+                # P still renders at 1080x1920 and shrinks here: the draft saves frames, not pixels.
+                if args.draft: image = shrink(image, out_w, out_h)
                 t0 = time.perf_counter() if profile_path else 0
                 encoder.stdin.write(image.tobytes())
                 if profile_path: write_times.append((time.perf_counter()-t0)*1000)
@@ -114,12 +143,14 @@ def main() -> int:
                 ordered = sorted(values)
                 def quantile(q): return ordered[min(len(ordered)-1, max(0, math.ceil(q*len(ordered))-1))]
                 return {'mean': sum(values)/len(values), 'p50': quantile(.5), 'p95': quantile(.95), 'max': ordered[-1]}
-            report = {'version': 1, 'engine': 'P', 'motionMode': args.motion_mode, 'frames': count,
+            report = {'version': 1, 'engine': 'P', 'motionMode': args.motion_mode,
+                       'draft': args.draft, 'frames': draft_count if args.draft else count,
                       'initMs': init_ms, 'frameRenderMs': summary(render_times), 'frameWriteMs': summary(write_times),
                       'encoderFinalizeMs': finalize_ms, 'wallMs': (time.perf_counter()-started)*1000,
                       'scope': 'Frame render and pipe write/backpressure; FFmpeg overlaps writes; finalize is remaining flush only. No GPU metrics.'}
             with profile_path.open('x', encoding='utf-8') as stream: json.dump(report, stream, indent=2); stream.write('\n')
-        print(f"P segment: frames {args.from_frame}:{args.to_frame} -> {output}")
+        print(f"P segment{' (draft 540x960 @15fps)' if args.draft else ''}: "
+              f"frames {args.from_frame}:{args.to_frame} -> {output}")
         return 0
     except BaseException:
         if encoder is not None:
