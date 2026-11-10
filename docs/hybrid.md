@@ -35,3 +35,7 @@ The project-local operator guide, schema example, setup notes, and scope boundar
 
 الحدود المقصودة: لا masking، ولا دمج أكثر من طبقتين، ولا alpha على P/R. الطبقة الشفافة تحتاج
 خلفية معتمة تحتها؛ وإلا فالحل مقطع P ثم مقطع K متتاليًا (v1).
+
+> **حراسة العقد:** القدرات التي يفرضها `tools/render_hybrid.py` معلنة في `CAPABILITIES`، وكل واحدة
+> موسومة في `AGENTS.md` و`medo-motion/templates/HYBRID.md` بـ`CAP:<name>`؛ واختبار
+> `tests/test_capability_contract.py` يفشل لو أُضيفت قدرة بلا توثيق أو بقي توثيق لقدرة أُزيلت.

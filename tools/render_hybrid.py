@@ -35,6 +35,28 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
+# What this renderer actually enforces, as one explicit list.
+#
+# The operating contract (`AGENTS.md`) and the contract copied into every hybrid project
+# (`medo-motion/templates/HYBRID.md`) describe each of these next to its marker:
+#
+#     <!-- CAP:alpha_layer -->
+#
+# `tests/test_capability_contract.py` compares the three sets and fails in both directions:
+# a capability implemented here but undocumented dies in a contract nobody reads, and a
+# documented capability that no longer exists sends agents down a dead path. Adding a feature
+# therefore means adding it here and in both contracts — that is the point.
+CAPABILITIES = frozenset({
+    "sequence",            # v1: one engine owns a whole half-open frame range
+    "layers",              # v2: a segment carries layers = opaque base + overlay
+    "alpha_layer",         # that overlay is Engine K rendered transparent and composited
+    "single_overlay",      # at most one overlay above the base
+    "alpha_k_only",        # alpha is Engine-K only; an alpha base is rejected
+    "v1_normalised",       # v1 plans are normalised to layers on read, never rejected
+    "audio_after_picture", # the soundtrack is added once, after picture assembly
+    "frame_exact",         # dimensions/fps/frame counts/duration are verified, not hoped for
+})
+
 FPS = 30
 WIDTH = 1080
 HEIGHT = 1920

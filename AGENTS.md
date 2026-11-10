@@ -249,7 +249,8 @@ is the portable inventory it extends. Do not install anything else "just in case
    and `DURATION_IN_FRAMES` (R, from `plan/beats.json`) end exactly on the VO duration; the SFX bus
    and mix are cut to it.
    `tests/test_vo_length.py` fails if any doc or template reintroduces a fixed length.
-3. **Engine choice** — see §6. A reel may use the validated hybrid renderer for sequential full-frame segments; this is not simultaneous layer compositing.
+3. **Engine choice** — see §6. A reel may use the validated hybrid renderer for sequential full-frame
+   segments **and**, since v2, for one transparent Engine-K layer composited over an opaque base.
 4. **Scenes** — first choose the motion for EVERY on-screen text element:
    `python3 tools/text_direction.py projects/<slug> --init`, then fill `captionStyle` / `textStyles` /
    `textElements` per scene with a rationale, and give every `plan/copy.json` fragment a `role`
@@ -277,12 +278,20 @@ render only after `plan/beats.json` has the measured VO timeline. R currently ha
 and a basic pose component; it does not inherit P/K's animated icon or transition catalogs.
 
 When a concept genuinely needs multiple strengths in one reel, scaffold `--engine hybrid`.
-Its v1 contract is **sequential, full-frame segments** with one engine assigned to each
-half-open frame range; it does not layer engines simultaneously or transfer features between
-them. `HYBRID.md` and `tools/render_hybrid.py` define the frame/audio contract, validation,
-and assembly. The hybrid runner fails closed on gaps, overlaps, dimensions, frame counts,
-frame rate, or duration errors. It adds the single soundtrack after picture assembly and
-introduces no pre-render approval gate.
+`HYBRID.md` and `tools/render_hybrid.py` define the frame/audio contract, validation, and
+assembly; neither engine's features are transferred into another.
+
+- **v1 — sequential segments** <!-- CAP:sequence -->: one engine owns each half-open frame range,
+  full frame.
+- **v2 — one transparent overlay** <!-- CAP:layers -->: a segment may carry `layers` = an opaque
+  base plus one Engine-K layer rendered with alpha, so kinetic type or UI can sit **over**
+  presenter footage <!-- CAP:alpha_layer -->. Exactly one overlay, and only K may be transparent
+  <!-- CAP:single_overlay --> <!-- CAP:alpha_k_only -->. v1 plans are normalised on read, so no
+  project breaks <!-- CAP:v1_normalised -->. Masking and two-overlay stacks are **not** supported.
+
+The runner fails closed on gaps, overlaps, dimensions, frame counts, frame rate, or duration
+errors <!-- CAP:frame_exact --> and adds the single soundtrack once, after picture assembly
+<!-- CAP:audio_after_picture -->. There is no pre-render approval gate.
 
 ## 7. QA gates before delivery
 

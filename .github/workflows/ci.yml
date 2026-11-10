@@ -119,10 +119,9 @@ jobs:
         run: python -m pytest -q -n 2 $(python tools/ci_groups.py unit)
 
   coverage:
-    name: Coverage report (no threshold)
+    name: Coverage report (floor 30%)
     runs-on: ubuntu-22.04
     timeout-minutes: 40
-    continue-on-error: true  # informational: a red coverage run must not block a PR
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
@@ -144,7 +143,9 @@ jobs:
       - name: Install the K toolkit
         run: npm ci --prefix tools/toolkit
       - name: Full suite with coverage
-        run: python -m pytest -q -n 2 --cov --cov-report=term-missing:skip-covered --cov-report=xml
+        # Floor, not a target: it starts at 30% (measured fast-loop total is 33%) and rises
+        # with the suite, so coverage can only move up without a deliberate decision here.
+        run: python -m pytest -q -n 2 --cov --cov-report=term-missing:skip-covered --cov-report=xml --cov-fail-under=30
       - name: Keep the report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
@@ -184,7 +185,9 @@ jobs:
           python -m pip install -r tools/requirements-dev.txt
           npm ci --prefix tools/toolkit
       - name: Run the render group
-        run: python -m pytest -q -n 2 $(python tools/ci_groups.py render)
+        # `loadgroup` is what makes the `xdist_group` marks real: the Remotion bundling tests
+        # must share one worker, or two webpack bundles race and one render gets a 404.
+        run: python -m pytest -q -n 2 --dist loadgroup $(python tools/ci_groups.py render)
       - name: Render and verify a 3-frame Engine P smoke test
         env:
           REEL_DIR: ${{ github.workspace }}

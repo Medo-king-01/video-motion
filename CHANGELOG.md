@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (contract↔capability guard · deterministic render group · coverage floor)
+
+**The operating contract can no longer drift from the renderer.** Hybrid v2 shipped while
+`AGENTS.md` and `templates/HYBRID.md` (the copy every hybrid project receives) still said
+simultaneous layers were out of scope — a feature no doc-driven agent would use. Both contracts
+now describe v1 *and* v2, every capability they describe carries a marker
+(`<!-- CAP:alpha_layer -->`), and `tools/render_hybrid.py` declares the same list as
+`CAPABILITIES`. `tests/test_capability_contract.py` (14 tests) compares the sets **in both
+directions** — an implemented-but-unmarked capability fails, and a marked capability that no
+longer exists fails too — plus it rejects unknown markers anywhere in the docs and checks that
+each name has code evidence (e.g. `alpha_layer` → `--alpha`). Removing the `alpha_layer` marker
+today reproduces the historical drift as a red test.
+
+**`--dist loadgroup` makes the Remotion marks real.** `@pytest.mark.xdist_group` is inert under
+xdist's default `load` scheduling, which is why the earlier grouping did not stop the webpack
+bundle race. The CI render job now runs `-n 2 --dist loadgroup`, so the four bundling tests share
+one worker; the one-shot retry on the transient 404 stays as a second line of defence.
+
+**Coverage floor, raised deliberately.** The coverage job is no longer informational: it runs with
+`--cov-fail-under=30` and a failing coverage run now blocks a PR (`make coverage` uses the same
+floor). The number starts below the measured total (32.7% on the fast loop) so the gate can only
+move up; raising it is an explicit edit, not a drift.
+
 ## Unreleased — 2026-11-10 (CI: Remotion bundlers no longer race)
 
 **Remotion render tests are pinned to one xdist worker.** The two real-render tests in
