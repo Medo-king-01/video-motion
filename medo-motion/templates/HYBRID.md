@@ -10,12 +10,21 @@ Two shapes are supported, and a project may mix them:
 
 - **v1 — sequential, full-frame segments** <!-- CAP:sequence -->: a segment is assigned to exactly
   one engine, and that engine owns the whole frame.
-- **v2 — one transparent overlay** <!-- CAP:layers -->: a segment carries `layers` = an opaque
-  base plus **one** Engine-K layer rendered with alpha, so kinetic type or UI can sit over
-  presenter footage <!-- CAP:alpha_layer -->. Only K may be transparent
-  <!-- CAP:alpha_k_only -->, and never more than one overlay
-  <!-- CAP:single_overlay -->. v1 files keep working: they are normalised on read
-  <!-- CAP:v1_normalised -->. Two-overlay stacks and alpha on P/R are **not** supported.
+- **v2 — transparent overlays** <!-- CAP:layers -->: a segment carries `layers` = an opaque
+  base plus Engine-K overlays rendered with alpha, so kinetic type or UI can sit over presenter
+  footage <!-- CAP:alpha_layer -->. Up to 4 overlays, composited bottom-up in plan order
+  <!-- CAP:multi_overlay -->. Only K may be transparent <!-- CAP:alpha_k_only -->. With more than
+  one overlay each must name the scenes it draws <!-- CAP:overlay_scene_filter -->:
+
+  ```json
+  {"layers": [{"engine": "p"},
+              {"engine": "k", "alpha": true, "scenes": ["title"]},
+              {"engine": "k", "alpha": true, "scenes": ["chart"]}]}
+  ```
+
+  A scene belongs to exactly one overlay (naming it twice is a plan error), so two overlays can
+  never render the same picture. v1 files keep working: they are normalised on read
+  <!-- CAP:v1_normalised -->. Alpha on P/R is **not** supported.
 - **v2.1 — masked overlay** <!-- CAP:overlay_masking -->: the overlay may carry a static `mask`
   where **white keeps the base**. This is how type goes *behind* a P presenter:
 

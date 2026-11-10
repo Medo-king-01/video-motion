@@ -17,6 +17,13 @@ soundtrack across all segments.
       ]
     }
 
+Several overlays may be stacked (v2.2). With more than one, each must name the K scenes it
+draws, so two overlays cannot silently render the same content:
+
+      {"layers": [{"engine": "p"},
+                  {"engine": "k", "alpha": true, "scenes": ["title"]},
+                  {"engine": "k", "alpha": true, "scenes": ["chart"]}]}
+
 A v2 overlay may also carry a static `mask`: white areas of the mask keep the
 base frame, so Engine-K type can pass *behind* a P presenter instead of over it.
 
@@ -56,9 +63,10 @@ ROOT = Path(__file__).resolve().parent.parent
 # therefore means adding it here and in both contracts — that is the point.
 CAPABILITIES = frozenset({
     "sequence",            # v1: one engine owns a whole half-open frame range
-    "layers",              # v2: a segment carries layers = opaque base + overlay
-    "alpha_layer",         # that overlay is Engine K rendered transparent and composited
-    "single_overlay",      # at most one overlay above the base
+    "layers",              # v2: a segment carries layers = opaque base + overlays
+    "alpha_layer",         # those overlays are Engine K, rendered transparent and composited
+    "multi_overlay",       # v2.2: up to MAX_OVERLAYS transparent overlays above one base
+    "overlay_scene_filter",# each overlay renders a named subset of the K project's scenes
     "alpha_k_only",        # alpha is Engine-K only; an alpha base is rejected
     "overlay_masking",     # v2.1: a static mask hands pixels of the overlay back to the base
     "mask_rect",           # that mask may be a fractional, feathered rectangle
@@ -127,8 +135,11 @@ def validate_plan(raw: Any) -> dict[str, Any]:
             "duration_frames": total, "segments": clean, "audio": audio}
 
 
+MAX_OVERLAYS = 4
+
+
 def _validate_layers(item: dict[str, Any], sid: str) -> list[dict[str, Any]]:
-    """One opaque base (p/k/r), optionally one transparent Engine-K overlay on top."""
+    """One opaque base (p/k/r) plus up to MAX_OVERLAYS transparent Engine-K overlays."""
     raw_layers = item.get("layers")
     if raw_layers is None:
         engine = item.get("engine")
@@ -137,8 +148,9 @@ def _validate_layers(item: dict[str, Any], sid: str) -> list[dict[str, Any]]:
         return [{"engine": engine, "alpha": False}]
     if item.get("engine") is not None:
         raise PlanError(f"segment {sid}: use either engine or layers, not both")
-    if not isinstance(raw_layers, list) or not 1 <= len(raw_layers) <= 2:
-        raise PlanError(f"segment {sid}: layers must contain one base and at most one overlay")
+    if not isinstance(raw_layers, list) or not 1 <= len(raw_layers) <= 1 + MAX_OVERLAYS:
+        raise PlanError(
+            f"segment {sid}: layers must contain one base and at most {MAX_OVERLAYS} overlays")
     clean: list[dict[str, Any]] = []
     for position, layer in enumerate(raw_layers):
         if not isinstance(layer, dict):
@@ -156,11 +168,52 @@ def _validate_layers(item: dict[str, Any], sid: str) -> list[dict[str, Any]]:
         if alpha and engine != "k":
             raise PlanError(f"segment {sid}: transparent overlays are Engine K only")
         entry = {"engine": engine, "alpha": alpha}
+        scenes = _validate_scenes(layer, sid, position, alpha)
+        if scenes is not None:
+            entry["scenes"] = scenes
         mask = _validate_mask(layer, sid, position, alpha)
         if mask is not None:
             entry["mask"] = mask
         clean.append(entry)
+    _validate_overlay_stack(clean, sid)
     return clean
+
+
+def _validate_scenes(layer: dict[str, Any], sid: str, position: int, alpha: bool) -> list[str] | None:
+    """`scenes` names the K scenes this overlay is allowed to draw."""
+    raw = layer.get("scenes")
+    if raw is None:
+        return None
+    if position == 0 or not alpha:
+        raise PlanError(f"segment {sid}: only a transparent overlay can select scenes")
+    if not isinstance(raw, list) or not raw:
+        raise PlanError(f"segment {sid}: scenes must be a non-empty array of scene ids")
+    for name in raw:
+        if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", name):
+            raise PlanError(f"segment {sid}: scene ids must be letters, digits, _ or - (max 64)")
+    if len(set(raw)) != len(raw):
+        raise PlanError(f"segment {sid}: scenes lists the same id twice")
+    return list(raw)
+
+
+def _validate_overlay_stack(layers: list[dict[str, Any]], sid: str) -> None:
+    """Two overlays without scene names would render the same picture twice — refuse that."""
+    overlays = layers[1:]
+    if len(overlays) < 2:
+        return
+    missing = [index + 1 for index, overlay in enumerate(overlays) if "scenes" not in overlay]
+    if missing:
+        raise PlanError(
+            f"segment {sid}: with {len(overlays)} overlays every overlay must name its `scenes` "
+            f"(overlay {missing[0]} has none)")
+    seen: dict[str, int] = {}
+    for index, overlay in enumerate(overlays, 1):
+        for name in overlay["scenes"]:
+            if name in seen:
+                raise PlanError(
+                    f"segment {sid}: scene {name!r} is drawn by overlay {seen[name]} and overlay "
+                    f"{index}; a scene belongs to exactly one overlay")
+            seen[name] = index
 
 
 MASK_KINDS = ("rect", "image")
@@ -337,10 +390,14 @@ def build_segment_command(engine: str, *, python: str, node: str, ffmpeg: str,
             "--to-frame", str(end), "--out", str(target)]
 
 
-def build_alpha_command(node: str, start: int, end: int, frames_dir: Path) -> list[str]:
-    """Engine K, transparent: one RGBA PNG per frame, no encoder."""
-    return [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
-            "--fps", str(FPS), "--scale", "1", "--alpha", "--out", str(frames_dir)]
+def build_alpha_command(node: str, start: int, end: int, frames_dir: Path,
+                        only: list[str] | None = None) -> list[str]:
+    """Engine K, transparent: one RGBA PNG per frame, no encoder. `only` picks the scenes."""
+    command = [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
+               "--fps", str(FPS), "--scale", "1", "--alpha", "--out", str(frames_dir)]
+    if only:
+        command += ["--only", ",".join(only)]
+    return command
 
 
 def build_mask_source(mask: dict[str, Any]) -> str:
@@ -384,17 +441,65 @@ def _composite_filter(mask: dict[str, Any] | None,
     return graph, extra_inputs
 
 
-def build_composite_command(ffmpeg: str, base: Path, frames_dir: Path, frames: int, out: Path,
-                            mask: dict[str, Any] | None = None,
-                            mask_image: Path | None = None) -> list[str]:
-    """Overlay the transparent PNG sequence on the base footage, frame for frame."""
-    graph, extra_inputs = _composite_filter(mask, mask_image)
-    return [ffmpeg, "-hide_banner", "-loglevel", "error", "-n",
-            "-i", str(base), "-framerate", str(FPS), "-i", str(frames_dir / "%05d.png"),
-            *extra_inputs,
+def build_stack_command(ffmpeg: str, base: Path, overlays: list[dict[str, Any]],
+                        frames: int, out: Path) -> list[str]:
+    """Composite every overlay over the base in one encode, bottom-up as the plan lists them.
+
+    Doing it in one pass matters: each extra FFmpeg pass would be another CRF-13 generation, so a
+    four-layer stack would visibly soften the base by the time it reached the screen.
+    """
+    if not overlays:
+        raise RuntimeError("an overlay stack needs at least one overlay")
+    if len(overlays) == 1 and not overlays[0].get("mask"):
+        graph = "[0:v][1:v]overlay=format=auto"
+        inputs = ["-framerate", str(FPS), "-i", str(overlays[0]["frames_dir"] / "%05d.png")]
+    else:
+        inputs, streams = [], []
+        next_input = 1
+        for overlay in overlays:
+            inputs += ["-framerate", str(FPS), "-i", str(overlay["frames_dir"] / "%05d.png")]
+            png, next_input = next_input, next_input + 1
+            mask = overlay.get("mask")
+            mask_source = None
+            if mask is not None:
+                if mask["type"] == "image":
+                    mask_image = overlay.get("mask_image")
+                    if mask_image is None:
+                        raise RuntimeError("image mask requires a resolved matte path")
+                    inputs += ["-loop", "1", "-framerate", str(FPS), "-i", str(mask_image)]
+                    mask_source = f"[{next_input}:v]format=gray,negate,fps=30,setsar=1"
+                    next_input += 1
+                else:
+                    mask_source = f"{build_mask_source(mask)},negate,setsar=1"
+            streams.append((png, mask_source))
+        parts = ["[0:v]format=yuv420p,setsar=1[acc0]"]
+        for index, (png, mask_source) in enumerate(streams, 1):
+            if mask_source is None:
+                parts.append(f"[{png}:v]format=rgba,setsar=1[ov{index}]")
+            else:
+                parts.append(
+                    f"[{png}:v]format=rgba,setsar=1,split=2[ov{index}b][ov{index}a];"
+                    f"[ov{index}a]alphaextract[ka{index}];"
+                    f"{mask_source}[mi{index}];"
+                    f"[ka{index}][mi{index}]blend=all_mode=multiply[am{index}];"
+                    f"[ov{index}b][am{index}]alphamerge[ov{index}]"
+                )
+            tail = "" if index == len(streams) else f"[acc{index}]"
+            parts.append(f"[acc{index - 1}][ov{index}]overlay=format=auto{tail}")
+        graph = ";".join(parts)
+    return [ffmpeg, "-hide_banner", "-loglevel", "error", "-n", "-i", str(base), *inputs,
             "-filter_complex", graph,
             "-frames:v", str(frames), "-c:v", "libx264", "-preset", "medium", "-crf", "13",
             "-pix_fmt", "yuv420p", "-r", str(FPS), str(out)]
+
+
+def build_composite_command(ffmpeg: str, base: Path, frames_dir: Path, frames: int, out: Path,
+                            mask: dict[str, Any] | None = None,
+                            mask_image: Path | None = None) -> list[str]:
+    """One overlay (the shape every v2.0/v2.1 plan produces)."""
+    return build_stack_command(ffmpeg, base,
+                               [{"frames_dir": frames_dir, "mask": mask, "mask_image": mask_image}],
+                               frames, out)
 
 
 def resolve_mask_image(mask: dict[str, Any], project: Path, label: str) -> Path:
@@ -410,20 +515,32 @@ def resolve_mask_image(mask: dict[str, Any], project: Path, label: str) -> Path:
     return candidate
 
 
+def composite_stack(ffmpeg: str, base: Path, overlays: list[dict[str, Any]], frames: int,
+                    project: Path, env: dict[str, str], label: str) -> None:
+    """Composite every overlay in one pass (via a temp file) and refuse a frame-count mismatch."""
+    resolved: list[dict[str, Any]] = []
+    for index, overlay in enumerate(overlays, 1):
+        frames_dir = overlay["frames_dir"]
+        rendered = sorted(frames_dir.glob("[0-9][0-9][0-9][0-9][0-9].png"))
+        if len(rendered) != frames:
+            raise RuntimeError(
+                f"{label}: overlay {index} produced {len(rendered)} frame(s), expected {frames}"
+            )
+        mask = overlay.get("mask")
+        mask_image = (resolve_mask_image(mask, project, label)
+                      if mask and mask["type"] == "image" else None)
+        resolved.append({**overlay, "mask_image": mask_image})
+    temp = base.with_name(base.stem + ".overlay.mp4")
+    run(build_stack_command(ffmpeg, base, resolved, frames, temp), cwd=project, env=env, label=label)
+    os.replace(temp, base)
+
+
 def composite_overlay(ffmpeg: str, base: Path, frames_dir: Path, frames: int,
                       project: Path, env: dict[str, str], label: str,
                       mask: dict[str, Any] | None = None) -> None:
-    """Composite in place (via a temp file) and refuse a frame-count mismatch."""
-    rendered = sorted(frames_dir.glob("[0-9][0-9][0-9][0-9][0-9].png"))
-    if len(rendered) != frames:
-        raise RuntimeError(
-            f"{label}: transparent overlay produced {len(rendered)} frame(s), expected {frames}"
-        )
-    mask_image = resolve_mask_image(mask, project, label) if mask and mask["type"] == "image" else None
-    temp = base.with_name(base.stem + ".overlay.mp4")
-    run(build_composite_command(ffmpeg, base, frames_dir, frames, temp, mask=mask, mask_image=mask_image),
-        cwd=project, env=env, label=label)
-    os.replace(temp, base)
+    """One overlay — the signature every existing caller and test uses."""
+    composite_stack(ffmpeg, base, [{"frames_dir": frames_dir, "mask": mask}], frames,
+                    project, env, label)
 
 
 
@@ -511,25 +628,27 @@ def main() -> int:
                                   start=start, end=end, sid=sid, target=target, frames_dir=run_dir),
             cwd=project, env=env, label=f"engine {engine.upper()} · {sid}")
         if overlays:
-            overlay = overlays[0]
-            frames_dir = run_dir / f"{sid}-overlay"
-            frames_dir.mkdir(parents=True, exist_ok=False)
-            run(build_alpha_command(node, start, end, frames_dir), cwd=project, env=env,
-                label=f"engine K overlay · {sid}")
-            # Fail before the composite if the matte is missing: a silent unmasked overlay would
-            # look like a working render with the wrong layering.
-            if overlay.get("mask", {}).get("type") == "image":
-                resolve_mask_image(overlay["mask"], project, f"segment {sid}")
-            composite_overlay(ffmpeg, target, frames_dir, end - start, project, env,
-                              label=f"composite K over {engine.upper()} · {sid}",
-                              mask=overlay.get("mask"))
-            if overlay.get("mask"):
-                overlay = {**overlay, "masked": True}
+            prepared: list[dict[str, Any]] = []
+            for index, overlay in enumerate(overlays, 1):
+                frames_dir = run_dir / f"{sid}-overlay{index}"
+                frames_dir.mkdir(parents=True, exist_ok=False)
+                scenes = overlay.get("scenes")
+                run(build_alpha_command(node, start, end, frames_dir, only=scenes), cwd=project, env=env,
+                    label=f"engine K overlay {index} · {sid}"
+                          + (f" · scenes {','.join(scenes)}" if scenes else ""))
+                # Fail before the composite if the matte is missing: a silent unmasked overlay
+                # would look like a working render with the wrong layering.
+                if overlay.get("mask", {}).get("type") == "image":
+                    resolve_mask_image(overlay["mask"], project, f"segment {sid}")
+                prepared.append({"frames_dir": frames_dir, "mask": overlay.get("mask")})
+            composite_stack(ffmpeg, target, prepared, end - start, project, env,
+                            label=f"composite {len(prepared)} overlay(s) over {engine.upper()} · {sid}")
         render_ms = (time.perf_counter()-t0)*1000
         t0 = time.perf_counter(); verify_segment(ffprobe, target, end - start, sid)
         if args.profile: segment_times.append({'id': sid, 'engine': engine.upper(), 'frames': end-start,
                                                'overlays': len(overlays),
-                                               'masked': bool(overlays and overlays[0].get("mask")),
+                                               'masked': sum(1 for o in overlays if o.get("mask")),
+                                               'sceneFilters': [o.get("scenes") for o in overlays],
                                                'renderMs': render_ms, 'verifyMs': (time.perf_counter()-t0)*1000})
 
     list_file = run_dir / "segments.txt"
@@ -591,10 +710,11 @@ def main() -> int:
         temp_out.unlink(missing_ok=True)
         raise
     layered = sum(1 for segment in plan["segments"] if len(segment["layers"]) > 1)
-    masked = sum(1 for segment in plan["segments"]
-                 if len(segment["layers"]) > 1 and segment["layers"][1].get("mask"))
+    overlay_count = sum(len(segment["layers"]) - 1 for segment in plan["segments"])
+    masked = sum(1 for segment in plan["segments"] for layer in segment["layers"][1:]
+                 if layer.get("mask"))
     print(f"HYBRID OK · {len(plan['segments'])} sequential segments"
-          f"{f' ({layered} with a transparent K overlay)' if layered else ''}"
+          f"{f' ({layered} layered, {overlay_count} K overlay(s))' if layered else ''}"
           f"{f' ({masked} masked)' if masked else ''} · {plan['duration_frames']} frames "
           f"({total_seconds:.3f}s) · {output}")
     print(f"segment diagnostics retained at {run_dir}")

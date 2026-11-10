@@ -283,11 +283,14 @@ assembly; neither engine's features are transferred into another.
 
 - **v1 — sequential segments** <!-- CAP:sequence -->: one engine owns each half-open frame range,
   full frame.
-- **v2 — one transparent overlay** <!-- CAP:layers -->: a segment may carry `layers` = an opaque
-  base plus one Engine-K layer rendered with alpha, so kinetic type or UI can sit **over**
-  presenter footage <!-- CAP:alpha_layer -->. Exactly one overlay, and only K may be transparent
-  <!-- CAP:single_overlay --> <!-- CAP:alpha_k_only -->. v1 plans are normalised on read, so no
-  project breaks <!-- CAP:v1_normalised -->. Two-overlay stacks are **not** supported.
+- **v2 — transparent overlays** <!-- CAP:layers -->: a segment may carry `layers` = an opaque
+  base plus Engine-K layers rendered with alpha, so kinetic type or UI can sit **over** presenter
+  footage <!-- CAP:alpha_layer -->. Up to 4 overlays, stacked bottom-up in plan order
+  <!-- CAP:multi_overlay -->, and only K may be transparent <!-- CAP:alpha_k_only -->. Once there
+  is more than one overlay, each must name the K scenes it draws (`"scenes": ["title"]`)
+  <!-- CAP:overlay_scene_filter --> — a scene belongs to exactly one overlay, and a scene named
+  twice is a plan error. v1 plans are normalised on read, so no project breaks
+  <!-- CAP:v1_normalised -->.
 - **v2.1 — masked overlay** <!-- CAP:overlay_masking -->: an overlay may carry a static `mask`
   where **white keeps the base**, so Engine-K type passes *behind* a P presenter instead of over
   his face. The mask is a fractional rectangle with optional feather

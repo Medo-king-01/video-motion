@@ -146,8 +146,9 @@ def test_version_1_plans_normalise_to_single_layer_segments():
     ([{"engine": "k", "alpha": True}], "base layer cannot be transparent"),
     ([{"engine": "p"}, {"engine": "r", "alpha": True}], "Engine K only"),
     ([{"engine": "p"}, {"engine": "k"}], "only a transparent Engine-K overlay"),
-    ([{"engine": "p"}, {"engine": "k", "alpha": True}, {"engine": "k", "alpha": True}], "at most one overlay"),
-    ([], "one base and at most one overlay"),
+    ([{"engine": "p"}] + [{"engine": "k", "alpha": True, "scenes": [f"s{i}"]} for i in range(5)],
+     "at most 4 overlays"),
+    ([], "one base and at most 4 overlays"),
     ([{"engine": "x"}], "layer engine must be"),
 ])
 def test_invalid_layer_stacks_are_rejected(layers, message):

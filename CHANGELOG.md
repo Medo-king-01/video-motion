@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (hybrid v2.2: several K overlays)
+
+**Up to four transparent Engine-K overlays above one base, stacked in plan order.** One K project
+holds one scene tree, so two overlays need a way to be two different pictures: each overlay now
+names the scenes it owns (`"scenes": ["title"]`). `render.js --only a,b` validates the ids in Node
+before the browser opens (an unknown id used to stall the page for its 30 s timeout), and `main.js`
+draws only those scenes, leaving every other moment transparent. A scene belongs to exactly one
+overlay; once a segment has more than one overlay, an overlay without `scenes` is a plan error
+rather than a silent duplicate of its neighbour.
+
+**One encode for the whole stack.** Overlays are composited in a single FFmpeg pass (each PNG
+sequence is an input, each layer gets its own `overlay` link, masks included), because a per-layer
+pass would be another CRF-13 generation and a four-layer reel would soften visibly.
+
+Verified on a real project with two overlays (`scenes: ["example"]` and `["arabic-example"]`, mask
+on the upper one): the first overlay covers 100% of the frame at t=0.5 s and 0% at t=2.5 s, the
+second is the exact inverse, and the 90-frame file comes out in one encode.
+`tests/test_hybrid_stack.py` (17) + `tests/test_hybrid_layers.py` +4 (two-colour stack, mask on the
+top layer, a real `--only` Chromium render, unknown-id rejection). `CAPABILITIES` swaps
+`single_overlay` for `multi_overlay` + `overlay_scene_filter`, marked in both contracts.
+
 ## Unreleased — 2026-11-10 (hybrid v2.1: masked overlay)
 
 **Type can now pass *behind* a presenter instead of over his face.** A v2 overlay accepts a static

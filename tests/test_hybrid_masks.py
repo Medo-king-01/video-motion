@@ -122,7 +122,7 @@ def test_the_masked_composite_multiplies_the_overlay_alpha():
     assert "alphaextract" in graph and "alphamerge" in graph
     assert "blend=all_mode=multiply" in graph
     assert "negate" in graph                     # white (base) → zero overlay alpha
-    assert graph.endswith("[mb][ovm]overlay=format=auto")
+    assert graph.endswith("[acc0][ov1]overlay=format=auto")
     assert command[command.index("-frames:v") + 1] == "30"
 
 

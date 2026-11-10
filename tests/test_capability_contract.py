@@ -35,7 +35,8 @@ SKIP_PARTS = {"node_modules", ".git", "out", "cache", "projects"}
 # Each capability must be visible in the code as something more than a name in this set.
 CODE_EVIDENCE = {
     "alpha_layer": "--alpha",
-    "single_overlay": "at most one overlay",
+    "multi_overlay": "MAX_OVERLAYS",
+    "overlay_scene_filter": "--only",
     "alpha_k_only": "alpha is Engine-K only",
     "layers": '"layers"',
     "sequence": "sequence",
