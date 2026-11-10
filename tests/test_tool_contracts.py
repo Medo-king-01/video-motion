@@ -79,6 +79,69 @@ def run_ffprobe(*args: str) -> subprocess.CompletedProcess[str]:
                           capture_output=True, text=True, timeout=120, cwd=str(ROOT))
 
 
+def write_executable(path: Path, body: str) -> Path:
+    path.write_text(body, encoding="utf-8")
+    path.chmod(0o755)
+    return path
+
+
+def run_shim(*args: str, path_prefix: Path | None = None,
+             extra_env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    import os  # noqa: PLC0415 - only these tests need to build a PATH
+    env = {"PATH": f"{path_prefix}{os.pathsep}{os.environ.get('PATH', '')}" if path_prefix
+           else os.environ.get("PATH", ""), "HOME": str(Path.home())}
+    env.update(extra_env or {})
+    return subprocess.run([PY, str(TOOLS / "ffprobe_shim.py"), *args], capture_output=True,
+                          text=True, timeout=120, cwd=str(ROOT), env=env)
+
+
+def test_ffprobe_shim_delegates_to_a_real_ffprobe(tmp_path: Path) -> None:
+    """The shim is the fallback: a real binary on PATH must answer instead (N10)."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    write_executable(bin_dir / "ffprobe", '#!/bin/sh\necho \'{"delegated": true}\'\n')
+    result = run_shim("-show_entries", "format=duration", "x.wav", path_prefix=bin_dir)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == {"delegated": True}
+
+
+def test_ffprobe_shim_never_delegates_to_itself(tmp_path: Path) -> None:
+    """`tools/bin/ffprobe` is a wrapper that runs this script — execing it would loop forever."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    write_executable(bin_dir / "ffprobe",
+                     f'#!/bin/sh\nexec "{PY}" "{TOOLS / "ffprobe_shim.py"}" "$@"\n')
+    audio = write_wav(tmp_path / "tone.wav", seconds=0.25)
+    result = run_shim("-v", "error", "-show_entries", "format=duration", "-of", "json",
+                      str(audio), path_prefix=bin_dir)
+    assert result.returncode == 0, result.stderr
+    assert float(json.loads(result.stdout)["format"]["duration"]) == pytest.approx(0.25, abs=0.02)
+
+
+def test_ffprobe_shim_only_mode_keeps_the_fallback(tmp_path: Path) -> None:
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    write_executable(bin_dir / "ffprobe", '#!/bin/sh\necho \'{"delegated": true}\'\n')
+    audio = write_wav(tmp_path / "tone.wav", seconds=0.25)
+    result = run_shim("-show_entries", "format=duration", "-of", "json", str(audio),
+                      path_prefix=bin_dir, extra_env={"MEDO_FFPROBE_SHIM_ONLY": "1"})
+    assert result.returncode == 0, result.stderr
+    assert "delegated" not in result.stdout
+    assert float(json.loads(result.stdout)["format"]["duration"]) == pytest.approx(0.25, abs=0.02)
+
+
+def test_ffprobe_shim_declares_every_field_it_emits(tmp_path: Path) -> None:
+    """`--supported` is a promise: anything the fallback prints must be in the catalogue."""
+    catalogue = json.loads(run_shim("--supported").stdout)
+    audio = write_wav(tmp_path / "tone.wav", seconds=0.25)
+    payload = json.loads(run_shim("-show_streams", "-show_format", str(audio),
+                                  extra_env={"MEDO_FFPROBE_SHIM_ONLY": "1"}).stdout)
+    streams = set().union(*(set(stream) for stream in payload["streams"]))
+    assert streams <= set(catalogue["streams"]), f"streams: undeclared {streams - set(catalogue['streams'])}"
+    fmt = set(payload["format"])
+    assert fmt <= set(catalogue["format"]), f"format: undeclared {fmt - set(catalogue['format'])}"
+
+
 def test_ffprobe_shim_fails_loudly_on_a_missing_file(tmp_path: Path) -> None:
     result = run_ffprobe("-show_entries", "format=duration", str(tmp_path / "absent.wav"))
     assert result.returncode != 0

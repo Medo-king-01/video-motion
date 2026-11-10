@@ -6,6 +6,7 @@ they fail the moment someone deletes the file or narrows it while "cleaning up".
 """
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
 
@@ -61,10 +62,10 @@ def test_the_generated_ffprobe_shim_works_from_any_directory(tmp_path: Path) -> 
                     "-frames:v", "6", "-pix_fmt", "yuv420p", str(media)],
                    check=True, capture_output=True)
     result = subprocess.run([str(shim), "-v", "error", "-show_entries", "stream=width",
-                             "-of", "csv=p=0", str(media)], cwd=str(tmp_path),
+                             "-of", "json", str(media)], cwd=str(tmp_path),
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
-    assert '"width": 64' in result.stdout  # the shim answers in JSON from any cwd
+    assert json.loads(result.stdout)["streams"][0]["width"] == 64  # answered from a foreign cwd
 
 
 def test_setup_writes_an_absolute_interpreter_into_the_ffprobe_shim() -> None:
