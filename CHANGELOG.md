@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (hybrid v2.1: masked overlay)
+
+**Type can now pass *behind* a presenter instead of over his face.** A v2 overlay accepts a static
+`mask` where **white keeps the base**, so the renderer hands exactly those pixels back to the P
+footage:
+
+```json
+{"engine": "k", "alpha": true,
+ "mask": {"type": "rect", "x": 0.34, "y": 0.42, "w": 0.32, "h": 0.58, "feather": 10}}
+```
+
+`rect` takes canvas fractions plus a pixel feather (realised as a `gblur` on the matte, so the edge
+ramps instead of stepping); `image` takes a project-relative 1080×1920 matte, converted to gray and
+read as a third FFmpeg input. Absolute paths and paths that leave the project are plan errors, a
+missing matte fails **before** the base is touched, and a mask anywhere but a transparent overlay
+is rejected rather than silently ignored.
+
+**The maths is a subtraction, not a redraw:** `alpha(K) × (1 − mask)` via
+`alphaextract → blend=multiply → alphamerge` before the overlay. Verified on a real hybrid project
+(same scene, mask vs no mask): pixels inside the rectangle differ by 57.5 on average, pixels
+outside differ by **0.0** — the overlay was removed from the requested area and nothing else moved.
+`tests/test_hybrid_masks.py` (24, new: plan contract + graph shape + matte safety),
+`tests/test_hybrid_layers.py` +4 (real rect, feathered edge ramp, matte image, missing matte
+leaves the base byte-identical), and `CAPABILITIES` grew `overlay_masking`/`mask_rect`/
+`mask_image`, marked in `AGENTS.md` and `HYBRID.md` and enforced by `tests/test_capability_contract.py`.
+
 ## Unreleased — 2026-11-10 (batch 3, part 3: draft preview for engine P)
 
 **`--draft` now covers engine P too.** `pipeline.py <project> --draft` on a P project runs

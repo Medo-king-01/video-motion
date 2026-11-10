@@ -10,7 +10,7 @@ import sys
 import numpy as np
 import pytest
 from conftest import ROOT, SKILL, requires_toolkit
-from PIL import Image
+from PIL import Image, ImageDraw
 
 pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
@@ -71,6 +71,67 @@ def test_transparent_areas_keep_the_base_and_opaque_areas_replace_it(tmp_path, f
     pixel = _frame(base, ffmpeg)
     assert tuple(int(v) for v in pixel[900, 540]) == pytest.approx((255, 0, 0), abs=12)  # untouched base
     assert tuple(int(v) for v in pixel[200, 200]) == pytest.approx((0, 0, 255), abs=12)  # overlay wins
+
+
+def _opaque_overlay_frames(tmp_path, colour=(0, 0, 255)):
+    """A full-frame opaque overlay: without a mask it hides the base completely."""
+    directory = tmp_path / "opaque"
+    directory.mkdir()
+    for index in range(FRAMES):
+        Image.new("RGB", (W, H), colour).save(directory / f"{index:05d}.png")
+    return directory
+
+
+def test_a_rect_mask_hands_the_presenter_area_back_to_the_base(tmp_path, ffmpeg):
+    """The v2.1 promise: type behind the presenter, not over his face."""
+    base = _base(tmp_path, ffmpeg)
+    frames = _opaque_overlay_frames(tmp_path)
+    composite_overlay(ffmpeg, base, frames, FRAMES, ROOT, {"PATH": "/usr/bin:/bin"},
+                      label="masked composite",
+                      mask={"type": "rect", "x": 0.3, "y": 0.3, "w": 0.4, "h": 0.4, "feather": 0.0})
+    pixel = _frame(base, ffmpeg)
+    assert tuple(int(v) for v in pixel[960, 540]) == pytest.approx((255, 0, 0), abs=12)   # inside: base
+    assert tuple(int(v) for v in pixel[100, 100]) == pytest.approx((0, 0, 255), abs=12)   # outside: overlay
+
+
+def test_a_feathered_rect_edge_is_soft_not_a_hard_cut(tmp_path, ffmpeg):
+    base = _base(tmp_path, ffmpeg)
+    frames = _opaque_overlay_frames(tmp_path)
+    composite_overlay(ffmpeg, base, frames, FRAMES, ROOT, {"PATH": "/usr/bin:/bin"},
+                      label="feathered composite",
+                      mask={"type": "rect", "x": 0.3, "y": 0.3, "w": 0.4, "h": 0.4, "feather": 24.0})
+    pixel = _frame(base, ffmpeg).astype(int)
+    edge = pixel[560:600, 540, 2]  # blue channel across the top edge of the rectangle
+    assert edge.min() < 200 and edge.max() > 40, edge.tolist()
+    assert len(set(edge.tolist())) > 3, "a feathered edge must ramp, not switch"
+
+
+def test_a_matte_image_hands_back_exactly_the_painted_area(tmp_path, ffmpeg):
+    project = tmp_path / "project"
+    (project / "assets").mkdir(parents=True)
+    matte = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(matte).ellipse((340, 660, 740, 1260), fill=255)
+    matte.save(project / "assets" / "presenter-matte.png")
+
+    base = _base(tmp_path, ffmpeg)
+    frames = _opaque_overlay_frames(tmp_path)
+    composite_overlay(ffmpeg, base, frames, FRAMES, project, {"PATH": "/usr/bin:/bin"},
+                      label="matte composite",
+                      mask={"type": "image", "path": "assets/presenter-matte.png"})
+    pixel = _frame(base, ffmpeg)
+    assert tuple(int(v) for v in pixel[960, 540]) == pytest.approx((255, 0, 0), abs=12)  # in the ellipse
+    assert tuple(int(v) for v in pixel[50, 50]) == pytest.approx((0, 0, 255), abs=12)    # outside it
+
+
+def test_a_missing_matte_fails_before_touching_the_base(tmp_path, ffmpeg):
+    base = _base(tmp_path, ffmpeg)
+    frames = _opaque_overlay_frames(tmp_path)
+    before = base.read_bytes()
+    with pytest.raises(RuntimeError, match="mask matte not found"):
+        composite_overlay(ffmpeg, base, frames, FRAMES, tmp_path, {"PATH": "/usr/bin:/bin"},
+                          label="matte composite",
+                          mask={"type": "image", "path": "assets/absent.png"})
+    assert base.read_bytes() == before
 
 
 def test_a_frame_count_mismatch_is_refused(tmp_path, ffmpeg):

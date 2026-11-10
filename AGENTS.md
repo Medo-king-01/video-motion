@@ -287,7 +287,15 @@ assembly; neither engine's features are transferred into another.
   base plus one Engine-K layer rendered with alpha, so kinetic type or UI can sit **over**
   presenter footage <!-- CAP:alpha_layer -->. Exactly one overlay, and only K may be transparent
   <!-- CAP:single_overlay --> <!-- CAP:alpha_k_only -->. v1 plans are normalised on read, so no
-  project breaks <!-- CAP:v1_normalised -->. Masking and two-overlay stacks are **not** supported.
+  project breaks <!-- CAP:v1_normalised -->. Two-overlay stacks are **not** supported.
+- **v2.1 — masked overlay** <!-- CAP:overlay_masking -->: an overlay may carry a static `mask`
+  where **white keeps the base**, so Engine-K type passes *behind* a P presenter instead of over
+  his face. The mask is a fractional rectangle with optional feather
+  (`{"type": "rect", "x": .34, "y": .42, "w": .32, "h": .58, "feather": 10}`)
+  <!-- CAP:mask_rect --> or a 1080×1920 matte inside the project
+  (`{"type": "image", "path": "assets/presenter-matte.png"}`) <!-- CAP:mask_image -->. Masks are
+  static for the whole segment, paper over one overlay, and only a transparent overlay can carry
+  one — a mask anywhere else is a plan error, never a silent no-op.
 
 The runner fails closed on gaps, overlaps, dimensions, frame counts, frame rate, or duration
 errors <!-- CAP:frame_exact --> and adds the single soundtrack once, after picture assembly

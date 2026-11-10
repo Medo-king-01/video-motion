@@ -42,6 +42,9 @@ CODE_EVIDENCE = {
     "v1_normalised": "normalise",
     "frame_exact": "-frames:v",
     "audio_after_picture": "audio",
+    "overlay_masking": "alphamerge",
+    "mask_rect": "drawbox",
+    "mask_image": '"image"',
 }
 
 

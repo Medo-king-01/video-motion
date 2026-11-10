@@ -17,6 +17,14 @@ soundtrack across all segments.
       ]
     }
 
+A v2 overlay may also carry a static `mask`: white areas of the mask keep the
+base frame, so Engine-K type can pass *behind* a P presenter instead of over it.
+
+      {"engine": "k", "alpha": true,
+       "mask": {"type": "rect", "x": 0.34, "y": 0.42, "w": 0.32, "h": 0.58, "feather": 8}}
+
+    {"engine": "k", "alpha": true, "mask": {"type": "image", "path": "assets/presenter-matte.png"}}
+
 Version 1 (`"engine": "p"` per segment) is still accepted and normalised to a
 one-layer segment.
 """
@@ -52,6 +60,9 @@ CAPABILITIES = frozenset({
     "alpha_layer",         # that overlay is Engine K rendered transparent and composited
     "single_overlay",      # at most one overlay above the base
     "alpha_k_only",        # alpha is Engine-K only; an alpha base is rejected
+    "overlay_masking",     # v2.1: a static mask hands pixels of the overlay back to the base
+    "mask_rect",           # that mask may be a fractional, feathered rectangle
+    "mask_image",          # ...or a 1080x1920 matte image inside the project
     "v1_normalised",       # v1 plans are normalised to layers on read, never rejected
     "audio_after_picture", # the soundtrack is added once, after picture assembly
     "frame_exact",         # dimensions/fps/frame counts/duration are verified, not hoped for
@@ -144,8 +155,60 @@ def _validate_layers(item: dict[str, Any], sid: str) -> list[dict[str, Any]]:
             raise PlanError(f"segment {sid}: only a transparent Engine-K overlay may follow the base")
         if alpha and engine != "k":
             raise PlanError(f"segment {sid}: transparent overlays are Engine K only")
-        clean.append({"engine": engine, "alpha": alpha})
+        entry = {"engine": engine, "alpha": alpha}
+        mask = _validate_mask(layer, sid, position, alpha)
+        if mask is not None:
+            entry["mask"] = mask
+        clean.append(entry)
     return clean
+
+
+MASK_KINDS = ("rect", "image")
+MASK_FEATHER_MAX = 120.0
+
+
+def _validate_mask(layer: dict[str, Any], sid: str, position: int, alpha: bool) -> dict[str, Any] | None:
+    """A static matte where white keeps the base: Engine-K type can sit behind a presenter.
+
+    Only a transparent overlay can be masked — a mask on an opaque base would mean nothing, and
+    accepting it silently would make the plan lie about what the renderer does.
+    """
+    raw = layer.get("mask")
+    if raw is None:
+        return None
+    if position == 0 or not alpha:
+        raise PlanError(f"segment {sid}: only a transparent overlay can carry a mask")
+    if not isinstance(raw, dict):
+        raise PlanError(f"segment {sid}: mask must be an object")
+    kind = raw.get("type")
+    if kind not in MASK_KINDS:
+        raise PlanError(f"segment {sid}: mask type must be rect or image")
+    if kind == "rect":
+        box: dict[str, float] = {}
+        for key in ("x", "y", "w", "h"):
+            value = raw.get(key)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise PlanError(f"segment {sid}: mask {key} must be a number between 0 and 1")
+            if not 0.0 <= float(value) <= 1.0:
+                raise PlanError(f"segment {sid}: mask {key} must be between 0 and 1")
+            box[key] = float(value)
+        if box["w"] <= 0 or box["h"] <= 0:
+            raise PlanError(f"segment {sid}: mask width and height must be positive")
+        if box["x"] + box["w"] > 1.0 + 1e-9 or box["y"] + box["h"] > 1.0 + 1e-9:
+            raise PlanError(f"segment {sid}: mask rectangle must stay inside the canvas")
+        feather = raw.get("feather", 0)
+        if isinstance(feather, bool) or not isinstance(feather, (int, float)):
+            raise PlanError(f"segment {sid}: mask feather must be a number of pixels")
+        if not 0.0 <= float(feather) <= MASK_FEATHER_MAX:
+            raise PlanError(f"segment {sid}: mask feather must be between 0 and {MASK_FEATHER_MAX:g} px")
+        return {"type": "rect", **box, "feather": float(feather)}
+    path = raw.get("path")
+    if not isinstance(path, str) or not path.strip():
+        raise PlanError(f"segment {sid}: mask path must be a project-relative file path")
+    parts = Path(path).parts
+    if Path(path).is_absolute() or ".." in parts:
+        raise PlanError(f"segment {sid}: mask path must stay inside the project")
+    return {"type": "image", "path": path}
 
 
 def _as_program(candidate: str) -> str | None:
@@ -280,25 +343,86 @@ def build_alpha_command(node: str, start: int, end: int, frames_dir: Path) -> li
             "--fps", str(FPS), "--scale", "1", "--alpha", "--out", str(frames_dir)]
 
 
-def build_composite_command(ffmpeg: str, base: Path, frames_dir: Path, frames: int, out: Path) -> list[str]:
+def build_mask_source(mask: dict[str, Any]) -> str:
+    """A gray generator where **white means the base wins** (the overlay is hidden there).
+
+    Frame fractions keep the plan independent of the canvas constant; the rectangle is drawn at
+    the locked 1080x1920 and optionally blurred, which is the cheapest honest feather.
+    """
+    x, y = round(mask["x"] * WIDTH), round(mask["y"] * HEIGHT)
+    w, h = max(1, round(mask["w"] * WIDTH)), max(1, round(mask["h"] * HEIGHT))
+    chain = (f"color=c=black:s={WIDTH}x{HEIGHT}:r={FPS},"
+             f"drawbox=x={x}:y={y}:w={w}:h={h}:color=white:t=fill,format=gray")
+    feather = float(mask.get("feather", 0) or 0)
+    if feather > 0:
+        chain += f",gblur=sigma={feather / 2:.3f}"
+    return chain
+
+
+def _composite_filter(mask: dict[str, Any] | None,
+                      mask_image: Path | None) -> tuple[str, list[str]]:
+    """Overlay graph, with the overlay's own alpha multiplied by `1 - mask` when masked."""
+    if mask is None:
+        return "[0:v][1:v]overlay=format=auto", []
+    if mask["type"] == "image":
+        if mask_image is None:
+            raise RuntimeError("image mask requires a resolved matte path")
+        source = "[2:v]format=gray,negate,fps=30,setsar=1"
+        extra_inputs = ["-loop", "1", "-framerate", str(FPS), "-i", str(mask_image)]
+    else:
+        source = f"{build_mask_source(mask)},negate,setsar=1"
+        extra_inputs = []
+    graph = (
+        "[0:v]format=yuv420p,setsar=1[mb];"
+        "[1:v]format=rgba,setsar=1,split=2[ov][ova];"
+        "[ova]alphaextract[ka];"
+        f"{source}[mi];"
+        "[ka][mi]blend=all_mode=multiply[am];"
+        "[ov][am]alphamerge[ovm];"
+        "[mb][ovm]overlay=format=auto"
+    )
+    return graph, extra_inputs
+
+
+def build_composite_command(ffmpeg: str, base: Path, frames_dir: Path, frames: int, out: Path,
+                            mask: dict[str, Any] | None = None,
+                            mask_image: Path | None = None) -> list[str]:
     """Overlay the transparent PNG sequence on the base footage, frame for frame."""
+    graph, extra_inputs = _composite_filter(mask, mask_image)
     return [ffmpeg, "-hide_banner", "-loglevel", "error", "-n",
             "-i", str(base), "-framerate", str(FPS), "-i", str(frames_dir / "%05d.png"),
-            "-filter_complex", "[0:v][1:v]overlay=format=auto",
+            *extra_inputs,
+            "-filter_complex", graph,
             "-frames:v", str(frames), "-c:v", "libx264", "-preset", "medium", "-crf", "13",
             "-pix_fmt", "yuv420p", "-r", str(FPS), str(out)]
 
 
+def resolve_mask_image(mask: dict[str, Any], project: Path, label: str) -> Path:
+    """A matte path must exist and stay inside the project — no absolute escape hatches."""
+    project = project.resolve()
+    candidate = (project / mask["path"]).resolve()
+    try:
+        candidate.relative_to(project)
+    except ValueError as error:
+        raise RuntimeError(f"{label}: mask path escapes the project: {mask['path']}") from error
+    if not candidate.is_file():
+        raise RuntimeError(f"{label}: mask matte not found: {mask['path']}")
+    return candidate
+
+
 def composite_overlay(ffmpeg: str, base: Path, frames_dir: Path, frames: int,
-                      project: Path, env: dict[str, str], label: str) -> None:
+                      project: Path, env: dict[str, str], label: str,
+                      mask: dict[str, Any] | None = None) -> None:
     """Composite in place (via a temp file) and refuse a frame-count mismatch."""
     rendered = sorted(frames_dir.glob("[0-9][0-9][0-9][0-9][0-9].png"))
     if len(rendered) != frames:
         raise RuntimeError(
             f"{label}: transparent overlay produced {len(rendered)} frame(s), expected {frames}"
         )
+    mask_image = resolve_mask_image(mask, project, label) if mask and mask["type"] == "image" else None
     temp = base.with_name(base.stem + ".overlay.mp4")
-    run(build_composite_command(ffmpeg, base, frames_dir, frames, temp), cwd=project, env=env, label=label)
+    run(build_composite_command(ffmpeg, base, frames_dir, frames, temp, mask=mask, mask_image=mask_image),
+        cwd=project, env=env, label=label)
     os.replace(temp, base)
 
 
@@ -387,16 +511,25 @@ def main() -> int:
                                   start=start, end=end, sid=sid, target=target, frames_dir=run_dir),
             cwd=project, env=env, label=f"engine {engine.upper()} · {sid}")
         if overlays:
+            overlay = overlays[0]
             frames_dir = run_dir / f"{sid}-overlay"
             frames_dir.mkdir(parents=True, exist_ok=False)
             run(build_alpha_command(node, start, end, frames_dir), cwd=project, env=env,
                 label=f"engine K overlay · {sid}")
+            # Fail before the composite if the matte is missing: a silent unmasked overlay would
+            # look like a working render with the wrong layering.
+            if overlay.get("mask", {}).get("type") == "image":
+                resolve_mask_image(overlay["mask"], project, f"segment {sid}")
             composite_overlay(ffmpeg, target, frames_dir, end - start, project, env,
-                              label=f"composite K over {engine.upper()} · {sid}")
+                              label=f"composite K over {engine.upper()} · {sid}",
+                              mask=overlay.get("mask"))
+            if overlay.get("mask"):
+                overlay = {**overlay, "masked": True}
         render_ms = (time.perf_counter()-t0)*1000
         t0 = time.perf_counter(); verify_segment(ffprobe, target, end - start, sid)
         if args.profile: segment_times.append({'id': sid, 'engine': engine.upper(), 'frames': end-start,
                                                'overlays': len(overlays),
+                                               'masked': bool(overlays and overlays[0].get("mask")),
                                                'renderMs': render_ms, 'verifyMs': (time.perf_counter()-t0)*1000})
 
     list_file = run_dir / "segments.txt"
@@ -458,8 +591,11 @@ def main() -> int:
         temp_out.unlink(missing_ok=True)
         raise
     layered = sum(1 for segment in plan["segments"] if len(segment["layers"]) > 1)
+    masked = sum(1 for segment in plan["segments"]
+                 if len(segment["layers"]) > 1 and segment["layers"][1].get("mask"))
     print(f"HYBRID OK · {len(plan['segments'])} sequential segments"
-          f"{f' ({layered} with a transparent K overlay)' if layered else ''} · {plan['duration_frames']} frames "
+          f"{f' ({layered} with a transparent K overlay)' if layered else ''}"
+          f"{f' ({masked} masked)' if masked else ''} · {plan['duration_frames']} frames "
           f"({total_seconds:.3f}s) · {output}")
     print(f"segment diagnostics retained at {run_dir}")
     return 0

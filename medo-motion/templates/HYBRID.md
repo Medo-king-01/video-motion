@@ -15,7 +15,21 @@ Two shapes are supported, and a project may mix them:
   presenter footage <!-- CAP:alpha_layer -->. Only K may be transparent
   <!-- CAP:alpha_k_only -->, and never more than one overlay
   <!-- CAP:single_overlay -->. v1 files keep working: they are normalised on read
-  <!-- CAP:v1_normalised -->. Masking, two-overlay stacks and alpha on P/R are **not** supported.
+  <!-- CAP:v1_normalised -->. Two-overlay stacks and alpha on P/R are **not** supported.
+- **v2.1 — masked overlay** <!-- CAP:overlay_masking -->: the overlay may carry a static `mask`
+  where **white keeps the base**. This is how type goes *behind* a P presenter:
+
+  ```json
+  {"id": "intro", "start_frame": 0, "end_frame": 60,
+   "layers": [{"engine": "p"},
+              {"engine": "k", "alpha": true,
+               "mask": {"type": "rect", "x": 0.34, "y": 0.42, "w": 0.32, "h": 0.58, "feather": 10}}]}
+  ```
+
+  `rect` takes fractions of the canvas plus an optional `feather` in pixels <!-- CAP:mask_rect -->;
+  `image` takes a project-relative 1080×1920 matte (`white = base wins`) <!-- CAP:mask_image -->.
+  The mask covers the whole segment (no per-frame mattes yet), and only a transparent overlay can
+  carry one — anywhere else it is a plan error, never a silent no-op.
 
 Neither shape transfers one engine's capabilities into another: P/K transitions and animated icons
 are not automatically available in R.
