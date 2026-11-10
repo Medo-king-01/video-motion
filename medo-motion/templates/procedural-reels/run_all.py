@@ -5,16 +5,16 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools" / "lib"))
-from media_bin import ffmpeg as _find_ffmpeg, ffprobe as _find_ffprobe  # noqa: E402
-
-# same precedence as every other tool: $FFMPEG_BIN/$FFPROBE_BIN -> tools/bin shim -> PATH (AGENTS.md §9)
-FF = _find_ffmpeg() or "ffmpeg"
-FFPROBE = _find_ffprobe() or "ffprobe"
 HERE = Path(__file__).resolve().parent
 PROJECT = Path(os.environ.get("REEL_DIR") or HERE).resolve()
 os.chdir(PROJECT)
 sys.path.insert(0, str(HERE))
+
+from media_tools import find_media  # noqa: E402 - template-local helper, works from any cwd
+
+# same precedence as every other tool: $FFMPEG_BIN/$FFPROBE_BIN -> repo tools/bin shim -> PATH
+FF = find_media("ffmpeg") or "ffmpeg"
+FFPROBE = find_media("ffprobe") or "ffprobe"
 
 FPS = 30
 CH = int(os.environ.get("REEL_CHUNK", "276"))
