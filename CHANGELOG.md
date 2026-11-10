@@ -5,6 +5,31 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-10 (a P draft stops supersampling pixels the encoder throws away)
+
+**Engine P's draft was saving frames but not pixels.** A P frame is dominated by sprite work: `lib.D`
+draws every shape `SS`x larger (3x), blurs it and LANCZOS-downsamples it. A draft is delivered at
+540x960 — half the buffer — so the third supersample never survives, and the draft was paying for it
+anyway. `REEL_SS` (1-4, validated, refused rather than clamped) makes that a knob; `--draft` asks for
+`SS=1` while a caller-set value still wins, both in `render_p_segment.py` and in `run_all.py` (before
+`import scenes`, which is where the factor is read).
+
+Measured on the fixture reel: **874 -> 215 ms per frame**, a 30-source-frame segment **14.0 s -> 4.1 s**
+(3.4x), the pipeline's chunk path **23.8 s -> 7.7 s** (3.1x), and a full master/draft comparison of
+**27.2 s -> 4.1 s (6.6x)** for the same timeline. The picture is the same preview: MAE < 1/255 and
+36-38 dB PSNR between the SS=1 and SS=3 drafts of the same frames, and the sprite itself keeps its
+size and its solid pixels while only the feathering moves (tested structurally, not by eyeballing).
+
+**A cache bug fell out of the same knob:** `build_signature` keyed chunks on source, plan, mode and
+draft — not on supersampling — so a preview chunk could have been served for a render at another
+factor. The key now carries `supersample`, and `tests/test_engine_p_chunks.py` fails if two factors
+collide. `tests/test_p_draft_supersample.py` (12) pins the validation, the sprite geometry, and both
+render paths.
+
+What this does **not** do: a real 540x960 buffer. Engine P still composes at 1080x1920 and shrinks.
+That needs the design space (1080x1920, with absolute pixel typography) separated from the device
+buffer across 41 modules — scoped in `docs/preview.md`, still open.
+
 ## Unreleased — 2026-11-10 (the weights Git does not see)
 
 **First run needs a network and ~1.5 GB of untracked state; nothing said so.** `tools/toolkit/node_modules`

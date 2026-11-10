@@ -95,7 +95,22 @@ BLACK=(3,3,3); INK=(10,10,10); RED=(203,39,27); DRED=(159,8,3); WHITE=(243,242,2
 # existing call sites and tests; write new code against BLUSH/MAUVE/SALMON.
 BLUSH=(213,174,166); MAUVE=(113,113,122); SALMON=(217,127,104); GRAY=(163,162,160); LGRAY=(201,197,194)
 EMER = BLUSH; TEAL = MAUVE; YEL = SALMON
-SS=3
+def _supersample():
+    """Sprite supersampling factor (1-4). Engine P draws every shape `SS`x larger, then LANCZOS-
+    downsamples: that is where a P frame actually spends its pixels. The master keeps 3. A draft
+    preview is delivered at 540x960 (half of the 1080p buffer), so the extra 3x supersampling is
+    invisible once the encoder halves it anyway — `REEL_SS=1` cuts the raster work ~9x without
+    touching layout, and any other value is refused rather than silently clamped."""
+    raw = os.environ.get("REEL_SS", "3").strip()
+    try:
+        value = int(raw)
+    except ValueError:
+        raise SystemExit(f"REEL_SS must be an integer 1-4, got {raw!r}")
+    if not 1 <= value <= 4:
+        raise SystemExit(f"REEL_SS must be 1-4, got {value}")
+    return value
+
+SS=_supersample()
 # ---------- easing ----------
 def clamp(x,a=0,b=1): return max(a,min(b,x))
 def prog(t,a,b): return clamp((t-a)/(b-a)) if b>a else (1.0 if t>=a else 0.0)

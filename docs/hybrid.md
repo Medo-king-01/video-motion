@@ -118,7 +118,7 @@ color=c=black:...,drawbox=...,format=gray,gblur=sigma=…,negate,setsar=1[mi];
 ## درافت سريع
 
 `python3 tools/pipeline.py <project> --draft` (أو `render_hybrid.py --draft` مباشرة) بيرندر نفس
-الخطة على 540×960 @15fps في `out/hybrid-draft.mp4`. الأساس P بياخد `--draft` (إطار من كل اتنين)،
+الخطة على 540×960 @15fps في `out/hybrid-draft.mp4`. الأساس P بياخد `--draft` (إطار من كل اتنين + `REEL_SS=1` بدل 3 في السبرايتات)،
 الأساس K والطبقات الشفافة بياخدوا `--fps 15 --scale 0.5`، والماسك بيتبني على كانفس 540×960.
 الأساس R مرفوض، والدرافت مابيدخلش QA ولا mux ولا بيلمس الماستر. التفاصيل والأرقام في
 `docs/preview.md`.

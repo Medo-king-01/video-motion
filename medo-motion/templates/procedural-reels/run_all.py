@@ -21,10 +21,17 @@ CH = int(os.environ.get("REEL_CHUNK", "276"))
 if CH <= 0:
     raise SystemExit("REEL_CHUNK must be a positive integer")
 
+# Draft preview, half the corners: a P frame spends most of its pixels supersampling sprites
+# (`lib.SS`, 3x) and LANCZOS-downsampling them. The draft is delivered at half the buffer, so the
+# extra supersample is invisible — 874 -> 215 ms/frame measured. `lib` reads this at import time,
+# which is why it has to be set before `import scenes`; an explicit REEL_SS from the caller wins.
+if os.environ.get("REEL_DRAFT") == "1":
+    os.environ.setdefault("REEL_SS", "1")
+
 import scenes
 from scenes import B
 from render_policy import motion_mode
-from lib import W, H, FONT
+from lib import W, H, FONT, SS as SUPERSAMPLE
 from chunk_utils import build_signature, expected_chunks, is_valid_chunk
 import text_direction as td
 
@@ -89,7 +96,7 @@ ranges = expected_chunks(N, CHUNK_FRAMES)
 STUDIO_ASSETS = HERE.parents[2] / "assets" / "poses"
 signature = build_signature(
     HERE, PROJECT / "assets", N, CHUNK_FRAMES, B, FPS, W, H, FONT, STUDIO_ASSETS,
-    motion_mode=MODE, draft=DRAFT,
+    motion_mode=MODE, draft=DRAFT, supersample=SUPERSAMPLE,
 )
 signature_file = CHUNK_DIR / "chunks.sig"
 previous_signature = None

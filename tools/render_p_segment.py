@@ -77,6 +77,13 @@ def main() -> int:
     old_cwd = Path.cwd()
     old_mode = os.environ.get("MEDO_MOTION_MODE")
     os.environ["MEDO_MOTION_MODE"] = args.motion_mode
+    # Engine P spends its pixels supersampling every sprite (SS=3) and LANCZOS-downsampling it.
+    # A draft is delivered at half the buffer, so that extra supersampling buys nothing the encoder
+    # keeps: SS=1 measured 874 -> 215 ms per frame with a preview-identical picture. The caller
+    # still wins when REEL_SS is set explicitly.
+    old_ss = os.environ.get("REEL_SS")
+    if args.draft and old_ss is None:
+        os.environ["REEL_SS"] = "1"
     render_times, write_times = [], []
     encoder: subprocess.Popen[bytes] | None = None
     try:
@@ -144,7 +151,8 @@ def main() -> int:
                 def quantile(q): return ordered[min(len(ordered)-1, max(0, math.ceil(q*len(ordered))-1))]
                 return {'mean': sum(values)/len(values), 'p50': quantile(.5), 'p95': quantile(.95), 'max': ordered[-1]}
             report = {'version': 1, 'engine': 'P', 'motionMode': args.motion_mode,
-                       'draft': args.draft, 'frames': draft_count if args.draft else count,
+                       'draft': args.draft, 'supersample': int(os.environ.get("REEL_SS", "3")),
+                       'frames': draft_count if args.draft else count,
                       'initMs': init_ms, 'frameRenderMs': summary(render_times), 'frameWriteMs': summary(write_times),
                       'encoderFinalizeMs': finalize_ms, 'wallMs': (time.perf_counter()-started)*1000,
                       'scope': 'Frame render and pipe write/backpressure; FFmpeg overlaps writes; finalize is remaining flush only. No GPU metrics.'}
@@ -165,6 +173,8 @@ def main() -> int:
         os.chdir(old_cwd)
         if old_mode is None: os.environ.pop("MEDO_MOTION_MODE", None)
         else: os.environ["MEDO_MOTION_MODE"] = old_mode
+        if old_ss is None: os.environ.pop("REEL_SS", None)
+        else: os.environ["REEL_SS"] = old_ss
 
 
 if __name__ == "__main__":

@@ -48,7 +48,7 @@ ASSIGNED: dict[str, tuple[str, ...]] = {
         "test_arabic_shape", "test_audio_engine", "test_audio_generate", "test_caption_align",
         "test_frame_graph", "test_hybrid_env", "test_hybrid_draft", "test_hybrid_masks", "test_hybrid_stack",
         "test_icons", "test_motion", "test_motion_effects", "test_motion_final", "test_music",
-        "test_presenter", "test_remotion_range", "test_render_policy", "test_rhythm", "test_shared_libs",
+        "test_p_draft_supersample", "test_presenter", "test_remotion_range", "test_render_policy", "test_rhythm", "test_shared_libs",
         "test_sfx",
         "test_sfx_engine",
         "test_space3d_offline", "test_text_direction", "test_tool_contracts", "test_transitions",
