@@ -43,7 +43,7 @@ def r_project(tmp_path):
     for name in ('three','@remotion/cli','@remotion/renderer','typescript','react','esbuild'):
         if not (modules/name).is_dir(): pytest.fail(f'Optional test modules incomplete: {name}')
     browser=subprocess.run(['node',str(ROOT/'tools/chromium.mjs'),'--json'],capture_output=True,text=True,timeout=90)
-    if browser.returncode: pytest.fail('Chromium unavailable for explicitly requested R Three test')
+    if browser.returncode: pytest.skip('Chromium unavailable for the opt-in R Three test (install the K toolkit first)')
     config=json.loads(browser.stdout);proj=tmp_path/'r';shutil.copytree(R,proj)
     (proj/'node_modules').symlink_to(modules,target_is_directory=True)
     for name,dest in [('ThreeReview.tsx','Root.tsx'),('three-r-scene.js','three-r-scene.js'),('three-r-harness.tsx','three-r-harness.tsx')]:
@@ -56,6 +56,7 @@ def r_project(tmp_path):
 
 
 @pytest.mark.slow
+@pytest.mark.xdist_group("remotion-bundler")
 def test_three_component_actual_react_reverse_and_remotion_stills(r_project):
     project,env=r_project
     def run(command):
@@ -83,6 +84,7 @@ def test_three_component_actual_react_reverse_and_remotion_stills(r_project):
 
 
 @pytest.mark.slow
+@pytest.mark.xdist_group("remotion-bundler")
 def test_three_arabic_directed_fact_gate_preserved_in_both_modes(r_project):
     project,env=r_project
     shutil.copy2(ROOT/'tests/fixtures/visual/ThreeArabicReview.tsx',project/'src/Root.tsx')

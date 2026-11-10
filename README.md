@@ -23,7 +23,7 @@
 | ١ | **السكريبت** (يفضل beats مرقمة + اللي يظهر على الشاشة) |
 | ٢ | **توجيه المشاهد** (إزاي عايز المشاهد تتقدم) |
 | ٣ | **صوت التعليق** (تسجيلك) |
-| ٤ | **صور ميدو** — **٤٩ وضعية جاهزة جوه المكتبة**؛ بتتطلب صورة زيادة بس لو مشهد محتاج وضعية مش موجودة |
+| ٤ | **صور ميدو** — **<!-- AUTO:poses -->49<!-- /AUTO --> وضعية جاهزة جوه المكتبة**؛ بتتطلب صورة زيادة بس لو مشهد محتاج وضعية مش موجودة |
 
 والباقي كله على الوكيل: الخلفيات والكروت والأجهزة والكابشن والحركة والمؤثرات والموسيقى
 والتوقيت وأي أصل خارجي (كود ← توليد AI ← بحث) مع تسجيل التراخيص.
@@ -34,7 +34,7 @@
 **الاستوديو أداة، مش أرشيف فيديوهات:** مجلدات `projects/` مساحة شغل مؤقتة ومستثناة بالكامل من Git،
 والفيديو اللي بيخلص بيخرج مع مجلده — فيديوهاتك القديمة مش بتتخزن في المستودع ومش بتُستخدم كمرجع لفيديو جديد.
 
-**الخطوط مجانية كلها:** ١٢٥ عيلة (٦١ عربي + ٦٤ إنجليزي) — ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)؛ الوكيل بيختار الأنسب والأجذب
+**الخطوط مجانية كلها:** <!-- AUTO:fonts -->125<!-- /AUTO --> عيلة (<!-- AUTO:fonts_arabic -->61<!-- /AUTO --> عربي + <!-- AUTO:fonts_latin -->64<!-- /AUTO --> إنجليزي) — <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)؛ الوكيل بيختار الأنسب والأجذب
 لكل مشهد/عنصر ويسجّل اختياره في `plan/text-direction.json`؛ مفيش خط افتراضي مفروض. Cairo/Inter
 مجرد شبكة أمان لكروم النظام. الأدوار والأزواج وشيت المعاينة في `docs/fonts.md`.
 
@@ -45,24 +45,24 @@
 **وطول الفيديو = طول تسجيلك بالظبط** — مفيش طول مستهدف ولا تطويل ولا قص لتوصيل رقم:
 `tools/vo_length.py` بيقيس الصوت ويطلّع منه حدود المشاهد، والمحركات التلاتة بتمشي عليه (`docs/length.md`).
 
-**الحرفة بقت مقاسة ومحكومة**: `tools/techniques.py` بيسحب حركات الريل من مكتبة **٢٢٣٩ تقنية** في ٤٤ فئة:
-- **٥٩ تقنية أصلية** من الاستيديو (philosophy-driven)
-- **١٣٧٥ تقنية** من Alansari Motion Library (٢٧٥ حركة + ١١٠٠ متغير)
-- **٦١٦ تقنية** من Opus Motion Library
-- **١٨٩ انتقال GLSL** من gl-transitions
+**الحرفة بقت مقاسة ومحكومة**: `tools/techniques.py` بيسحب حركات الريل من مكتبة **<!-- AUTO:techniques -->2,239<!-- /AUTO --> تقنية** في <!-- AUTO:technique_categories -->44<!-- /AUTO --> فئة:
+- **<!-- AUTO:techniques_studio -->59<!-- /AUTO --> تقنية أصلية** من الاستيديو (philosophy-driven)
+- **<!-- AUTO:techniques_alansari -->1,375<!-- /AUTO --> تقنية** من Alansari Motion Library (٢٧٥ حركة + ١١٠٠ متغير)
+- **<!-- AUTO:techniques_opus -->616<!-- /AUTO --> تقنية** من Opus Motion Library
+- **<!-- AUTO:techniques_glsl -->189<!-- /AUTO --> انتقال GLSL** من gl-transitions
 
 و`tools/reel_lint.py` بيفحص الخطة قبل الرندر
 (كلمات الشاشة، مدة القراءة، القطع على الشبكة، المساحات الفاضية، واللوكات الممنوعة) — الشرح والأرقام
 كلها في `docs/craft.md`، والمكتبة المقروءة في `docs/techniques.md`.
 
-**١٢٥ خط مجاني** (٦١ عربي + ٦٤ إنجليزي) — ١٢٣ SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)، تشمل Aref Ruqaa, Reem Kufi, Qahiri, Fustat, Lalezar وغيرها. الوكيل بيختار الأنسب لكل مشهد (للنماذج الضعيفة: `medo-motion/looks/shortlist.json` + `medo-motion/looks/looks.json` — ٦ Looks مقفولة: house, tech-dark, explain-paper, kinetic-hook, swiss-data, warm-story).
+**<!-- AUTO:fonts -->125<!-- /AUTO --> خط مجاني** (<!-- AUTO:fonts_arabic -->61<!-- /AUTO --> عربي + <!-- AUTO:fonts_latin -->64<!-- /AUTO --> إنجليزي) — <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)، تشمل Aref Ruqaa, Reem Kufi, Qahiri, Fustat, Lalezar وغيرها. الوكيل بيختار الأنسب لكل مشهد (للنماذج الضعيفة: `medo-motion/looks/shortlist.json` + `medo-motion/looks/looks.json` — <!-- AUTO:looks -->6<!-- /AUTO --> Looks مقفولة: house, tech-dark, explain-paper, kinetic-hook, swiss-data, warm-story) + `medo-motion/recipes/recipes.json` — <!-- AUTO:recipes -->8<!-- /AUTO --> وصفات مشاهد جاهزة (تقنية/شرح آلة/هوك حركي/خطوات/عدّاد/one-take/جدار شرائح/مقدّم).
 
-**١٦٣ ستايل بصري** (`assets/styles/styles.json`) — لغة بصرية كاملة لكل فيديو: باليت ألوان، خطوط، سطح، شخصية:
+**<!-- AUTO:styles -->163<!-- /AUTO --> ستايل بصري** (`assets/styles/styles.json`) — لغة بصرية كاملة لكل فيديو: باليت ألوان، خطوط، سطح، شخصية:
 - **١٧ ستايل** من Majed Video (keynote, paperCut, explainer, terminal, vhs, brutal...)
 - **١٤٦ ستايل** من Opus Motion Library (woodcut, risograph, neon-noir, crt-terminal...)
 [التفاصيل](docs/STYLES.md).
 
-**١٨٩ انتقال GLSL** (`assets/gl-transitions/`) — شيدورات GPU جاهزة: Accordion, Bloom, CircleIris, Cube, DoomScreen, Flash, Glitch, Morph, PageTurn, Ripple, Spiral, Wave, Zoom... [التفاصيل](docs/GL_TRANSITIONS.md).
+**<!-- AUTO:gl_transitions -->189<!-- /AUTO --> انتقال GLSL** (`assets/gl-transitions/`) — شيدورات GPU جاهزة: Accordion, Bloom, CircleIris, Cube, DoomScreen, Flash, Glitch, Morph, PageTurn, Ripple, Spiral, Wave, Zoom... [التفاصيل](docs/GL_TRANSITIONS.md).
 
 **مبادئ تصميم الحركة** (`docs/motion-principles/`) — مستوحاة من LottieFiles: 12 مبدأ ديزني مكيفة للواجهات، 4 شخصيات حركة، جداول توقيت، خرائط عاطفة→حركة. [التفاصيل](docs/MOTION_PRINCIPLES.md).
 
@@ -135,22 +135,23 @@ cd projects/my-reel && npm ci && npm run studio
 ```
 AGENTS.md              ← عقد التشغيل لأي وكيل (اقرأه الأول)
 assets/                ← مدخلات مشتركة:
-  fonts/               ← ١٢٥ عيلة (٦١ عربي + ٦٤ إنجليزي): ١٢٣ OFL + Apache-2.0 + UFL-1.0
+  fonts/               ← <!-- AUTO:fonts -->125<!-- /AUTO --> عيلة (<!-- AUTO:fonts_arabic -->61<!-- /AUTO --> عربي + <!-- AUTO:fonts_latin -->64<!-- /AUTO --> إنجليزي): <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> OFL + Apache-2.0 + UFL-1.0
   styles/              ← ١٧ ستايل بصري (styles.json)
-  techniques.json      ← ١٤٣٤ تقنية حركة
+  techniques.json      ← <!-- AUTO:techniques -->2,239<!-- /AUTO --> تقنية حركة
   poses/ · sfx/
 projects/<slug>/       ← مساحة شغل مؤقتة للفيديو (مستثناة من Git): BRIEF.md · STYLE.md · plan/ · assets/ · out/
 tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · vo_length.py · analyze_ref.py · techniques.py · reel_lint.py · machine_explainer.py · layout_audit.mjs · layout_audit_p.py · media_qa.py · stage_gate.py · phone_preview.py · asr_check.py · ffprobe_shim.py · chromium.mjs
                        · audio_generate.py (توليد موسيقى numpy/scipy بلا حقوق)
                        · icons_sheet.py · icons_preview.mjs
-                       · merge_alansari.py · add_variants.py · extract_styles.py
+                       · dev/_archive/ (6 سكربتات هجرة one-off: نتيجة تشغيلها محفوظة في assets/)
+shared/js/             ← المصدر الوحيد لمكتبات JS المشتركة بين K وR (`make sync-libs` ينسخهم)
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
 docs/                  ← التحليل + قواعد الاتساق + STYLES.md · COMPARISON_MAJED.md · ALANSARI_INTEGRATION.md
 medo-motion/           ← حزمة أدوات Video Motion: الهوية، المراجع، الأيقونات، وقوالب المحركات
   SKILL.md             ← نقطة دخول كلود كود (بتحوّل لـ AGENTS.md)
   brand/               ← الهوية: BRAND.md للبني آدم + brand.json للكود
   reference/           ← أدلة تُقرأ عند الحاجة (العربي إلزامي قبل أي نص على الشاشة)
-  icons/              ← ٢٧٥ أيقونة متحركة (١٢ بيت + ٢٦٣ من itshover): registry → SVG + محرك K + محرك P
+  icons/              ← <!-- AUTO:icons -->275<!-- /AUTO --> أيقونة متحركة (١٢ بيت + ٢٦٣ من itshover): registry → SVG + محرك K + محرك P
   motion/             ← لغة الحركة: easings.json (منحنيات motion.dev + معادلات Penner) + تايملاين + transitions.json
   styles/               ← ستايلات إلهام قابلة لإعادة الاستخدام (مش defaults مفروضة)
   templates/           ← محرك P (Pillow/OpenCV/FFmpeg) + K (Canvas/Playwright) + R (Remotion/React)
@@ -175,15 +176,15 @@ medo-motion/           ← حزمة أدوات Video Motion: الهوية، ال
 والحركة ليها لغة واحدة (`medo-motion/motion/`) بنفس منحنيات **motion.dev** وتايملاين keyframes زي **Theatre.js**:
 نفس الـJSON بيتنفّذ في المحركات التلاتة بنفس ملف حساب الحركة، وفي استوديو أوفلاين بتراجع بيه الحركة قبل الرندر — `docs/motion.md`.
 
-**ميدو بقى جوه المشروع:** **٤٩ وضعية** لنفس الشخصية (٣٠ كامل + ١٩ نصف جسم) — وقوف أساسي، تحية
+**ميدو بقى جوه المشروع:** **<!-- AUTO:poses -->49<!-- /AUTO --> وضعية** لنفس الشخصية (٣٠ كامل + ١٩ نصف جسم) — وقوف أساسي، تحية
 واحتفال، تفكير وسؤال، مشاعر وimpact، حركة، قعدة، وأجهزة وأوراق (لابتوب، موبايل، ورقة، كوباية، ساعة)،
 زائد مجموعة نصف جسم بتقرأ كـpush-in: إشارات، صمت، إنصات، حيرة، وابتسامة. كلها PNG شفاف أصلًا، بنفس
 الطول ونفس خط الأرض (والنصف جسم على دليل أعلى 190)، بحركة تنفّس وميلان — P وK عندهم أنظمة الوضعيات
 الكاملة، وR فيه `MedoPresenter` لمواضع وصور الوضعيات. الوضعية بتتطلب منك **بس** لو المشهد محتاج حاجة
 المكتبة مفيهاش. `docs/presenter.md`.
 
-**القطع والمؤثرات كمان بقوا كتالوج:** ١٤ انتقال (`wipe`, `iris`, `checker`, `slide`, `glitch`…) هندستهم
-واحدة في المحركين وكل واحد مربوط بصوته من مكتبة **١٥ مؤثر برمجي** (`whoosh`, `pop`, `impact`, `chime`…) —
+**القطع والمؤثرات كمان بقوا كتالوج:** <!-- AUTO:transitions -->14<!-- /AUTO --> انتقال (`wipe`, `iris`, `checker`, `slide`, `glitch`…) هندستهم
+واحدة في المحركين وكل واحد مربوط بصوته من مكتبة **<!-- AUTO:sfx -->20<!-- /AUTO --> مؤثر برمجي** (`whoosh`, `pop`, `impact`, `chime`…) —
 الـhits بتتولّد بالكود فالترخيص مفتوح والتزامن مظبوط للفريم. `docs/transitions.md` · `docs/audio.md`.
 
 ---
@@ -197,7 +198,7 @@ medo-motion/           ← حزمة أدوات Video Motion: الهوية، ال
 | Arabic shaping: بديل HarfBuzz+FreeType (`arabic_shape.py`) لأن Pillow هنا من غير libraqm | ✅ |
 | Chromium (من `@sparticuz/chromium`) لمحرك K | ✅ |
 | Remotion 4 (محرك R) | ✅ القالب متكامل؛ كل مشروع Remotion يثبّت تبعياته عبر `npm ci` |
-| ١٢٥ عيلة خطوط في `assets/fonts/` (١٢٣ OFL + ٢) | ✅ |
+| <!-- AUTO:fonts -->125<!-- /AUTO --> عيلة خطوط في `assets/fonts/` (<!-- AUTO:fonts_ofl -->123<!-- /AUTO --> OFL + ٢) | ✅ |
 | المحركان P وK | ✅ اتجربوا ورندروا فريمات عربية صح |
 | محرك R | ✅ رندر تجريبي بـRemotion/Chromium؛ `npm run render` يراجع WAV والتوقيت |
 | الاختبارات (`make test` · `make selftest`) | ✅ CI + اختبارات P/K/R؛ `python3 tools/selftest.py --hybrid` يرندر ويجمع محركات P/K/R مع صوت فعليًا |

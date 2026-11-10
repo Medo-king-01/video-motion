@@ -6,6 +6,8 @@
     python3 tools/pipeline.py P --engine p                     # skip auto-detection
     python3 tools/pipeline.py P --from mix                     # resume after a failure
     python3 tools/pipeline.py P --dry-run                      # print plan, run nothing
+    python3 tools/pipeline.py K --draft                        # preview: 540x960 @15fps -> out/draft.mp4
+    python3 tools/pipeline.py K --scene-cache                  # re-render only the scenes that changed
 
 Steps (fail-fast; each timed; nothing is overwritten silently):
 
@@ -126,6 +128,27 @@ def step_render(project: Path, ctx) -> tuple[int, str]:
             env["FFPROBE_BIN"] = ctx.ffprobe
         return run_cmd([sys.executable, str(project / "run_all.py")], project, env=env,
                        timeout=7200, log=ctx.log), "chunks encoded -> out/video_only.mp4"
+    if ctx.engine == "k" and ctx.scene_cache:
+        # Per-scene cache: each scene is encoded once and reused until its own module changes.
+        cmd = [sys.executable, str(ROOT / "tools" / "render_scenes.py"), str(project),
+               "--out", str(project / "out" / "master.mp4")]
+        code = run_cmd(cmd, project, timeout=7200, log=ctx.log)
+        if code != 0:
+            return code, "scene cache render failed (see cache/scenes.log)"
+        return 0, "scene-cached scenes -> out/master.mp4"
+    if ctx.engine == "k" and ctx.draft:
+        # Preview render: half resolution and half the frame rate — a review copy, never a master.
+        dur = _beats_duration_seconds(project)
+        cmd = (f'eval "$(node {ROOT}/tools/chromium.mjs --env)" && '
+               f'node src/render.js --from 0 --to {dur:.6f} --fps 15 --scale 0.5 --crf 30 '
+               f'--out out --name Draft')
+        if run_cmd(["bash", "-c", cmd], project, env=os.environ.copy(), timeout=7200, log=ctx.log) != 0:
+            return 1, "draft render failed"
+        produced = project / "out" / "Draft.mp4"
+        if not produced.is_file():
+            return 1, "draft render produced no out/Draft.mp4"
+        os.replace(produced, project / "out" / "draft.mp4")
+        return 0, "draft -> out/draft.mp4 (540x960 @15fps)"
     if ctx.engine == "k":
         dur = _beats_duration_seconds(project)
         audio = project / "out" / "final_audio.wav"
@@ -239,8 +262,11 @@ STEP_FNS = {"vo": step_vo, "lint": step_lint, "brand": step_brand, "mix": step_m
 
 
 class Ctx:
-    def __init__(self, engine: str, ffmpeg, ffprobe, mix_sheet, layout_report, log):
+    def __init__(self, engine: str, ffmpeg, ffprobe, mix_sheet, layout_report, log, draft: bool = False,
+                 scene_cache: bool = False):
         self.engine = engine
+        self.draft = draft
+        self.scene_cache = scene_cache
         self.ffmpeg = ffmpeg
         self.ffprobe = ffprobe
         self.mix_sheet = mix_sheet
@@ -258,6 +284,10 @@ def main() -> int:
     parser.add_argument("--steps", help="comma-separated subset of: " + ",".join(STEPS))
     parser.add_argument("--mix-sheet", type=Path, help="cue sheet for the mix step (default: plan/cues.json)")
     parser.add_argument("--layout-report", type=Path, help="layout audit report.json for the deliver gate")
+    parser.add_argument("--scene-cache", action="store_true",
+                        help="engine K: render each scene once into cache/scenes and reuse unchanged ones")
+    parser.add_argument("--draft", action="store_true",
+                        help="preview render: engine K at half resolution and 15fps -> out/draft.mp4")
     parser.add_argument("--dry-run", action="store_true", help="print the plan, run nothing")
     args = parser.parse_args()
 
@@ -272,6 +302,21 @@ def main() -> int:
               "Pass --engine explicitly.", file=sys.stderr)
         return 2
 
+    if args.scene_cache and args.draft:
+        print("pipeline: --scene-cache renders final-quality scenes; --draft renders one preview clip. "
+              "Pick one.", file=sys.stderr)
+        return 2
+    if args.scene_cache and engine != "k":
+        print("pipeline: --scene-cache is available for engine K only (its renderer takes absolute "
+              "frame ranges per scene; P caches whole chunks and R has no range API)", file=sys.stderr)
+        return 2
+    if args.draft and engine != "k":
+        print("pipeline: --draft is available for engine K only (P/R/hybrid would need a template-level "
+              "scale knob; rendering them at full quality and calling it a draft would lie).\n"
+              "Run the normal pipeline for this engine, or preview the K segment alone.",
+              file=sys.stderr)
+        return 2
+
     if args.steps:
         chosen = [s.strip() for s in args.steps.split(",") if s.strip()]
         bad = [s for s in chosen if s not in STEPS]
@@ -283,15 +328,26 @@ def main() -> int:
         steps = tuple(STEPS)
     if args.start:
         steps = tuple(s for s in steps if STEPS.index(s) >= STEPS.index(args.start))
+    if args.draft:
+        # A draft has no master to mux, QA against, or gate: only the preview picture is meaningful.
+        steps = tuple(s for s in steps if s == "render")
+        if not steps:
+            print("pipeline: --draft only renders; drop --from/--steps that exclude 'render'", file=sys.stderr)
+            return 2
 
     started = time.perf_counter()
     log = project / "cache" / "pipeline.log"
     log.parent.mkdir(parents=True, exist_ok=True)
     log.write_text(f"# pipeline {time.strftime('%Y-%m-%dT%H:%M:%S')} engine={engine} steps={','.join(steps)}\n",
                    encoding="utf-8")
-    ctx = Ctx(engine, _ffmpeg(), _ffprobe(), args.mix_sheet, args.layout_report, log)
+    ctx = Ctx(engine, _ffmpeg(), _ffprobe(), args.mix_sheet, args.layout_report, log,
+              draft=args.draft, scene_cache=args.scene_cache)
 
     print(f"Pipeline · {project} · engine={engine} · steps={','.join(steps)}")
+    if args.draft:
+        print("DRAFT · 540x960 @15fps · out/draft.mp4 · review copy, never a master")
+    if args.scene_cache:
+        print("SCENE CACHE · cache/scenes/<scene>-<hash>.mp4 · only edited scenes re-render")
     if args.dry_run:
         print("dry-run — commands would be logged to cache/pipeline.log; nothing executed")
         return 0

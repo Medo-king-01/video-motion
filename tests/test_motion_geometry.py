@@ -7,9 +7,11 @@ import json
 import math
 
 import pytest
-from conftest import ROOT, SKILL
+from conftest import ROOT, SKILL, requires_toolkit
 from test_motion_plan import assert_same
 from test_visual_tools import js
+
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 mg = importlib.import_module('motion_geometry')
 MODEL = SKILL / 'templates/render/lib/motion-geometry.js'
@@ -213,6 +215,7 @@ def test_k_r_ship_same_geometry_and_measurement():
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_real_geometry_frames_measurement_and_reverse_replay(tmp_path):
     import shutil
     import subprocess

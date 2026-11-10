@@ -133,11 +133,18 @@ def test_engines_hold_no_off_palette_colour():
     # and audio buffers, which share the (r,g,b) shape); here we only pin the named tokens.
     libpy = (SKILL / "templates" / "procedural-reels" / "lib.py").read_text(encoding="utf-8")
     for name, key in (("RED", "red"), ("DRED", "red_deep"), ("WHITE", "paper"),
-                      ("EMER", "blush"), ("TEAL", "ink_soft"), ("YEL", "salmon"),
+                      ("BLUSH", "blush"), ("MAUVE", "ink_soft"), ("SALMON", "salmon"),
                       ("INK", "ink"), ("GRAY", "gray_4"), ("LGRAY", "gray_2")):
         m = re.search(name + r"=\((\d+),(\d+),(\d+)\)", libpy)
         assert m, name
         assert list(map(int, m.groups())) == PALETTE[key]["rgb"], name
+
+    # The short historic names are aliases, not separate colours; the palette moved to
+    # descriptive names so a reader stops guessing what EMER/TEAL/YEL mean (A11).
+    for short, descriptive in (("EMER", "BLUSH"), ("TEAL", "MAUVE"), ("YEL", "SALMON")):
+        assert re.search(rf"\b{short} = {descriptive}\b", libpy), short
+    scenes = (SKILL / "templates" / "procedural-reels" / "scenes.py").read_text(encoding="utf-8")
+    assert re.search(r"\bGOLD = BLUSH\b", scenes)
 
 
 def test_brand_check_runs_clean():

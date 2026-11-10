@@ -36,7 +36,7 @@ def make_bgs():
     return np.ascontiguousarray(d.astype(np.float32)),np.ascontiguousarray(l.astype(np.float32))
 BGD,BGL=make_bgs()
 T={'dark':True}
-INK2=(3,3,3); GOLD=(213,174,166)
+INK2=(3,3,3); BLUSH=(213,174,166); GOLD = BLUSH   # GOLD is the legacy name for the blush accent
 THEME=[0,0,1,0,1,0,1]
 GRID=[(3,3,3),(64,-18,10),(159,8,3),(88,0,-22),(3,3,3),(80,-16,0),(3,3,3)]
 def bg_frame(k,t):

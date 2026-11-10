@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "medo-motion"
 ENGINE_P = SKILL / "templates" / "procedural-reels"
@@ -836,6 +838,21 @@ console.log(JSON.stringify({{ graph, drawOps, boxes, issues }}));
         assert p_op["depth"] == pytest.approx(j_op["depth"], abs=1e-4)
 
 
+def _run_remotion(command, cwd, env):
+    """Run the Remotion launcher, retrying once on its transient bundler 404.
+
+    Under `pytest -n 2` the bundler occasionally serves the studio before the webpack bundle
+    directory exists ("The requested path (/tmp/remotion-webpack-bundle-…/index.html) could not
+    be found"); a second launch rebuilds it. Only that marker is retried — a layout failure or a
+    real render error must fail the test on the first attempt.
+    """
+    result = subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True, timeout=180)
+    output = result.stdout + "\n" + result.stderr
+    transient = "remotion-webpack-bundle" in output and "could not be found" in output
+    if result.returncode != 0 and transient:
+        result = subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True, timeout=180)
+    return result
+
 @pytest.fixture(scope="module")
 def _remotion_runtime(tmp_path_factory):
     """Prepare Remotion node_modules + shared Chromium once for real Engine R renders."""
@@ -929,6 +946,7 @@ def _make_remotion_project(tmp_path: Path, modules_dir: Path, root_tsx: str) -> 
     return proj
 
 
+@pytest.mark.xdist_group("remotion-bundler")
 def test_remotion_machine_diagram_real_render_active_and_inactive_states(tmp_path: Path, _remotion_runtime):
     from PIL import Image, ImageChops  # noqa: PLC0415
 
@@ -1031,16 +1049,12 @@ export const RemotionRoot: React.FC = () => (
 
     def render_still(frame_idx: int, name: str) -> Image.Image:
         out_file = proj / name
-        r = subprocess.run(
+        r = _run_remotion(
             [
                 "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
                 "MachineRealTest", str(out_file), f"--frame={frame_idx}", "--log=error",
             ],
-            cwd=proj,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=180,
+            proj, env,
         )
         assert r.returncode == 0, r.stdout + "\n" + r.stderr
         return Image.open(out_file).convert("RGB")
@@ -1075,6 +1089,7 @@ export const RemotionRoot: React.FC = () => (
     assert int(txt_act.max()) > 180, "DirectedText Arabic callout must render visible ink during active step"
 
 
+@pytest.mark.xdist_group("remotion-bundler")
 def test_remotion_layout_audit_catches_multiline_arabic_overflow_and_right_rail(tmp_path: Path, _remotion_runtime):
     modules_dir, env = _remotion_runtime
     spec = {
@@ -1208,17 +1223,13 @@ export const RemotionRoot: React.FC = () => (
     proj = _make_remotion_project(tmp_path, modules_dir, root_tsx)
 
     def run_mode(mode: str):
-        return subprocess.run(
+        return _run_remotion(
             [
                 "node", "scripts/launch-remotion.mjs", "still", "src/index.ts",
                 "LayoutGateTest", str(proj / f"{mode}.png"),
                 "--frame=48", f'--props={json.dumps({"mode": mode})}',
             ],
-            cwd=proj,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=180,
+            proj, env,
         )
 
     # 1. Short single-line centered Arabic text at calloutY=1235 fits inside [200..1350] and x=[300..780] -> PASS

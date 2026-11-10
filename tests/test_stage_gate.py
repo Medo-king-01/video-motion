@@ -10,6 +10,7 @@ from pathlib import Path
 
 import av
 import numpy as np
+import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
@@ -17,6 +18,8 @@ sys.path.insert(0, str(ROOT / "tools" / "lib"))
 
 import stage_gate  # noqa: E402
 from media_bin import ffmpeg  # noqa: E402
+
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 
 def _make_vo24(path: Path, duration: float = 3.0, sr: int = 24000, channels: int = 1) -> Path:

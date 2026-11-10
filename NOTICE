@@ -1,0 +1,63 @@
+# NOTICE — third-party components
+
+Video Motion itself is proprietary (see [`LICENSE`](LICENSE)). This file records the
+third-party components that ship with, or are invoked by, the repository, the license
+each one keeps, and where its notice lives. It is a map, not a replacement for the
+licenses themselves: the binding text is the license file next to each component.
+
+Verified against the manifests on 2026-11-10 (`assets/fonts/fonts.json`,
+`tools/font-packages.lock.json`, `tools/toolkit/package-lock.json`,
+`medo-motion/templates/remotion/package-lock.json`, `tools/requirements*.txt`).
+
+## 1. Bundled assets
+
+| Component | Where | License | Notice |
+|---|---|---|---|
+| **Fonts — 125 families** (123 SIL OFL 1.1 + Permanent Marker + Ubuntu) | `assets/fonts/<Family>/` | SIL OFL 1.1 (123) · Apache-2.0 (Permanent Marker) · Ubuntu Font Licence 1.0 (Ubuntu) | `OFL.txt` / `LICENSE.txt` / `UFL.txt` inside each family folder; manifest `assets/fonts/fonts.json`; download pins in `tools/font-packages.lock.json` |
+| **itshover animated icons — 263** | `medo-motion/icons/itshover/` | Apache-2.0 | `medo-motion/icons/itshover/LICENSE`; upstream registry kept as `upstream-registry.json`; generated files list their source id |
+| **Presenter pose library — 49 cut-outs** | `assets/poses/` | Proprietary — owned by the project owner (delivered 2026-11-01), not an external library | `assets/CREDITS.md` §Presenter poses |
+| **gl-transitions — 189 GLSL shaders** | `assets/gl-transitions/` | Upstream repository declares no SPDX license (GitHub reports `NOASSERTION`); verify the upstream terms before redistributing outside this project | Source and mapping: `docs/GL_TRANSITIONS.md`; upstream: github.com/gl-transitions/gl-transitions |
+| **Procedural SFX and music** | generated at render time by `sfx.py`, `music.py`, `audio_engine.py` | Original work (no samples, no external audio) — proprietary | `docs/audio.md`, `docs/music.md`, `assets/CREDITS.md` |
+
+Fonts and icons keep their notices when the project's own files are modified or parts
+are redistributed. Brand logos inside the icon library (Google, Apple, OpenAI, …) are
+trademarks of their owners and are not licensed for use as a brand or logo.
+
+## 2. Adapted methodologies (no upstream code vendored)
+
+| Source | License | What was taken | Record |
+|---|---|---|---|
+| cinetic — github.com/Leonxlnx/cinetic | MIT © 2026 Leonxlnx | measured editing/typography norms; the move library is rewritten against this studio's primitives | `docs/craft.md`, `assets/CREDITS.md` |
+| majedphotos/video-ad-editor | MIT © 2026 Majed Alzaabi | kashida/mixed-run typography, phrase captions, isometric kit, shutter blur, phone preview, ASR QA — re-implemented | `docs/video-ad-editor-fit.md`, `docs/audio-engine-audit.md` |
+| wheresryan22/anatomy | MIT | isometric projection idea only | `assets/CREDITS.md` |
+| remotion-dev/skills (v4.0.541) | no license declared upstream | knowledge-level adaptation only; no upstream file is copied or redistributed | `docs/remotion-skill.md`, `medo-motion/skills/remotion/SKILL.md` |
+| LottieFiles motion principles | reference only | Disney principles and timing tables re-written for UI motion | `docs/motion-principles/` |
+
+## 3. Runtime dependencies (not vendored in Git)
+
+| Component | Version / pin | License | Notes |
+|---|---|---|---|
+| **Remotion** (`remotion`, `@remotion/cli`, `@remotion/renderer`) | 4.0.539 (exact) | Remotion License (source-available; companies may need a paid company license) | Installed per R project via `npm ci`; see `medo-motion/templates/remotion/package.json` and `docs/remotion-skill.md` |
+| React / React DOM | 19.3.1 | MIT | R template |
+| TypeScript | 5.9.3 | Apache-2.0 | R template dev dependency |
+| **playwright-core** | `^1.58.0` in `tools/toolkit/package.json`, resolved by the lockfile | Apache-2.0 | Drives engine K |
+| **@sparticuz/chromium** | `^138.0.0` in `tools/toolkit/package.json`, resolved by the lockfile | MIT | Bundles Chromium; Chromium's own BSD-style notices ship inside the package |
+| **FFmpeg** | static build via `imageio-ffmpeg` (0.6.0) | `imageio-ffmpeg` is BSD-2-Clause; the bundled FFmpeg binary keeps its own LGPL/GPL terms depending on the build | Not committed — resolved at setup; `FFMPEG_BIN` / `MEDO_FFMPEG` override |
+| Python runtime set | pinned in `tools/constraints.txt` | Pillow MIT-CMU · NumPy BSD-3-Clause · SciPy BSD-3-Clause · OpenCV Apache-2.0 · PyAV BSD-3-Clause · uharfbuzz Apache-2.0 · svgpathtools MIT · pytest MIT · pytest-xdist & execnet MIT · ruff MIT | See each package's own LICENSE |
+| Optional ASR set | `tools/requirements-align.txt` | faster-whisper / CTranslate2 under their own licenses; Whisper model weights fetched separately | Only installed when aligning captions |
+
+No Python or npm package is vendored as source in this repository; the two
+`package-lock.json` files and `tools/constraints.txt` pin what gets installed.
+
+## 4. Trademarks
+
+All product names, logos and brands referenced by the studio (including those in the
+icon library) are the property of their respective owners and are used descriptively.
+They are not licensed by this repository and must not be used as the identity of a
+derived product. The studio deliberately has no on-screen logo of its own.
+
+## 5. Reporting a licensing problem
+
+If you believe a component is attributed incorrectly or a notice is missing, open an
+issue with the file path and the upstream source. Provenance is recorded per asset in
+[`assets/CREDITS.md`](assets/CREDITS.md); that file is the first place to correct.

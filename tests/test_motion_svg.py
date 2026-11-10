@@ -4,12 +4,14 @@ from __future__ import annotations
 import json
 
 import pytest
-from conftest import SKILL
+from conftest import SKILL, requires_toolkit
 from PIL import Image
 from svg_art import draw_svg_art, svg_placement, validate_svg_art
 from svg_compile import compile_svg, parse_d
 from test_motion_plan import assert_same
 from test_visual_tools import js
+
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 MODEL = SKILL / 'templates/render/lib/svg-art.js'
 SVG = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -106,6 +108,7 @@ def test_nonuniform_transform_is_supported_only_without_stroke():
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_real_k_svg_replay_and_profile_does_not_change_frames(tmp_path):
     import os
     import shutil

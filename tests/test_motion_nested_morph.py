@@ -5,12 +5,14 @@ import copy
 import json
 
 import pytest
-from conftest import SKILL
+from conftest import SKILL, requires_toolkit
 from motion_plan import compile_nested_sequence
 from svg_compile import compile_svg
 from svg_morph import compile_svg_morph
 from test_motion_plan import assert_same
 from test_visual_tools import js
+
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 NESTED = SKILL / 'templates/render/lib/motion-plan.js'
 MORPH = SKILL / 'templates/render/lib/svg-morph.js'
@@ -147,6 +149,7 @@ def test_morph_and_nested_reject_nonfinite_sample_times():
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_real_nested_svg_morph_reverse_replay(tmp_path):
     import shutil
     import subprocess

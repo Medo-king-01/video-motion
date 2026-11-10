@@ -14,6 +14,8 @@ from render_policy import decorative_time, motion_mode
 from resource_scope import ResourceScope
 from test_visual_tools import js
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 
 def test_decorative_clock_never_changes_scene_time_and_validates():
     assert decorative_time(1.2, 'normal') == 1.2

@@ -12,6 +12,15 @@ $PY -m ruff check . 2>/dev/null || ruff check .
 echo "== pytest =="
 $PY -m pytest -q
 
+echo "== docs numbers =="
+$PY tools/sync_docs_numbers.py --check
+
+echo "== ci groups =="
+$PY tools/ci_groups.py --check
+
+echo "== shared libs (K/R parity) =="
+$PY tools/sync_shared_libs.py --check
+
 echo "== technique library =="
 $PY tools/techniques.py --validate
 $PY tools/techniques.py --markdown docs/techniques.md --check

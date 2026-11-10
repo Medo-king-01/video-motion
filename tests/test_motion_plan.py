@@ -8,8 +8,10 @@ import subprocess
 import sys
 
 import pytest
-from conftest import ROOT, SKILL
+from conftest import ROOT, SKILL, requires_toolkit
 from test_visual_tools import js
+
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 P = SKILL / 'templates/procedural-reels'
 sys.path.append(str(P))
@@ -148,6 +150,7 @@ def test_rollout_preserves_all_decisions_and_excludes_authoring():
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_plan_fixture_real_frames_and_reverse_replay(tmp_path):
     import shutil
     project = tmp_path / 'project'

@@ -10,11 +10,13 @@
 
 ### الإحصائيات النهائية
 
-| | قبل | بعد | التحسن |
+| | قبل | بعد (لقطة تاريخية) | التحسن |
 |---|---|---|---|
 | **التقنيات** | 59 | **1434** | **+2330%** |
-| **الخطوط** | 21 | **125** | **+495%** |
+| **الخطوط** | 21 | **<!-- AUTO:fonts -->125<!-- /AUTO -->** | **+495%** |
 | **الفئات** | 13 | **27** | **+108%** |
+
+> لقطة تاريخية وقت دمج Alansari. الإجمالي الحالي بعد دمج Opus وgl-transitions: **<!-- AUTO:techniques -->2,239<!-- /AUTO --> تقنية** في **<!-- AUTO:technique_categories -->44<!-- /AUTO --> فئة**.
 
 ## الفئات المضافة
 
@@ -148,8 +150,8 @@ for tech in captions:
 
 ## الأدوات
 
-- `tools/merge_alansari.py` - سكريبت الدمج
-- `tools/generate_techniques_docs.py` - توليد التوثيق
+- `tools/dev/_archive/merge_alansari.py` - سكريبت الدمج (مؤرشف؛ نتيجته محفوظة في `assets/techniques.json`)
+- `tools/dev/_archive/generate_techniques_docs.py` - توليد التوثيق (مؤرشف؛ الأرقام الرسمية يولّدها `tools/sync_docs_numbers.py`)
 - `tools/techniques.py` - أدوات الاستيديو الأصلية (تدعم التقنيات الجديدة)
 
 ## الإحصائيات
@@ -157,7 +159,8 @@ for tech in captions:
 - **التقنيات الأصلية**: 59
 - **حركات Alansari الأساسية**: 275
 - **المتغيرات (Fast/Slow/Gold/Boxed)**: 1100
-- **الإجمالي**: 1434
+- **الإجمالي بعد دمج Alansari** (لقطة تاريخية): 1,434
+- **الإجمالي الحالي** (بعد Opus + gl-transitions): **<!-- AUTO:techniques -->2,239<!-- /AUTO --> تقنية** في **<!-- AUTO:technique_categories -->44<!-- /AUTO --> فئة**
 - **الفئات**: 27 (13 أصلية + 14 جديدة)
 
 ## المتغيرات (Variants)

@@ -69,7 +69,23 @@ projects/my-reel/
 
 ## سياسة الاعتماديات
 
-- `tools/requirements.txt`: runtime؛ `requirements-dev.txt`: runtime + pytest/Ruff.
+- **الاختبارات في الـCI مقسومة 3 مجموعات متوازية**: `contracts` (عقود ووثائق وبراند)
+  · `unit` (تشكيل عربي/صوت/رياضيات الحركة) · `render` (Chromium وFFmpeg ووسائط).
+  `python3 tools/ci_groups.py --check` بيمنع أي ملف اختبار إنه يقع بره التقسيم،
+  والـPR بيشغّل التلاتة كلهم — مش عيّنة.
+- **أرقام الوثائق مولّدة**: أي رقم محصور بين علامتَي `AUTO` (تعليق HTML فيه اسم المفتاح)
+  بيتحسب من المكتبة بـ`tools/sync_docs_numbers.py`؛ عدّل المكتبة ثم `make docs-sync`،
+  و`make docs-numbers` هو فحص الـCI. ممنوع كتابة رقم المكتبة بإيدك.
+- **حلقة سريعة محليًا**: وحدات التصيير وChromium والمزج موسومة بـ`slow`، فـ`pytest -m 'not slow'`
+  بيجيب 938 اختبار في ~32 ثانية بدل ~9 دقايق. العلامة محلية بس؛ مجموعات الـCI بتشغّل كل حاجة.
+- **مكتبات JS مشتركة**: `shared/js/` هو النسخة الوحيدة اللي تتعدّل؛ K (`templates/render/lib`)
+  وR (`templates/remotion/src/lib`) بياخدوا نسخًا حقيقية عشان المشروع المسكافلد يفضل قايم لوحده.
+  `make sync-libs` ينسخ، و`make check-libs` (وبوابة CI) يفشل عند أي انحراف أو نسخة مكرّرة بإيد.
+- **اختبارات محتاجة المتصفح بتتخطى مش بتفشل**: من غير `tools/toolkit` (أو من غير node) بيتكتب
+  `SKIPPED` برسالة فيها أمر التثبيت بدل 8 اختبارات حمراء على بيئة Python بس.
+- **تغطية**: `make coverage` بيشغّل الحزمة كاملة ويكتب تقرير (`coverage.xml` + الطرفية) — **بدون عتبة**؛
+  الرقم للقراءة مش للبوابة لحد ما الفجوة تبقى معروفة.
+- `tools/requirements.txt`: runtime؛ `requirements-dev.txt`: runtime + pytest/Ruff/pytest-xdist.
 - الاتنين بيستخدموا `tools/constraints.txt`: إصدارات مراجعة للتبعيات الأساسية والمتعدية المعروفة، مش lock شامل
   لكل نظام/معمارية أو لحزم ASR الاختيارية. حدّث القيود عمدًا وجرب مصفوفة CI والـselftest؛ متشيلهاش عشان تعدّي install.
 - Python 3.10 بيستخدم Pillow 12.3؛ Python 3.11+ بيستخدم Pillow 13.0. **تنبيه أمني:** إصلاحات Pillow الأحدث

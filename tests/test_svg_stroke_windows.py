@@ -14,6 +14,8 @@ from svg_art import draw_svg_art, svg_stroke_windows
 from svg_compile import compile_svg
 from test_visual_tools import js
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 K = SKILL / 'templates/render'
 R = SKILL / 'templates/remotion'
 SOURCE = '<svg viewBox="0 0 100 100"><path fill="none" stroke="#0A0A0A" stroke-width="4" d="M10 25L90 25 M10 75L90 75"/></svg>'

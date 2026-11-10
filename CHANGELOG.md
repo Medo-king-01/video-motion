@@ -1,5 +1,186 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (CI: Remotion bundlers no longer race)
+
+**Remotion render tests are pinned to one xdist worker.** The two real-render tests in
+`test_machine_explainer.py` and the two bundling tests in `test_three_remotion.py` now carry
+`@pytest.mark.xdist_group("remotion-bundler")` (registered in `pyproject.toml`). Under
+`pytest -n 2 $(tools/ci_groups.py render)` they occasionally collided on a webpack bundle and one
+failed with `The requested path (/tmp/remotion-webpack-bundle-…/index.html) could not be found`;
+the same tests pass solo and serially. Grouping removes the first race without slowing the cheap
+tests in those files (only the four bundling ones are pinned), and the shared `_run_remotion`
+helper retries **once** when the launcher reports that exact bundler 404 — never on a layout or
+render assertion, so a real failure still fails the first time.
+
+Checked while chasing that flake and **left as designed**: `templates/remotion/package.json`
+forces `overrides: {"zod": "^4.6.7"}`, which makes every R render log
+`Version mismatch: zod: installed 4.6.7, required 4.5.4`. That override is deliberate — it is
+pinned by `tests/test_remotion_skill.py`, explained in `docs/remotion-skill.md` and
+`medo-motion/skills/remotion/SKILL.md` (kept until Remotion supports Zod 4.6.x natively), and the
+warning does not stop a render: the failure above was a missing webpack bundle directory, and the
+retry rebuilt it. Removing the override would silence the warning at the cost of a documented
+upgrade policy, so it stays.
+
+## Unreleased — 2026-11-10 (batch 3, part 3: per-scene cache)
+
+**`tools/render_scenes.py` + `pipeline.py --scene-cache` — editing one scene costs one scene.**
+Engine K already renders an absolute range, so each scene is encoded once into
+`cache/scenes/<id>-<hash>.mp4`. The key is the shared layer (`data.js`, `main.js`, `render.js`,
+`index.html`, every `src/lib/*.js`, fps/scale/crf) plus that scene's own module and timing — so
+touching `outro.js` leaves `intro`'s key, file, and mtime untouched. Hits are re-verified with
+ffprobe (1080×1920 and exact frame count); the final file is a `-c copy` concat of identical
+encoder settings, with the soundtrack muxed once at the end. `cache/scenes/manifest.json` records
+hit/miss and seconds per scene, and the output is never overwritten without `--force`. P caches
+whole chunks and R has no range API, so `--scene-cache` on those exits `2` instead of pretending.
+Measured on a two-scene project: first run 0 miss→2, second run all hits (~0.3 s), after editing
+one scene `hits=1 misses=1`. `tests/test_render_scenes.py` (7, one real acceptance render) and
+`tests/test_pipeline.py` +2.
+
+## Unreleased — 2026-11-10 (batch 3, part 2: draft preview)
+
+**`pipeline.py --draft` — a review copy in a fraction of the render time.** Engine K renders at
+`--scale 0.5 --fps 15 --crf 30` straight from the same scene code into `out/draft.mp4`
+(540×960); the temporary `Draft.mp4` is renamed, so `out/` never holds two copies. A draft runs
+the `render` step only — there is no master to mux, no QA against it, and no delivery gate, and
+the timing still lands in `cache/pipeline-timings.json` so preview-vs-final is two numbers.
+`--draft` on P/R/hybrid exits `2` with a reason: those templates have no scale knob, and
+rendering at full quality then downscaling would be a lie. Measured here on a 2-second K scene:
+4.3 s master → 1.4 s draft. `tests/test_pipeline.py` +4 (command shape, rename, missing-output
+failure, one real 540×960 render).
+
+## Unreleased — 2026-11-10 (batch 3: alpha layers · HTML QA report · time to first video · doctor fixes)
+
+**Hybrid v2 — a transparent K layer over a P/R base.** `plan/hybrid.json` version 2 replaces
+"one engine owns the whole frame" with `layers`: an opaque base plus at most one K layer rendered
+with `--alpha`. `render/main.js` clears the canvas instead of filling it black when
+`params.alpha=1`; `render/render.js --alpha` writes a transparent PNG sequence (refuses `--jpg`,
+forces 30 fps, no encoder); `tools/render_hybrid.py` composites with
+`[0:v][1:v]overlay=format=auto` and `-frames:v` from the frame delta (not `-shortest`), writes
+through a temp file plus `os.replace`, and reports `overlays` under `--profile`. v1 plans are
+normalised on read, so no existing project breaks; `engine`+`layers` together, an alpha P/R base,
+or two overlays are explicit errors. Pinned by `tests/test_hybrid.py` (25) and
+`tests/test_hybrid_layers.py` (3 real-FFmpeg renders).
+
+**`tools/qa_report.py` — the QA page a human can actually read.** One self-contained HTML page
+(RTL Arabic) with the status, the media facts, the contact sheet, every Final Media QA item, the
+`reel_lint` findings, the thresholds that were applied, and the raw JSON. The sheet is embedded as
+base64, so the page has no network references and works from `file://`. It never overwrites an
+existing report without `--force`, and exits `0` when the page was written even if the video failed
+QA — the failure belongs on the page, not in the exit code. `tests/test_qa_report.py` (4).
+
+**`tools/time_to_first_video.py` — "time to first video" is a number now.** Scaffolds a real K
+project from nothing, times the five phases separately (toolkit deps, scaffold, plan, Chromium
+render, ffprobe verification), and refuses to call a run successful unless the produced MP4 has the
+requested duration. The documented target is 180 s on the reference laptop (Quadro M3000M, 4 GB,
+2 vCPU) — `docs/ttfv.md` states it, `docs/metrics/ttfv.json` carries the measured runs, and
+`tests/test_ttfv.py` keeps the prose equal to `TARGET_SECONDS` and exercises one real render.
+
+**`make doctor` now suggests the repair.** Every `Finding` carries a `fix` command (pip package,
+`make fonts`, `npm ci --prefix tools/toolkit`, `bash tools/setup.sh`, `nvm install 20`, …). The
+report prints `fix:` under each capability that is not OK, then one deduplicated numbered
+"Suggested fixes" list; `--json` exposes `fix` per finding plus a top-level `fixes` array;
+`--fix` prints the commands only (no prose) and exits non-zero while anything is BLOCKED. Nothing
+is executed: the doctor stays read-only. `tests/test_doctor.py` (6) and a rename of the R
+capability to `engine R scaffold`.
+
+## Unreleased — 2026-11-10 (one copy of the shared JS · skips instead of red tests · coverage · smaller functions)
+
+**A5 — one copy of the shared JS.** 27 libraries (7,277 lines) were byte-identical copies in
+`templates/render/lib` and `templates/remotion/src/lib`; one forgotten copy meant silent
+divergence. `shared/js/` is now the only editable copy, `tools/sync_shared_libs.py --write`
+(`make sync-libs`) refreshes both engines, and `--check` (`make check-libs`, wired into
+`tools/ci.sh`) fails on a missing copy, a drifted copy, or a file that appears in both engines
+but not in `shared/js`. `tests/test_shared_libs.py` pins it with 35 tests, including one `cmp`
+per shared file. No bundler, no build step: both engines still ship real, self-contained files.
+
+**A2 — the absolute-path migration scripts are archived.** `add_variants`, `merge_alansari`,
+`merge_opus`, `merge_gl_transitions`, `extract_styles` and `generate_techniques_docs` all read
+`/home/user/video-motion/...` (four also read `/tmp/...`) and none is referenced by code, tests
+or CI. They now live in `tools/dev/_archive/` with a README mapping each script to the asset it
+produced and to the test that guards that asset today; README and `docs/ALANSARI_INTEGRATION.md`
+point at the archive instead of implying they run.
+
+**A7 — a Python-only checkout skips the browser tests instead of failing them.** Eight tests
+turned red on a machine that had installed only the Python side, because they launched Chromium
+without a guard. `conftest.py` now exposes `requires_toolkit` (node + `tools/toolkit`'s
+playwright-core and bundled Chromium) and the eight tests carry it; the opt-in Render-Smoke
+helpers use `pytest.skip` with the install command instead of `pytest.fail`. Result: `8 skipped`
+with an actionable reason, not a red build.
+
+**A12 — `inspect_media` is 159 lines, not 454.** Split into eleven helpers
+(`_check_faststart`, `_probe_streams`, `_scan_frames`, `_check_durations`, `_check_bitrate`,
+`_check_frame_zero`, `_report_black_runs`, `_report_freeze_runs`, `_check_audio`, `_write_sheet`,
+`_verdict`) around one orchestrator. Behaviour is pinned: reports for eight scenarios (master,
+preview, video-only, black first frame, short clip, strict, missing file, bad mode) are
+byte-identical before and after (`diff` = 0), and `tests/test_media_qa.py` still passes.
+
+**A11 — the palette says what it is.** `lib.py` defines `BLUSH/MAUVE/SALMON` and keeps
+`EMER/TEAL/YEL` as documented aliases; `scenes.py` aliases `GOLD` to `BLUSH` (same colour, honest
+name). `tests/test_brand.py` checks the descriptive names against `brand.json` and asserts the
+aliases still resolve.
+
+**Tests — `audio_generate.py` has contracts now.** 45 tests for the 565-line SFX/bed generator:
+48 kHz constant, dB helper, constant-power pan, 24-bit WAV round-trip, the sample-rate guard,
+every documented SFX kind (stereo, finite, ≤ 1.0, deterministic per seed, anchor ≥ 0), bed length
+and reproducibility, every `resolve_at` cue form, the limiter ceiling, and the `--audition` CLI
+path. Writing them found a real bug: `read_wav` decoded 24-bit files — the exact format
+`write_wav` produces — as if they were 32-bit, so a round-trip lost half the frames. Fixed, and
+both WAV helpers now accept `Path` objects.
+
+**Coverage — a number, not a gate.** `pytest-cov` is in `tools/requirements-dev.txt`
+(pinned in `constraints.txt`), `make coverage` writes a terminal report plus `coverage.xml`, and
+a non-blocking CI job keeps the XML. No `fail_under`: this first full run measures
+**60% (7,763 of 19,346 statements missed)**. The gap is concentrated in tools nobody exercises
+(`gen_tts_elevenlabs` 0%, `selftest` 0%, `beats_check` 0%, `music_kit` 0%), `reel_lint` at 19%,
+and `scenes.py` at 38%; subprocess-only tools (`brand_check`) read as 0% because coverage does
+not follow children.
+
+## Unreleased — 2026-11-10 (docs numbers are generated · PRs run the whole suite · explicit license)
+
+**A1 — one source for every documented count.** `tools/sync_docs_numbers.py` measures the
+libraries on disk (techniques and their four sources, fonts and their licences, poses, icons,
+styles, GLSL transitions, catalog transitions, text animations, backgrounds, looks, recipes,
+SFX, music presets) and writes the value between named `AUTO` slots (small HTML comments) in
+the docs. `--check` is a CI gate; `tests/test_docs_numbers.py` (9 tests) fails on drift, on an
+unknown key, on a deleted slot, and on the four historic technique totals coming back as
+hand-written numbers. Wired into `make docs-numbers` / `make docs-sync` and `tools/ci.sh`.
+The stale values are gone: README said 1,434 in one place and 2,239 in another, AGENTS.md and
+DESIGN_SYSTEM.md said 59, the legacy `generate_techniques_docs.py` said 334 — the real library
+is **2,239 techniques in 44 categories**. The SFX row was also wrong (15 → 20).
+`tools/README.md` no longer claims `make test` takes "~3 seconds" (measured: ~9 minutes serial).
+
+**A14 — a real quick loop.** The `slow` marker was decorative (it skipped 25 of 1,394 tests and
+saved a minute). The heavy render/synthesis/Chromium modules are now marked at module level:
+`pytest -m 'not slow'` runs **938 tests in ~32s**, and `pytest -m slow` keeps the 553 rendering
+tests for when you want them. The marker stays local — CI ignores it and runs every group.
+
+**A3 — pull requests run all 1,394 tests, in three parallel groups.** `tools/ci_groups.py`
+splits the suite into `contracts` (28 files: docs, schemas, brand, fonts, lint policy, skills),
+`unit` (17: Arabic shaping, audio DSP, motion maths, icons) and `render` (35: Chromium, FFmpeg,
+media QA), with unassigned files defaulting to `render`. `--check` fails if a test file is
+unassigned, listed twice, or missing, and if `ci.yml` stops running a group.
+`tests/test_ci_groups.py` (9 tests) guards the split. `ci.yml` is now four jobs — static
+contracts, contracts, unit, render-smoke — all installing `tools/requirements-dev.txt` and
+running with `pytest-xdist -n 2`; the render job also keeps the 3-frame Engine-P smoke render.
+Measured on this machine: contracts 12s, unit 29s, render 5m31s (full suite was 8m49s serial
+and the PR job ran only 12 of 78 files). `pytest-xdist==3.8.0` + `execnet==2.1.2` pinned in
+`tools/constraints.txt`.
+
+**A6 + A15 — CI hygiene.** The dead `feat/deterministic-motion-effects` push triggers are gone
+(`full-renderers` is nightly/manual only, the two Remotion workflows push on `main`), every
+action is pinned to a commit SHA, the fast job installs the pinned requirements instead of
+unversioned packages, and Node caches now include both lockfiles.
+
+**A9 — explicit licence.** Root `LICENSE` (proprietary, all rights reserved, Arabic + English)
+and `NOTICE` (bundled assets, adapted methodologies, runtime dependencies, trademarks) make the
+posture visible without changing it; `medo-motion/LICENSE.md` and `assets/CREDITS.md` stay the
+detailed records.
+
+**Fix found by the parallel run:** `new_project.py` copied a template's `node_modules` into the
+new project when a developer had installed the R dependencies inside the template, which made
+scaffolds huge and collided with the test fixture's staged `node_modules`. `_copy_template()`
+now ignores `node_modules`, `out`, `cache`, `.remotion`, `dist`, `__pycache__` and `*.mp4`.
+
 ## Unreleased — 2026-11-09 (deterministic pipeline runner — option 3 of the stage-gate discussion)
 
 - **`tools/pipeline.py` (new) + `make pipeline P=projects/<slug>`**: the deterministic steps of a reel run end-to-end with fail-fast and per-step timing — `vo` (vo_length --check) → `lint` → `brand` → `mix` (audio_mix.py; skipped when `out/final_audio.wav` exists, SKIP note when no `plan/cues.json`) → `render` (engine dispatch: P = `run_all.py` with `REEL_DIR`; K = `src/render.js --crf 13` the full `plan/beats.json` timeline with optional `--audio`; R = `npm ci` when needed + the VO-gated `npm run render -- --audio <vo> --out out/master.mp4`; Hybrid = `tools/render_hybrid.py`) → `mux` (P only, the documented `-map 0:v -map 1:a -shortest +faststart` ffmpeg line into `out/master.mp4`) → `qa` (`media_qa.py`; master mode with audio, honest video-only mode without) → `gate` (`stage_gate.py --stage deliver --media <master>`; pass `LAYOUT=report.json` for the layout audit). **No creative decisions are made anywhere** — looks, recipes, styles, fonts, copy remain agent/human choices upstream.

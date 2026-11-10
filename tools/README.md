@@ -4,14 +4,21 @@
 
 | الأداة | بتعمل إيه | مثال |
 |---|---|---|
-| `setup.sh` | بتثبت كل الناقص: python deps (من `requirements.txt`) · ffmpeg · بديل ffprobe · الخطوط (المخزّنة محليًا في `assets/fonts/`، ١٢٥ عيلة — ١٢٣ OFL + ٢) · كروميوم | `bash tools/setup.sh` |
-| `doctor.py` | تقرير READY / DEGRADED / BLOCKED لكل قدرة، بسبب واضح | `python3 tools/doctor.py` |
+| `setup.sh` | بتثبت كل الناقص: python deps (من `requirements.txt`) · ffmpeg · بديل ffprobe · الخطوط (المخزّنة محليًا في `assets/fonts/`، <!-- AUTO:fonts -->125<!-- /AUTO --> عيلة — <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> OFL + ٢) · كروميوم | `bash tools/setup.sh` |
+| `doctor.py` | تقرير READY / DEGRADED / BLOCKED لكل قدرة، بسبب واضح + أمر الإصلاح المقترح؛ `--fix` يطبع الأوامر فقط و`--json` يضمّها | `python3 tools/doctor.py` |
+| `qa_report.py` | صفحة HTML واحدة: lint + Final Media QA + contact sheet مضمّن، بلا شبكة وبلا كتابة فوق تقرير قديم | `python3 tools/qa_report.py <project> --media out/master.mp4` |
+| `time_to_first_video.py` | قياس «زمن أول فيديو» على خمس مراحل مع هدف رقمي موثَّق وتحقق من المدة الناتجة | `python3 tools/time_to_first_video.py --json docs/metrics/ttfv.json` |
+| `render_scenes.py` | كاش لكل مشهد في محرك K: يعيد رندر المشاهد اللي اتغيرت فقط ثم يدمج المقاطع ويزوّد الصوت | `python3 tools/render_scenes.py <project>` |
+| `pipeline.py` | المسار الحتمي vo→gate؛ `--draft` يعمل معاينة K بنصف الدقة و15fps في `out/draft.mp4`؛ `--from`/`--steps`/`--dry-run` | `python3 tools/pipeline.py <project>` |
 | `selftest.py` | اختبار كامل: doctor + unit tests + رندر P/K؛ `--remotion` يضيف R منفردًا، و`--hybrid` يرندر ويجمع P/K/R + صوت end-to-end | `python3 tools/selftest.py --hybrid` |
 | `render_hybrid.py` | يرندر مخطط `plan/hybrid.json`: يتحقق من مقاطع P/K/R المتتابعة، ثم يوحّد الفيديو ويضيف الصوت مرة واحدة | `python3 ../../tools/render_hybrid.py --project .` من جذر المشروع |
 | `render_p_segment.py` | adapter داخلي لرندر مدى إطارات محدد من P بصيغة الفيديو المشتركة | يستخدمه `render_hybrid.py` |
 | `new_project.py` | سكافولد مشروع (مدخلات + مجلدات + خط + محرك P/K/R) | `python3 tools/new_project.py my-reel --engine r` |
 | `ffprobe_shim.py` | بديل `ffprobe` متوافق (JSON) مبني على PyAV — لأن FFmpeg الستاتيك بييجي من غير ffprobe | `ffprobe -v error -show_streams -of json in.mp4` |
-| `ci.sh` | نفس اللي الـCI بيعمله: ruff + pytest + تدقيق البراند | `bash tools/ci.sh` |
+| `ci.sh` | نفس اللي الـCI بيعمله: ruff + pytest + أرقام الوثائق + مجموعات الاختبار + تطابق مكتبات K/R + تدقيق البراند | `bash tools/ci.sh` |
+| `sync_docs_numbers.py` | بيحسب أرقام المكتبة الحقيقية (تقنيات، خطوط، أيقونات…) ويكتبها جوه علامات `<!-- AUTO:key -->` في الوثائق؛ `--check` يفشل عند أي انحراف | `python3 tools/sync_docs_numbers.py` · `make docs-sync` |
+| `sync_shared_libs.py` | مصدر واحد لمكتبات JS المشتركة: `shared/js/` يتنسخ لمحركَين K (`render/lib`) وR (`remotion/src/lib`)؛ `--check` يفشل عند أي انحراف أو نسخة مكرّرة بإيد | `python3 tools/sync_shared_libs.py --check` · `make sync-libs` |
+| `ci_groups.py` | بيقسّم الاختبارات لمجموعات `contracts` / `unit` / `render` اللي شغّالة كـjobs متوازية، و`--check` بيثبت إن مفيش ملف خارج التقسيم | `python3 tools/ci_groups.py --check` · `make ci-groups` |
 | `gpu_preflight.mjs` | فحص WebGL2 وWebGPU محلي ومحدود، بدون استنتاج وجود تسريع عتادي أو تثبيت حزم | `node tools/gpu_preflight.mjs --require webgl2` |
 | `chromium.mjs` | كروميوم مشترك لمحركَي K وR، من غير تنزيلات متصفح من CDN | `eval "$(node tools/chromium.mjs --env)"` |
 | `itshover_import.py` | يستورد مكوّنات itshover المنسوخة (٢٦٣) ويحوّلها geometry للمحركين | `python3 tools/itshover_import.py --list` |
@@ -38,7 +45,9 @@
 ```bash
 make setup      # تثبيت
 make doctor     # فحص
-make test       # اختبارات وحدات (~3 ثواني)
+make test       # الحزمة الكاملة (~9 دقائق على جهازين؛ استخدم pytest -n auto لتقليلها)
+pytest -m 'not slow'  # الحلقة السريعة: 938 اختبارًا في ~32 ثانية (تتخطى التصيير وChromium)
+make coverage         # الحزمة كاملة + تقرير تغطية بدون عتبة (coverage.xml)
 make ci         # lint + tests + تدقيق براند
 make selftest   # فحص كامل + رندر
 make new SLUG=my-reel ENGINE=p

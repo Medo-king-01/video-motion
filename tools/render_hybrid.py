@@ -1,9 +1,24 @@
 #!/usr/bin/env python3
 """Render a frame-accurate hybrid P/K/R reel from plan/hybrid.json.
 
-Segments are sequential and each is rendered by exactly one engine. This is
-not a simultaneous multi-engine layer compositor. Audio is added once, after
-video assembly, so there is one continuous soundtrack across all segments.
+Segments are sequential. Each segment is rendered by one engine, or — since
+version 2 — by one opaque base engine plus one transparent Engine-K overlay:
+Engine K renders a PNG sequence with alpha and FFmpeg composites it over the
+base. Audio is added once, after video assembly, so there is one continuous
+soundtrack across all segments.
+
+    {
+      "version": 2,
+      "duration_frames": 90,
+      "segments": [
+        {"id": "intro", "start_frame": 0, "end_frame": 60,
+         "layers": [{"engine": "p"}, {"engine": "k", "alpha": true}]},
+        {"id": "outro", "start_frame": 60, "end_frame": 90, "engine": "r"}
+      ]
+    }
+
+Version 1 (`"engine": "p"` per segment) is still accepted and normalised to a
+one-layer segment.
 """
 from __future__ import annotations
 
@@ -31,8 +46,8 @@ class PlanError(ValueError):
 
 
 def validate_plan(raw: Any) -> dict[str, Any]:
-    if not isinstance(raw, dict) or raw.get("version") != 1:
-        raise PlanError("plan version must be 1")
+    if not isinstance(raw, dict) or raw.get("version") not in (1, 2):
+        raise PlanError("plan version must be 1 or 2")
     if raw.get("fps", FPS) != FPS:
         raise PlanError(f"frame rate is locked at {FPS} fps")
     if raw.get("width", WIDTH) != WIDTH or raw.get("height", HEIGHT) != HEIGHT:
@@ -49,15 +64,14 @@ def validate_plan(raw: Any) -> dict[str, Any]:
     for i, item in enumerate(segments, 1):
         if not isinstance(item, dict):
             raise PlanError(f"segment {i} must be an object")
-        sid, engine = item.get("id"), item.get("engine")
+        sid = item.get("id")
         start, end = item.get("start_frame"), item.get("end_frame")
         if not isinstance(sid, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", sid):
             raise PlanError(f"segment {i} id must contain only letters, digits, _ or -")
         if sid in ids:
             raise PlanError(f"duplicate segment id: {sid}")
         ids.add(sid)
-        if not isinstance(engine, str) or engine not in ENGINES:
-            raise PlanError(f"segment {sid}: engine must be p, k, or r")
+        layers = _validate_layers(item, sid)
         if isinstance(start, bool) or not isinstance(start, int) or isinstance(end, bool) or not isinstance(end, int):
             raise PlanError(f"segment {sid}: start_frame/end_frame must be integer frame indexes")
         if start != cursor:
@@ -65,7 +79,8 @@ def validate_plan(raw: Any) -> dict[str, Any]:
         if end <= start:
             raise PlanError(f"segment {sid} must contain at least one frame")
         cursor = end
-        clean.append({"id": sid, "engine": engine, "start_frame": start, "end_frame": end})
+        clean.append({"id": sid, "start_frame": start, "end_frame": end,
+                      "engine": layers[0]["engine"], "layers": layers})
     if cursor != total:
         raise PlanError(f"segments end at frame {cursor}; duration_frames is {total}")
     audio = raw.get("audio")
@@ -75,8 +90,40 @@ def validate_plan(raw: Any) -> dict[str, Any]:
         audio_parts = Path(audio).parts
         if Path(audio).is_absolute() or ".." in audio_parts:
             raise PlanError("audio path must stay inside the project")
-    return {"version": 1, "fps": FPS, "width": WIDTH, "height": HEIGHT,
+    return {"version": 2, "fps": FPS, "width": WIDTH, "height": HEIGHT,
             "duration_frames": total, "segments": clean, "audio": audio}
+
+
+def _validate_layers(item: dict[str, Any], sid: str) -> list[dict[str, Any]]:
+    """One opaque base (p/k/r), optionally one transparent Engine-K overlay on top."""
+    raw_layers = item.get("layers")
+    if raw_layers is None:
+        engine = item.get("engine")
+        if not isinstance(engine, str) or engine not in ENGINES:
+            raise PlanError(f"segment {sid}: engine must be p, k, or r")
+        return [{"engine": engine, "alpha": False}]
+    if item.get("engine") is not None:
+        raise PlanError(f"segment {sid}: use either engine or layers, not both")
+    if not isinstance(raw_layers, list) or not 1 <= len(raw_layers) <= 2:
+        raise PlanError(f"segment {sid}: layers must contain one base and at most one overlay")
+    clean: list[dict[str, Any]] = []
+    for position, layer in enumerate(raw_layers):
+        if not isinstance(layer, dict):
+            raise PlanError(f"segment {sid}: every layer must be an object")
+        engine = layer.get("engine")
+        if not isinstance(engine, str) or engine not in ENGINES:
+            raise PlanError(f"segment {sid}: layer engine must be p, k, or r")
+        alpha = layer.get("alpha", False)
+        if not isinstance(alpha, bool):
+            raise PlanError(f"segment {sid}: layer alpha must be a boolean")
+        if position == 0 and alpha:
+            raise PlanError(f"segment {sid}: the base layer cannot be transparent")
+        if position > 0 and not alpha:
+            raise PlanError(f"segment {sid}: only a transparent Engine-K overlay may follow the base")
+        if alpha and engine != "k":
+            raise PlanError(f"segment {sid}: transparent overlays are Engine K only")
+        clean.append({"engine": engine, "alpha": alpha})
+    return clean
 
 
 def _as_program(candidate: str) -> str | None:
@@ -190,6 +237,50 @@ def verify_segment(ffprobe: str, path: Path, expected_frames: int, sid: str) -> 
         )
 
 
+def build_segment_command(engine: str, *, python: str, node: str, ffmpeg: str,
+                          project: Path, start: int, end: int, sid: str,
+                          target: Path, frames_dir: Path) -> list[str]:
+    """The CLI one engine needs to render [start, end) into its own output."""
+    if engine == "p":
+        return [python, str(ROOT / "tools" / "render_p_segment.py"), "--project", str(project),
+                "--from-frame", str(start), "--to-frame", str(end), "--out", str(target),
+                "--ffmpeg", ffmpeg, "--fps", str(FPS)]
+    if engine == "k":
+        return [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
+                "--fps", str(FPS), "--scale", "1", "--out", str(frames_dir), "--name", sid]
+    return [node, "scripts/render.mjs", "--silent", "--from-frame", str(start),
+            "--to-frame", str(end), "--out", str(target)]
+
+
+def build_alpha_command(node: str, start: int, end: int, frames_dir: Path) -> list[str]:
+    """Engine K, transparent: one RGBA PNG per frame, no encoder."""
+    return [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
+            "--fps", str(FPS), "--scale", "1", "--alpha", "--out", str(frames_dir)]
+
+
+def build_composite_command(ffmpeg: str, base: Path, frames_dir: Path, frames: int, out: Path) -> list[str]:
+    """Overlay the transparent PNG sequence on the base footage, frame for frame."""
+    return [ffmpeg, "-hide_banner", "-loglevel", "error", "-n",
+            "-i", str(base), "-framerate", str(FPS), "-i", str(frames_dir / "%05d.png"),
+            "-filter_complex", "[0:v][1:v]overlay=format=auto",
+            "-frames:v", str(frames), "-c:v", "libx264", "-preset", "medium", "-crf", "13",
+            "-pix_fmt", "yuv420p", "-r", str(FPS), str(out)]
+
+
+def composite_overlay(ffmpeg: str, base: Path, frames_dir: Path, frames: int,
+                      project: Path, env: dict[str, str], label: str) -> None:
+    """Composite in place (via a temp file) and refuse a frame-count mismatch."""
+    rendered = sorted(frames_dir.glob("[0-9][0-9][0-9][0-9][0-9].png"))
+    if len(rendered) != frames:
+        raise RuntimeError(
+            f"{label}: transparent overlay produced {len(rendered)} frame(s), expected {frames}"
+        )
+    temp = base.with_name(base.stem + ".overlay.mp4")
+    run(build_composite_command(ffmpeg, base, frames_dir, frames, temp), cwd=project, env=env, label=label)
+    os.replace(temp, base)
+
+
+
 def escape_concat_path(path: Path) -> str:
     return str(path.resolve()).replace("'", "'\\''")
 
@@ -267,22 +358,23 @@ def main() -> int:
         sid = segment["id"]
         start, end = segment["start_frame"], segment["end_frame"]
         target = run_dir / f"{sid}.mp4"
-        engine = segment["engine"]
-        if engine == "p":
-            cmd = [python, str(ROOT / "tools" / "render_p_segment.py"), "--project", str(project),
-                   "--from-frame", str(start), "--to-frame", str(end), "--out", str(target),
-                   "--ffmpeg", ffmpeg, "--fps", str(FPS)]
-        elif engine == "k":
-            cmd = [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
-                   "--fps", str(FPS), "--scale", "1", "--out", str(run_dir), "--name", sid]
-        else:
-            cmd = [node, "scripts/render.mjs", "--silent", "--from-frame", str(start),
-                   "--to-frame", str(end), "--out", str(target)]
+        base, overlays = segment["layers"][0], segment["layers"][1:]
+        engine = base["engine"]
         t0 = time.perf_counter()
-        run(cmd, cwd=project, env=env, label=f"engine {engine.upper()} · {sid}")
+        run(build_segment_command(engine, python=python, node=node, ffmpeg=ffmpeg, project=project,
+                                  start=start, end=end, sid=sid, target=target, frames_dir=run_dir),
+            cwd=project, env=env, label=f"engine {engine.upper()} · {sid}")
+        if overlays:
+            frames_dir = run_dir / f"{sid}-overlay"
+            frames_dir.mkdir(parents=True, exist_ok=False)
+            run(build_alpha_command(node, start, end, frames_dir), cwd=project, env=env,
+                label=f"engine K overlay · {sid}")
+            composite_overlay(ffmpeg, target, frames_dir, end - start, project, env,
+                              label=f"composite K over {engine.upper()} · {sid}")
         render_ms = (time.perf_counter()-t0)*1000
         t0 = time.perf_counter(); verify_segment(ffprobe, target, end - start, sid)
         if args.profile: segment_times.append({'id': sid, 'engine': engine.upper(), 'frames': end-start,
+                                               'overlays': len(overlays),
                                                'renderMs': render_ms, 'verifyMs': (time.perf_counter()-t0)*1000})
 
     list_file = run_dir / "segments.txt"
@@ -343,7 +435,9 @@ def main() -> int:
     except BaseException:
         temp_out.unlink(missing_ok=True)
         raise
-    print(f"HYBRID OK · {len(plan['segments'])} sequential segments · {plan['duration_frames']} frames "
+    layered = sum(1 for segment in plan["segments"] if len(segment["layers"]) > 1)
+    print(f"HYBRID OK · {len(plan['segments'])} sequential segments"
+          f"{f' ({layered} with a transparent K overlay)' if layered else ''} · {plan['duration_frames']} frames "
           f"({total_seconds:.3f}s) · {output}")
     print(f"segment diagnostics retained at {run_dir}")
     return 0

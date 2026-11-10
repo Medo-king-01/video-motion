@@ -9,7 +9,9 @@ import sys
 
 import pytest
 import visual_direction as vd
-from conftest import ROOT, SKILL
+from conftest import ROOT, SKILL, requires_toolkit
+
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 K = SKILL / 'templates/render'
 
@@ -218,6 +220,7 @@ def test_comparison_fraction_below_one_and_zero_domain():
 
 
 @pytest.mark.slow
+@requires_toolkit
 def test_audit_no_text_incomplete_and_failed_resource_not_pass(canvas_project, tmp_path):
     set_scenes(canvas_project, ['counter'])
     scene = canvas_project / 'src/scenes/counter.js'

@@ -15,6 +15,8 @@ import numpy as np
 import pytest
 from conftest import ROOT, SKILL
 
+pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
+
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
 
 PRESETS = ("tech", "minimal", "corporate", "energetic", "cinematic", "ambient")

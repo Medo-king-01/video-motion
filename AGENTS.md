@@ -18,14 +18,14 @@ four inputs from Medo and deliver a finished vertical MP4.
 | 1 | **Script** | The narration text, numbered beats, plus what should appear on screen |
 | 2 | **Scene direction** | How Medo wants the scenes presented (order, feel, what each shot shows) |
 | 3 | **VO audio** | Medo's recorded voiceover file (wav/mp3). This is the timing master |
-| 4 | **Medo poses** | **already in the repo** — 49 poses in `assets/poses/` are copied into every project. Ask for an image **only when a scene needs a pose the library does not have** (§1a). |
+| 4 | **Medo poses** | **already in the repo** — <!-- AUTO:poses -->49<!-- /AUTO --> poses in `assets/poses/` are copied into every project. Ask for an image **only when a scene needs a pose the library does not have** (§1a). |
 
 Ask **once, in a single message**, for whatever is missing. Then decide the rest
 yourself and say what you decided. Never run a multi-step interview.
 
 ### 1a. The pose library is the fourth input, not a request
 
-Every project starts with the full library (49 poses, `assets/poses/poses.json`): standing beats,
+Every project starts with the full library (<!-- AUTO:poses -->49<!-- /AUTO --> poses, `assets/poses/poses.json`): standing beats,
 motion, seated, props and 19 half-body close-ups. **Read the catalogue before you storyboard** and
 cast each beat from it — that is the default, and it needs no message to Medo.
 
@@ -61,7 +61,7 @@ finished video on guessed timing without saying so.
    your creative choice**. `medo-motion/brand/BRAND.md` + `brand/brand.json` are the source of truth:
    **exactly 12 colours** (palette v2) plus the derived `ink_shadow`. Never improvise outside the
    palette — `brand_check.py` fails the build if you do.
-   **Type:** `assets/fonts/fonts.json` is the whole allowed set — 125 families (61 Arabic + 64 Latin); 123 SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)
+   **Type:** `assets/fonts/fonts.json` is the whole allowed set — <!-- AUTO:fonts -->125<!-- /AUTO --> families (<!-- AUTO:fonts_arabic -->61<!-- /AUTO --> Arabic + <!-- AUTO:fonts_latin -->64<!-- /AUTO --> Latin); <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> SIL OFL 1.1 + Permanent Marker (Apache-2.0) + Ubuntu (UFL-1.0)
    (free, commercial, no on-screen attribution). **There is no forced default:** you pick the most
    attractive, reel-fitting face (Arabic or Latin) per scene/element and record it in
    `plan/text-direction.json` (`fontStyles`/`fontElements`, rule 11). Cairo/Inter are only a
@@ -83,7 +83,7 @@ finished video on guessed timing without saying so.
    `tests/test_motion.py` enforces the shared easing/math implementation. `docs/motion.md` maps motion.dev recipes onto it and
    `tools/theatre_import.py` converts a Theatre.js state export.
 8. **Medo is a pose library, not a PNG per scene**: use `presenter.py` (P) / `lib/presenter.js` (K) / `MedoPresenter` (R)
-   with the slugs from `assets/poses/poses.json` — 49 poses: `neutral`, `arms-crossed`, `smile-calm`,
+   with the slugs from `assets/poses/poses.json` — <!-- AUTO:poses -->49<!-- /AUTO --> poses: `neutral`, `arms-crossed`, `smile-calm`,
    `open-hands`, `explain`, `point`, `point-viewer`, `point-up`, `welcome`, `wave`, `wave-goodbye`, `clap`,
    `clap-excited`, `celebrate`, `like`, `discovery`, `confused-choice`, `thinking`, `think-hands`, `sad`,
    `shocked`, `surprised`, `warning`, `walk`, `run`, `seated-talk`, `seated-reflect`, `laptop-work`,
@@ -94,7 +94,7 @@ finished video on guessed timing without saying so.
    camera push-in). Never edit the cut-out PNGs or `poses.json` by hand — edit
    `tools/lib/pose_catalog.py` and rebuild with `make poses`. `docs/presenter.md`.
 9. **Backgrounds are catalogue-driven, and on-palette**: pick from `medo-motion/motion/backgrounds.json`
-   (12 pure-function patterns × dark/light) with `backgrounds.py` (P) / `lib/backgrounds.js` (K+R) —
+   (<!-- AUTO:backgrounds -->12<!-- /AUTO --> pure-function patterns × dark/light) with `backgrounds.py` (P) / `lib/backgrounds.js` (K+R) —
    never a hand-drawn gradient, never a colour outside `brand/brand.json`. Each background is a pure
    function of `t`, so it stays frame-exact in chunks and in parallel rendering. State the id and why
    in `plan/design.json`; review with `make backgrounds`. `docs/backgrounds.md`.
@@ -107,7 +107,8 @@ finished video on guessed timing without saying so.
 11. **Draw the moves; then lint them.** Do not choose transitions/camera moves from memory — that is
    how every reel ends up with the same fade-up and push-in. Draw from the measured library into the
    project: `python3 tools/techniques.py --draw --from-plan plan/beats.json --json plan/techniques.json`
-   (`assets/techniques.json`, 59 moves across 13 families — including the UI / product-demo /
+   (`assets/techniques.json`, <!-- AUTO:techniques -->2,239<!-- /AUTO --> moves across <!-- AUTO:technique_categories -->44<!-- /AUTO --> families — including
+   the <!-- AUTO:techniques_studio -->59<!-- /AUTO --> studio moves that sit in <!-- AUTO:focus_techniques -->13<!-- /AUTO --> families, the UI / product-demo /
    numbers / micro-interaction moves for screen scenes — each written against this studio's primitives). Build what
    the concept can carry, reroll at most twice, never add a move the draw did not give you.
    Before a render, the plan must pass `python3 tools/reel_lint.py projects/<slug> --scan-code`
@@ -320,7 +321,7 @@ folder is, and remind the user it is a working folder (outside the repo history)
 - Pillow here is built **without** libraqm. Engine P detects that and shapes Arabic with
   `arabic_shape.py` (HarfBuzz + FreeType). This is real shaping, not presentation forms.
   `doctor.py` reports which backend is active; both are acceptable.
-- Fonts: the 125-family font manifest (123 SIL OFL 1.1 + Permanent Marker Apache-2.0 + Ubuntu UFL-1.0) lives in `assets/fonts/fonts.json`. The agent chooses
+- Fonts: the font manifest (<!-- AUTO:fonts -->125<!-- /AUTO --> families: <!-- AUTO:fonts_ofl -->123<!-- /AUTO --> SIL OFL 1.1 + Permanent Marker Apache-2.0 + Ubuntu UFL-1.0) lives in `assets/fonts/fonts.json`. The agent chooses
   faces per scene/element in `plan/text-direction.json`; Cairo/Inter are only a system-chrome
   fallback. Chromium picks fonts from the page (`/assets/fonts/...`), engine P from the
   project's `assets/fonts/`, and R from `public/fonts/` + generated `@font-face`.

@@ -161,7 +161,7 @@ def test_doctor_json_envelope_per_engine():
         doctor.Finding("brand lock", doctor.OK),
         doctor.Finding("engine P template", doctor.OK),
         doctor.Finding("engine K template", doctor.OK),
-        doctor.Finding("engine R template", doctor.OK),
+        doctor.Finding("engine R scaffold", doctor.OK),
         doctor.Finding("node", doctor.OK),
         doctor.Finding("playwright-core", doctor.OK),
         doctor.Finding("Chromium (engines K/R)", doctor.OK),
