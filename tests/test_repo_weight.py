@@ -97,3 +97,22 @@ def test_the_committed_baseline_still_describes_this_repository():
     current = repo_weight.snapshot()
     assert repo_weight.violations(current, baseline) == []
     assert set(baseline["heavy"]) <= set(current["heavy"])
+
+
+def test_the_lfs_decision_is_stated_or_actually_taken():
+    """`.gitattributes` says "no LFS" today. If that ever flips, the doc has to flip with it.
+
+    A silent `filter=lfs` line would change every clone and every CI job while the weight doc still
+    told readers the opposite — the same contract-vs-reality drift this repository keeps hunting.
+    """
+    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    doc = (ROOT / "docs" / "repository-weight.md").read_text(encoding="utf-8")
+    uses_lfs = "filter=lfs" in attributes
+    states_no_lfs = "مافيش Git LFS" in doc
+    assert uses_lfs != states_no_lfs, (
+        "the attribute file and docs/repository-weight.md disagree about Git LFS"
+    )
+    if not uses_lfs:
+        # The decision must carry its evidence, not just a preference.
+        assert "152.3" in doc and "blob" in doc, "the LFS decision lost its measurements"
+        assert "filter=blob:none" in doc, "the documented alternative to LFS disappeared"

@@ -5,6 +5,24 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-10 (N4 decided with measurements, not taste)
+
+**The Git LFS question finally has numbers behind it.** Current `.git`: 111.5 MiB pack, 17 commits.
+Every blob in history: 166.5 MB, of which **152.3 MB (91.5%) is binary** — 81.7 MB of fonts in 314
+blobs for ~314 files, 63.9 MB of images in 98 blobs for 100 files. That ratio is the answer: 314
+blobs for 314 files means history holds almost no duplicate binary versions, and LFS deduplicates at
+the blob level, so migrating would **move** 152 MB into a second store rather than save it. A clone
+that renders still downloads the assets; a clone that only wants code already has a dependency-free
+answer, measured here — `--filter=blob:none` ships 0.26 MB of commit/tree graph instead of a 112 MB
+pack, against lazy blob fetch.
+
+So: no migration now, and `docs/repository-weight.md` states why, with the table, plus the recipe if
+that flips (cheap to run today with 17 commits, which is exactly why the decision is recorded now).
+The remaining lever is the owner's: purging `assets/poses/source` (35.6 MB) from history saves that
+much in the pack and loses the master art `make poses` rebuilds cut-outs from.
+`tests/test_repo_weight.py` now fails if `.gitattributes` ever gains `filter=lfs` while the doc still
+says there is none — or if the decision loses its measurements.
+
 ## Unreleased — 2026-11-10 (a P draft stops supersampling pixels the encoder throws away)
 
 **Engine P's draft was saving frames but not pixels.** A P frame is dominated by sprite work: `lib.D`
