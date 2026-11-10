@@ -28,11 +28,11 @@ def make_bg():
     xx=np.linspace(-1,1,W)[None,:,None]; vig=1-0.28*(xx**2)*np.ones((H,1,1)); bg=bg*vig
     return np.ascontiguousarray(bg.astype(np.float32))
 def make_bgs():
-    yy=np.linspace(0,1,H)[:,None,None]; xx=np.linspace(-1,1,W)[None,:,None]
+    yy=np.linspace(0,1,DH)[:,None,None]; xx=np.linspace(-1,1,DW)[None,:,None]
     d=np.array((10,10,10),np.float32)*(1-yy)+np.array((3,3,3),np.float32)*yy
-    d=np.repeat(d,W,1)*(1-0.28*(xx**2)*np.ones((H,1,1)))
+    d=np.repeat(d,DW,1)*(1-0.28*(xx**2)*np.ones((DH,1,1)))
     l=np.array((243,242,241),np.float32)*(1-yy)+np.array((216,215,213),np.float32)*yy
-    l=np.repeat(l,W,1)*(1-0.10*(xx**2)*np.ones((H,1,1)))
+    l=np.repeat(l,DW,1)*(1-0.10*(xx**2)*np.ones((DH,1,1)))
     return np.ascontiguousarray(d.astype(np.float32)),np.ascontiguousarray(l.astype(np.float32))
 BGD,BGL=make_bgs()
 T={'dark':True}
@@ -41,7 +41,10 @@ THEME=[0,0,1,0,1,0,1]
 GRID=[(3,3,3),(64,-18,10),(159,8,3),(88,0,-22),(3,3,3),(80,-16,0),(3,3,3)]
 def bg_frame(k,t):
     dark=THEME[k]; base=BGD if dark else BGL; cell,vx,vy=GRID[k]
-    ys=((np.arange(H)+int(t*vy))%cell)<2; xs=((np.arange(W)+int(t*vx))%cell)<2
+    # The gradient and the dot grid are relative to the buffer, so they follow `SCALE`:
+    # at 1.0 this is byte-identical to the design-space original.
+    c=cell*SCALE; vxs=vx*SCALE; vys=vy*SCALE; th=2.0*SCALE
+    ys=((np.arange(DH)+int(t*vys))%c)<th; xs=((np.arange(DW)+int(t*vxs))%c)<th
     m=(ys[:,None]|xs[None,:]).astype(np.float32)[...,None]
     return base+m*np.float32(8.0 if dark else -9.0)
 _rn=random.Random(5); DUST=[(_rn.uniform(0,W),_rn.uniform(0,H),_rn.uniform(-14,14),_rn.uniform(-30,-9),_rn.randint(2,5),_rn.uniform(0.25,0.6)) for _ in range(30)]
@@ -63,14 +66,17 @@ def camera(fr,z,tx,ty):
         if _lp.is_capturing(): _lp.apply_camera(z,tx,ty)
     except ImportError:
         pass
-    M=np.array([[z,0,W/2-z*W/2+tx],[0,z,H/2-z*H/2+ty]],np.float32)
-    return cv2.warpAffine(fr,M,(W,H),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE)
+    fh,fw=fr.shape[:2]
+    M=np.array([[z,0,fw/2-z*fw/2+tx*SCALE],[0,z,fh/2-z*fh/2+ty*SCALE]],np.float32)
+    return cv2.warpAffine(fr,M,(fw,fh),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_REPLICATE)
 def speed_lines(fr,cx,cy,u,col):
     if u<=0 or u>=1: return
     r0=110+260*e_out(u); r1=r0+300*(1-u)+60
     for i in range(26):
         a=i*6.2832/26+0.1*math.sin(i*3.1)
-        cv2.line(fr,(int(cx+r0*math.cos(a)),int(cy+r0*math.sin(a))),(int(cx+r1*math.cos(a)),int(cy+r1*math.sin(a))),col,max(1,int(6*(1-u))),cv2.LINE_AA)
+        cv2.line(fr,(int((cx+r0*math.cos(a))*SCALE),int((cy+r0*math.sin(a))*SCALE)),
+                 (int((cx+r1*math.cos(a))*SCALE),int((cy+r1*math.sin(a))*SCALE)),
+                 col,max(1,int(6*(1-u)*SCALE)),cv2.LINE_AA)
 
 SK={'cur':None}
 def Medo(name,h):

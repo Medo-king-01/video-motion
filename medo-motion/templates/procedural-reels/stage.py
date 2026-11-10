@@ -36,9 +36,9 @@ except ImportError:  # pragma: no cover
     _layout_p = None  # type: ignore
 
 try:
-    from lib import D, fill_rect, paste, text_sprite
+    from lib import D, SCALE, fill_rect, paste, text_sprite
 except ImportError:  # pragma: no cover
-    from .lib import D, fill_rect, paste, text_sprite  # type: ignore
+    from .lib import D, SCALE, fill_rect, paste, text_sprite  # type: ignore
 
 try:
     from render_policy import decorative_time
@@ -1080,6 +1080,12 @@ def composite_content_window(
 ) -> np.ndarray:
     """Composite `content_rgb` onto `stage_rgb_f32` strictly clipped to `win_box`."""
     h, w = stage_rgb_f32.shape[:2]
+    # `win_box` is in the design space; the mask and the content are in the device buffer.
+    if SCALE != 1.0:
+        win_box = {
+            k: (float(v) * SCALE if k in ("x", "y", "w", "h", "r") else v)
+            for k, v in win_box.items()
+        }
     wb = clamp_window_box(win_box, {"w": w, "h": h})
     if is_fullscreen_window(wb, {"w": w, "h": h}):
         stage_rgb_f32[:] = content_rgb.astype(np.float32, copy=False)
@@ -1170,11 +1176,11 @@ def draw_stage_under(
     if frame_cfg["enabled"] and frame_cfg["matAlpha"] > 0.0 and chrome_opacity > 0.0:
         mat_rgb = brand_rgb(frame_cfg["matRole"])
         alpha = frame_cfg["matAlpha"] * chrome_opacity
-        # Subtle shadow/mat halo 10px behind the content window
-        mx0 = max(0, int(round(win_box["x"] - 8)))
-        my0 = max(0, int(round(win_box["y"] + 10)))
-        mx1 = min(w, int(round(win_box["x"] + win_box["w"] + 8)))
-        my1 = min(h, int(round(win_box["y"] + win_box["h"] + 14)))
+        # Subtle shadow/mat halo 10px behind the content window (design px -> device buffer)
+        mx0 = max(0, int(round((win_box["x"] - 8) * SCALE)))
+        my0 = max(0, int(round((win_box["y"] + 10) * SCALE)))
+        mx1 = min(w, int(round((win_box["x"] + win_box["w"] + 8) * SCALE)))
+        my1 = min(h, int(round((win_box["y"] + win_box["h"] + 14) * SCALE)))
         if mx1 > mx0 and my1 > my0:
             roi = stage_f32[my0:my1, mx0:mx1]
             roi[:] = roi * (1.0 - alpha) + np.array(mat_rgb, dtype=np.float32) * alpha
@@ -1271,9 +1277,10 @@ def draw_stage_progress(
     pb = norm_spec["over"]["progressBar"]
     if not pb["enabled"]:
         return
-    w = stage_f32.shape[1]
+    # The bar spans the design canvas (margins/height are design px); fill_rect converts.
+    cw = norm_spec["canvas"]["w"]
     x0 = pb["marginX"]
-    x1 = w - pb["marginX"]
+    x1 = cw - pb["marginX"]
     y0 = pb["y"]
     y1 = y0 + pb["height"]
     track_rgb = brand_rgb(pb["trackRole"])
@@ -1301,7 +1308,10 @@ def render_fixed_stage(
     """Render one deterministic Fixed Stage RGB uint8 frame in strict `UNDER -> CONTENT -> OVER` order."""
     norm = spec if spec.get("_normalized") is True else {**normalize_stage_spec(spec), "_normalized": True}
     state = stage_state_at(norm, t, duration=duration)
+    # The stage canvas is the device buffer; geometry (`win`, chrome) stays in the design space.
     cw, ch = norm["canvas"]["w"], norm["canvas"]["h"]
+    if SCALE != 1.0:
+        cw, ch = int(round(cw * SCALE)), int(round(ch * SCALE))
     wb = state["win"]
 
     capturing = _layout_p is not None and _layout_p.is_capturing()

@@ -13,8 +13,6 @@ os.chdir(PROJECT)
 sys.path.insert(0, str(HERE))
 
 from scenes import *  # noqa: F403
-import cv2
-from PIL import Image as _PILImage  # after the star import: scenes owns names like `Image`
 from chunk_utils import is_valid_chunk
 from render_policy import motion_mode
 from resource_scope import ResourceScope
@@ -38,22 +36,16 @@ a, b = map(int, sys.argv[1:])
 if a < 0 or b <= a:
     raise SystemExit("chunk frame range must satisfy 0 <= start < end")
 
-# Draft preview (REEL_DRAFT=1): render every other source frame and half the canvas.
+# Draft preview (REEL_DRAFT=1): render every other source frame into the 540x960 device buffer.
 # Frame `i` of the preview is source frame `2*i`, so the timeline stays identical — only the
 # sampling density and the pixel budget change. Nothing here runs unless the flag is set.
 DRAFT = os.environ.get("REEL_DRAFT") == "1"
 DFPS = 15
-DW, DH = W // 2, H // 2
+# DW/DH come from lib (REEL_DRAFT selects the 540x960 device buffer; the design space is 1080x1920).
 OUT_W, OUT_H = (DW, DH) if DRAFT else (W, H)
 ENCODE_FPS = DFPS if DRAFT else 30
 mode_tag = mode + ("-draft" if DRAFT else "")
 
-
-def preview_frame(frame):
-    """Half-size copy of one rendered frame: numpy/cv2 is the template's normal output."""
-    if hasattr(frame, "shape"):  # cv2 frames are HxWx3 arrays, not PIL images
-        return cv2.resize(frame, (DW, DH), interpolation=cv2.INTER_AREA)
-    return frame.resize((DW, DH), _PILImage.BILINEAR)
 
 out_dir = PROJECT / "out" / "draft_chunks" if DRAFT else PROJECT / "out"
 out_dir.mkdir(parents=True, exist_ok=True)
@@ -90,7 +82,7 @@ with ResourceScope() as resources:
             for frame_index in range(a, b):
                 if DRAFT:
                     source = render_frame((frame_index * 2) / 30)  # noqa: F405
-                    process.stdin.write(preview_frame(source).tobytes())
+                    process.stdin.write(source.tobytes())
                 else:
                     process.stdin.write(render_frame(frame_index / 30).tobytes())  # noqa: F405
             process.stdin.close()

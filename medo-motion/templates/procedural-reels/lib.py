@@ -111,6 +111,33 @@ def _supersample():
     return value
 
 SS=_supersample()
+
+
+def _device_scale():
+    """Design-space (1080x1920) -> device-buffer scale.
+
+    Engine P draws in ONE design space; the buffer the encoder receives is a scaled copy of it.
+    `REEL_DRAFT=1` halves the buffer (540x960) so a draft renders half the pixels directly instead
+    of rendering 1080x1920 and shrinking afterwards; an explicit `REEL_SCALE` overrides the factor
+    (used by tests and experiments). Every buffer write (paste/fill_rect/direct cv2/warpAffine)
+    converts design coordinates through `SCALE`, while sprites, fonts and layout math stay in the
+    design space — the same sprite cache the master uses. Invalid values are refused, never
+    silently clamped.
+    """
+    raw = os.environ.get("REEL_SCALE")
+    if raw is not None:
+        try:
+            value = float(raw.strip())
+        except ValueError:
+            raise SystemExit(f"REEL_SCALE must be a positive number, got {raw!r}")
+        if not value > 0.0:
+            raise SystemExit(f"REEL_SCALE must be a positive number, got {value}")
+        return value
+    return 0.5 if os.environ.get("REEL_DRAFT") == "1" else 1.0
+
+
+SCALE=_device_scale()
+DW,DH=int(round(W*SCALE)),int(round(H*SCALE))
 # ---------- easing ----------
 def clamp(x,a=0,b=1): return max(a,min(b,x))
 def prog(t,a,b): return clamp((t-a)/(b-a)) if b>a else (1.0 if t>=a else 0.0)
@@ -196,6 +223,9 @@ def load_png(name,height):
 # ---------- compositing ----------
 def paste(fr,spr,cx,cy,scale=1.0,rot=0.0,alpha=1.0,anchor=(0.5,0.5),flipx=False,sy=None):
     if alpha<=0.003 or scale<=0.003: return
+    if SCALE!=1.0:
+        cx*=SCALE; cy*=SCALE; scale*=SCALE
+        sy = sy*SCALE if sy is not None else None
     h,w=spr.shape[:2]; ax,ay=anchor[0]*w,anchor[1]*h
     sxs=scale*(-1 if flipx else 1); sys_=scale if sy is None else sy
     c,sn=math.cos(math.radians(rot)),math.sin(math.radians(rot))
@@ -203,8 +233,8 @@ def paste(fr,spr,cx,cy,scale=1.0,rot=0.0,alpha=1.0,anchor=(0.5,0.5),flipx=False,
     M[0,2]=cx-(M[0,0]*ax+M[0,1]*ay); M[1,2]=cy-(M[1,0]*ax+M[1,1]*ay)
     pts=np.array([[0,0],[w,0],[w,h],[0,h]],np.float32)
     dst=pts@M[:,:2].T+M[:,2]
-    x0=max(int(dst[:,0].min())-1,0); x1=min(int(dst[:,0].max())+2,W)
-    y0=max(int(dst[:,1].min())-1,0); y1=min(int(dst[:,1].max())+2,H)
+    x0=max(int(dst[:,0].min())-1,0); x1=min(int(dst[:,0].max())+2,fr.shape[1])
+    y0=max(int(dst[:,1].min())-1,0); y1=min(int(dst[:,1].max())+2,fr.shape[0])
     if x1<=x0 or y1<=y0: return
     M2=M.copy(); M2[0,2]-=x0; M2[1,2]-=y0
     wp=cv2.warpAffine(spr,M2,(x1-x0,y1-y0),flags=cv2.INTER_LINEAR,borderMode=cv2.BORDER_CONSTANT,borderValue=(0,0,0,0))
@@ -212,7 +242,8 @@ def paste(fr,spr,cx,cy,scale=1.0,rot=0.0,alpha=1.0,anchor=(0.5,0.5),flipx=False,
     roi=fr[y0:y1,x0:x1]
     roi[:]=np.clip(wp[...,:3]*alpha+roi*(1-a),0,255)
 def fill_rect(fr,x0,y0,x1,y1,color,alpha=1.0):
-    x0,y0,x1,y1=max(int(x0),0),max(int(y0),0),min(int(x1),W),min(int(y1),H)
+    if SCALE!=1.0: x0*=SCALE; y0*=SCALE; x1*=SCALE; y1*=SCALE
+    x0,y0,x1,y1=max(int(x0),0),max(int(y0),0),min(int(x1),fr.shape[1]),min(int(y1),fr.shape[0])
     if x1<=x0 or y1<=y0: return
     roi=fr[y0:y1,x0:x1]; roi[:]=roi*(1-alpha)+np.array(color,np.float32)*alpha
 # ---------- reusable sprites ----------

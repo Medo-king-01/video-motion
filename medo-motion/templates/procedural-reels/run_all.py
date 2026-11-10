@@ -31,7 +31,7 @@ if os.environ.get("REEL_DRAFT") == "1":
 import scenes
 from scenes import B
 from render_policy import motion_mode
-from lib import W, H, FONT, SS as SUPERSAMPLE
+from lib import W, H, DW, DH, FONT, SS as SUPERSAMPLE
 from chunk_utils import build_signature, expected_chunks, is_valid_chunk
 import text_direction as td
 
@@ -63,7 +63,7 @@ elif abs(B[-1] - total) > 0.05:
 # is byte-identical to before (the signature only changes when the flag is on).
 DRAFT = os.environ.get("REEL_DRAFT") == "1"
 PREVIEW_FPS = 15 if DRAFT else FPS
-OUT_W, OUT_H = (W // 2, H // 2) if DRAFT else (W, H)
+OUT_W, OUT_H = (DW, DH) if DRAFT else (W, H)
 PREVIEW_OUT = PROJECT / "out" / ("draft.mp4" if DRAFT else "video_only.mp4")
 CHUNK_DIR = PROJECT / "out" / ("draft_chunks" if DRAFT else "")
 CHUNK_FRAMES = max(1, CH // 2) if DRAFT else CH

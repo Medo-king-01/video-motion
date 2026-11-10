@@ -5,6 +5,23 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-10 (engine P renders drafts into a real 540x960 buffer)
+
+Engine P drew every frame in one 1080x1920 canvas and shrank it before the encoder: the draft paid
+for pixels the encoder throw away. The design space is now separated from the device buffer.
+`lib.SCALE` (0.5 under `REEL_DRAFT=1`, overridable with `REEL_SCALE` for tests; invalid values are
+refused, never clamped) converts every buffer write — `paste`, `fill_rect`, the direct `cv2.line`
+underlines and `speed_lines`, the `camera` warpAffine, the full-canvas backgrounds — while sprites,
+fonts and layout math stay in the design space. The sprite cache is shared with the master, so the
+master path is byte-identical (verified on 10 timeline points), and `chunk.py` /
+`render_p_segment.py --draft` feed the encoder the 540x960 buffer directly (the shrink step is gone).
+
+Measurements on the fixture reel at `REEL_SS=1`, same session: **109 ms/frame** against **163 ms** for
+the old render-then-shrink draft (**1.49x**), with the picture matching the shrunk master at
+MAE 0.4-1.6/255, PSNR 33-41 dB across the timeline (the Fixed Stage path: MAE 0.9-1.5/255, PSNR
+32-37 dB). `tests/test_p_draft_buffer.py` (12 tests) pins the validation, the buffer shape, the
+picture parity, the stage window geometry under scale, and the chunk output.
+
 ## Unreleased — 2026-11-10 (the real-Remotion suite stops failing only when it runs in parallel)
 
 `pytest -n 2` over the modules that do real Remotion renders failed about one run in two, with either

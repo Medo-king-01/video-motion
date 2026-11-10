@@ -12,21 +12,8 @@ import tempfile
 import time
 from pathlib import Path
 
-import numpy as np
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "medo-motion" / "scripts"))
 from _safe_paths import checked_path  # noqa: E402
-
-
-def shrink(image: np.ndarray, width: int, height: int) -> np.ndarray:
-    """Half-size copy of one rendered frame (cv2 is the template's normal path)."""
-    try:
-        import cv2  # noqa: PLC0415  (optional fast path)
-    except ImportError:
-        from PIL import Image as PILImage  # noqa: PLC0415
-
-        return np.asarray(PILImage.fromarray(image).resize((width, height), PILImage.BILINEAR))
-    return cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA)
 
 
 def main() -> int:
@@ -84,6 +71,11 @@ def main() -> int:
     old_ss = os.environ.get("REEL_SS")
     if args.draft and old_ss is None:
         os.environ["REEL_SS"] = "1"
+    # The draft size comes from lib.SCALE, which reads REEL_DRAFT at import: --draft selects the
+    # 540x960 device buffer unless the caller set the scale explicitly (REEL_SCALE/REEL_DRAFT win).
+    old_draft = os.environ.get("REEL_DRAFT")
+    if args.draft:
+        os.environ.setdefault("REEL_DRAFT", "1")
     render_times, write_times = [], []
     encoder: subprocess.Popen[bytes] | None = None
     try:
@@ -91,6 +83,7 @@ def main() -> int:
         import scenes  # noqa: PLC0415
         import text_direction as td  # noqa: PLC0415
         from art import H, W  # noqa: PLC0415
+        from lib import DH, DW  # noqa: PLC0415
         from resource_scope import ResourceScope  # noqa: PLC0415
         from scenes import render_frame  # noqa: PLC0415
         if args.motion_mode == "reduced" and getattr(scenes, "SUPPORTS_REDUCED_MOTION", False) is not True:
@@ -104,7 +97,7 @@ def main() -> int:
                 raise RuntimeError("Text direction incomplete — the agent must choose styles per scene:\n"
                                    + "\n".join(report["errors"]))
 
-        out_w, out_h = (W // 2, H // 2) if args.draft else (W, H)
+        out_w, out_h = (DW, DH) if args.draft else (W, H)
         out_fps = args.fps // 2 if args.draft else args.fps
         command = [
             args.ffmpeg, "-hide_banner", "-loglevel", "error", "-y",
@@ -128,10 +121,9 @@ def main() -> int:
                 t0 = time.perf_counter() if profile_path else 0
                 image = render_frame(frame / args.fps)
                 if profile_path: render_times.append((time.perf_counter()-t0)*1000)
-                if image.shape != (H, W, 3) or image.dtype.name != "uint8":
+                expected_shape = (DH, DW, 3) if args.draft else (H, W, 3)
+                if image.shape != expected_shape or image.dtype.name != "uint8":
                     raise RuntimeError(f"engine P returned an invalid frame at index {frame}: {image.shape} {image.dtype}")
-                # P still renders at 1080x1920 and shrinks here: the draft saves frames, not pixels.
-                if args.draft: image = shrink(image, out_w, out_h)
                 t0 = time.perf_counter() if profile_path else 0
                 encoder.stdin.write(image.tobytes())
                 if profile_path: write_times.append((time.perf_counter()-t0)*1000)
@@ -175,6 +167,8 @@ def main() -> int:
         else: os.environ["MEDO_MOTION_MODE"] = old_mode
         if old_ss is None: os.environ.pop("REEL_SS", None)
         else: os.environ["REEL_SS"] = old_ss
+        if old_draft is None: os.environ.pop("REEL_DRAFT", None)
+        else: os.environ["REEL_DRAFT"] = old_draft
 
 
 if __name__ == "__main__":
