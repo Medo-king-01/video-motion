@@ -51,7 +51,10 @@ if ! command -v ffmpeg >/dev/null; then
   ln -sf "$FF" tools/bin/ffmpeg
 fi
 if ! command -v ffprobe >/dev/null; then
-  printf '#!/bin/sh\nexec "%s" "%s/tools/ffprobe_shim.py" "$@"\n' "$(command -v "$PY")" "$ROOT" > tools/bin/ffprobe
+  # Absolute interpreter: the shim is called from project directories, so a relative
+  # ".venv/bin/python" would only resolve when the caller happens to sit in the repo root.
+  PY_ABS=$(cd "$(dirname "$(command -v "$PY")")" && pwd)/$(basename "$(command -v "$PY")")
+  printf '#!/bin/sh\nexec "%s" "%s/tools/ffprobe_shim.py" "$@"\n' "$PY_ABS" "$ROOT" > tools/bin/ffprobe
   chmod +x tools/bin/ffprobe
 fi
 "$PY" tools/fonts_install.py --check || "$PY" tools/fonts_install.py

@@ -6,10 +6,22 @@ Why: FFmpeg static builds often ship `ffmpeg` only, without a matching
 ffprobe, so this shim answers exactly that subset and returns ffprobe-shaped
 JSON.
 
-Supported:
+It is a **fallback, not a replacement**: when a real `ffprobe` is reachable on `PATH` (or named by
+`MEDO_REAL_FFPROBE`) the shim hands the call straight to it with `execv`, so every other ffprobe
+option suddenly works — `-of csv`, `-read_intervals`, `-show_packets`. The shim never delegates to
+itself: a candidate whose contents mention this script (for instance `tools/bin/ffprobe`, the
+wrapper `setup.sh` writes) is skipped, otherwise the exec would loop forever.
+`MEDO_FFPROBE_SHIM_ONLY=1` forces the PyAV path even when a real binary is present.
+
+Supported by the fallback itself (also printed as JSON by `--supported`):
   ffprobe [-v error] [-select_streams a:0|v:0] [-show_streams] [-show_format]
           [-show_entries format=duration,bit_rate:stream=codec_name,channels,sample_rate]
           [-of|-print_format json] FILE
+
+Stream fields: index, codec_name, codec_type, codec_long_name, profile, width, height, channels,
+  sample_rate, bit_rate, sample_aspect_ratio, display_aspect_ratio, pix_fmt, r_frame_rate,
+  avg_frame_rate, duration, nb_frames.
+Format fields: filename, nb_streams, format_name, size, duration, bit_rate.
 
 Read-only. Never writes, never calls the network.
 """
@@ -18,6 +30,45 @@ from __future__ import annotations
 import json
 import os
 import sys
+
+STREAM_FIELDS = ("index", "codec_name", "codec_type", "codec_long_name", "profile", "width",
+                 "height", "channels", "sample_rate", "bit_rate", "sample_aspect_ratio",
+                 "display_aspect_ratio", "pix_fmt", "r_frame_rate", "avg_frame_rate", "duration",
+                 "nb_frames")
+FORMAT_FIELDS = ("filename", "nb_streams", "format_name", "size", "duration", "bit_rate")
+
+
+def catalogue() -> dict:
+    """What the fallback can answer — checked against real output by the contract test."""
+    return {"streams": list(STREAM_FIELDS), "format": list(FORMAT_FIELDS)}
+
+
+def _mentions_this_shim(path: str) -> bool:
+    """True when `path` is this file or a wrapper that runs it (never exec those)."""
+    try:
+        if os.path.realpath(path) == os.path.realpath(__file__):
+            return True
+        with open(path, "rb") as fh:
+            return b"ffprobe_shim.py" in fh.read(4096)
+    except OSError:
+        return True  # unreadable: assume it is the shim rather than risk a loop
+
+
+def real_ffprobe() -> str | None:
+    """An actual ffprobe on PATH, if any — the shim's whole point is to be the fallback."""
+    if os.environ.get("MEDO_FFPROBE_SHIM_ONLY"):
+        return None
+    explicit = os.environ.get("MEDO_REAL_FFPROBE")
+    candidates = [explicit] if explicit else [
+        os.path.join(part, "ffprobe") for part in os.environ.get("PATH", "").split(os.pathsep) if part
+    ]
+    for candidate in candidates:
+        if not candidate or not os.path.isfile(candidate) or not os.access(candidate, os.X_OK):
+            continue
+        if _mentions_this_shim(candidate):
+            continue
+        return candidate
+    return None
 
 
 def _parse_entries(spec: str):
@@ -45,6 +96,12 @@ def _filter(obj: dict, keys) -> dict:
 
 def main(argv):
     args = argv[1:]
+    if '--supported' in args:
+        print(json.dumps(catalogue(), ensure_ascii=False))
+        return 0
+    delegate = real_ffprobe()
+    if delegate is not None:
+        os.execv(delegate, [delegate, *argv[1:]])  # never returns
     show_streams = '-show_streams' in args
     show_format = '-show_format' in args
     want = {}

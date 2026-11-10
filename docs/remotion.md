@@ -37,6 +37,20 @@ npm run render -- --audio out/vo24.wav
 
 - R مناسب للمكوّنات والـcompositions، لكن كتالوج الأيقونات المتحركة والانتقالات المربوطة بمؤثراتها ما زال wired لمحركَي P وK؛ ما تدّعيش إن كل primitive من P/K متاح في R قبل port واختباره.
 - مشاهد Remotion بتتنسخ لمجلد المشروع؛ عدّل نسخة المشروع، مش `medo-motion/templates/remotion/`.
-- الحزم مثبتة بإصدارات محددة في `package.json` و`package-lock.json`؛ و`npm audit` نظيف مع Zod 4.6.7 override لمعالجة advisory عالي. Remotion نفسه يطبع تحذير توافق لأن نسخته تتوقع Zod 4.5.4؛ اختبار typecheck/stills/render نجح، لكن راجع التحذير بعد أي ترقية واحذف الـoverride فقط لما تتوفر نسخة Remotion محدثة. `node_modules/` ومخرجات الرندر مش بتدخل Git.
+- الحزم مثبتة بإصدارات محددة في `package.json` و`package-lock.json`. **zod:** Remotion 4.0.539
+  بيطلب `4.5.4` بالظبط (`extraPackages` في `@remotion/studio-shared`)، و`4.5.4` نفسها عندها advisory
+  عالي (استهلاك ذاكرة عند التحقق من مجموعات مقيدة ضخمة). القرار: `overrides: {"zod": "^4.6.7"}`،
+  والثمن تحذير Remotion المتوقع `zod: installed 4.6.7, required 4.5.4` في كل رندر.
+  **مقاس في الاتجاهين على نفس القالب** (`npm ci` ثم `npm audit` و`npx remotion versions`):
+
+  | | `npm audit` | `npx remotion versions` |
+  |---|---|---|
+  | مع الـoverride (`^4.6.7`) | **0 vulnerabilities** | `zod: installed 4.6.7, required 4.5.4` |
+  | بدون الـoverride (4.5.4) | **10 high** (zod + 9 حزم Remotion) | `All packages have the correct version.` |
+
+  يعني إزالة الـoverride بتشيل التحذير وتفتح الـadvisory. التحذير مقبول ومقصود، ومحروس
+  بـ`tests/test_remotion_skill.py` (الـoverride موجود، والـlock فعلاً بيحل zod ≥ 4.6.7).
+  يُعاد النظر لما Remotion يطلب نسخة zod مصلَّحة. اختبارات typecheck/stills/render شغالة على
+  الحالتين. `node_modules/` ومخرجات الرندر مش بتدخل Git.
 - سكربتات R بتستخدم Chromium المشترك من `tools/setup.sh` عشان ما تعتمدش على تنزيل متصفح من `remotion.media`.
 - Remotion وتبعياته لها شروط ترخيص مستقلة عن ترخيص هذا المستودع؛ راجعها قبل الاستخدام التجاري أو التوزيع.

@@ -16,7 +16,7 @@ import {fileURLToPath} from 'node:url';
 const invocationStarted=performance.now();
 const root=process.cwd(),src=path.dirname(fileURLToPath(import.meta.url)),a=process.argv.slice(2);
 const opt=(k,d)=>{const i=a.indexOf('--'+k);return i<0?d:a[i+1];};
-const {DURATION}=await import('./data.js');
+const {DURATION,scenes}=await import('./data.js');
 import {validateTextDirection} from './lib/text-direction.js';
 import {validateSlideWallSpec} from './lib/slide-wall.js';
 import {validateOneTakeSpec} from './lib/one-take.js';
@@ -31,12 +31,21 @@ const count=Math.ceil((to-from)*fps-1e-8),out=path.resolve(opt('out','cache/smok
 // result over another engine's footage. JPEG cannot carry alpha, so the two modes are exclusive.
 const alpha=a.includes('--alpha');
 if(alpha&&jpg)throw Error('--alpha cannot be combined with --jpg');
-if(alpha&&fps!==30)throw Error('--alpha requires the locked 30 fps');
+// 30 fps is the master rate; the hybrid compositor asks for 15 when it builds a draft preview.
+if(alpha&&fps!==30&&fps!==15)throw Error('--alpha renders at 30 fps, or 15 for a hybrid draft');
 const seq=jpg||alpha;
 const audit=a.includes('--audit'), replay=a.includes('--replay'), platformUi=a.includes('--platform-ui'), profile=a.includes('--profile'), every=Number(opt('every',1));
 if(replay&&!audit)throw Error('--replay requires --audit');
 if(audit&&(!Number.isInteger(every)||every<1))throw Error('--every must be a positive frame stride');
 if(audit&&(fps!==30||to>DURATION+1e-8))throw Error('Audit requires native 30 fps and a range inside the timeline');
+// --only draws a named subset of the timeline's scenes (comma-separated ids) and leaves every
+// other moment transparent, so one K project can feed more than one hybrid overlay.
+const only=String(opt('only','')).split(',').map(v=>v.trim()).filter(Boolean);
+if(only.length&&!only.every(id=>/^[A-Za-z0-9_-]{1,64}$/.test(id)))throw Error('--only takes comma-separated scene ids (letters, digits, _ or -)');
+if(new Set(only).size!==only.length)throw Error('--only lists the same scene twice');
+// Fail here, not inside the browser: an unknown id there would stall the page until its timeout.
+const unknownScenes=only.filter(id=>!scenes.some(scene=>scene.id===id));
+if(unknownScenes.length)throw Error(`unknown scene id(s) in only: ${unknownScenes.join(', ')}`);
 const name=String(opt('name','Smoke v1'));
 if(!name||/[\\/:*?"<>|]/.test(name))throw Error('Use a plain output name without path separators');
 const dest=path.join(out,name+'.mp4'),audio=opt('audio');
@@ -151,7 +160,7 @@ try{
   }
   page.on('pageerror',e=>errors.push(e.message));
   const initStarted=performance.now();
-  await page.goto(`http://127.0.0.1:${server.address().port}${srcUrl}/index.html?scale=${scale}&motionMode=${motionMode}&rangeStart=${from}&rangeEnd=${from+count/fps}${audit?'&audit=1':''}${alpha?'&alpha=1':''}`);
+  await page.goto(`http://127.0.0.1:${server.address().port}${srcUrl}/index.html?scale=${scale}&motionMode=${motionMode}&rangeStart=${from}&rangeEnd=${from+count/fps}${audit?'&audit=1':''}${alpha?'&alpha=1':''}${only.length?'&only='+encodeURIComponent(only.join(',')):''}`);
   await page.waitForFunction(()=>window.__ready===true||window.__error,{},{timeout:30000});
   const initError=await page.evaluate(()=>window.__error||null);if(initError)throw Error(initError);
   const initMs=performance.now()-initStarted,profileTimes=[],captureTimes=[];let encoderFinalizeMs=null;

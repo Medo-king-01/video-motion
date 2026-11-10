@@ -141,6 +141,43 @@ def test_chunk_validator_rejects_missing_and_empty_files(tmp_path):
     empty.touch()
     assert not is_valid_chunk(empty, 4, 1080, 1920)
 
+def test_draft_signature_never_collides_with_master_signature(tmp_path):
+    """A 540x960 preview must not reuse 1080x1920 chunks (or vice versa)."""
+    from chunk_utils import build_signature
+
+    source = tmp_path / "source"
+    assets = tmp_path / "assets"
+    source.mkdir()
+    assets.mkdir()
+    (source / "render.py").write_text("pass\n", encoding="utf-8")
+    # Same nominal render, different canvas and frame rate: differ already, so pin the flag too.
+    master = build_signature(source, assets, 120, 30, [0, 4], 30, 1080, 1920)
+    draft = build_signature(source, assets, 120, 30, [0, 4], 30, 1080, 1920, draft=True)
+    assert draft != master
+    assert draft == build_signature(source, assets, 120, 30, [0, 4], 30, 1080, 1920, draft=True)
+
+
+def test_signature_follows_the_sprite_supersample(tmp_path):
+    """`REEL_SS` changes pixels without touching a source file, so it belongs in the cache key."""
+    from chunk_utils import build_signature
+
+    source = tmp_path / "source"
+    assets = tmp_path / "assets"
+    source.mkdir()
+    assets.mkdir()
+    (source / "render.py").write_text("pass\n", encoding="utf-8")
+    args = (source, assets, 120, 30, [0, 4], 30, 1080, 1920)
+    one = build_signature(*args, supersample=1)
+    three = build_signature(*args, supersample=3)
+    assert one != three, "an SS=1 preview chunk could be served for an SS=3 render"
+    assert one == build_signature(*args, supersample=1)
+    assert build_signature(*args) != one, "an unset supersample must not look like SS=1"
+    with pytest.raises(ValueError):
+        build_signature(*args, supersample=0)
+    with pytest.raises(ValueError):
+        build_signature(*args, supersample=5)
+
+
 def test_signature_changes_when_presenter_fallback_pose_changes(tmp_path):
     from chunk_utils import build_signature
 

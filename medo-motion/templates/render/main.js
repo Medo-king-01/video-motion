@@ -27,6 +27,15 @@ const auditing = new URLSearchParams(location.search).has('audit');
 // Overlay renders leave the canvas transparent so the frame can be composited on top of
 // another engine's output (hybrid layers). The scene must not paint a full-bleed background.
 const transparent = params.get('alpha') === '1';
+// `only` keeps a named subset of scenes: everything else renders as an empty (transparent) frame,
+// which is what lets one K project supply several hybrid overlays.
+const onlyParam = params.get('only');
+const only = onlyParam ? onlyParam.split(',').map((v) => v.trim()).filter(Boolean) : null;
+if (only) {
+  const unknown = only.filter((id) => !scenes.some((s) => s.id === id));
+  if (unknown.length) throw Error(`unknown scene id(s) in only: ${unknown.join(', ')}`);
+}
+const onlySet = only ? new Set(only) : null;
 // Readback QA must not trigger a mid-run GPU→CPU raster-mode change.
 const ctx = canvas.getContext('2d', auditing ? { willReadFrequently: true } : {});
 const layout = auditing ? captureLayout(ctx) : null;
@@ -150,11 +159,11 @@ window.renderFrame = async (t) => {
 
   const activeIndices = [];
   for (let i = 0; i < scenes.length; i += 1) {
-    if (t >= scenes[i].start && t < scenes[i].end) activeIndices.push(i);
+    if (t >= scenes[i].start && t < scenes[i].end && (!onlySet || onlySet.has(scenes[i].id))) activeIndices.push(i);
   }
   const sceneHandlesStage = activeIndices.some((i) => mods[i]?.manualFixedStage === true);
 
-  if (autoStage && !sceneHandlesStage) {
+  if (autoStage && !sceneHandlesStage && (!onlySet || activeIndices.length > 0)) {
     let captionStyle = null;
     if (stageWords.length > 0 && direction && activeIndices.length > 0) {
       const idx = activeIndices[0];

@@ -142,12 +142,74 @@ def test_main_full_run_sequence_and_report(tmp_path, monkeypatch, capsys):
 
 
 def test_draft_is_rejected_for_engines_without_a_scale_knob(tmp_path, monkeypatch, capsys):
-    proj = make_project(tmp_path, "p")
+    proj = make_project(tmp_path, "r")
     monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
     monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
     monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
     assert pipeline.main() == 2
-    assert "engine K only" in capsys.readouterr().err
+    assert "engines P, K and hybrid" in capsys.readouterr().err
+
+
+def _fake_ffmpeg_probe(monkeypatch):
+    monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
+    monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
+
+
+def test_draft_engine_p_renders_through_run_all_and_never_muxes(tmp_path, monkeypatch, capsys):
+    proj = make_project(tmp_path, "p")
+    seen = []
+
+    def fake_run(cmd, cwd, env=None, timeout=1800, log=None):
+        seen.append({"cmd": " ".join(str(c) for c in cmd), "env": dict(env or {})})
+        if "run_all.py" in seen[-1]["cmd"]:
+            (proj / "out" / "draft.mp4").write_bytes(b"fake draft")
+        return 0
+
+    monkeypatch.setattr(pipeline, "run_cmd", fake_run)
+    _fake_ffmpeg_probe(monkeypatch)
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
+    assert pipeline.main() == 0
+
+    out = capsys.readouterr().out
+    assert "DRAFT · 540x960 @15fps" in out
+    assert "draft -> out/draft.mp4" in out
+    render_calls = [c for c in seen if "run_all.py" in c["cmd"]]
+    assert len(render_calls) == 1
+    env = render_calls[0]["env"]
+    # run_all.py is the only half-resolution path for engine P: it must be told so.
+    assert env["REEL_DRAFT"] == "1"
+    assert env["REEL_DIR"] == str(proj)
+    assert env["FFMPEG_BIN"] == "/fake/ffmpeg" and env["FFPROBE_BIN"] == "/fake/ffprobe"
+    assert not any("ffmpeg" in c["cmd"] for c in seen)  # a draft is never muxed
+    timings = json.loads((proj / "cache" / "pipeline-timings.json").read_text(encoding="utf-8"))
+    assert [step["step"] for step in timings["steps"]] == ["render"]
+
+
+def test_draft_engine_p_fails_when_run_all_writes_no_preview(tmp_path, monkeypatch):
+    proj = make_project(tmp_path, "p")
+    monkeypatch.setattr(pipeline, "run_cmd", lambda *a, **k: 0)
+    _fake_ffmpeg_probe(monkeypatch)
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
+    assert pipeline.main() == 1
+
+
+def test_draft_engine_p_keeps_master_env_clean_without_draft(tmp_path, monkeypatch):
+    """The master path must stay untouched: no REEL_DRAFT leaking into a normal render."""
+    proj = make_project(tmp_path, "p")
+    seen = []
+
+    def fake_run(cmd, cwd, env=None, timeout=1800, log=None):
+        seen.append({"cmd": " ".join(str(c) for c in cmd), "env": dict(env or {})})
+        if "run_all.py" in seen[-1]["cmd"]:
+            (proj / "out" / "video_only.mp4").write_bytes(b"fake picture")
+        return 0
+
+    monkeypatch.setattr(pipeline, "run_cmd", fake_run)
+    _fake_ffmpeg_probe(monkeypatch)
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--steps", "render"])
+    assert pipeline.main() == 0
+    render_calls = [c for c in seen if "run_all.py" in c["cmd"]]
+    assert render_calls and "REEL_DRAFT" not in render_calls[0]["env"]
 
 
 def test_draft_renders_only_half_resolution_and_never_muxes(tmp_path, monkeypatch, capsys):
@@ -214,6 +276,62 @@ def test_draft_real_render_is_playable_half_size(tmp_path):
     assert (info["width"], info["height"]) == (540, 960)
     assert info["duration_s"] == pytest.approx(1.0, abs=0.1)
     assert info["frames"] == "15"
+
+
+def test_hybrid_draft_is_routed_to_the_preview_file(tmp_path, monkeypatch):
+    proj = make_project(tmp_path, "hybrid")
+    (proj / "out" / "hybrid-draft.mp4").write_bytes(b"stub")
+    calls = []
+    monkeypatch.setattr(pipeline, "run_cmd", lambda cmd, *a, **k: calls.append(cmd) or 0)
+    monkeypatch.setattr(pipeline.shutil, "which", lambda name: "/fake/node")
+    monkeypatch.setattr(pipeline.subprocess, "run",
+                        lambda *a, **k: type("R", (), {"returncode": 0,
+                                                      "stdout": '{"executablePath": "/c"}',
+                                                      "stderr": ""})())
+    monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
+    monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--engine", "hybrid", "--draft"])
+    assert pipeline.main() == 0
+    assert "--draft" in calls[0]  # the engine is told, not just the file name
+    assert not any("ffmpeg" in part for part in calls[0][:1])  # no mux in a draft
+
+
+@pytest.mark.slow
+def test_hybrid_draft_is_playable_half_size_with_half_the_frames(tmp_path):
+    """P base + masked K overlay at 540x960/15fps: same seconds, half the frames, no audio."""
+    import shutil
+    import subprocess
+
+    toolkit = ROOT / "tools" / "toolkit" / "node_modules" / "playwright-core"
+    if not toolkit.is_dir() or not shutil.which("node"):
+        pytest.skip("toolkit node_modules missing — run: npm ci --prefix tools/toolkit")
+    spec = importlib.util.spec_from_file_location("ttfv_helpers", ROOT / "tools" / "time_to_first_video.py")
+    ttfv = importlib.util.module_from_spec(spec)
+    sys.modules["ttfv_helpers"] = ttfv
+    spec.loader.exec_module(ttfv)
+    proj = tmp_path / "hybriddraft"
+    subprocess.run([sys.executable, str(ROOT / "tools" / "new_project.py"), "hybriddraft",
+                    "--engine", "hybrid", "--out", str(proj)], check=True, capture_output=True)
+    (proj / "node_modules").symlink_to(ROOT / "tools" / "toolkit" / "node_modules")
+    beats = proj / "plan" / "beats.json"
+    if beats.exists():
+        beats.unlink()
+    (proj / "plan" / "hybrid.json").write_text(json.dumps({
+        "version": 2, "duration_frames": 30, "audio": None,
+        "segments": [{"id": "intro", "start_frame": 0, "end_frame": 30,
+                      "layers": [{"engine": "p"},
+                                 {"engine": "k", "alpha": True, "scenes": ["example"],
+                                  "mask": {"type": "rect", "x": 0.3, "y": 0.2, "w": 0.4, "h": 0.6}}]}]}),
+        encoding="utf-8")
+    result = subprocess.run([sys.executable, str(ROOT / "tools" / "pipeline.py"), str(proj), "--draft"],
+                            capture_output=True, text=True, cwd=str(ROOT))
+    assert result.returncode == 0, result.stdout + result.stderr
+    media = proj / "out" / "hybrid-draft.mp4"
+    assert media.is_file()
+    info = ttfv.probe(media)
+    assert (info["width"], info["height"]) == (540, 960)
+    assert info["frames"] == "15"
+    assert info["duration_s"] == pytest.approx(1.0, abs=0.1)
 
 
 def test_scene_cache_rejects_other_engines_and_draft(tmp_path, monkeypatch, capsys):

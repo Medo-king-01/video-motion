@@ -6,7 +6,42 @@ This scaffold lets one reel use all three engines where each is strongest:
 - **K** — Canvas/Playwright scenes, kinetic type, and its existing motion toolkit.
 - **R** — Remotion compositions and React-based graphics.
 
-The engines make **sequential, full-frame segments** in one video. A segment is assigned to exactly one engine. This does **not** composite simultaneous layers from P, K, and R in the same frame, and it does not transfer one engine's capabilities into another. In particular, P/K transitions and animated icons are not automatically available in R.
+Two shapes are supported, and a project may mix them:
+
+- **v1 — sequential, full-frame segments** <!-- CAP:sequence -->: a segment is assigned to exactly
+  one engine, and that engine owns the whole frame.
+- **v2 — transparent overlays** <!-- CAP:layers -->: a segment carries `layers` = an opaque
+  base plus Engine-K overlays rendered with alpha, so kinetic type or UI can sit over presenter
+  footage <!-- CAP:alpha_layer -->. Up to 4 overlays, composited bottom-up in plan order
+  <!-- CAP:multi_overlay -->. Only K may be transparent <!-- CAP:alpha_k_only -->. With more than
+  one overlay each must name the scenes it draws <!-- CAP:overlay_scene_filter -->:
+
+  ```json
+  {"layers": [{"engine": "p"},
+              {"engine": "k", "alpha": true, "scenes": ["title"]},
+              {"engine": "k", "alpha": true, "scenes": ["chart"]}]}
+  ```
+
+  A scene belongs to exactly one overlay (naming it twice is a plan error), so two overlays can
+  never render the same picture. v1 files keep working: they are normalised on read
+  <!-- CAP:v1_normalised -->. Alpha on P/R is **not** supported.
+- **v2.1 — masked overlay** <!-- CAP:overlay_masking -->: the overlay may carry a static `mask`
+  where **white keeps the base**. This is how type goes *behind* a P presenter:
+
+  ```json
+  {"id": "intro", "start_frame": 0, "end_frame": 60,
+   "layers": [{"engine": "p"},
+              {"engine": "k", "alpha": true,
+               "mask": {"type": "rect", "x": 0.34, "y": 0.42, "w": 0.32, "h": 0.58, "feather": 10}}]}
+  ```
+
+  `rect` takes fractions of the canvas plus an optional `feather` in pixels <!-- CAP:mask_rect -->;
+  `image` takes a project-relative 1080×1920 matte (`white = base wins`) <!-- CAP:mask_image -->.
+  The mask covers the whole segment (no per-frame mattes yet), and only a transparent overlay can
+  carry one — anywhere else it is a plan error, never a silent no-op.
+
+Neither shape transfers one engine's capabilities into another: P/K transitions and animated icons
+are not automatically available in R.
 
 ## 1. Prepare a timeline
 
@@ -32,9 +67,35 @@ Here, 300 frames is 10 seconds. Use the measured VO duration to calculate the fr
 
 For R segments, also keep `plan/beats.json` valid for the **whole** composition: its measured `duration`, contiguous scene boundaries, and final scene end must match the hybrid timeline. P's timing lives in `scenes.py` (`B`); K's lives in `src/data.js`. Edit those engine-native timelines and scene content to suit the reel. The hybrid plan selects which engine renders each interval; it does not rewrite engine scene designs.
 
+## 1a. Layer segments (v2)
+
+A v2 plan uses `layers` instead of `engine` for that segment (`version: 2` at the top level):
+
+```json
+{
+  "id": "presenter-with-type",
+  "start_frame": 0,
+  "end_frame": 90,
+  "layers": [
+    {"engine": "p"},
+    {"engine": "k", "alpha": true}
+  ]
+}
+```
+
+- The first layer is the **opaque base** (P, K or R); the second is a **transparent K overlay**.
+- `engine` and `layers` in the same segment is an error — use one.
+- The overlay module must not paint a full-bleed background: `src/main.js` leaves the canvas
+  transparent when `alpha=1` (it clears instead of filling).
+- Frames come from the segment's frame range only: the overlay is composited with
+  `overlay=format=auto` and `-frames:v` from the frame delta, never from `-shortest` — a mismatch
+  is an error, not a silence <!-- CAP:frame_exact -->.
+- The soundtrack is still added once, after picture assembly
+  <!-- CAP:audio_after_picture -->.
+
 ## 2. Configure and render
 
-Install the R scaffold dependencies once with `npm ci`. K uses the configured shared toolkit/Chromium described in `medo-motion/reference/planning-and-tracking.md` and `tools/chromium.mjs`; no browser or packages are downloaded automatically by the hybrid renderer.
+Install the R scaffold dependencies once with `npm ci`. K uses the configured shared toolkit/Chromium described in `medo-motion/reference/planning-and-tracking.md` and `tools/chromium.mjs`. When `MEDO_TOOLKIT`/`MEDO_CHROMIUM` are not set, the hybrid renderer asks `tools/chromium.mjs --json` for the bundled browser and uses `tools/toolkit` if it is installed — nothing is downloaded; if neither exists the K render reports it itself.
 
 From this project directory:
 
@@ -45,6 +106,16 @@ python3 ../../tools/render_hybrid.py --project .
 The renderer validates the plan before rendering, checks every silent engine segment with ffprobe for exact frame count, dimensions, and frame rate, then joins the segments and adds the soundtrack once. The finished file is `out/hybrid.mp4`; per-segment diagnostics are kept in a unique `cache/hybrid-*` directory. Existing output files are never overwritten. Choose a new `--out` path for another version.
 
 Optional command-line overrides: `--plan`, `--out`, `--audio` (or `--audio -` to force silence), `--ffmpeg`, `--ffprobe`, `--node`, and `--python`.
+
+### Draft preview (never a master)
+
+`python3 ../../tools/render_hybrid.py --project . --draft` (or `pipeline.py . --draft`) writes
+`out/hybrid-draft.mp4` at 540×960 / 15 fps from the same plan and the same layer order: P bases take
+`--draft` (every other source frame), K bases and K overlays take `--fps 15 --scale 0.5`, and masks
+are built on the 540×960 canvas. Draft frame `k` is source frame `2k`, so the duration matches the
+master exactly. An R base is refused outright, `--audio`/`--qa` are refused, and a draft never
+touches the master, its cache, or the QA gate — 15 fps exists only in files named `*-draft.mp4` /
+`draft.mp4`.
 
 ## Scope and quality checks
 

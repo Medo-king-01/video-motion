@@ -14,7 +14,7 @@ import numpy as np
 
 from arabic_shape import visual_word_order
 from caption_motion import caption_transform, resolve_text_style
-from lib import INK, RED, WHITE, YEL, paste, text_sprite
+from lib import INK, RED, SCALE, WHITE, YEL, paste, text_sprite
 from text_direction import font_for, text_style_for
 
 try:
@@ -195,7 +195,8 @@ def draw_word_caption(fr, t, words, *, style, size=76, y=1455, color=WHITE,
         if still
         else raw_m
     )
-    cx = fr.shape[1] / 2 + m["x"] * size
+    # The layout math stays in the design space (the buffer is scaled at the write boundary).
+    cx = fr.shape[1] / SCALE / 2 + m["x"] * size
     cy = y + m["y"] * size
 
     if m["karaokeP"] >= 0:
@@ -219,8 +220,10 @@ def draw_word_caption(fr, t, words, *, style, size=76, y=1455, color=WHITE,
         uw = tw * m["underlineP"]
         uy = cy + size * 0.62 * m["scale"]
         col = accent if theme == "dark" else RED
-        cv2.line(fr, (int(cx + uw / 2), int(uy)), (int(cx - uw / 2), int(uy)),
-                 col, max(4, int(size * 0.07)), cv2.LINE_AA)
+        t_d = max(4, int(size * 0.07))
+        cv2.line(fr, (int((cx + uw / 2) * SCALE), int(uy * SCALE)),
+                 (int((cx - uw / 2) * SCALE), int(uy * SCALE)),
+                 col, max(1, int(round(t_d * SCALE))), cv2.LINE_AA)
     return word
 
 
@@ -282,11 +285,11 @@ def draw_phrase_caption(
 
     ordered = visual_word_order(prepared)
     total_w = sum(item["ink_w"] for item in ordered) + space * max(0, len(ordered) - 1)
-    max_line_w = float(fr.shape[1] - 80)
+    max_line_w = float(fr.shape[1] / SCALE - 80)
     fit_scale = min(1.0, max_line_w / total_w) if total_w > 0 else 1.0
     group_scale = (1.0 if still else (1.0 + (base_m["scale"] - 1.0) * 0.35)) * fit_scale
 
-    line_cx = fr.shape[1] / 2.0 + (0.0 if still else base_m["x"] * size * 0.4)
+    line_cx = fr.shape[1] / SCALE / 2.0 + (0.0 if still else base_m["x"] * size * 0.4)
     line_cy = y + (0.0 if still else base_m["y"] * size * 0.4)
     right = (total_w * group_scale) / 2.0
 
@@ -347,15 +350,17 @@ def draw_text_slot(
     pad_top = size * 0.78
     pad_bot = size * 0.68
     slot_h = pad_top + pad_bot
+    # Slot math stays in the design space; the masked save/restore regions follow the buffer.
     x0 = max(0, int(round(cx - max_width / 2)))
-    x1 = min(fr.shape[1], int(round(cx + max_width / 2)))
+    x1 = min(fr.shape[1] / SCALE, int(round(cx + max_width / 2)))
     y0 = max(0, int(round(cy - pad_top)))
-    y1 = min(fr.shape[0], int(round(cy + pad_bot)))
+    y1 = min(fr.shape[0] / SCALE, int(round(cy + pad_bot)))
     if x1 <= x0 or y1 <= y0:
         return None
 
-    saved_top = fr[:y0].copy() if y0 > 0 else None
-    saved_bot = fr[y1:].copy() if y1 < fr.shape[0] else None
+    dy0, dy1 = int(round(y0 * SCALE)), int(round(y1 * SCALE))
+    saved_top = fr[:dy0].copy() if dy0 > 0 else None
+    saved_bot = fr[dy1:].copy() if dy1 < fr.shape[0] else None
 
     if prev is not None and u < 1.0:
         prev_spr = _word_sprite(prev["text"], size, color, family, weight)
@@ -369,9 +374,9 @@ def draw_text_slot(
     paste(fr, cur_spr, cx, cur_y, scale=cur_scale, alpha=cur_alpha)
 
     if saved_top is not None:
-        fr[:y0] = saved_top
+        fr[:dy0] = saved_top
     if saved_bot is not None:
-        fr[y1:] = saved_bot
+        fr[dy1:] = saved_bot
 
     if _layout_p is not None and _layout_p.is_capturing():
         raw_box = _layout_p.sprite_aabb(cur_spr, cx, cur_y, scale=cur_scale)
@@ -426,6 +431,8 @@ def draw_directed_text(fr, text, *, direction, scene, role, element_id=None,
             uw = tw * m["underlineP"]
             uy = y + size * 0.62 * m["scale"]
             col = accent if theme == "dark" else RED
-            cv2.line(fr, (int(x + uw / 2), int(uy)), (int(x - uw / 2), int(uy)),
-                     col, max(4, int(size * 0.07)), cv2.LINE_AA)
+            t_d = max(4, int(size * 0.07))
+            cv2.line(fr, (int((x + uw / 2) * SCALE), int(uy * SCALE)),
+                     (int((x - uw / 2) * SCALE), int(uy * SCALE)),
+                     col, max(1, int(round(t_d * SCALE))), cv2.LINE_AA)
     return style

@@ -1,5 +1,380 @@
 # Changelog
 
+**Scope:** the studio as it ships — engines P/K/R, the hybrid renderer, `tools/`, tests, contracts and
+documentation. It starts at **2026-11-09** and is newest-first. The toolkit's own version history
+(scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
+**here**, never in both (there is a test for that).
+
+## Unreleased — 2026-11-10 (engine P renders drafts into a real 540x960 buffer)
+
+Engine P drew every frame in one 1080x1920 canvas and shrank it before the encoder: the draft paid
+for pixels the encoder throw away. The design space is now separated from the device buffer.
+`lib.SCALE` (0.5 under `REEL_DRAFT=1`, overridable with `REEL_SCALE` for tests; invalid values are
+refused, never clamped) converts every buffer write — `paste`, `fill_rect`, the direct `cv2.line`
+underlines and `speed_lines`, the `camera` warpAffine, the full-canvas backgrounds — while sprites,
+fonts and layout math stay in the design space. The sprite cache is shared with the master, so the
+master path is byte-identical (verified on 10 timeline points), and `chunk.py` /
+`render_p_segment.py --draft` feed the encoder the 540x960 buffer directly (the shrink step is gone).
+
+Measurements on the fixture reel at `REEL_SS=1`, same session: **109 ms/frame** against **163 ms** for
+the old render-then-shrink draft (**1.49x**), with the picture matching the shrunk master at
+MAE 0.4-1.6/255, PSNR 33-41 dB across the timeline (the Fixed Stage path: MAE 0.9-1.5/255, PSNR
+32-37 dB). `tests/test_p_draft_buffer.py` (12 tests) pins the validation, the buffer shape, the
+picture parity, the stage window geometry under scale, and the chunk output.
+
+## Unreleased — 2026-11-10 (the real-Remotion suite stops failing only when it runs in parallel)
+
+`pytest -n 2` over the modules that do real Remotion renders failed about one run in two, with either
+`The requested path (/tmp/remotion-webpack-bundle-.../index.html) could not be found` or `Error: The
+bundler completed without emitting bundle.js`. Both are one collision: Remotion derives its bundle
+work directory from the **entry point** (`src/index.ts`) under the shared OS temp root, and every
+scaffolded project has the same relative entry, so two workers building at the same instant resolve
+to the same directory — one cleans up while the other is still writing or serving it. The retry
+wrapper added earlier treated the symptom.
+
+`tests/conftest.py` now gives each test process its own `TMPDIR` (`remotion_env()`), which Remotion
+and webpack both honour; every Remotion subprocess in the suite receives it. Evidence: **2 failures
+in 3 parallel runs before, 0 in 5 after**. `tests/test_remotion_isolation.py` guards the property —
+stable within a process, different across processes, and actually present in the environment handed
+to the renderer — so replacing `mkdtemp` with a fixed path fails loudly.
+
+Deliberately scoped to tests: isolating every render process also throws away Remotion's bundle reuse
+between consecutive renders of the same project, which is a speed feature the product relies on.
+
+## Unreleased — 2026-11-10 (the soft glow stops blurring pixels the halo cannot show)
+
+Profiling a master engine-P chunk (8 frames, `REEL_SS=3`) put `gaussian_blur` at **3.07 s of 8.34 s**
+and `resize` at another 20%. The cause was `lib.circle_spr`: the halo behind a disc was drawn on the
+whole supersampled canvas and blurred there — a 600 px radius with a 40 px glow is a 4104x4104 canvas
+blurred with sigma 96. A sigma-96 Gaussian carries no detail finer than 96 px, so ~60x more pixels
+were processed than the result could show, once per frame (the radius animates, so the sprite cache
+never hit).
+
+The halo is now drawn on the coarsest grid that still resolves its gradient (sigma ~= 4 px), blurred
+there, upscaled with BILINEAR, and composited **under** the disc at logical size (1368x1368 instead
+of 4104x4104). Measurements on the same material:
+
+| | before | after |
+|---|---|---|
+| 9-frame master chunk, `REEL_SS=3` | 9.19-9.65 s | **4.96-5.20 s** (1.85x) |
+| draft pipeline, 30 frames, `SS=3` | 22.8 s | **13.4 s** (1.70x) |
+| draft pipeline, 30 frames, `SS=1` | 7.5 s | 7.3 s (unchanged: drafts never paid this) |
+| `circle_spr(600, RED, 40)` alone | 1224 ms | **453 ms** (2.7x) |
+
+Quality on a real 1080x1920 master frame: MAE 0.477/255, PSNR 42.0 dB, and the difference sits on the
+halo feather (largest alpha delta 25/255 at the rim) — see `previews/glow-edge.png`.
+`tests/test_glow_sprite.py` guards it: the blur must see a canvas at least 8x smaller than the sprite
+(so going back to full-canvas blurring fails), the sprite keeps its bbox and solid core against an
+exact reference blur, it stays deterministic and cached, and the halo survives every `REEL_SS` value.
+
+## Unreleased — 2026-11-10 (the two monster test files, split without losing a test)
+
+`tests/test_fixed_stage.py` was 2,434 lines and `tests/test_machine_explainer.py` 1,558; changing one
+category meant scrolling past four others, and a failing line number told you nothing about which
+engine phase it belonged to. Both are now split along the categories they already had:
+
+| was | now |
+|---|---|
+| `test_fixed_stage.py` 2,434 | `test_fixed_stage.py` 591 (A–D geometry/clipping/audits) · `_remotion.py` 441 (E1–E2) · `_scaffold.py` 813 (E3–E5) · `_determinism.py` 430 (F–G) · `fixed_stage_support.py` |
+| `test_machine_explainer.py` 1,558 | `test_machine_explainer.py` (X01–X03) · `_parity.py` (X04, P/K/R parity, archetypes, CLI) · `_remotion.py` (2 real renders) · `machine_explainer_support.py` |
+
+Nothing was deleted, rewritten or re-marked: the Fixed Stage suite still collects exactly 18 tests and
+the Machine Explainer suite exactly 13, and both were re-run green (18 in 235 s, 13 in 73 s). The
+Chromium/Remotion fixtures moved to `tests/conftest.py` and became session-scoped — splitting one
+module into three must not buy three `npm ci` runs and three browser boots per CI job.
+
+Two new guards in `tests/test_test_layout.py` (in the fast `contracts` CI group): no test module past
+900 lines (largest today is 813), and no `test_` function inside a `*_support.py` file — pytest never
+collects those, so such a test fails silently forever. CI groups are now 104 files (contracts 33 ·
+unit 26 · render 45).
+
+## Unreleased — 2026-11-10 (N4 decided with measurements, not taste)
+
+**The Git LFS question finally has numbers behind it.** Current `.git`: 111.5 MiB pack, 17 commits.
+Every blob in history: 166.5 MB, of which **152.3 MB (91.5%) is binary** — 81.7 MB of fonts in 314
+blobs for ~314 files, 63.9 MB of images in 98 blobs for 100 files. That ratio is the answer: 314
+blobs for 314 files means history holds almost no duplicate binary versions, and LFS deduplicates at
+the blob level, so migrating would **move** 152 MB into a second store rather than save it. A clone
+that renders still downloads the assets; a clone that only wants code already has a dependency-free
+answer, measured here — `--filter=blob:none` ships 0.26 MB of commit/tree graph instead of a 112 MB
+pack, against lazy blob fetch.
+
+So: no migration now, and `docs/repository-weight.md` states why, with the table, plus the recipe if
+that flips (cheap to run today with 17 commits, which is exactly why the decision is recorded now).
+The remaining lever is the owner's: purging `assets/poses/source` (35.6 MB) from history saves that
+much in the pack and loses the master art `make poses` rebuilds cut-outs from.
+`tests/test_repo_weight.py` now fails if `.gitattributes` ever gains `filter=lfs` while the doc still
+says there is none — or if the decision loses its measurements.
+
+## Unreleased — 2026-11-10 (a P draft stops supersampling pixels the encoder throws away)
+
+**Engine P's draft was saving frames but not pixels.** A P frame is dominated by sprite work: `lib.D`
+draws every shape `SS`x larger (3x), blurs it and LANCZOS-downsamples it. A draft is delivered at
+540x960 — half the buffer — so the third supersample never survives, and the draft was paying for it
+anyway. `REEL_SS` (1-4, validated, refused rather than clamped) makes that a knob; `--draft` asks for
+`SS=1` while a caller-set value still wins, both in `render_p_segment.py` and in `run_all.py` (before
+`import scenes`, which is where the factor is read).
+
+Measured on the fixture reel: **874 -> 215 ms per frame**, a 30-source-frame segment **14.0 s -> 4.1 s**
+(3.4x), the pipeline's chunk path **23.8 s -> 7.7 s** (3.1x), and a full master/draft comparison of
+**27.2 s -> 4.1 s (6.6x)** for the same timeline. The picture is the same preview: MAE < 1/255 and
+36-38 dB PSNR between the SS=1 and SS=3 drafts of the same frames, and the sprite itself keeps its
+size and its solid pixels while only the feathering moves (tested structurally, not by eyeballing).
+
+**A cache bug fell out of the same knob:** `build_signature` keyed chunks on source, plan, mode and
+draft — not on supersampling — so a preview chunk could have been served for a render at another
+factor. The key now carries `supersample`, and `tests/test_engine_p_chunks.py` fails if two factors
+collide. `tests/test_p_draft_supersample.py` (12) pins the validation, the sprite geometry, and both
+render paths.
+
+What this does **not** do: a real 540x960 buffer. Engine P still composes at 1080x1920 and shrinks.
+That needs the design space (1080x1920, with absolute pixel typography) separated from the device
+buffer across 41 modules — scoped in `docs/preview.md`, still open.
+
+## Unreleased — 2026-11-10 (the weights Git does not see)
+
+**First run needs a network and ~1.5 GB of untracked state; nothing said so.** `tools/toolkit/node_modules`
+is 85 MB, `.venv` 648 MB, `.git` 114 MB, and an Engine-R project another ~400 MB — all correctly
+ignored by Git, none of them documented, so a fresh clone looked like it should render immediately.
+`docs/repository-weight.md` now carries that table with how each piece is obtained, why the answer is
+**not** to vendor a cache in Git (that would recreate the exact weight problem the ratchet measures),
+and what `--prefer-offline` / the pip cache buy you on the second run.
+
+## Unreleased — 2026-11-10 (R renders ranges — the contract said otherwise)
+
+**"R has no range API" was false in three places.** `tools/render_scenes.py`'s docstring,
+`pipeline.py`'s `--scene-cache` refusal and `docs/scene-cache.md` all told an agent that Remotion
+cannot render a partial timeline, and refused the engine on that basis. `scripts/render.mjs` has
+`--from-frame`/`--to-frame` (half-open, validated against the locked 30 fps timeline *before* a
+browser opens) — and `render_hybrid.py` had been rendering R segments through it all along. The
+capability existed and the contract denied it, which is the same class of drift as N1.
+
+The statements are corrected, and the capability is now pinned by behavior rather than prose:
+`tests/test_remotion_range.py` proves an empty range and an out-of-timeline range are refused with
+sentences, and that a valid range gets past range validation into the next gate (text direction)
+without drawing a frame — no Chromium, no `npm ci`.
+
+**Why R still has no per-scene cache** is now stated with evidence instead of the wrong reason: the
+scaffold has one composition (`RemotionRoot.tsx` + 46 files under `src/lib/`) that reads
+`plan/beats.json` and draws every scene, so a key built from "that scene's own code" is the whole
+project — every edit would invalidate every segment, and a cache that never hits is worse than none.
+If the scaffold is ever split into per-scene modules, the cache becomes possible; the doc says so.
+
+## Unreleased — 2026-11-10 (the two changelogs are consecutive, and now say so)
+
+**`CHANGELOG.md` and `medo-motion/CHANGELOG.md` were read as duplicates — they are not.** Comparing
+them section by section: 27 and 22 headings, **zero** shared, and the split is chronological — the
+toolkit's own scaffold 1.0 → 2.7 (2026-11-01 → 11-09) against the studio log that starts 2026-11-09.
+Merging would rewrite a versioned archive, so instead the boundary is explicit and enforced: the root
+log is the live one, `medo-motion/CHANGELOG.md` is marked a frozen archive that points here,
+`AGENTS.md` §10a tells an agent to write exactly one entry and never in both, and
+`tests/test_changelogs.py` fails on a shared heading, an `Unreleased` section in the archive, or a
+missing scope banner. The docs index names both files and their scope.
+
+The 6.3 MB of `docs/audition` MP3s stay: they are the listening evidence for the mixes, and the new
+weight ratchet (`tools/repo_weight.py`) is what stops them from growing.
+
+## Unreleased — 2026-11-10 (N7, measured: the zod warning is the price of a patched zod)
+
+**The zod override is not laziness, and now the numbers say so.** Every Engine-R render logs
+`Version mismatch: zod: installed 4.6.7, required 4.5.4` because Remotion 4.0.539 pins `zod@4.5.4`
+exactly (`@remotion/studio-shared`'s `extraPackages`), and the scaffold overrides it to `^4.6.7`.
+Removing the override does silence the warning — `npx remotion versions` then prints
+`All packages have the correct version.` — but the same swap re-opens a high advisory:
+
+| scaffold | `npm audit` | `npx remotion versions` |
+|---|---|---|
+| `overrides: zod ^4.6.7` (current) | **0 vulnerabilities** | `zod: installed 4.6.7, required 4.5.4` |
+| no override (4.5.4) | **10 high** — zod "can exhaust memory while validating oversized constrained collections" plus nine Remotion packages | `All packages have the correct version.` |
+
+Both rows were measured here with `npm ci` on the same template, so the trade-off is evidence rather
+than an assumption. The override stays; `tests/test_remotion_skill.py` now asserts it is present,
+that the lockfile actually resolves zod ≥ 4.6.7 (an override that never reached the lock would leave
+4.5.4 installed), and that `docs/remotion.md` still explains why. That doc carries the table, and
+`medo-motion/skills/remotion/SKILL.md` tells the next upgrade to keep the override until Remotion
+requires a patched zod — instead of "fixing" the warning.
+
+## Unreleased — 2026-11-10 (repository weight has a gate, and ffprobe stops being a subset)
+
+**Nothing noticed when the repository got heavier.** 165 MB of tracked assets (81.7 MB fonts,
+64.4 MB images, 35.6 MB of `assets/poses/source`) sat behind a `.git` of ~112 MB and only a review
+ever looked. `tools/repo_weight.py --check` now guards it in CI with two rules: total tracked weight
+may not exceed `docs/repo-weight-baseline.json` by more than 2 MB, and any tracked file of 3 MB or
+more must be named in that baseline. A new heavy asset therefore needs a deliberate `--update`,
+which prints the delta so the weight change appears in the same diff as the code that caused it.
+No Git LFS was added, and `docs/repository-weight.md` says why plus the exact migration recipe if
+that decision ever flips. `tests/test_repo_weight.py` (7: categories, ratchet, heavy-file rule,
+update-then-check, missing baseline, and the committed baseline still matching the tree).
+
+**`tools/ffprobe_shim.py` is a fallback again, not a ceiling.** It only understood the option
+subset the studio used by hand; anything else (`-of csv`, `-read_intervals`, `-show_packets`) was
+silently ignored. It now execs a real `ffprobe` when one is on PATH (or named by
+`MEDO_REAL_FFPROBE`) and keeps the PyAV path only as the fallback — never delegating to
+`tools/bin/ffprobe` or to itself, which would loop forever. `--supported` prints the field
+catalogue the fallback promises, `MEDO_FFPROBE_SHIM_ONLY=1` pins the fallback, and
+`tests/test_tool_contracts.py` proves delegation, the no-self-delegation rule, the escape hatch, and
+that every emitted field is declared.
+
+## Unreleased — 2026-11-10 (hybrid: a real draft preview, and a shim that survives any cwd)
+
+**A hybrid reel can be previewed in half the time.** `pipeline.py <project> --draft` now accepts
+`--engine hybrid` (it used to exit 2) and writes `out/hybrid-draft.mp4` at 540×960 / 15 fps from the
+same `plan/hybrid.json`: P bases take `--draft` (every other source frame), K bases and K overlays
+take `--fps 15 --scale 0.5`, and masks are generated on the 540×960 canvas (`drawbox` coordinates
+scaled, `color=540x960:r=15`). Draft frame `k` is source frame `2k`, so the reel keeps its duration
+to the millisecond and the soundtrack would still line up if you went back to the master. An R base
+is refused before rendering, and a draft refuses `--qa`/`--qa-report`/`--audio` and any segment
+shorter than two source frames. Measured on a 60-frame (2.000 s) plan — P base plus a masked K
+overlay — the master took 42.1 s and 516 KB, the draft 23.5 s and 177 KB (**1.79×**), with matching
+picture: frame 0 mean brightness 35.0 (master) vs 35.1 (draft) and draft frame 15 identical to
+master frame 30.
+
+**`tools/bin/ffprobe` no longer depends on where you stand.** `setup.sh` wrote the shim with
+`$(command -v "$PY")`, which is relative when setup is run as `.venv/bin/python`; every tool it
+launched from a project directory then died with `.venv/bin/python: not found` — exactly how the
+hybrid renderer is invoked. The shim now bakes in an absolute interpreter, and
+`tests/test_repo_hygiene.py` proves it answers from a foreign working directory.
+
+Contract updated in both directions: `AGENTS.md` step 6 and `medo-motion/templates/HYBRID.md` name
+the draft path and its 15 fps exception, `docs/preview.md` and `docs/hybrid.md` carry the numbers.
+`tests/test_hybrid_draft.py` (15: canvas, frame anchoring, every engine's flags, mask canvas, stack
+rate, and the three guards) plus two pipeline tests (routing, and one real half-size render).
+
+## Unreleased — 2026-11-10 (hybrid: Engine K finds its own browser)
+
+**A hybrid reel no longer needs a pre-configured shell.** `render_hybrid.py` now resolves the
+toolkit and bundled Chromium itself when `MEDO_TOOLKIT`/`MEDO_CHROMIUM` are unset: it uses
+`tools/toolkit` when `playwright-core` is installed there and asks `tools/chromium.mjs --json` for
+the browser path, which only unpacks the npm package on disk — it downloads nothing. A caller that
+already set the variables is left untouched, a broken or missing helper is not fatal (the K render
+still reports its own error), and a plan with no K layer never probes the browser at all.
+
+Before this, a hybrid reel with a K overlay run from a clean shell died inside Node with
+`Cannot find module 'playwright-core'` while `pipeline.py` worked — the same plan behaving
+differently depending on who started it. Verified from a clean shell
+(`env -u MEDO_TOOLKIT -u MEDO_CHROMIUM -u LD_LIBRARY_PATH`): a masked K overlay renders and the
+plan reports `HYBRID OK · 1 layered, 1 K overlay(s) (1 masked) · 30 frames` in 31 s.
+`tests/test_hybrid_env.py` (6: needs-k detection, fill rules, caller wins, broken helper, no
+subprocess when the helper is absent).
+
+## Unreleased — 2026-11-10 (hybrid v2.2: several K overlays)
+
+**Up to four transparent Engine-K overlays above one base, stacked in plan order.** One K project
+holds one scene tree, so two overlays need a way to be two different pictures: each overlay now
+names the scenes it owns (`"scenes": ["title"]`). `render.js --only a,b` validates the ids in Node
+before the browser opens (an unknown id used to stall the page for its 30 s timeout), and `main.js`
+draws only those scenes, leaving every other moment transparent. A scene belongs to exactly one
+overlay; once a segment has more than one overlay, an overlay without `scenes` is a plan error
+rather than a silent duplicate of its neighbour.
+
+**One encode for the whole stack.** Overlays are composited in a single FFmpeg pass (each PNG
+sequence is an input, each layer gets its own `overlay` link, masks included), because a per-layer
+pass would be another CRF-13 generation and a four-layer reel would soften visibly.
+
+Verified on a real project with two overlays (`scenes: ["example"]` and `["arabic-example"]`, mask
+on the upper one): the first overlay covers 100% of the frame at t=0.5 s and 0% at t=2.5 s, the
+second is the exact inverse, and the 90-frame file comes out in one encode.
+`tests/test_hybrid_stack.py` (17) + `tests/test_hybrid_layers.py` +4 (two-colour stack, mask on the
+top layer, a real `--only` Chromium render, unknown-id rejection). `CAPABILITIES` swaps
+`single_overlay` for `multi_overlay` + `overlay_scene_filter`, marked in both contracts.
+
+## Unreleased — 2026-11-10 (hybrid v2.1: masked overlay)
+
+**Type can now pass *behind* a presenter instead of over his face.** A v2 overlay accepts a static
+`mask` where **white keeps the base**, so the renderer hands exactly those pixels back to the P
+footage:
+
+```json
+{"engine": "k", "alpha": true,
+ "mask": {"type": "rect", "x": 0.34, "y": 0.42, "w": 0.32, "h": 0.58, "feather": 10}}
+```
+
+`rect` takes canvas fractions plus a pixel feather (realised as a `gblur` on the matte, so the edge
+ramps instead of stepping); `image` takes a project-relative 1080×1920 matte, converted to gray and
+read as a third FFmpeg input. Absolute paths and paths that leave the project are plan errors, a
+missing matte fails **before** the base is touched, and a mask anywhere but a transparent overlay
+is rejected rather than silently ignored.
+
+**The maths is a subtraction, not a redraw:** `alpha(K) × (1 − mask)` via
+`alphaextract → blend=multiply → alphamerge` before the overlay. Verified on a real hybrid project
+(same scene, mask vs no mask): pixels inside the rectangle differ by 57.5 on average, pixels
+outside differ by **0.0** — the overlay was removed from the requested area and nothing else moved.
+`tests/test_hybrid_masks.py` (24, new: plan contract + graph shape + matte safety),
+`tests/test_hybrid_layers.py` +4 (real rect, feathered edge ramp, matte image, missing matte
+leaves the base byte-identical), and `CAPABILITIES` grew `overlay_masking`/`mask_rect`/
+`mask_image`, marked in `AGENTS.md` and `HYBRID.md` and enforced by `tests/test_capability_contract.py`.
+
+## Unreleased — 2026-11-10 (batch 3, part 3: draft preview for engine P)
+
+**`--draft` now covers engine P too.** `pipeline.py <project> --draft` on a P project runs
+`run_all.py` with `REEL_DRAFT=1` and returns `out/draft.mp4` (540×960 @ 15fps) without touching
+the master: chunks land in `out/draft_chunks/`, the log is `out_log-draft.txt`, and
+`out/video_only.mp4` plus its own chunks are left exactly as they were. Preview frame `i` is
+source frame `2i`, so the timeline is identical to the master — the preview is the same 55 seconds,
+sampled every other frame and encoded at half size (CRF 13 kept: a review copy should not look
+worse than the film).
+
+**The saving is temporal, and it is real.** P still *renders* at 1080×1920 and downscales on the
+way to the encoder, so the win comes from half the frames, not from a canvas knob. Measured here on
+the demo timeline (55.2 s, 2 vCPU, no GPU): master 1,656 frames in **429 s** (33.7 MB) vs draft
+828 frames in **227 s** (9.5 MB) — **1.89× faster, 3.5× smaller**. K's draft still wins more
+(≈3×) because Chromium renders fewer pixels; the honest comparison is in `docs/preview.md`.
+
+**Preview and master never share cache.** `build_signature(..., draft=True)` mixes a
+`draft-preview` marker into the hash, so a half-size chunk can never be served to a master (or the
+reverse) even though both are built from the same source files; a master run on an unchanged tree
+still reuses its chunks (verified: two consecutive master runs, no invalidation), and a draft run
+leaves them alone. `tests/test_engine_p_chunks.py` +1 (draft ≠ master signature, draft stable),
+`tests/test_pipeline.py` +3 (P draft runs through `run_all` with `REEL_DRAFT`/`REEL_DIR`/binaries
+and never muxes, missing preview fails loudly, master path stays free of `REEL_DRAFT`), and the
+old "engine K only" rejection test now asserts the P-and-K message on an R project.
+
+## Unreleased — 2026-11-10 (tool contracts · binary attributes · graceful optional dependency)
+
+**The seven untested tools now have contracts.** `tests/test_tool_contracts.py` (18 tests) pins
+what a CLI owes its caller, not its internals: every one of `fonts_preview`, `itshover_import`,
+`transitions_sheet`, `visual_verify`, `whisper_align` and `whisper_fetch` answers `--help` and
+rejects unknown flags with exit `2`; `ffprobe_shim` answers the exact subset the studio uses
+(`format=duration`, stream `codec_name`/`sample_rate` on a real WAV) and fails loudly on a missing
+file; `fonts_preview` writes a sheet at the requested width; `transitions_sheet --only <name>`
+renders one cell; `itshover_import --list` prints the registry.
+
+**`whisper_align` no longer explodes on import.** It imported `faster_whisper` at module level, so
+`--help` — and any test that imports the file — died with `ModuleNotFoundError` instead of saying
+what to install. The dependency is now loaded at call time and a missing one exits `2` with
+`pip install faster-whisper` and the fetch hint; the contract test asserts that message and that no
+traceback is printed. Everything else in the studio already runs without it.
+
+**`.gitattributes` — binaries stay binary, text stays LF.** There is deliberately **no Git LFS**:
+history is ~112MB, LFS would add a dependency to every clone and to CI, and the real decision
+(whether the repo is shared widely) belongs to the owner. What is pinned instead: `* text=auto`,
+`binary` for fonts/images/audio/video, `text eol=lf` for code and docs. `tests/test_repo_hygiene.py`
+(7 tests) checks it through `git check-attr`, so deleting or narrowing the file fails the suite
+rather than silently rewriting a font.
+
+## Unreleased — 2026-11-10 (contract↔capability guard · deterministic render group · coverage floor)
+
+**The operating contract can no longer drift from the renderer.** Hybrid v2 shipped while
+`AGENTS.md` and `templates/HYBRID.md` (the copy every hybrid project receives) still said
+simultaneous layers were out of scope — a feature no doc-driven agent would use. Both contracts
+now describe v1 *and* v2, every capability they describe carries a marker
+(`<!-- CAP:alpha_layer -->`), and `tools/render_hybrid.py` declares the same list as
+`CAPABILITIES`. `tests/test_capability_contract.py` (14 tests) compares the sets **in both
+directions** — an implemented-but-unmarked capability fails, and a marked capability that no
+longer exists fails too — plus it rejects unknown markers anywhere in the docs and checks that
+each name has code evidence (e.g. `alpha_layer` → `--alpha`). Removing the `alpha_layer` marker
+today reproduces the historical drift as a red test.
+
+**`--dist loadgroup` makes the Remotion marks real.** `@pytest.mark.xdist_group` is inert under
+xdist's default `load` scheduling, which is why the earlier grouping did not stop the webpack
+bundle race. The CI render job now runs `-n 2 --dist loadgroup`, so the four bundling tests share
+one worker; the one-shot retry on the transient 404 stays as a second line of defence.
+
+**Coverage floor, raised deliberately.** The coverage job is no longer informational: it runs with
+`--cov-fail-under=30` and a failing coverage run now blocks a PR (`make coverage` uses the same
+floor). The number starts below the measured total (32.7% on the fast loop) so the gate can only
+move up; raising it is an explicit edit, not a drift.
+
 ## Unreleased — 2026-11-10 (CI: Remotion bundlers no longer race)
 
 **Remotion render tests are pinned to one xdist worker.** The two real-render tests in

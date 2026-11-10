@@ -249,7 +249,8 @@ is the portable inventory it extends. Do not install anything else "just in case
    and `DURATION_IN_FRAMES` (R, from `plan/beats.json`) end exactly on the VO duration; the SFX bus
    and mix are cut to it.
    `tests/test_vo_length.py` fails if any doc or template reintroduces a fixed length.
-3. **Engine choice** — see §6. A reel may use the validated hybrid renderer for sequential full-frame segments; this is not simultaneous layer compositing.
+3. **Engine choice** — see §6. A reel may use the validated hybrid renderer for sequential full-frame
+   segments **and**, since v2, for one transparent Engine-K layer composited over an opaque base.
 4. **Scenes** — first choose the motion for EVERY on-screen text element:
    `python3 tools/text_direction.py projects/<slug> --init`, then fill `captionStyle` / `textStyles` /
    `textElements` per scene with a rationale, and give every `plan/copy.json` fragment a `role`
@@ -257,6 +258,11 @@ is the portable inventory it extends. Do not install anything else "just in case
    "production" from the first attempt.
 5. **Assets** — code → AI → search, respect the ladder and the licence log.
 6. **Render** — use P, K, or R individually, or render sequential P/K/R segments with `tools/render_hybrid.py`; then mix/master as specified by that workflow.
+   For a review copy, `pipeline.py <project> --draft` renders 540×960 / 15 fps into
+   `out/draft.mp4` (engine K or P) or `out/hybrid-draft.mp4` (engine hybrid, same plan and layer
+   order, P bases `--draft`, K bases/overlays `--fps 15 --scale 0.5`, masks on the 540×960 canvas).
+   A draft is the one documented exception to the 30 fps lock: it never muxes, never passes a QA
+   gate, never overwrites a master, and R has no draft path at all. See `docs/preview.md`.
 7. **QC** — ≥3 visual rounds (contact sheets), probe the MP4, check loudness, check the
    Arabic with your eyes, run `brand_check.py`.
 8. **Deliver** — the master MP4 + an 8–10 line Arabic message (§8).
@@ -277,12 +283,31 @@ render only after `plan/beats.json` has the measured VO timeline. R currently ha
 and a basic pose component; it does not inherit P/K's animated icon or transition catalogs.
 
 When a concept genuinely needs multiple strengths in one reel, scaffold `--engine hybrid`.
-Its v1 contract is **sequential, full-frame segments** with one engine assigned to each
-half-open frame range; it does not layer engines simultaneously or transfer features between
-them. `HYBRID.md` and `tools/render_hybrid.py` define the frame/audio contract, validation,
-and assembly. The hybrid runner fails closed on gaps, overlaps, dimensions, frame counts,
-frame rate, or duration errors. It adds the single soundtrack after picture assembly and
-introduces no pre-render approval gate.
+`HYBRID.md` and `tools/render_hybrid.py` define the frame/audio contract, validation, and
+assembly; neither engine's features are transferred into another.
+
+- **v1 — sequential segments** <!-- CAP:sequence -->: one engine owns each half-open frame range,
+  full frame.
+- **v2 — transparent overlays** <!-- CAP:layers -->: a segment may carry `layers` = an opaque
+  base plus Engine-K layers rendered with alpha, so kinetic type or UI can sit **over** presenter
+  footage <!-- CAP:alpha_layer -->. Up to 4 overlays, stacked bottom-up in plan order
+  <!-- CAP:multi_overlay -->, and only K may be transparent <!-- CAP:alpha_k_only -->. Once there
+  is more than one overlay, each must name the K scenes it draws (`"scenes": ["title"]`)
+  <!-- CAP:overlay_scene_filter --> — a scene belongs to exactly one overlay, and a scene named
+  twice is a plan error. v1 plans are normalised on read, so no project breaks
+  <!-- CAP:v1_normalised -->.
+- **v2.1 — masked overlay** <!-- CAP:overlay_masking -->: an overlay may carry a static `mask`
+  where **white keeps the base**, so Engine-K type passes *behind* a P presenter instead of over
+  his face. The mask is a fractional rectangle with optional feather
+  (`{"type": "rect", "x": .34, "y": .42, "w": .32, "h": .58, "feather": 10}`)
+  <!-- CAP:mask_rect --> or a 1080×1920 matte inside the project
+  (`{"type": "image", "path": "assets/presenter-matte.png"}`) <!-- CAP:mask_image -->. Masks are
+  static for the whole segment, paper over one overlay, and only a transparent overlay can carry
+  one — a mask anywhere else is a plan error, never a silent no-op.
+
+The runner fails closed on gaps, overlaps, dimensions, frame counts, frame rate, or duration
+errors <!-- CAP:frame_exact --> and adds the single soundtrack once, after picture assembly
+<!-- CAP:audio_after_picture -->. There is no pre-render approval gate.
 
 ## 7. QA gates before delivery
 
@@ -308,11 +333,25 @@ presenter) · assets used + licence line · 2–3 next improvements. **Never men
 or a series title** — there is none, and never suggest adding one. Say where the project
 folder is, and remind the user it is a working folder (outside the repo history).
 
+## 8a. Repository weight
+
+Tracked assets are 165 MB of a 1,899-file tree (81.7 MB fonts, 64.4 MB images, 35.6 MB of
+`assets/poses/source`). There is **no Git LFS** on purpose: a filter would tax every clone and CI
+job, and rewriting history is an owner decision. `tools/repo_weight.py --check` is the gate instead
+— total weight may not grow more than 2 MB past `docs/repo-weight-baseline.json`, and any tracked
+file of 3 MB or more has to be named in that baseline. A new heavy asset therefore needs a
+deliberate `--update`, which prints the delta so the diff shows the weight change. Details and the
+LFS recipe (if that decision ever flips): `docs/repository-weight.md`.
+
 ## 9. Environment notes (this sandbox)
 
 - If `ffmpeg` is not on PATH, the engines honour `FFMPEG_BIN=/path/to/ffmpeg`.
 - `ffmpeg` = static build from `imageio-ffmpeg`; there is no `ffprobe` binary, so
-  `tools/ffprobe_shim.py` is installed as `ffprobe` (ffprobe-compatible JSON subset).
+  `tools/ffprobe_shim.py` is installed as `ffprobe` (ffprobe-compatible JSON subset). It is a
+  **fallback**: when a real `ffprobe` is on PATH (or named by `MEDO_REAL_FFPROBE`) the shim execs it,
+  so every other option works; `MEDO_FFPROBE_SHIM_ONLY=1` forces the PyAV path. It never delegates to
+  `tools/bin/ffprobe` or to itself. `python3 tools/ffprobe_shim.py --supported` prints the fields the
+  fallback promises, and `tests/test_tool_contracts.py` keeps that list honest.
 - Chromium for engine K comes from `@sparticuz/chromium` (npm) because the Playwright
   CDN is blocked; `tools/chromium.mjs --env` resolves the Chromium executable and prepares the required shared-library environment.
 - Engine R uses the Remotion packages pinned in the project scaffold (`npm install` inside
@@ -334,8 +373,9 @@ DESIGN_SYSTEM.md       ← unified design system reference
 README.md              ← Arabic overview
 assets/                ← shared inputs: fonts/, poses/, sfx/
 projects/<slug>/       ← scratch folder for one video (Git-ignored, not an archive)
-tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · media_qa.py · layout_audit.mjs · layout_audit_p.py · stage_gate.py · ffprobe_shim.py · chromium.mjs
+tools/                 ← setup.sh · doctor.py · selftest.py · new_project.py · render_hybrid.py · media_qa.py · repo_weight.py · layout_audit.mjs · layout_audit_p.py · stage_gate.py · ffprobe_shim.py · chromium.mjs
 tests/                 ← pytest: Arabic shaping invariants, brand lock, scaffold, one real frame
+                         (≤900 lines per module; shared builders in `<feature>_support.py`, fixtures in conftest.py)
 docs/                  ← analysis + conventions + Skillry fit review (docs/README.md)
 medo-motion/           ← the toolkit
   SKILL.md             ← entry point (Claude Code reads this; it defers to AGENTS.md)
@@ -345,6 +385,14 @@ medo-motion/           ← the toolkit
   templates/           ← engine P + engine K + engine R (Remotion) + TASTE.md
   scripts/             ← fonts, SFX, TTS, preflight, brand guard, preview
 ```
+
+## 10a. Recording what changed
+
+Every behavioural change ends with **one entry in `CHANGELOG.md`** (newest first, under `Unreleased`
+with the date): what was wrong, what the evidence is, and how it is guarded. `medo-motion/CHANGELOG.md`
+is a **frozen archive** of the toolkit's own 1.0 → 2.7 history — never add to it, and never write the
+same entry in both places (`tests/test_changelogs.py` enforces that). Numbers you cite must come from a
+run you can repeat; if you did not run it, say so in the entry.
 
 ## 11. Never do this
 

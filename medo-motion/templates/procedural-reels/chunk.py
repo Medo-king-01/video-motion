@@ -36,14 +36,25 @@ a, b = map(int, sys.argv[1:])
 if a < 0 or b <= a:
     raise SystemExit("chunk frame range must satisfy 0 <= start < end")
 
-out_dir = PROJECT / "out"
+# Draft preview (REEL_DRAFT=1): render every other source frame into the 540x960 device buffer.
+# Frame `i` of the preview is source frame `2*i`, so the timeline stays identical — only the
+# sampling density and the pixel budget change. Nothing here runs unless the flag is set.
+DRAFT = os.environ.get("REEL_DRAFT") == "1"
+DFPS = 15
+# DW/DH come from lib (REEL_DRAFT selects the 540x960 device buffer; the design space is 1080x1920).
+OUT_W, OUT_H = (DW, DH) if DRAFT else (W, H)
+ENCODE_FPS = DFPS if DRAFT else 30
+mode_tag = mode + ("-draft" if DRAFT else "")
+
+
+out_dir = PROJECT / "out" / "draft_chunks" if DRAFT else PROJECT / "out"
 out_dir.mkdir(parents=True, exist_ok=True)
 out = out_dir / f"c_{a:05d}_{b:05d}.mp4"
 tmp = out.with_name(out.stem + ".tmp.mp4")
 mode_file = out.with_suffix(".mode")
 
 # A cached file is reusable only after a full decode/count/dimension check.
-if mode_file.is_file() and mode_file.read_text(encoding="ascii").strip() == mode and is_valid_chunk(out, b - a, W, H):
+if mode_file.is_file() and mode_file.read_text(encoding="ascii").strip() == mode_tag and is_valid_chunk(out, b - a, OUT_W, OUT_H):
     print(f"chunk cached and verified {a}:{b}", flush=True)
     raise SystemExit(0)
 # Remove the old marker before publishing anything; an interrupted run is always a cache miss.
@@ -55,7 +66,7 @@ if tmp.exists():
 
 cmd = [
     FF, "-y", "-loglevel", "error",
-    "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", "30", "-i", "-",
+    "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{OUT_W}x{OUT_H}", "-r", str(ENCODE_FPS), "-i", "-",
     "-c:v", "libx264", "-preset", "medium", "-crf", "13", "-tune", "animation",
     "-x264-params", "aq-mode=3:ref=4:deblock=1,1",
     "-pix_fmt", "yuv420p", str(tmp),
@@ -69,7 +80,11 @@ with ResourceScope() as resources:
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE)
         try:
             for frame_index in range(a, b):
-                process.stdin.write(render_frame(frame_index / 30).tobytes())  # noqa: F405
+                if DRAFT:
+                    source = render_frame((frame_index * 2) / 30)  # noqa: F405
+                    process.stdin.write(source.tobytes())
+                else:
+                    process.stdin.write(render_frame(frame_index / 30).tobytes())  # noqa: F405
             process.stdin.close()
             process.stdin = None
         except BaseException:
@@ -88,7 +103,7 @@ with ResourceScope() as resources:
             tmp.unlink()
         raise
 
-    if return_code != 0 or not is_valid_chunk(tmp, b - a, W, H):
+    if return_code != 0 or not is_valid_chunk(tmp, b - a, OUT_W, OUT_H):
         if tmp.exists():
             tmp.unlink()
         print(f"chunk FAILED {a}:{b}; ffmpeg exit={return_code} or output verification failed", flush=True)
@@ -96,6 +111,6 @@ with ResourceScope() as resources:
 
 os.replace(tmp, out)
 mode_tmp = mode_file.with_suffix(".mode.tmp")
-mode_tmp.write_text(mode+"\n", encoding="ascii")
+mode_tmp.write_text(mode_tag+"\n", encoding="ascii")
 os.replace(mode_tmp, mode_file)
 print(f"chunk verified {a}:{b}", flush=True)

@@ -120,6 +120,22 @@ def _beats_duration_seconds(project: Path) -> float:
 
 
 def step_render(project: Path, ctx) -> tuple[int, str]:
+    if ctx.engine == "p" and ctx.draft:
+        # Half the frames, half the canvas: run_all renders every other source frame at 540x960
+        # and writes out/draft.mp4, leaving out/video_only.mp4 (and its chunks) untouched.
+        env = {**os.environ, "REEL_DIR": str(project), "REEL_DRAFT": "1"}
+        if ctx.ffmpeg:
+            env["FFMPEG_BIN"] = ctx.ffmpeg
+        if ctx.ffprobe:
+            env["FFPROBE_BIN"] = ctx.ffprobe
+        code = run_cmd([sys.executable, str(project / "run_all.py")], project, env=env,
+                       timeout=7200, log=ctx.log)
+        if code != 0:
+            return code, "draft render failed (see out_log-draft.txt)"
+        preview = project / "out" / "draft.mp4"
+        if not preview.is_file():
+            return 1, "draft render produced no out/draft.mp4"
+        return 0, "draft -> out/draft.mp4 (540x960 @15fps)"
     if ctx.engine == "p":
         env = {**os.environ, "REEL_DIR": str(project)}
         if ctx.ffmpeg:
@@ -195,9 +211,19 @@ def step_render(project: Path, ctx) -> tuple[int, str]:
                "FFMPEG_BIN": ctx.ffmpeg, "FFPROBE_BIN": ctx.ffprobe, "PYTHONUNBUFFERED": "1"}
         if browser.get("libraryPath"):
             env["LD_LIBRARY_PATH"] = str(browser["libraryPath"]) + ":" + env.get("LD_LIBRARY_PATH", "")
-        return run_cmd([sys.executable, str(ROOT / "tools" / "render_hybrid.py"), "--project", str(project),
-                        "--ffmpeg", ctx.ffmpeg, "--ffprobe", ctx.ffprobe],
-                       project, env=env, timeout=7200, log=ctx.log), "hybrid segments -> out/hybrid.mp4"
+        command = [sys.executable, str(ROOT / "tools" / "render_hybrid.py"), "--project", str(project),
+                   "--ffmpeg", ctx.ffmpeg, "--ffprobe", ctx.ffprobe]
+        if ctx.draft:
+            command.append("--draft")
+        code = run_cmd(command, project, env=env, timeout=7200, log=ctx.log)
+        if not ctx.draft:
+            return code, "hybrid segments -> out/hybrid.mp4"
+        preview = project / "out" / "hybrid-draft.mp4"
+        if code != 0:
+            return code, "draft render failed (see the hybrid log)"
+        if not preview.is_file():
+            return 1, "draft render produced no out/hybrid-draft.mp4"
+        return 0, "draft -> out/hybrid-draft.mp4 (540x960 @15fps)"
     return 1, f"unknown engine: {ctx.engine}"
 
 
@@ -287,7 +313,7 @@ def main() -> int:
     parser.add_argument("--scene-cache", action="store_true",
                         help="engine K: render each scene once into cache/scenes and reuse unchanged ones")
     parser.add_argument("--draft", action="store_true",
-                        help="preview render: engine K at half resolution and 15fps -> out/draft.mp4")
+                        help="preview render at 540x960 / 15fps -> out/draft.mp4 (engines P and K)")
     parser.add_argument("--dry-run", action="store_true", help="print the plan, run nothing")
     args = parser.parse_args()
 
@@ -308,13 +334,14 @@ def main() -> int:
         return 2
     if args.scene_cache and engine != "k":
         print("pipeline: --scene-cache is available for engine K only (its renderer takes absolute "
-              "frame ranges per scene; P caches whole chunks and R has no range API)", file=sys.stderr)
+              "frame ranges per scene; P caches whole chunks, and R renders ranges but has one "
+              "composition for every scene, so a per-scene key could never hit)", file=sys.stderr)
         return 2
-    if args.draft and engine != "k":
-        print("pipeline: --draft is available for engine K only (P/R/hybrid would need a template-level "
-              "scale knob; rendering them at full quality and calling it a draft would lie).\n"
-              "Run the normal pipeline for this engine, or preview the K segment alone.",
-              file=sys.stderr)
+    if args.draft and engine not in {"k", "p", "hybrid"}:
+        print("pipeline: --draft is available for engines P, K and hybrid (whose base segments must "
+              "be P or K). R/Remotion has no half-resolution path, and rendering at full quality "
+              "then calling it a draft would lie.\nRun the normal pipeline for this engine, or "
+              "preview a P/K segment alone.", file=sys.stderr)
         return 2
 
     if args.steps:
@@ -345,7 +372,8 @@ def main() -> int:
 
     print(f"Pipeline · {project} · engine={engine} · steps={','.join(steps)}")
     if args.draft:
-        print("DRAFT · 540x960 @15fps · out/draft.mp4 · review copy, never a master")
+        preview_name = "out/hybrid-draft.mp4" if engine == "hybrid" else "out/draft.mp4"
+        print(f"DRAFT · 540x960 @15fps · {preview_name} · review copy, never a master")
     if args.scene_cache:
         print("SCENE CACHE · cache/scenes/<scene>-<hash>.mp4 · only edited scenes re-render")
     if args.dry_run:

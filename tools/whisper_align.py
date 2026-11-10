@@ -20,9 +20,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
-from faster_whisper import WhisperModel
+
+def _load_model_class():
+    """Align once, at call time: a missing optional dependency must not explode at import.
+
+    `faster-whisper` is optional (it pulls CTranslate2); every other tool in the studio runs
+    without it, so `--help`, argument checks and CI import contracts must still work.
+    """
+    try:
+        from faster_whisper import WhisperModel  # noqa: PLC0415 - optional dependency
+    except ImportError:
+        print("whisper_align: faster-whisper is not installed.\n"
+              "  python -m pip install faster-whisper\n"
+              "  (then build a local model once: python3 tools/whisper_fetch.py)",
+              file=sys.stderr)
+        raise SystemExit(2) from None
+    return WhisperModel
 
 
 def main() -> int:
@@ -40,7 +56,7 @@ def main() -> int:
     ap.add_argument("--vad-threshold", type=float, default=0.5)
     args = ap.parse_args()
 
-    model = WhisperModel(
+    model = _load_model_class()(
         str(args.model), device="cpu", compute_type="int8",
         cpu_threads=args.threads, num_workers=1, local_files_only=True,
     )

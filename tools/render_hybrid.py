@@ -17,6 +17,21 @@ soundtrack across all segments.
       ]
     }
 
+Several overlays may be stacked (v2.2). With more than one, each must name the K scenes it
+draws, so two overlays cannot silently render the same content:
+
+      {"layers": [{"engine": "p"},
+                  {"engine": "k", "alpha": true, "scenes": ["title"]},
+                  {"engine": "k", "alpha": true, "scenes": ["chart"]}]}
+
+A v2 overlay may also carry a static `mask`: white areas of the mask keep the
+base frame, so Engine-K type can pass *behind* a P presenter instead of over it.
+
+      {"engine": "k", "alpha": true,
+       "mask": {"type": "rect", "x": 0.34, "y": 0.42, "w": 0.32, "h": 0.58, "feather": 8}}
+
+    {"engine": "k", "alpha": true, "mask": {"type": "image", "path": "assets/presenter-matte.png"}}
+
 Version 1 (`"engine": "p"` per segment) is still accepted and normalised to a
 one-layer segment.
 """
@@ -35,10 +50,47 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
+# What this renderer actually enforces, as one explicit list.
+#
+# The operating contract (`AGENTS.md`) and the contract copied into every hybrid project
+# (`medo-motion/templates/HYBRID.md`) describe each of these next to its marker:
+#
+#     <!-- CAP:alpha_layer -->
+#
+# `tests/test_capability_contract.py` compares the three sets and fails in both directions:
+# a capability implemented here but undocumented dies in a contract nobody reads, and a
+# documented capability that no longer exists sends agents down a dead path. Adding a feature
+# therefore means adding it here and in both contracts — that is the point.
+CAPABILITIES = frozenset({
+    "sequence",            # v1: one engine owns a whole half-open frame range
+    "layers",              # v2: a segment carries layers = opaque base + overlays
+    "alpha_layer",         # those overlays are Engine K, rendered transparent and composited
+    "multi_overlay",       # v2.2: up to MAX_OVERLAYS transparent overlays above one base
+    "overlay_scene_filter",# each overlay renders a named subset of the K project's scenes
+    "alpha_k_only",        # alpha is Engine-K only; an alpha base is rejected
+    "overlay_masking",     # v2.1: a static mask hands pixels of the overlay back to the base
+    "mask_rect",           # that mask may be a fractional, feathered rectangle
+    "mask_image",          # ...or a 1080x1920 matte image inside the project
+    "v1_normalised",       # v1 plans are normalised to layers on read, never rejected
+    "audio_after_picture", # the soundtrack is added once, after picture assembly
+    "frame_exact",         # dimensions/fps/frame counts/duration are verified, not hoped for
+})
+
 FPS = 30
 WIDTH = 1080
 HEIGHT = 1920
+DRAFT_WIDTH, DRAFT_HEIGHT, DRAFT_FPS = WIDTH // 2, HEIGHT // 2, 15
 ENGINES = {"p", "k", "r"}
+
+
+def canvas(draft: bool) -> tuple[int, int, int]:
+    """Master canvas, or the half-size 15 fps one a draft preview is assembled on."""
+    return (DRAFT_WIDTH, DRAFT_HEIGHT, DRAFT_FPS) if draft else (WIDTH, HEIGHT, FPS)
+
+
+def draft_frames(start: int, end: int) -> int:
+    """Draft frames covered by source frames [start, end): draft frame k is source frame 2k."""
+    return end // 2 - start // 2
 
 
 class PlanError(ValueError):
@@ -94,8 +146,11 @@ def validate_plan(raw: Any) -> dict[str, Any]:
             "duration_frames": total, "segments": clean, "audio": audio}
 
 
+MAX_OVERLAYS = 4
+
+
 def _validate_layers(item: dict[str, Any], sid: str) -> list[dict[str, Any]]:
-    """One opaque base (p/k/r), optionally one transparent Engine-K overlay on top."""
+    """One opaque base (p/k/r) plus up to MAX_OVERLAYS transparent Engine-K overlays."""
     raw_layers = item.get("layers")
     if raw_layers is None:
         engine = item.get("engine")
@@ -104,8 +159,9 @@ def _validate_layers(item: dict[str, Any], sid: str) -> list[dict[str, Any]]:
         return [{"engine": engine, "alpha": False}]
     if item.get("engine") is not None:
         raise PlanError(f"segment {sid}: use either engine or layers, not both")
-    if not isinstance(raw_layers, list) or not 1 <= len(raw_layers) <= 2:
-        raise PlanError(f"segment {sid}: layers must contain one base and at most one overlay")
+    if not isinstance(raw_layers, list) or not 1 <= len(raw_layers) <= 1 + MAX_OVERLAYS:
+        raise PlanError(
+            f"segment {sid}: layers must contain one base and at most {MAX_OVERLAYS} overlays")
     clean: list[dict[str, Any]] = []
     for position, layer in enumerate(raw_layers):
         if not isinstance(layer, dict):
@@ -122,8 +178,148 @@ def _validate_layers(item: dict[str, Any], sid: str) -> list[dict[str, Any]]:
             raise PlanError(f"segment {sid}: only a transparent Engine-K overlay may follow the base")
         if alpha and engine != "k":
             raise PlanError(f"segment {sid}: transparent overlays are Engine K only")
-        clean.append({"engine": engine, "alpha": alpha})
+        entry = {"engine": engine, "alpha": alpha}
+        scenes = _validate_scenes(layer, sid, position, alpha)
+        if scenes is not None:
+            entry["scenes"] = scenes
+        mask = _validate_mask(layer, sid, position, alpha)
+        if mask is not None:
+            entry["mask"] = mask
+        clean.append(entry)
+    _validate_overlay_stack(clean, sid)
     return clean
+
+
+def _validate_scenes(layer: dict[str, Any], sid: str, position: int, alpha: bool) -> list[str] | None:
+    """`scenes` names the K scenes this overlay is allowed to draw."""
+    raw = layer.get("scenes")
+    if raw is None:
+        return None
+    if position == 0 or not alpha:
+        raise PlanError(f"segment {sid}: only a transparent overlay can select scenes")
+    if not isinstance(raw, list) or not raw:
+        raise PlanError(f"segment {sid}: scenes must be a non-empty array of scene ids")
+    for name in raw:
+        if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", name):
+            raise PlanError(f"segment {sid}: scene ids must be letters, digits, _ or - (max 64)")
+    if len(set(raw)) != len(raw):
+        raise PlanError(f"segment {sid}: scenes lists the same id twice")
+    return list(raw)
+
+
+def _validate_overlay_stack(layers: list[dict[str, Any]], sid: str) -> None:
+    """Two overlays without scene names would render the same picture twice — refuse that."""
+    overlays = layers[1:]
+    if len(overlays) < 2:
+        return
+    missing = [index + 1 for index, overlay in enumerate(overlays) if "scenes" not in overlay]
+    if missing:
+        raise PlanError(
+            f"segment {sid}: with {len(overlays)} overlays every overlay must name its `scenes` "
+            f"(overlay {missing[0]} has none)")
+    seen: dict[str, int] = {}
+    for index, overlay in enumerate(overlays, 1):
+        for name in overlay["scenes"]:
+            if name in seen:
+                raise PlanError(
+                    f"segment {sid}: scene {name!r} is drawn by overlay {seen[name]} and overlay "
+                    f"{index}; a scene belongs to exactly one overlay")
+            seen[name] = index
+
+
+MASK_KINDS = ("rect", "image")
+MASK_FEATHER_MAX = 120.0
+
+
+def _validate_mask(layer: dict[str, Any], sid: str, position: int, alpha: bool) -> dict[str, Any] | None:
+    """A static matte where white keeps the base: Engine-K type can sit behind a presenter.
+
+    Only a transparent overlay can be masked — a mask on an opaque base would mean nothing, and
+    accepting it silently would make the plan lie about what the renderer does.
+    """
+    raw = layer.get("mask")
+    if raw is None:
+        return None
+    if position == 0 or not alpha:
+        raise PlanError(f"segment {sid}: only a transparent overlay can carry a mask")
+    if not isinstance(raw, dict):
+        raise PlanError(f"segment {sid}: mask must be an object")
+    kind = raw.get("type")
+    if kind not in MASK_KINDS:
+        raise PlanError(f"segment {sid}: mask type must be rect or image")
+    if kind == "rect":
+        box: dict[str, float] = {}
+        for key in ("x", "y", "w", "h"):
+            value = raw.get(key)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise PlanError(f"segment {sid}: mask {key} must be a number between 0 and 1")
+            if not 0.0 <= float(value) <= 1.0:
+                raise PlanError(f"segment {sid}: mask {key} must be between 0 and 1")
+            box[key] = float(value)
+        if box["w"] <= 0 or box["h"] <= 0:
+            raise PlanError(f"segment {sid}: mask width and height must be positive")
+        if box["x"] + box["w"] > 1.0 + 1e-9 or box["y"] + box["h"] > 1.0 + 1e-9:
+            raise PlanError(f"segment {sid}: mask rectangle must stay inside the canvas")
+        feather = raw.get("feather", 0)
+        if isinstance(feather, bool) or not isinstance(feather, (int, float)):
+            raise PlanError(f"segment {sid}: mask feather must be a number of pixels")
+        if not 0.0 <= float(feather) <= MASK_FEATHER_MAX:
+            raise PlanError(f"segment {sid}: mask feather must be between 0 and {MASK_FEATHER_MAX:g} px")
+        return {"type": "rect", **box, "feather": float(feather)}
+    path = raw.get("path")
+    if not isinstance(path, str) or not path.strip():
+        raise PlanError(f"segment {sid}: mask path must be a project-relative file path")
+    parts = Path(path).parts
+    if Path(path).is_absolute() or ".." in parts:
+        raise PlanError(f"segment {sid}: mask path must stay inside the project")
+    return {"type": "image", "path": path}
+
+
+TOOLKIT = ROOT / "tools" / "toolkit"
+
+
+def chromium_config(node: str) -> dict[str, Any] | None:
+    """The repo's bundled Chromium, or None. `tools/chromium.mjs` unpacks the npm package, so this
+    needs no network — it only fails when the toolkit was never installed."""
+    helper = ROOT / "tools" / "chromium.mjs"
+    if not helper.is_file():
+        return None
+    result = subprocess.run([node, str(helper), "--json"], capture_output=True, text=True,
+                            timeout=180, check=False)
+    if result.returncode:
+        return None
+    try:
+        config = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return None
+    return config if isinstance(config, dict) and config.get("executablePath") else None
+
+
+def needs_engine_k(plan: dict[str, Any]) -> bool:
+    """A K base or any overlay launches Chromium."""
+    return any(segment["layers"][0]["engine"] == "k" or len(segment["layers"]) > 1
+               for segment in plan["segments"])
+
+
+def ensure_engine_k_environment(env: dict[str, str], node: str) -> dict[str, str]:
+    """Fill the toolkit/Chromium variables Engine K needs when the caller did not.
+
+    Never fatal: a missing browser is reported by the K render itself, and a hybrid of P/R segments
+    must keep working on a machine without Chromium installed.
+    """
+    if not env.get("MEDO_TOOLKIT") and (TOOLKIT / "node_modules" / "playwright-core").is_dir():
+        env["MEDO_TOOLKIT"] = str(TOOLKIT)
+    if env.get("MEDO_CHROMIUM"):
+        return env
+    config = chromium_config(node)
+    if config is None:
+        return env
+    env["MEDO_CHROMIUM"] = str(config["executablePath"])
+    library = config.get("libraryPath")
+    if library:
+        existing = env.get("LD_LIBRARY_PATH", "")
+        env["LD_LIBRARY_PATH"] = f"{library}:{existing}" if existing else str(library)
+    return env
 
 
 def _as_program(candidate: str) -> str | None:
@@ -224,60 +420,199 @@ def verify_audio_stream(ffprobe: str, path: Path) -> None:
         raise RuntimeError("audio was requested but the final file has no audio stream")
 
 
-def verify_segment(ffprobe: str, path: Path, expected_frames: int, sid: str) -> None:
+def verify_segment(ffprobe: str, path: Path, expected_frames: int, sid: str,
+                   width: int = WIDTH, height: int = HEIGHT, fps: int = FPS) -> None:
     if not path.is_file() or path.stat().st_size == 0:
         raise RuntimeError(f"engine output missing or empty for segment {sid}: {path}")
     metadata = probe(ffprobe, path)
     if (metadata["width"], metadata["height"], metadata["fps"], metadata["frames"]) != (
-        WIDTH, HEIGHT, float(FPS), expected_frames
+        width, height, float(fps), expected_frames
     ):
         raise RuntimeError(
             f"segment {sid} violates render contract: {metadata}; expected "
-            f"{WIDTH}x{HEIGHT}, {FPS} fps, {expected_frames} frames"
+            f"{width}x{height}, {fps} fps, {expected_frames} frames"
         )
 
 
 def build_segment_command(engine: str, *, python: str, node: str, ffmpeg: str,
                           project: Path, start: int, end: int, sid: str,
-                          target: Path, frames_dir: Path) -> list[str]:
+                          target: Path, frames_dir: Path, draft: bool = False) -> list[str]:
     """The CLI one engine needs to render [start, end) into its own output."""
+    if draft and engine == "r":
+        raise RuntimeError(
+            "a hybrid draft cannot use an R/Remotion base: its renderer has no half-size path, and "
+            "rendering at full quality then downscaling would cost the same and lie about the speed")
     if engine == "p":
-        return [python, str(ROOT / "tools" / "render_p_segment.py"), "--project", str(project),
-                "--from-frame", str(start), "--to-frame", str(end), "--out", str(target),
-                "--ffmpeg", ffmpeg, "--fps", str(FPS)]
+        command = [python, str(ROOT / "tools" / "render_p_segment.py"), "--project", str(project),
+                   "--from-frame", str(start), "--to-frame", str(end), "--out", str(target),
+                   "--ffmpeg", ffmpeg, "--fps", str(FPS)]
+        return command + ["--draft"] if draft else command
     if engine == "k":
+        fps, scale = (DRAFT_FPS, "0.5") if draft else (FPS, "1")
         return [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
-                "--fps", str(FPS), "--scale", "1", "--out", str(frames_dir), "--name", sid]
+                "--fps", str(fps), "--scale", scale, "--out", str(frames_dir), "--name", sid]
     return [node, "scripts/render.mjs", "--silent", "--from-frame", str(start),
             "--to-frame", str(end), "--out", str(target)]
 
 
-def build_alpha_command(node: str, start: int, end: int, frames_dir: Path) -> list[str]:
-    """Engine K, transparent: one RGBA PNG per frame, no encoder."""
-    return [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
-            "--fps", str(FPS), "--scale", "1", "--alpha", "--out", str(frames_dir)]
+def build_alpha_command(node: str, start: int, end: int, frames_dir: Path,
+                        only: list[str] | None = None, draft: bool = False) -> list[str]:
+    """Engine K, transparent: one RGBA PNG per frame, no encoder. `only` picks the scenes."""
+    fps, scale = (DRAFT_FPS, "0.5") if draft else (FPS, "1")
+    command = [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
+               "--fps", str(fps), "--scale", scale, "--alpha", "--out", str(frames_dir)]
+    if only:
+        command += ["--only", ",".join(only)]
+    return command
 
 
-def build_composite_command(ffmpeg: str, base: Path, frames_dir: Path, frames: int, out: Path) -> list[str]:
-    """Overlay the transparent PNG sequence on the base footage, frame for frame."""
-    return [ffmpeg, "-hide_banner", "-loglevel", "error", "-n",
-            "-i", str(base), "-framerate", str(FPS), "-i", str(frames_dir / "%05d.png"),
-            "-filter_complex", "[0:v][1:v]overlay=format=auto",
+def build_mask_source(mask: dict[str, Any], width: int = WIDTH, height: int = HEIGHT,
+                      fps: int = FPS) -> str:
+    """A gray generator where **white means the base wins** (the overlay is hidden there).
+
+    Frame fractions keep the plan independent of the canvas constant; the rectangle is drawn at
+    the locked 1080x1920 and optionally blurred, which is the cheapest honest feather.
+    """
+    x, y = round(mask["x"] * width), round(mask["y"] * height)
+    w, h = max(1, round(mask["w"] * width)), max(1, round(mask["h"] * height))
+    chain = (f"color=c=black:s={width}x{height}:r={fps},"
+             f"drawbox=x={x}:y={y}:w={w}:h={h}:color=white:t=fill,format=gray")
+    feather = float(mask.get("feather", 0) or 0)
+    if feather > 0:
+        chain += f",gblur=sigma={feather / 2:.3f}"
+    return chain
+
+
+def _composite_filter(mask: dict[str, Any] | None, mask_image: Path | None,
+                      width: int = WIDTH, height: int = HEIGHT,
+                      fps: int = FPS) -> tuple[str, list[str]]:
+    """Overlay graph, with the overlay's own alpha multiplied by `1 - mask` when masked."""
+    if mask is None:
+        return "[0:v][1:v]overlay=format=auto", []
+    if mask["type"] == "image":
+        if mask_image is None:
+            raise RuntimeError("image mask requires a resolved matte path")
+        source = f"[2:v]format=gray,negate,fps={fps},setsar=1"
+        extra_inputs = ["-loop", "1", "-framerate", str(fps), "-i", str(mask_image)]
+    else:
+        source = f"{build_mask_source(mask, width, height, fps)},negate,setsar=1"
+        extra_inputs = []
+    graph = (
+        "[0:v]format=yuv420p,setsar=1[mb];"
+        "[1:v]format=rgba,setsar=1,split=2[ov][ova];"
+        "[ova]alphaextract[ka];"
+        f"{source}[mi];"
+        "[ka][mi]blend=all_mode=multiply[am];"
+        "[ov][am]alphamerge[ovm];"
+        "[mb][ovm]overlay=format=auto"
+    )
+    return graph, extra_inputs
+
+
+def build_stack_command(ffmpeg: str, base: Path, overlays: list[dict[str, Any]],
+                        frames: int, out: Path, *, width: int = WIDTH, height: int = HEIGHT,
+                        fps: int = FPS) -> list[str]:
+    """Composite every overlay over the base in one encode, bottom-up as the plan lists them.
+
+    Doing it in one pass matters: each extra FFmpeg pass would be another CRF-13 generation, so a
+    four-layer stack would visibly soften the base by the time it reached the screen.
+    """
+    if not overlays:
+        raise RuntimeError("an overlay stack needs at least one overlay")
+    if len(overlays) == 1 and not overlays[0].get("mask"):
+        graph = "[0:v][1:v]overlay=format=auto"
+        inputs = ["-framerate", str(fps), "-i", str(overlays[0]["frames_dir"] / "%05d.png")]
+    else:
+        inputs, streams = [], []
+        next_input = 1
+        for overlay in overlays:
+            inputs += ["-framerate", str(fps), "-i", str(overlay["frames_dir"] / "%05d.png")]
+            png, next_input = next_input, next_input + 1
+            mask = overlay.get("mask")
+            mask_source = None
+            if mask is not None:
+                if mask["type"] == "image":
+                    mask_image = overlay.get("mask_image")
+                    if mask_image is None:
+                        raise RuntimeError("image mask requires a resolved matte path")
+                    inputs += ["-loop", "1", "-framerate", str(fps), "-i", str(mask_image)]
+                    mask_source = f"[{next_input}:v]format=gray,negate,fps={fps},setsar=1"
+                    next_input += 1
+                else:
+                    mask_source = f"{build_mask_source(mask, width, height, fps)},negate,setsar=1"
+            streams.append((png, mask_source))
+        parts = ["[0:v]format=yuv420p,setsar=1[acc0]"]
+        for index, (png, mask_source) in enumerate(streams, 1):
+            if mask_source is None:
+                parts.append(f"[{png}:v]format=rgba,setsar=1[ov{index}]")
+            else:
+                parts.append(
+                    f"[{png}:v]format=rgba,setsar=1,split=2[ov{index}b][ov{index}a];"
+                    f"[ov{index}a]alphaextract[ka{index}];"
+                    f"{mask_source}[mi{index}];"
+                    f"[ka{index}][mi{index}]blend=all_mode=multiply[am{index}];"
+                    f"[ov{index}b][am{index}]alphamerge[ov{index}]"
+                )
+            tail = "" if index == len(streams) else f"[acc{index}]"
+            parts.append(f"[acc{index - 1}][ov{index}]overlay=format=auto{tail}")
+        graph = ";".join(parts)
+    return [ffmpeg, "-hide_banner", "-loglevel", "error", "-n", "-i", str(base), *inputs,
+            "-filter_complex", graph,
             "-frames:v", str(frames), "-c:v", "libx264", "-preset", "medium", "-crf", "13",
-            "-pix_fmt", "yuv420p", "-r", str(FPS), str(out)]
+            "-pix_fmt", "yuv420p", "-r", str(fps), str(out)]
+
+
+def build_composite_command(ffmpeg: str, base: Path, frames_dir: Path, frames: int, out: Path,
+                            mask: dict[str, Any] | None = None,
+                            mask_image: Path | None = None) -> list[str]:
+    """One overlay (the shape every v2.0/v2.1 plan produces)."""
+    return build_stack_command(ffmpeg, base,
+                               [{"frames_dir": frames_dir, "mask": mask, "mask_image": mask_image}],
+                               frames, out)
+
+
+def resolve_mask_image(mask: dict[str, Any], project: Path, label: str) -> Path:
+    """A matte path must exist and stay inside the project — no absolute escape hatches."""
+    project = project.resolve()
+    candidate = (project / mask["path"]).resolve()
+    try:
+        candidate.relative_to(project)
+    except ValueError as error:
+        raise RuntimeError(f"{label}: mask path escapes the project: {mask['path']}") from error
+    if not candidate.is_file():
+        raise RuntimeError(f"{label}: mask matte not found: {mask['path']}")
+    return candidate
+
+
+def composite_stack(ffmpeg: str, base: Path, overlays: list[dict[str, Any]], frames: int,
+                    project: Path, env: dict[str, str], label: str, *,
+                    width: int = WIDTH, height: int = HEIGHT, fps: int = FPS) -> None:
+    """Composite every overlay in one pass (via a temp file) and refuse a frame-count mismatch."""
+    resolved: list[dict[str, Any]] = []
+    for index, overlay in enumerate(overlays, 1):
+        frames_dir = overlay["frames_dir"]
+        rendered = sorted(frames_dir.glob("[0-9][0-9][0-9][0-9][0-9].png"))
+        if len(rendered) != frames:
+            raise RuntimeError(
+                f"{label}: overlay {index} produced {len(rendered)} frame(s), expected {frames}"
+            )
+        mask = overlay.get("mask")
+        mask_image = (resolve_mask_image(mask, project, label)
+                      if mask and mask["type"] == "image" else None)
+        resolved.append({**overlay, "mask_image": mask_image})
+    temp = base.with_name(base.stem + ".overlay.mp4")
+    run(build_stack_command(ffmpeg, base, resolved, frames, temp,
+                            width=width, height=height, fps=fps),
+        cwd=project, env=env, label=label)
+    os.replace(temp, base)
 
 
 def composite_overlay(ffmpeg: str, base: Path, frames_dir: Path, frames: int,
-                      project: Path, env: dict[str, str], label: str) -> None:
-    """Composite in place (via a temp file) and refuse a frame-count mismatch."""
-    rendered = sorted(frames_dir.glob("[0-9][0-9][0-9][0-9][0-9].png"))
-    if len(rendered) != frames:
-        raise RuntimeError(
-            f"{label}: transparent overlay produced {len(rendered)} frame(s), expected {frames}"
-        )
-    temp = base.with_name(base.stem + ".overlay.mp4")
-    run(build_composite_command(ffmpeg, base, frames_dir, frames, temp), cwd=project, env=env, label=label)
-    os.replace(temp, base)
+                      project: Path, env: dict[str, str], label: str,
+                      mask: dict[str, Any] | None = None) -> None:
+    """One overlay — the signature every existing caller and test uses."""
+    composite_stack(ffmpeg, base, [{"frames_dir": frames_dir, "mask": mask}], frames,
+                    project, env, label)
 
 
 
@@ -296,6 +631,8 @@ def main() -> int:
     parser.add_argument("--ffprobe", default=None)
     parser.add_argument("--node", default=None)
     parser.add_argument("--python", default=None)
+    parser.add_argument("--draft", action="store_true",
+                        help="review copy at 540x960 / 15 fps -> out/hybrid-draft.mp4 (P/K bases only)")
     parser.add_argument("--profile", action="store_true", help="write end-to-end segment/assembly timing")
     parser.add_argument("--qa", action="store_true", help="run post-render Final Media QA before publishing output")
     parser.add_argument("--qa-mode", choices=("master", "preview", "video-only"), default=None,
@@ -306,7 +643,7 @@ def main() -> int:
 
     project = args.project.resolve()
     plan_path = (args.plan or project / "plan" / "hybrid.json").resolve()
-    output = (args.out or project / "out" / "hybrid.mp4").resolve()
+    output = (args.out or project / "out" / ("hybrid-draft.mp4" if args.draft else "hybrid.mp4")).resolve()
     profile_path = output.with_name(output.name + ".profile.json")
     if args.profile and profile_path.exists(): raise RuntimeError(f"profile already exists: {profile_path}")
     qa_report_path = args.qa_report.resolve() if args.qa_report else None
@@ -321,11 +658,22 @@ def main() -> int:
     plan = validate_plan(raw)
     if not project.is_dir():
         raise RuntimeError(f"project directory not found: {project}")
+    out_w, out_h, out_fps = canvas(args.draft)
+    if args.draft:
+        if args.qa or qa_report_path is not None:
+            raise RuntimeError("a draft preview is not QA'd: there is no master to measure; "
+                               "drop --qa/--qa-report")
+        if args.audio is not None:
+            raise RuntimeError("a draft preview has no soundtrack: drop --audio")
+        empty = [segment["id"] for segment in plan["segments"]
+                 if draft_frames(segment["start_frame"], segment["end_frame"]) <= 0]
+        if empty:
+            raise RuntimeError(f"a draft halves frames per segment; these are too short: {empty}")
     ffmpeg = executable(args.ffmpeg, "ffmpeg", str(ROOT / "tools" / "bin" / "ffmpeg"))
     ffprobe = executable(args.ffprobe, "ffprobe", str(ROOT / "tools" / "bin" / "ffprobe"))
     node = executable(args.node, "node")
     python = executable(args.python, "python", sys.executable)
-    audio_value = None if args.audio == Path("-") else (
+    audio_value = None if args.draft or args.audio == Path("-") else (
         args.audio if args.audio is not None else Path(plan["audio"]) if plan["audio"] is not None else None
     )
     audio_path = None
@@ -352,6 +700,12 @@ def main() -> int:
         "MEDO_FFPROBE": ffprobe,
     }
     env.setdefault("PYTHONUNBUFFERED", "1")
+    if needs_engine_k(plan):
+        try:
+            ensure_engine_k_environment(env, node)
+        except (OSError, subprocess.SubprocessError) as error:
+            print(f"note: could not resolve the toolkit Chromium automatically ({error}); "
+                  "set MEDO_CHROMIUM or a .video-motion/config.json", file=sys.stderr)
 
     segment_times = []
     for segment in plan["segments"]:
@@ -360,27 +714,44 @@ def main() -> int:
         target = run_dir / f"{sid}.mp4"
         base, overlays = segment["layers"][0], segment["layers"][1:]
         engine = base["engine"]
+        expected_frames = draft_frames(start, end) if args.draft else end - start
         t0 = time.perf_counter()
         run(build_segment_command(engine, python=python, node=node, ffmpeg=ffmpeg, project=project,
-                                  start=start, end=end, sid=sid, target=target, frames_dir=run_dir),
+                                  start=start, end=end, sid=sid, target=target, frames_dir=run_dir,
+                                  draft=args.draft),
             cwd=project, env=env, label=f"engine {engine.upper()} · {sid}")
         if overlays:
-            frames_dir = run_dir / f"{sid}-overlay"
-            frames_dir.mkdir(parents=True, exist_ok=False)
-            run(build_alpha_command(node, start, end, frames_dir), cwd=project, env=env,
-                label=f"engine K overlay · {sid}")
-            composite_overlay(ffmpeg, target, frames_dir, end - start, project, env,
-                              label=f"composite K over {engine.upper()} · {sid}")
+            prepared: list[dict[str, Any]] = []
+            for index, overlay in enumerate(overlays, 1):
+                frames_dir = run_dir / f"{sid}-overlay{index}"
+                frames_dir.mkdir(parents=True, exist_ok=False)
+                scenes = overlay.get("scenes")
+                run(build_alpha_command(node, start, end, frames_dir, only=scenes, draft=args.draft),
+                    cwd=project, env=env,
+                    label=f"engine K overlay {index} · {sid}"
+                          + (f" · scenes {','.join(scenes)}" if scenes else ""))
+                # Fail before the composite if the matte is missing: a silent unmasked overlay
+                # would look like a working render with the wrong layering.
+                if overlay.get("mask", {}).get("type") == "image":
+                    resolve_mask_image(overlay["mask"], project, f"segment {sid}")
+                prepared.append({"frames_dir": frames_dir, "mask": overlay.get("mask")})
+            composite_stack(ffmpeg, target, prepared, expected_frames, project, env,
+                            label=f"composite {len(prepared)} overlay(s) over {engine.upper()} · {sid}",
+                            width=out_w, height=out_h, fps=out_fps)
         render_ms = (time.perf_counter()-t0)*1000
-        t0 = time.perf_counter(); verify_segment(ffprobe, target, end - start, sid)
+        t0 = time.perf_counter()
+        verify_segment(ffprobe, target, expected_frames, sid, out_w, out_h, out_fps)
         if args.profile: segment_times.append({'id': sid, 'engine': engine.upper(), 'frames': end-start,
                                                'overlays': len(overlays),
+                                               'masked': sum(1 for o in overlays if o.get("mask")),
+                                               'sceneFilters': [o.get("scenes") for o in overlays],
                                                'renderMs': render_ms, 'verifyMs': (time.perf_counter()-t0)*1000})
 
     list_file = run_dir / "segments.txt"
     list_file.write_text("".join(f"file '{escape_concat_path(run_dir / (s['id'] + '.mp4'))}'\n"
                                  for s in plan["segments"]), encoding="utf-8")
     total_seconds = plan["duration_frames"] / FPS
+    total_frames = draft_frames(0, plan["duration_frames"]) if args.draft else plan["duration_frames"]
     command = [ffmpeg, "-hide_banner", "-loglevel", "error", "-n", "-f", "concat", "-safe", "0",
                "-i", str(list_file)]
     if audio_path:
@@ -388,16 +759,16 @@ def main() -> int:
                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000"]
     else:
         command += ["-map", "0:v:0", "-an"]
-    command += ["-frames:v", str(plan["duration_frames"]), "-t", f"{total_seconds:.12g}",
+    command += ["-frames:v", str(total_frames), "-t", f"{total_seconds:.12g}",
                 "-c:v", "libx264", "-preset", "medium", "-crf", "13", "-pix_fmt", "yuv420p",
-                "-r", str(FPS), "-movflags", "+faststart", str(temp_out)]
+                "-r", str(out_fps), "-movflags", "+faststart", str(temp_out)]
     try:
         assembly_started = time.perf_counter()
         run(command, cwd=project, env=env, label="assemble final hybrid reel")
         assembly_ms = (time.perf_counter()-assembly_started)*1000
         final = probe(ffprobe, temp_out)
         if (final["width"], final["height"], final["fps"], final["frames"]) != (
-            WIDTH, HEIGHT, float(FPS), plan["duration_frames"]
+            out_w, out_h, float(out_fps), total_frames
         ):
             raise RuntimeError(f"final output violates timeline contract: {final}")
         if audio_path:
@@ -428,7 +799,8 @@ def main() -> int:
                 )
         os.replace(temp_out, output)
         if args.profile:
-            report = {'version': 1, 'engine': 'Hybrid', 'motionMode': args.motion_mode, 'frames': plan['duration_frames'],
+            report = {'version': 1, 'engine': 'Hybrid', 'motionMode': args.motion_mode,
+                      'draft': args.draft, 'frames': total_frames,
                       'segments': segment_times, 'assemblyMs': assembly_ms, 'wallMs': (time.perf_counter()-started)*1000,
                       'scope': 'Segment render subprocesses and verification measured separately; assembly includes final FFmpeg encode. No GPU metrics.'}
             with profile_path.open('x', encoding='utf-8') as stream: json.dump(report, stream, indent=2); stream.write('\n')
@@ -436,8 +808,14 @@ def main() -> int:
         temp_out.unlink(missing_ok=True)
         raise
     layered = sum(1 for segment in plan["segments"] if len(segment["layers"]) > 1)
-    print(f"HYBRID OK · {len(plan['segments'])} sequential segments"
-          f"{f' ({layered} with a transparent K overlay)' if layered else ''} · {plan['duration_frames']} frames "
+    overlay_count = sum(len(segment["layers"]) - 1 for segment in plan["segments"])
+    masked = sum(1 for segment in plan["segments"] for layer in segment["layers"][1:]
+                 if layer.get("mask"))
+    print(f"{'HYBRID DRAFT' if args.draft else 'HYBRID OK'} · "
+          f"{f'{out_w}x{out_h} @{out_fps}fps · ' if args.draft else ''}"
+          f"{len(plan['segments'])} sequential segments"
+          f"{f' ({layered} layered, {overlay_count} K overlay(s))' if layered else ''}"
+          f"{f' ({masked} masked)' if masked else ''} · {total_frames} frames "
           f"({total_seconds:.3f}s) · {output}")
     print(f"segment diagnostics retained at {run_dir}")
     return 0

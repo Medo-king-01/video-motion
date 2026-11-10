@@ -94,6 +94,31 @@ def test_scaffold_version_pins_match_package_json():
         assert token in text, f"the skill must state the scaffold pin {token}"
 
 
+def test_the_zod_override_is_a_security_decision_not_a_style_one():
+    """Remotion wants zod 4.5.4; 4.5.4 can be made to exhaust memory on oversized collections.
+
+    Measured both ways on this exact scaffold: with the override `npm audit` reports 0
+    vulnerabilities and `npx remotion versions` prints "installed 4.6.7, required 4.5.4"; without it
+    the audit reports 10 high advisories (zod plus nine Remotion packages). So the override stays and
+    the warning is the expected price. Anyone tempted to "fix the warning" has to read this first.
+    """
+    pkg = json.loads((TEMPLATE / "package.json").read_text(encoding="utf-8"))
+    override = pkg.get("overrides", {}).get("zod", "")
+    assert override, "the zod override was removed — see docs/remotion.md before doing that"
+    major, minor, patch = (int(part) for part in override.lstrip("^~>= ").split(".")[:3])
+    assert (major, minor, patch) >= (4, 6, 7), f"zod {override} re-opens the memory advisory"
+    lock = json.loads((TEMPLATE / "package-lock.json").read_text(encoding="utf-8"))
+    zod_versions = {meta["version"] for path, meta in lock["packages"].items()
+                    if path == "node_modules/zod" or path.endswith("/zod")}
+    # The lock is what npm actually installs, so it must already carry a patched zod; an override
+    # that never reached the lockfile would leave 4.5.4 installed and the advisory open.
+    assert zod_versions, "no zod in the lockfile — the override did not resolve anything"
+    assert all(tuple(int(part) for part in version.split(".")[:3]) >= (4, 6, 7)
+               for version in zod_versions), f"the lock resolves zod to {zod_versions}"
+    docs = (ROOT / "docs" / "remotion.md").read_text(encoding="utf-8")
+    assert "4.5.4" in docs and "4.6.7" in docs, "docs/remotion.md must explain the zod trade-off"
+
+
 def test_studio_commands_are_the_allowed_path():
     text = _skill_text()
     for token in ("npm run studio", "npm run render -- --audio", "npm run stills",

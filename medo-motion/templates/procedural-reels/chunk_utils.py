@@ -43,6 +43,8 @@ def build_signature(
     font_override: str | None = None,
     fallback_assets_dir: str | os.PathLike | None = None,
     motion_mode: str = "normal",
+    draft: bool = False,
+    supersample: int | None = None,
 ) -> str:
     """Hash render code, visual assets by content, and all frame/timing settings."""
     source_root = Path(source_dir)
@@ -52,6 +54,16 @@ def build_signature(
         raise ValueError("invalid motion mode")
     hasher.update(b"engine-p-cache-v3\\0")
     hasher.update(motion_mode.encode("ascii"))
+    if draft:
+        # Same source at the same nominal size renders a 540x960 preview: never share its chunks.
+        hasher.update(b"draft-preview\0")
+    if supersample is not None:
+        # Sprite supersampling changes the pixels without touching any source file (a draft runs at
+        # 1 while a master runs at 3), so it belongs in the key — otherwise a preview chunk could be
+        # served for a master render, or the reverse.
+        if not isinstance(supersample, int) or not 1 <= supersample <= 4:
+            raise ValueError("supersample must be an integer 1-4")
+        hasher.update(f"supersample={supersample}\0".encode("ascii"))
     hasher.update(b"\\0")
     hasher.update(
         repr((total_frames, chunk_frames, tuple(scene_bounds), fps, width, height)).encode("utf-8")
