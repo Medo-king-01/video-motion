@@ -8,6 +8,7 @@
 | `doctor.py` | تقرير READY / DEGRADED / BLOCKED لكل قدرة، بسبب واضح + أمر الإصلاح المقترح؛ `--fix` يطبع الأوامر فقط و`--json` يضمّها | `python3 tools/doctor.py` |
 | `qa_report.py` | صفحة HTML واحدة: lint + Final Media QA + contact sheet مضمّن، بلا شبكة وبلا كتابة فوق تقرير قديم | `python3 tools/qa_report.py <project> --media out/master.mp4` |
 | `time_to_first_video.py` | قياس «زمن أول فيديو» على خمس مراحل مع هدف رقمي موثَّق وتحقق من المدة الناتجة | `python3 tools/time_to_first_video.py --json docs/metrics/ttfv.json` |
+| `render_scenes.py` | كاش لكل مشهد في محرك K: يعيد رندر المشاهد اللي اتغيرت فقط ثم يدمج المقاطع ويزوّد الصوت | `python3 tools/render_scenes.py <project>` |
 | `pipeline.py` | المسار الحتمي vo→gate؛ `--draft` يعمل معاينة K بنصف الدقة و15fps في `out/draft.mp4`؛ `--from`/`--steps`/`--dry-run` | `python3 tools/pipeline.py <project>` |
 | `selftest.py` | اختبار كامل: doctor + unit tests + رندر P/K؛ `--remotion` يضيف R منفردًا، و`--hybrid` يرندر ويجمع P/K/R + صوت end-to-end | `python3 tools/selftest.py --hybrid` |
 | `render_hybrid.py` | يرندر مخطط `plan/hybrid.json`: يتحقق من مقاطع P/K/R المتتابعة، ثم يوحّد الفيديو ويضيف الصوت مرة واحدة | `python3 ../../tools/render_hybrid.py --project .` من جذر المشروع |

@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (batch 3, part 3: per-scene cache)
+
+**`tools/render_scenes.py` + `pipeline.py --scene-cache` — editing one scene costs one scene.**
+Engine K already renders an absolute range, so each scene is encoded once into
+`cache/scenes/<id>-<hash>.mp4`. The key is the shared layer (`data.js`, `main.js`, `render.js`,
+`index.html`, every `src/lib/*.js`, fps/scale/crf) plus that scene's own module and timing — so
+touching `outro.js` leaves `intro`'s key, file, and mtime untouched. Hits are re-verified with
+ffprobe (1080×1920 and exact frame count); the final file is a `-c copy` concat of identical
+encoder settings, with the soundtrack muxed once at the end. `cache/scenes/manifest.json` records
+hit/miss and seconds per scene, and the output is never overwritten without `--force`. P caches
+whole chunks and R has no range API, so `--scene-cache` on those exits `2` instead of pretending.
+Measured on a two-scene project: first run 0 miss→2, second run all hits (~0.3 s), after editing
+one scene `hits=1 misses=1`. `tests/test_render_scenes.py` (7, one real acceptance render) and
+`tests/test_pipeline.py` +2.
+
 ## Unreleased — 2026-11-10 (batch 3, part 2: draft preview)
 
 **`pipeline.py --draft` — a review copy in a fraction of the render time.** Engine K renders at

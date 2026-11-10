@@ -214,3 +214,41 @@ def test_draft_real_render_is_playable_half_size(tmp_path):
     assert (info["width"], info["height"]) == (540, 960)
     assert info["duration_s"] == pytest.approx(1.0, abs=0.1)
     assert info["frames"] == "15"
+
+
+def test_scene_cache_rejects_other_engines_and_draft(tmp_path, monkeypatch, capsys):
+    proj_p = make_project(tmp_path, "p")
+    monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
+    monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj_p), "--scene-cache"])
+    assert pipeline.main() == 2
+    assert "engine K only" in capsys.readouterr().err
+
+    proj_k = make_project(tmp_path, "k")
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj_k), "--scene-cache", "--draft"])
+    assert pipeline.main() == 2
+    assert "Pick one" in capsys.readouterr().err
+
+
+def test_scene_cache_renders_through_the_scene_tool_and_keeps_qa(tmp_path, monkeypatch, capsys):
+    proj = make_project(tmp_path, "k")
+    (proj / "out" / "final_audio.wav").write_bytes(b"fake wav")
+    calls = []
+
+    def fake_run(cmd, cwd, env=None, timeout=1800, log=None):
+        joined = " ".join(str(c) for c in cmd)
+        calls.append(joined)
+        if "render_scenes.py" in joined:
+            (proj / "out" / "master.mp4").write_bytes(b"fake master")
+        return 0
+
+    monkeypatch.setattr(pipeline, "run_cmd", fake_run)
+    monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
+    monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--scene-cache", "--steps", "render,qa"])
+    assert pipeline.main() == 0
+    out = capsys.readouterr().out
+    assert "SCENE CACHE" in out
+    scene_calls = [c for c in calls if "render_scenes.py" in c]
+    assert scene_calls and "--out" in scene_calls[0] and "master.mp4" in scene_calls[0]
+    assert any("media_qa" in c for c in calls)  # the cached master is still measured
