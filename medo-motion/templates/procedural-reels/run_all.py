@@ -52,10 +52,19 @@ elif abs(B[-1] - total) > 0.05:
     print(f"note: scenes.B ends at {B[-1]:.2f}s but the VO is {total:.2f}s -> rendering the VO length")
     print("      rebuild the bounds: python3 tools/vo_length.py out/vo24.wav --json plan/beats.json")
 
+# Draft preview: same timeline, half the frames, half the canvas. Kept opt-in so a normal run
+# is byte-identical to before (the signature only changes when the flag is on).
+DRAFT = os.environ.get("REEL_DRAFT") == "1"
+PREVIEW_FPS = 15 if DRAFT else FPS
+OUT_W, OUT_H = (W // 2, H // 2) if DRAFT else (W, H)
+PREVIEW_OUT = PROJECT / "out" / ("draft.mp4" if DRAFT else "video_only.mp4")
+CHUNK_DIR = PROJECT / "out" / ("draft_chunks" if DRAFT else "")
+CHUNK_FRAMES = max(1, CH // 2) if DRAFT else CH
+
 MODE = motion_mode(os.environ.get("MEDO_MOTION_MODE", "normal"))
 if MODE == "reduced" and getattr(scenes, "SUPPORTS_REDUCED_MOTION", False) is not True:
     raise SystemExit("Reduced motion requires an explicit SUPPORTS_REDUCED_MOTION=True in scenes.py")
-N = round(total * FPS)
+N = round(total * PREVIEW_FPS)
 if os.environ.get("REEL_MAXFRAMES"):
     N = min(N, int(os.environ["REEL_MAXFRAMES"]))  # smoke test only
 if N <= 0:
@@ -73,14 +82,16 @@ if beats_p.is_file():
 
 OUT = PROJECT / "out"
 OUT.mkdir(parents=True, exist_ok=True)
-ranges = expected_chunks(N, CH)
+CHUNK_DIR.mkdir(parents=True, exist_ok=True)
+ranges = expected_chunks(N, CHUNK_FRAMES)
 # presenter.py searches the repository-level assets/poses as its secondary source.
 # Include that exact fallback tree in the signature so fallback sprite changes invalidate cache.
 STUDIO_ASSETS = HERE.parents[2] / "assets" / "poses"
 signature = build_signature(
-    HERE, PROJECT / "assets", N, CH, B, FPS, W, H, FONT, STUDIO_ASSETS, motion_mode=MODE
+    HERE, PROJECT / "assets", N, CHUNK_FRAMES, B, FPS, W, H, FONT, STUDIO_ASSETS,
+    motion_mode=MODE, draft=DRAFT,
 )
-signature_file = OUT / "chunks.sig"
+signature_file = CHUNK_DIR / "chunks.sig"
 previous_signature = None
 try:
     previous_signature = signature_file.read_text(encoding="ascii").strip()
@@ -89,10 +100,10 @@ except OSError:
 
 # Missing signatures are treated as cache misses, never as permission to reuse old chunks.
 if previous_signature != signature:
-    for stale in OUT.glob("c_*.mp4*"):
+    for stale in CHUNK_DIR.glob("c_*.mp4*"):
         if stale.is_file():
             stale.unlink()
-    for stale_output in (OUT / "video_only.mp4", OUT / "list.txt"):
+    for stale_output in (PREVIEW_OUT, OUT / "list.txt"):
         if stale_output.exists():
             stale_output.unlink()
     print("source/cache signature changed or missing: old chunks invalidated")
@@ -102,11 +113,11 @@ signature_tmp = signature_file.with_suffix(".sig.tmp")
 signature_tmp.write_text(signature + "\n", encoding="ascii")
 os.replace(signature_tmp, signature_file)
 
-log_path = PROJECT / "out_log.txt"
+log_path = PROJECT / ("out_log-draft.txt" if DRAFT else "out_log.txt")
 with log_path.open("a", encoding="utf-8") as log:
     expected_parts = []
     for start, end in ranges:
-        part = OUT / f"c_{start:05d}_{end:05d}.mp4"
+        part = CHUNK_DIR / f"c_{start:05d}_{end:05d}.mp4"
         expected_parts.append(part)
         result = subprocess.run(
             [sys.executable, str(HERE / "chunk.py"), str(start), str(end)],
@@ -115,7 +126,7 @@ with log_path.open("a", encoding="utf-8") as log:
         if result.returncode != 0:
             print(f"chunk failed {start}:{end} - see out_log.txt; re-run to resume")
             raise SystemExit(1)
-        if not is_valid_chunk(part, end - start, W, H):
+        if not is_valid_chunk(part, end - start, OUT_W, OUT_H):
             print(f"chunk invalid after render: {part.name} - see out_log.txt")
             raise SystemExit(1)
 
@@ -126,7 +137,7 @@ with log_path.open("a", encoding="utf-8") as log:
             escaped = str(part.resolve()).replace("\\", "/").replace("'", "'\\''")
             stream.write(f"file '{escaped}'\n")
 
-    final_tmp = OUT / "video_only.tmp.mp4"
+    final_tmp = PREVIEW_OUT.with_name(PREVIEW_OUT.stem + ".tmp.mp4")
     if final_tmp.exists():
         final_tmp.unlink()
     result = subprocess.run(
@@ -136,18 +147,18 @@ with log_path.open("a", encoding="utf-8") as log:
     )
     merged = result.returncode == 0 and final_tmp.is_file() and final_tmp.stat().st_size > 0
     if merged:
-        merged = is_valid_chunk(final_tmp, N, W, H)
+        merged = is_valid_chunk(final_tmp, N, OUT_W, OUT_H)
     if merged:
-        os.replace(final_tmp, OUT / "video_only.mp4")
+        os.replace(final_tmp, PREVIEW_OUT)
         log.write("VIDEODONE\n")
     else:
         if final_tmp.exists():
             final_tmp.unlink()
-        old_final = OUT / "video_only.mp4"
+        old_final = PREVIEW_OUT
         if old_final.exists():
             old_final.unlink()
         log.write("CONCAT_FAILED\n")
         print(f"CONCAT_FAILED {len(expected_parts)} expected chunks, N={N} - see out_log.txt")
         raise SystemExit(1)
 
-print(f"VIDEODONE {len(ranges)} chunks, N={N}")
+print(f"VIDEODONE {len(ranges)} chunks, N={N}" + (" (draft 540x960 @15fps)" if DRAFT else ""))

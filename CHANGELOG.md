@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased — 2026-11-10 (batch 3, part 3: draft preview for engine P)
+
+**`--draft` now covers engine P too.** `pipeline.py <project> --draft` on a P project runs
+`run_all.py` with `REEL_DRAFT=1` and returns `out/draft.mp4` (540×960 @ 15fps) without touching
+the master: chunks land in `out/draft_chunks/`, the log is `out_log-draft.txt`, and
+`out/video_only.mp4` plus its own chunks are left exactly as they were. Preview frame `i` is
+source frame `2i`, so the timeline is identical to the master — the preview is the same 55 seconds,
+sampled every other frame and encoded at half size (CRF 13 kept: a review copy should not look
+worse than the film).
+
+**The saving is temporal, and it is real.** P still *renders* at 1080×1920 and downscales on the
+way to the encoder, so the win comes from half the frames, not from a canvas knob. Measured here on
+the demo timeline (55.2 s, 2 vCPU, no GPU): master 1,656 frames in **429 s** (33.7 MB) vs draft
+828 frames in **227 s** (9.5 MB) — **1.89× faster, 3.5× smaller**. K's draft still wins more
+(≈3×) because Chromium renders fewer pixels; the honest comparison is in `docs/preview.md`.
+
+**Preview and master never share cache.** `build_signature(..., draft=True)` mixes a
+`draft-preview` marker into the hash, so a half-size chunk can never be served to a master (or the
+reverse) even though both are built from the same source files; a master run on an unchanged tree
+still reuses its chunks (verified: two consecutive master runs, no invalidation), and a draft run
+leaves them alone. `tests/test_engine_p_chunks.py` +1 (draft ≠ master signature, draft stable),
+`tests/test_pipeline.py` +3 (P draft runs through `run_all` with `REEL_DRAFT`/`REEL_DIR`/binaries
+and never muxes, missing preview fails loudly, master path stays free of `REEL_DRAFT`), and the
+old "engine K only" rejection test now asserts the P-and-K message on an R project.
+
 ## Unreleased — 2026-11-10 (tool contracts · binary attributes · graceful optional dependency)
 
 **The seven untested tools now have contracts.** `tests/test_tool_contracts.py` (18 tests) pins

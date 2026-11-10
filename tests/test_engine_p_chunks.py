@@ -141,6 +141,22 @@ def test_chunk_validator_rejects_missing_and_empty_files(tmp_path):
     empty.touch()
     assert not is_valid_chunk(empty, 4, 1080, 1920)
 
+def test_draft_signature_never_collides_with_master_signature(tmp_path):
+    """A 540x960 preview must not reuse 1080x1920 chunks (or vice versa)."""
+    from chunk_utils import build_signature
+
+    source = tmp_path / "source"
+    assets = tmp_path / "assets"
+    source.mkdir()
+    assets.mkdir()
+    (source / "render.py").write_text("pass\n", encoding="utf-8")
+    # Same nominal render, different canvas and frame rate: differ already, so pin the flag too.
+    master = build_signature(source, assets, 120, 30, [0, 4], 30, 1080, 1920)
+    draft = build_signature(source, assets, 120, 30, [0, 4], 30, 1080, 1920, draft=True)
+    assert draft != master
+    assert draft == build_signature(source, assets, 120, 30, [0, 4], 30, 1080, 1920, draft=True)
+
+
 def test_signature_changes_when_presenter_fallback_pose_changes(tmp_path):
     from chunk_utils import build_signature
 

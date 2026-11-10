@@ -142,12 +142,74 @@ def test_main_full_run_sequence_and_report(tmp_path, monkeypatch, capsys):
 
 
 def test_draft_is_rejected_for_engines_without_a_scale_knob(tmp_path, monkeypatch, capsys):
-    proj = make_project(tmp_path, "p")
+    proj = make_project(tmp_path, "r")
     monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
     monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
     monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
     assert pipeline.main() == 2
-    assert "engine K only" in capsys.readouterr().err
+    assert "engines P and K" in capsys.readouterr().err
+
+
+def _fake_ffmpeg_probe(monkeypatch):
+    monkeypatch.setattr(pipeline, "_ffmpeg", lambda: "/fake/ffmpeg")
+    monkeypatch.setattr(pipeline, "_ffprobe", lambda: "/fake/ffprobe")
+
+
+def test_draft_engine_p_renders_through_run_all_and_never_muxes(tmp_path, monkeypatch, capsys):
+    proj = make_project(tmp_path, "p")
+    seen = []
+
+    def fake_run(cmd, cwd, env=None, timeout=1800, log=None):
+        seen.append({"cmd": " ".join(str(c) for c in cmd), "env": dict(env or {})})
+        if "run_all.py" in seen[-1]["cmd"]:
+            (proj / "out" / "draft.mp4").write_bytes(b"fake draft")
+        return 0
+
+    monkeypatch.setattr(pipeline, "run_cmd", fake_run)
+    _fake_ffmpeg_probe(monkeypatch)
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
+    assert pipeline.main() == 0
+
+    out = capsys.readouterr().out
+    assert "DRAFT · 540x960 @15fps" in out
+    assert "draft -> out/draft.mp4" in out
+    render_calls = [c for c in seen if "run_all.py" in c["cmd"]]
+    assert len(render_calls) == 1
+    env = render_calls[0]["env"]
+    # run_all.py is the only half-resolution path for engine P: it must be told so.
+    assert env["REEL_DRAFT"] == "1"
+    assert env["REEL_DIR"] == str(proj)
+    assert env["FFMPEG_BIN"] == "/fake/ffmpeg" and env["FFPROBE_BIN"] == "/fake/ffprobe"
+    assert not any("ffmpeg" in c["cmd"] for c in seen)  # a draft is never muxed
+    timings = json.loads((proj / "cache" / "pipeline-timings.json").read_text(encoding="utf-8"))
+    assert [step["step"] for step in timings["steps"]] == ["render"]
+
+
+def test_draft_engine_p_fails_when_run_all_writes_no_preview(tmp_path, monkeypatch):
+    proj = make_project(tmp_path, "p")
+    monkeypatch.setattr(pipeline, "run_cmd", lambda *a, **k: 0)
+    _fake_ffmpeg_probe(monkeypatch)
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--draft"])
+    assert pipeline.main() == 1
+
+
+def test_draft_engine_p_keeps_master_env_clean_without_draft(tmp_path, monkeypatch):
+    """The master path must stay untouched: no REEL_DRAFT leaking into a normal render."""
+    proj = make_project(tmp_path, "p")
+    seen = []
+
+    def fake_run(cmd, cwd, env=None, timeout=1800, log=None):
+        seen.append({"cmd": " ".join(str(c) for c in cmd), "env": dict(env or {})})
+        if "run_all.py" in seen[-1]["cmd"]:
+            (proj / "out" / "video_only.mp4").write_bytes(b"fake picture")
+        return 0
+
+    monkeypatch.setattr(pipeline, "run_cmd", fake_run)
+    _fake_ffmpeg_probe(monkeypatch)
+    monkeypatch.setattr(sys, "argv", ["pipeline.py", str(proj), "--steps", "render"])
+    assert pipeline.main() == 0
+    render_calls = [c for c in seen if "run_all.py" in c["cmd"]]
+    assert render_calls and "REEL_DRAFT" not in render_calls[0]["env"]
 
 
 def test_draft_renders_only_half_resolution_and_never_muxes(tmp_path, monkeypatch, capsys):

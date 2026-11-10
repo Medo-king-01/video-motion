@@ -43,6 +43,7 @@ def build_signature(
     font_override: str | None = None,
     fallback_assets_dir: str | os.PathLike | None = None,
     motion_mode: str = "normal",
+    draft: bool = False,
 ) -> str:
     """Hash render code, visual assets by content, and all frame/timing settings."""
     source_root = Path(source_dir)
@@ -52,6 +53,9 @@ def build_signature(
         raise ValueError("invalid motion mode")
     hasher.update(b"engine-p-cache-v3\\0")
     hasher.update(motion_mode.encode("ascii"))
+    if draft:
+        # Same source at the same nominal size renders a 540x960 preview: never share its chunks.
+        hasher.update(b"draft-preview\0")
     hasher.update(b"\\0")
     hasher.update(
         repr((total_frames, chunk_frames, tuple(scene_bounds), fps, width, height)).encode("utf-8")
