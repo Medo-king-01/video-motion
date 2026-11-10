@@ -16,8 +16,13 @@ Honesty rules:
 - the manifest records, per scene, whether it was a hit and how long a miss took, so
   "the cache works" is a number in `cache/scenes/manifest.json`, not a claim.
 
-Scope: engine K only. Engine P caches whole chunks (see `chunk.py`) and R/Remotion has no range
-API; pretending otherwise here would produce segments that do not concatenate.
+Scope: engine K only. Engine P caches whole chunks (see `chunk.py`). Engine R *does* render a range
+(`scripts/render.mjs --from-frame --to-frame`, validated against the locked 30 fps timeline, and
+`render_hybrid.py` has always used it) — what R lacks is **per-scene modules**: one composition
+(`RemotionRoot.tsx` + `src/lib/*`, 46 files at last count) reads `plan/beats.json` and draws every
+scene, so a key built from "that scene's own code" would be the whole project and any edit would
+invalidate every segment. A cache that never hits is worse than no cache, so `--scene-cache` stays
+K-only and `pipeline.py` says that reason instead of the old, false one.
 """
 from __future__ import annotations
 

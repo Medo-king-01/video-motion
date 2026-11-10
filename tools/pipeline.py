@@ -334,7 +334,8 @@ def main() -> int:
         return 2
     if args.scene_cache and engine != "k":
         print("pipeline: --scene-cache is available for engine K only (its renderer takes absolute "
-              "frame ranges per scene; P caches whole chunks and R has no range API)", file=sys.stderr)
+              "frame ranges per scene; P caches whole chunks, and R renders ranges but has one "
+              "composition for every scene, so a per-scene key could never hit)", file=sys.stderr)
         return 2
     if args.draft and engine not in {"k", "p", "hybrid"}:
         print("pipeline: --draft is available for engines P, K and hybrid (whose base segments must "

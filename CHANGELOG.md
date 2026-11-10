@@ -5,6 +5,26 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-10 (R renders ranges — the contract said otherwise)
+
+**"R has no range API" was false in three places.** `tools/render_scenes.py`'s docstring,
+`pipeline.py`'s `--scene-cache` refusal and `docs/scene-cache.md` all told an agent that Remotion
+cannot render a partial timeline, and refused the engine on that basis. `scripts/render.mjs` has
+`--from-frame`/`--to-frame` (half-open, validated against the locked 30 fps timeline *before* a
+browser opens) — and `render_hybrid.py` had been rendering R segments through it all along. The
+capability existed and the contract denied it, which is the same class of drift as N1.
+
+The statements are corrected, and the capability is now pinned by behavior rather than prose:
+`tests/test_remotion_range.py` proves an empty range and an out-of-timeline range are refused with
+sentences, and that a valid range gets past range validation into the next gate (text direction)
+without drawing a frame — no Chromium, no `npm ci`.
+
+**Why R still has no per-scene cache** is now stated with evidence instead of the wrong reason: the
+scaffold has one composition (`RemotionRoot.tsx` + 46 files under `src/lib/`) that reads
+`plan/beats.json` and draws every scene, so a key built from "that scene's own code" is the whole
+project — every edit would invalidate every segment, and a cache that never hits is worse than none.
+If the scaffold is ever split into per-scene modules, the cache becomes possible; the doc says so.
+
 ## Unreleased — 2026-11-10 (the two changelogs are consecutive, and now say so)
 
 **`CHANGELOG.md` and `medo-motion/CHANGELOG.md` were read as duplicates — they are not.** Comparing
