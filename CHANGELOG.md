@@ -12,11 +12,14 @@ tests in those files (only the four bundling ones are pinned), and the shared `_
 helper retries **once** when the launcher reports that exact bundler 404 — never on a layout or
 render assertion, so a real failure still fails the first time.
 
-Separately observed and **not** changed here: `templates/remotion/package.json` forces
-`overrides: {"zod": "^4.6.7"}` while Remotion 4.0.539 requires zod 4.5.4, so every R render logs
-`Version mismatch: zod: installed 4.6.7, required 4.5.4`. Dropping the override regenerates a
-lock with nested zod 4.5.4 and no top-level copy (verified in a scratch copy); it needs a full R
-lane pass, so it is queued as its own change rather than folded into this batch.
+Checked while chasing that flake and **left as designed**: `templates/remotion/package.json`
+forces `overrides: {"zod": "^4.6.7"}`, which makes every R render log
+`Version mismatch: zod: installed 4.6.7, required 4.5.4`. That override is deliberate — it is
+pinned by `tests/test_remotion_skill.py`, explained in `docs/remotion-skill.md` and
+`medo-motion/skills/remotion/SKILL.md` (kept until Remotion supports Zod 4.6.x natively), and the
+warning does not stop a render: the failure above was a missing webpack bundle directory, and the
+retry rebuilt it. Removing the override would silence the warning at the cost of a documented
+upgrade policy, so it stays.
 
 ## Unreleased — 2026-11-10 (batch 3, part 3: per-scene cache)
 
