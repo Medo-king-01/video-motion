@@ -5,6 +5,19 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (the scene-cache mux refuses a mix that does not fit the picture)
+
+`render_scenes.py` muxed with `-shortest`: one second of picture plus half a second of audio wrote a
+13-frame file and printed success. The mix and the picture are now measured before the mux; a
+difference above half a frame is refused with both lengths in the message and nothing is written.
+`--audio-fit pad|trim` is the explicit alternative (pad only lengthens the audio, trim only shortens
+it; the picture is never cut). The joined picture and the muxed file are measured (frames, duration,
+audio stream) before they replace the output, and the manifest records the measurement.
+
+Behaviour change: a project whose `out/final_audio.wav` differs from the summed scene frames by more
+than half a frame used to get a silently cut master from `render_scenes.py` / `pipeline.py
+--scene-cache`; it now fails until the timing is fixed or `--audio-fit` is passed to `render_scenes.py`.
+
 ## Unreleased — 2026-11-11 (the K scene cache hashes every input a frame can read)
 
 `tools/render_scenes.py` keyed a scene on four files under `src/`, `src/lib/**/*.js` and the scene's

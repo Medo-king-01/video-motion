@@ -535,3 +535,150 @@ def test_real_run_rerenders_on_shared_inputs_and_only_then(tmp_path: Path) -> No
     # reduced motion draws different frames: it cannot share segments with a normal render
     hits, misses, reduced = render("--motion-mode", "reduced")
     assert misses == 2 and not (reduced & segments)
+
+
+# --- audio mux: a length mismatch is refused, never cut silently ------------------------------
+
+def _picture(path: Path, frames: int, fps: int = 30) -> Path:
+    """A real H.264 clip of exactly `frames` frames (no Chromium: the mux does not care who drew it)."""
+    ffmpeg = render_scenes.media_bin.ffmpeg()
+    if not ffmpeg or not render_scenes.media_bin.ffprobe():
+        pytest.skip("ffmpeg/ffprobe missing — run: bash tools/setup.sh")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"color=c=red:s=1080x1920:r={fps}",
+                    "-frames:v", str(frames), "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+                    str(path)], check=True)
+    return path
+
+
+def _video_frames(path: Path) -> int:
+    """Frames actually decodable — not the container's claim."""
+    import av  # noqa: PLC0415
+    with av.open(str(path)) as container:
+        return sum(1 for _ in container.decode(container.streams.video[0]))
+
+
+HALF_FRAME = 0.5 / 30
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("audio_seconds", [0.5, 1.0 - HALF_FRAME - 0.004, 1.0 + HALF_FRAME + 0.004, 1.5, 3.0])
+def test_mux_refuses_audio_that_does_not_fit_the_picture(tmp_path: Path, audio_seconds: float) -> None:
+    """The reported bug: 1 s of picture + 0.5 s of sound produced a 13-frame file and "success"."""
+    picture = _picture(tmp_path / "picture.mp4", 30)
+    audio = _silence(tmp_path / "mix.wav", audio_seconds)
+    target = tmp_path / "out" / "master.mp4"
+    target.parent.mkdir()
+    target.write_bytes(b"previous good master")
+    with pytest.raises(SystemExit) as error:
+        render_scenes.mux_audio(picture, audio, target, tmp_path / "log.txt")
+    message = str(error.value)
+    assert "audio" in message and "picture" in message and "--audio-fit" in message
+    assert f"{audio_seconds:.3f}" in message and "1.000" in message  # both lengths, so the fix is obvious
+    assert target.read_bytes() == b"previous good master", "a refused mux must not touch the existing output"
+    assert not list(target.parent.glob("*.tmp.*")), "a refused mux left a partial file behind"
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("audio_seconds", [1.0, 1.0 - HALF_FRAME + 0.004, 1.0 + HALF_FRAME - 0.004])
+def test_mux_keeps_every_frame_when_the_lengths_agree(tmp_path: Path, audio_seconds: float) -> None:
+    picture = _picture(tmp_path / "picture.mp4", 30)
+    audio = _silence(tmp_path / "mix.wav", audio_seconds)
+    target = tmp_path / "master.mp4"
+    assert render_scenes.mux_audio(picture, audio, target, tmp_path / "log.txt") is True
+    assert _video_frames(target) == 30
+    assert _audio_seconds(target) == pytest.approx(audio_seconds, abs=0.05)
+    render_scenes.verify_output(target, frames=30, fps=30, audio_seconds=audio_seconds)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("policy, audio_seconds, accepted", [
+    ("pad", 0.5, True), ("pad", 1.5, False), ("trim", 1.5, True), ("trim", 0.5, False),
+    ("pad", 1.0, True), ("trim", 1.0, True),
+])
+def test_audio_fit_is_an_explicit_one_directional_policy(tmp_path: Path, policy: str, audio_seconds: float,
+                                                         accepted: bool) -> None:
+    """--audio-fit pad only lengthens the sound, trim only shortens it; the picture is never cut."""
+    picture = _picture(tmp_path / "picture.mp4", 30)
+    audio = _silence(tmp_path / "mix.wav", audio_seconds)
+    target = tmp_path / "master.mp4"
+    if not accepted:
+        with pytest.raises(SystemExit):
+            render_scenes.mux_audio(picture, audio, target, tmp_path / "log.txt", audio_fit=policy)
+        assert not target.exists()
+        return
+    assert render_scenes.mux_audio(picture, audio, target, tmp_path / "log.txt", audio_fit=policy) is True
+    assert _video_frames(target) == 30
+    assert _audio_seconds(target) == pytest.approx(1.0, abs=0.05)
+    render_scenes.verify_output(target, frames=30, fps=30, audio_seconds=1.0)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("fault", ["frames", "no-audio", "short-audio", "unreadable"])
+def test_verify_output_catches_a_bad_file(tmp_path: Path, fault: str) -> None:
+    """The last gate before the manifest: measured on the written file, not computed."""
+    good = _picture(tmp_path / "picture.mp4", 30)
+    target = tmp_path / "master.mp4"
+    if fault == "frames":
+        shutil.copy(_picture(tmp_path / "short.mp4", 13), target)
+        expect = {"frames": 30, "fps": 30, "audio_seconds": None}
+    elif fault == "no-audio":
+        shutil.copy(good, target)
+        expect = {"frames": 30, "fps": 30, "audio_seconds": 1.0}
+    elif fault == "short-audio":
+        render_scenes.mux_audio(good, _silence(tmp_path / "mix.wav", 1.0), target, tmp_path / "log.txt")
+        expect = {"frames": 30, "fps": 30, "audio_seconds": 2.0}
+    else:
+        target.write_bytes(b"not a video")
+        expect = {"frames": 30, "fps": 30, "audio_seconds": None}
+    with pytest.raises(SystemExit) as error:
+        render_scenes.verify_output(target, **expect)
+    assert "master.mp4" in str(error.value)
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not HAS_NODE, reason="node is required to read data.js")
+@pytest.mark.parametrize("audio_seconds, extra, ok", [
+    (2.5, [], True), (1.0, [], False), (4.0, [], False),
+    (1.0, ["--audio-fit", "pad"], True), (4.0, ["--audio-fit", "trim"], True),
+])
+def test_cli_reports_success_only_for_a_verified_master(tmp_path: Path, monkeypatch, capsys, audio_seconds: float,
+                                                        extra: list[str], ok: bool) -> None:
+    """Through main(): exit code, stderr, the output file and the manifest all tell the same story."""
+    project = make_skeleton(tmp_path, TWO)  # 1.0 s + 1.5 s = 75 frames
+
+    def fake_segment(project, scene, target, *, fps, crf, log, motion_mode="normal") -> bool:
+        _picture(target, render_scenes.expected_frames(scene, fps), fps)
+        return True
+
+    monkeypatch.setattr(render_scenes, "render_segment", fake_segment)
+    _silence(project / "out" / "final_audio.wav", audio_seconds)
+    code = render_scenes.main([str(project), *extra])
+    master = project / "out" / "master.mp4"
+    manifest = project / "cache" / "scenes" / "manifest.json"
+    if not ok:
+        assert code == 2
+        assert "--audio-fit" in capsys.readouterr().err
+        assert not master.exists() and not manifest.exists()
+        return
+    assert code == 0
+    assert _video_frames(master) == 75
+    assert _audio_seconds(master) == pytest.approx(2.5, abs=0.05)
+    assert not list(master.parent.glob("*.tmp.*"))
+    recorded = json.loads(manifest.read_text(encoding="utf-8"))
+    assert recorded["verified"]["frames"] == 75 and recorded["verified"]["audio_seconds"] == pytest.approx(2.5, abs=0.05)
+
+
+@pytest.mark.slow
+def test_a_short_concat_never_becomes_the_output(tmp_path: Path) -> None:
+    """The silent path has no mux to catch it: the joined picture is counted before it is published."""
+    segments = [_picture(tmp_path / "a.mp4", 15), _picture(tmp_path / "b.mp4", 15)]
+    target = tmp_path / "out" / "master.mp4"
+    target.parent.mkdir()
+    target.write_bytes(b"previous good master")
+    with pytest.raises(SystemExit) as error:
+        render_scenes.concat(segments, target, tmp_path / "log.txt", frames=45, fps=30)
+    assert "30 frames, expected 45" in str(error.value)
+    assert target.read_bytes() == b"previous good master" and not list(target.parent.glob("*.tmp.*"))
+    assert render_scenes.concat(segments, target, tmp_path / "log.txt", frames=30, fps=30) is True
+    assert _video_frames(target) == 30

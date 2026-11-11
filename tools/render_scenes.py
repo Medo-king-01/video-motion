@@ -212,8 +212,9 @@ def probe_video(path: Path) -> dict | None:
         frames = int(info["nb_frames"]) if str(info.get("nb_frames", "")).isdigit() else None
         if frames is None and info.get("duration"):
             frames = round(float(info["duration"]) * fps)
+        seconds = float(info["duration"]) if info.get("duration") else None
         return {"width": int(info["width"]), "height": int(info["height"]),
-                "frames": frames, "fps": info.get("r_frame_rate")}
+                "frames": frames, "fps": info.get("r_frame_rate"), "seconds": seconds}
     except (KeyError, TypeError, ValueError, ZeroDivisionError):
         return None
 
@@ -237,7 +238,9 @@ def render_segment(project: Path, scene: dict, target: Path, *, fps: int, crf: i
                               stdout=handle, stderr=subprocess.STDOUT, check=False).returncode == 0
 
 
-def concat(segments: list[Path], target: Path, log: Path) -> bool:
+def concat(segments: list[Path], target: Path, log: Path, *, frames: int | None = None, fps: int = 30) -> bool:
+    """Stream-copy the segments into `target`. With `frames`, the joined file is measured before it
+    replaces `target`, so a short concat never becomes the output."""
     ffmpeg = media_bin.ffmpeg()
     if not ffmpeg:
         return False
@@ -250,28 +253,124 @@ def concat(segments: list[Path], target: Path, log: Path) -> bool:
     with log.open("a", encoding="utf-8") as handle:
         if subprocess.run(cmd, stdout=handle, stderr=subprocess.STDOUT, check=False).returncode:
             return False
+    if frames is not None:
+        try:
+            verify_output(tmp, frames=frames, fps=fps, audio_seconds=None)
+        except SystemExit:
+            tmp.unlink(missing_ok=True)
+            raise
     os.replace(tmp, target)
     listing.unlink(missing_ok=True)
     return True
 
 
-def mux_audio(picture: Path, audio: Path, target: Path, log: Path) -> bool:
+AUDIO_FITS = ("reject", "pad", "trim")
+# The container can only state an AAC stream's length to the codec frame (1024 samples) plus the
+# encoder's priming; that slack applies to *measuring the written file*, never to the inputs.
+_AAC_SLACK = 3 * 1024 / 48000
+
+
+def length_tolerance(fps: int) -> float:
+    """How far the mix may differ from the picture and still be muxed untouched: half a frame."""
+    return 0.5 / fps
+
+
+def probe_audio_seconds(path: Path) -> float | None:
+    """Duration of the first audio stream, or None when the file has none / cannot be read."""
+    ffprobe = media_bin.ffprobe()
+    if not ffprobe or not path.is_file():
+        return None
+    result = subprocess.run(
+        [ffprobe, "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=codec_name,duration",
+         "-of", "json", str(path)], capture_output=True, text=True, check=False)
+    if result.returncode:
+        return None
+    try:
+        streams = json.loads(result.stdout).get("streams") or []
+        return float(streams[0]["duration"]) if streams else None
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def mux_audio(picture: Path, audio: Path, target: Path, log: Path, *, fps: int = 30,
+              audio_fit: str = "reject") -> bool:
+    """Put the mix on the picture without ever cutting the picture.
+
+    The old `-shortest` let a short mix truncate the video and still reported success. The two
+    lengths are now measured first; if they differ by more than half a frame the mux is refused,
+    unless the caller chose a policy: `pad` adds silence to a short mix, `trim` cuts a long one.
+    Neither policy does the other's job, and neither touches the picture.
+    """
+    if audio_fit not in AUDIO_FITS:
+        raise SystemExit(f"render_scenes: --audio-fit must be one of {', '.join(AUDIO_FITS)}")
     ffmpeg = media_bin.ffmpeg()
     if not ffmpeg:
         return False
+    info = probe_video(picture)
+    if not info or not info["frames"]:
+        raise SystemExit(f"render_scenes: cannot measure the picture before the mux: {picture}")
+    picture_seconds = info["frames"] / fps
+    audio_seconds = probe_audio_seconds(audio)
+    if audio_seconds is None:
+        raise SystemExit(f"render_scenes: cannot measure the audio before the mux (no audio stream?): {audio}")
+    delta = audio_seconds - picture_seconds
+    fit: list[str] = []
+    if abs(delta) > length_tolerance(fps):
+        allowed = (audio_fit == "pad" and delta < 0) or (audio_fit == "trim" and delta > 0)
+        if not allowed:
+            raise SystemExit(
+                f"render_scenes: audio is {audio_seconds:.3f}s but the picture is {picture_seconds:.3f}s "
+                f"({info['frames']} frames at {fps} fps) — {abs(delta):.3f}s {'short' if delta < 0 else 'long'}, "
+                f"tolerance {length_tolerance(fps):.3f}s (half a frame). Nothing was written. Fix the mix or the "
+                f"scene timing, or choose a policy: --audio-fit {'pad' if delta < 0 else 'trim'} "
+                f"({'add silence to' if delta < 0 else 'cut the end of'} the audio; the picture is never cut)")
+        fit = (["-af", "apad"] if delta < 0 else []) + ["-t", f"{picture_seconds:.6f}"]
     tmp = target.with_name(target.stem + ".tmp" + target.suffix)
     cmd = [ffmpeg, "-y", "-loglevel", "error", "-i", str(picture), "-i", str(audio),
            "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-           "-shortest", "-movflags", "+faststart", str(tmp)]
+           *fit, "-movflags", "+faststart", str(tmp)]
     with log.open("a", encoding="utf-8") as handle:
         if subprocess.run(cmd, stdout=handle, stderr=subprocess.STDOUT, check=False).returncode:
+            tmp.unlink(missing_ok=True)
             return False
+    try:
+        verify_output(tmp, frames=info["frames"], fps=fps,
+                      audio_seconds=picture_seconds if fit else audio_seconds)
+    except SystemExit:
+        tmp.unlink(missing_ok=True)
+        raise
     os.replace(tmp, target)
     return True
 
 
+def verify_output(path: Path, *, frames: int, fps: int, audio_seconds: float | None) -> dict:
+    """Measure the written file: frame count, picture length, and the audio stream if one is due.
+
+    Raises SystemExit naming the file and the first thing that is wrong; returns what it measured.
+    """
+    info = probe_video(path)
+    if not info:
+        raise SystemExit(f"render_scenes: output is not a readable video: {path}")
+    if info["frames"] != frames:
+        raise SystemExit(f"render_scenes: {path} has {info['frames']} frames, expected {frames} "
+                         f"({frames / fps:.3f}s at {fps} fps) — the picture was cut or padded")
+    measured = {"frames": info["frames"], "seconds": round(info["frames"] / fps, 6), "audio_seconds": None}
+    if info.get("seconds") is not None and abs(info["seconds"] - frames / fps) > length_tolerance(fps):
+        raise SystemExit(f"render_scenes: {path} video stream lasts {info['seconds']:.3f}s, "
+                         f"expected {frames / fps:.3f}s")
+    if audio_seconds is not None:
+        actual = probe_audio_seconds(path)
+        if actual is None:
+            raise SystemExit(f"render_scenes: {path} has no audio stream, but a mix was muxed")
+        if abs(actual - audio_seconds) > length_tolerance(fps) + _AAC_SLACK:
+            raise SystemExit(f"render_scenes: {path} carries {actual:.3f}s of audio, expected {audio_seconds:.3f}s")
+        measured["audio_seconds"] = round(actual, 6)
+    return measured
+
+
 def run(project: Path, *, fps: int, crf: int, output: Path, audio: Path | None, force: bool,
-        log: Path, motion_mode: str | None = None, hash_audio: tuple[Path, ...] = ()) -> dict:
+        log: Path, motion_mode: str | None = None, hash_audio: tuple[Path, ...] = (),
+        audio_fit: str = "reject") -> dict:
     scenes = load_scenes(project)
     cache = project / "cache" / "scenes"
     motion_mode = resolve_motion_mode(motion_mode)
@@ -306,21 +405,28 @@ def run(project: Path, *, fps: int, crf: int, output: Path, audio: Path | None, 
     if output.exists() and not force:
         raise SystemExit(f"render_scenes: refusing to overwrite {output} (use --force)")
     output.parent.mkdir(parents=True, exist_ok=True)
-    picture = output
+    total_frames = sum(entry["frames"] for entry in entries)
     if audio is not None:
         picture = cache / "picture.mp4"
-        if not concat(segments, picture, log):
+        if not concat(segments, picture, log, frames=total_frames, fps=fps):
             raise SystemExit(f"render_scenes: concat failed — see {log}")
-        if not mux_audio(picture, audio, output, log):
+        if not mux_audio(picture, audio, output, log, fps=fps, audio_fit=audio_fit):
             raise SystemExit(f"render_scenes: audio mux failed — see {log}")
-    elif not concat(segments, output, log):
+    elif not concat(segments, output, log, frames=total_frames, fps=fps):
         raise SystemExit(f"render_scenes: concat failed — see {log}")
+    # Success is what the published file measures, not what the steps above returned.
+    verified = verify_output(output, frames=total_frames, fps=fps, audio_seconds=None)
+    if audio is not None:
+        verified["audio_seconds"] = probe_audio_seconds(output)
+        if verified["audio_seconds"] is None:
+            raise SystemExit(f"render_scenes: {output} has no audio stream, but a mix was muxed")
 
     manifest = {
         "engine": "k", "fps": fps, "crf": crf, "motion_mode": motion_mode, "key_version": KEY_VERSION,
         "shared_key": shared[:12],
         "scenes": entries, "hits": cache_hits, "misses": len(entries) - cache_hits,
         "output": str(output.relative_to(project)), "audio": str(audio) if audio else None,
+        "audio_fit": audio_fit if audio else None, "verified": verified,
     }
     cache.mkdir(parents=True, exist_ok=True)
     (cache / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
@@ -340,6 +446,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--hash-audio", type=Path, action="append", default=[], metavar="FILE",
                         help="an audio file a scene DRAWS from (e.g. a waveform): add it to the shared key. "
                              "Audio is otherwise left out of the key. Repeatable; relative to the project")
+    parser.add_argument("--audio-fit", choices=AUDIO_FITS, default="reject",
+                        help="when the mix and the picture differ by more than half a frame: reject (default), "
+                             "pad a short mix with silence, or trim a long one. The picture is never cut")
     parser.add_argument("--force", action="store_true", help="overwrite an existing output")
     parser.add_argument("--json", action="store_true", help="print the manifest as JSON")
     args = parser.parse_args(argv)
@@ -365,7 +474,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         manifest = run(project, fps=args.fps, crf=args.crf, output=output, audio=audio,
                        force=args.force, log=log, motion_mode=args.motion_mode,
-                       hash_audio=tuple(args.hash_audio))
+                       hash_audio=tuple(args.hash_audio), audio_fit=args.audio_fit)
     except SystemExit as error:
         print(str(error), file=sys.stderr)
         return 2
