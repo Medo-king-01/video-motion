@@ -107,6 +107,12 @@ def weight_of(e: dict, energy: str) -> float:
     return ROLE_WEIGHT[e["role"]] * proof * fit
 
 
+# Catalogued, never drawn: these categories describe material no engine renders (the gl-transitions
+# shaders are a reference store — docs/GL_TRANSITIONS.md). They stay in the library, in `--list`
+# and in the counts; only the draw skips them, so a plan never asks for something that cannot be made.
+REFERENCE_ONLY = {"gl-transition"}
+
+
 def draw(data: dict, seconds: float, energy: str = "calm", seed: int | None = None,
          only: str | None = None, exclude: list[str] | None = None,
          avoid: list[str] | None = None, n: int | None = None) -> dict:
@@ -118,7 +124,7 @@ def draw(data: dict, seconds: float, energy: str = "calm", seed: int | None = No
     size = n or plan_size(fmt, seconds, energy)
     order = fmt["order"] if not only else [only] * size
     signatures = 2 if size >= 10 else 1
-    pool = [e for e in data["techniques"] if e["id"] not in skip]
+    pool = [e for e in data["techniques"] if e["id"] not in skip and e["category"] not in REFERENCE_ONLY]
     used: set[str] = set()
     picks: list[dict] = []
     for cat in order:
@@ -269,6 +275,10 @@ def main() -> int:
     if a.avoid and a.avoid.is_file():
         avoid = [p["id"] for p in json.loads(a.avoid.read_text(encoding="utf-8")).get("picks", [])]
 
+    if a.category in REFERENCE_ONLY:
+        print(f"techniques: '{a.category}' is a reference category — nothing in it can be rendered, so it is "
+              "never drawn. Transitions that render are in medo-motion/motion/transitions.json", file=sys.stderr)
+        return 2
     result = draw(data, float(seconds), a.energy, a.seed, a.category, a.exclude, avoid, a.n)
     if not result["picks"]:
         print("nothing fits those filters", file=sys.stderr)

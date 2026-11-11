@@ -5,6 +5,25 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (hybrid draft: one sampling rule for P, K and the overlay)
+
+A hybrid draft expected `end // 2 - start // 2` frames per segment, which is what engine P rendered,
+but asked engine K (base and alpha overlay) for `--from start/30 --to end/30 --fps 15`, which renders
+`ceil((end - start) / 2)`. Any K segment of odd length stopped the draft: `[0,3)` gave 2 frames for
+an expected 1, `[30,61)` 16 for 15, and an overlay failed with "produced 2 frame(s), expected 1".
+
+- Rule, for P, K and the overlay alike: a draft of `[start, end)` shows source frames `start`,
+  `start+2`, … stopping before `end // 2 * 2` — `end // 2 - start // 2` frames, all inside the
+  segment (`render_hybrid.draft_samples`, `render_p_segment.draft_source_frames`).
+- Engine P's draft used to start at `start // 2 * 2`, one frame *before* a segment that starts on an
+  odd frame; it now starts at `start`. Draft path only.
+- Behaviour change, drafts only: at a cut on an odd frame the samples on either side are 1 or 3
+  source frames apart instead of 2, and an odd-start P segment shows frames one later than before.
+  The master path is unchanged; its commands are pinned by a test.
+- `techniques.py --draw` never picks from the `gl-transition` category (reference shaders no engine
+  renders); `--draw --category gl-transition` exits 2 and says so. The library, ids, order and
+  counts are unchanged. A seeded draw that used to include one of them now returns a different plan.
+
 ## Unreleased — 2026-11-11 (audit_projects: see what the hardening will stop, before it does)
 
 `tools/audit_projects.py` reads every folder under `projects/` (or the paths it is given) and

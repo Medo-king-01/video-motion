@@ -1,9 +1,9 @@
 """Hybrid drafts — a 540x960 / 15 fps review copy of a layered reel.
 
 The rule that makes it honest: a draft halves **frames**, not quality claims. P still renders at
-1080x1920 (so it saves frames only), K renders at half scale, and the timeline stays anchored to
-absolute frame numbers — draft frame k is source frame 2k — so a 60-frame master and its draft are
-both 2.000 s. Nothing here re-encodes a master and calls it a preview.
+1080x1920 (so it saves frames only), K renders at half scale, and a segment [start, end) shows
+source frames start, start+2, … — `end // 2 - start // 2` of them, all inside the segment — so a
+60-frame master and its draft are both 2.000 s. Nothing here re-encodes a master and calls it a preview.
 """
 from __future__ import annotations
 
@@ -148,3 +148,82 @@ def test_the_master_commands_are_exactly_these(tmp_path, start, end, time_from, 
         "node", "src/render.js", "--from", time_from, "--to", time_to, "--fps", "30", "--scale", "1",
         "--alpha", "--out", str(frames)]
     assert build_alpha_command("node", start, end, frames, only=["a", "b"])[-2:] == ["--only", "a,b"]
+
+
+# --- one sampling rule for P, K and the K alpha overlay ---------------------------------------
+#
+# A draft of [start, end) shows source frames start, start+2, … stopping before end // 2 * 2.
+
+GRID = [(start, end) for start in range(12) for end in range(start + 1, start + 13)]
+RENDER_JS = Path(__file__).resolve().parents[1] / "medo-motion" / "templates" / "render" / "render.js"
+
+
+def _k_source_frames(command: list[str]) -> list[int]:
+    """The source frames `render.js` draws for this command: its own arithmetic, restated.
+
+    render.js: `count = Math.ceil((to - from) * fps - 1e-8)` frames at `from + i / fps`
+    (`test_the_k_arithmetic_restated_here_is_still_render_js` fails if that changes)."""
+    import math
+
+    time_from, time_to, fps = (float(command[command.index(flag) + 1]) for flag in ("--from", "--to", "--fps"))
+    count = math.ceil((time_to - time_from) * fps - 1e-8)
+    times = [time_from + index / fps for index in range(count)]
+    frames = [round(time * 30) for time in times]
+    assert all(abs(time * 30 - frame) < 1e-6 for time, frame in zip(times, frames, strict=True)), (
+        f"K would sample between source frames: {times}")
+    return frames
+
+
+def _draft_commands(start: int, end: int) -> tuple[list[str], list[str]]:
+    base = build_segment_command("k", python="py", node="node", ffmpeg="ff", project=Path("/p"), start=start,
+                                 end=end, sid="s", target=Path("/o.mp4"), frames_dir=Path("/run"), draft=True)
+    return base, build_alpha_command("node", start, end, Path("/frames"), only=["title"], draft=True)
+
+
+def test_the_k_arithmetic_restated_here_is_still_render_js():
+    source = RENDER_JS.read_text(encoding="utf-8")
+    assert "const count=Math.ceil((to-from)*fps-1e-8)" in source
+    assert "window.renderFrame(t),from+i/fps" in source
+
+
+@pytest.mark.parametrize("start, end, samples", [
+    (0, 3, [0]), (3, 6, [3, 5]), (3, 5, [3]), (30, 61, list(range(30, 60, 2))), (4, 7, [4]), (0, 60, list(range(0, 60, 2))),
+])
+def test_the_reference_ranges_sample_these_source_frames(start, end, samples):
+    import render_p_segment
+
+    base, alpha = _draft_commands(start, end)
+    assert render_hybrid.draft_samples(start, end) == samples
+    assert render_p_segment.draft_source_frames(start, end) == samples
+    assert _k_source_frames(base) == samples and _k_source_frames(alpha) == samples
+    assert draft_frames(start, end) == len(samples)
+
+
+@pytest.mark.parametrize("start, end", GRID)
+def test_p_k_and_the_overlay_sample_the_same_frames_inside_the_segment(start, end):
+    import render_p_segment
+
+    expected = end // 2 - start // 2
+    if expected == 0:  # e.g. [2, 3): no whole draft frame — the runner refuses it (tested above), every engine agrees
+        assert render_p_segment.draft_source_frames(start, end) == render_hybrid.draft_samples(start, end) == []
+        with pytest.raises(RuntimeError, match="no frame to show"):
+            _draft_commands(start, end)
+        return
+    base, alpha = _draft_commands(start, end)
+    p_frames = render_p_segment.draft_source_frames(start, end)
+    k_frames, alpha_frames = _k_source_frames(base), _k_source_frames(alpha)
+    assert len(p_frames) == len(k_frames) == len(alpha_frames) == draft_frames(start, end) == expected   # (a) count
+    assert p_frames == k_frames == alpha_frames == render_hybrid.draft_samples(start, end)               # (b) same list
+    assert all(start <= frame < end for frame in p_frames), p_frames                                       # (c) inside
+    assert p_frames[0] == start and all(b - a == 2 for a, b in zip(p_frames, p_frames[1:], strict=False))
+    assert float(base[base.index("--to") + 1]) <= end / 30 + 1e-9, "K is asked for time past the segment"
+
+
+@pytest.mark.parametrize("cuts", [[0, 3, 6], [0, 3, 5, 8, 13], [0, 1, 2], [0, 2, 3, 4], [0, 7, 12, 61], list(range(0, 25))])
+def test_consecutive_segments_add_up_to_half_the_reel_and_never_overlap(cuts):
+    segments = list(zip(cuts, cuts[1:], strict=False))
+    samples = [frame for start, end in segments for frame in render_hybrid.draft_samples(start, end)]
+    assert len(samples) == sum(draft_frames(start, end) for start, end in segments) == cuts[-1] // 2
+    assert samples == sorted(set(samples)), "a source frame is shown twice or out of order"
+    gaps = {b - a for a, b in zip(samples, samples[1:], strict=False)}
+    assert gaps <= {1, 2, 3, 4}, f"draft samples are {gaps} source frames apart"
