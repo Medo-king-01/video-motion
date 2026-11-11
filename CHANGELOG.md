@@ -5,6 +5,19 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (the pipeline stops on a stale audio mix)
+
+`pipeline.py` kept `out/final_audio.wav` whenever it existed, so a re-recorded VO or an edited cue
+sheet shipped with the previous mix. The mix step now writes `out/final_audio.mix.json` (hashes of the
+VO, the cue sheet's values, the music/SFX/mix code, loudnorm availability, and the WAV itself) and
+keeps an existing mix only while that record matches. Otherwise the step fails with `STALE: <what
+changed>` and touches nothing; `--remix` rebuilds, `--keep-mix` records an explicit acceptance.
+
+Refusal was chosen over an automatic re-mix: re-mixing overwrites a file that may have been edited by
+hand. Behaviour change: a project that already has `final_audio.wav` **and** a cue sheet but no record
+(mixed before this change) fails the mix step once, until `--keep-mix` or `--remix`. A mix without a
+cue sheet is still kept, and the note now says it is unchecked. See `docs/audio.md`.
+
 ## Unreleased — 2026-11-11 (the scene-cache mux refuses a mix that does not fit the picture)
 
 `render_scenes.py` muxed with `-shortest`: one second of picture plus half a second of audio wrote a
