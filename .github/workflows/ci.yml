@@ -110,16 +110,19 @@ jobs:
         with:
           node-version: "22"
       - name: TEMPORARY apt diagnostic (to be reverted)
-        timeout-minutes: 6
+        timeout-minutes: 3
         run: |
           set +e
           note() { echo "::warning title=$1::$(printf '%s' "$2" | tail -n 14 | cut -c1-220 | sed -z 's/\n/%0A/g')"; }
-          note "procs-before" "$(ps -eo etimes,cmd | grep -E 'apt|dpkg|unattended|man-db' | grep -v grep)"
-          s=$(date +%s); out=$(sudo timeout 100 apt-get -o Acquire::Retries=3 update </dev/null 2>&1); rc=$?
-          note "update rc=$rc secs=$(( $(date +%s)-s ))" "$out"
-          s=$(date +%s); out=$(sudo timeout 150 apt-get install -y --no-install-recommends ffmpeg </dev/null 2>&1); rc=$?
-          note "install rc=$rc secs=$(( $(date +%s)-s ))" "$out"
-          note "procs-after" "$(ps -eo etimes,cmd | grep -E 'apt|dpkg|unattended|man-db' | grep -v grep)"
+          note "mirrors" "$(cat /etc/apt/apt-mirrors.txt; grep -rhE '^(URIs|deb )' /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null | head -6)"
+          for h in azure.archive.ubuntu.com archive.ubuntu.com security.ubuntu.com; do
+            s=$(date +%s%3N); curl -fsS -o /dev/null --connect-timeout 5 --max-time 10 "http://$h/ubuntu/dists/jammy/InRelease" 2>/tmp/e; rc=$?
+            note "probe $h rc=$rc ms=$(( $(date +%s%3N)-s ))" "$(cat /tmp/e)"
+          done
+          if ! curl -fsS -o /dev/null --connect-timeout 5 --max-time 10 http://azure.archive.ubuntu.com/ubuntu/dists/jammy/InRelease; then
+            sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu/|http://archive.ubuntu.com/ubuntu/|' /etc/apt/apt-mirrors.txt
+            note "switched" "$(cat /etc/apt/apt-mirrors.txt)"
+          fi
       - name: Install FFmpeg tools
         timeout-minutes: 5
         run: |
