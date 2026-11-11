@@ -17,6 +17,7 @@ from conftest import ROOT, SKILL
 pytestmark = pytest.mark.slow  # real synthesis/render/Chromium work: -m 'not slow' is the quick loop
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
+sys.path.insert(0, str(SKILL.parent / "shared" / "py"))  # audio + rhythm: the editable copy
 
 SR = 44100
 

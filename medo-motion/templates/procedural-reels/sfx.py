@@ -426,6 +426,37 @@ def bus(length, cues, sr=SR, seed_offset=0, tail=False, limit=False, anchored=Fa
     return out
 
 
+def _catalogue_sfx_for(name):
+    """The sound `motion/transitions.json` pairs with a transition, read without engine P.
+
+    `transition.py` (the engine-P compositor) answers this when it is importable. This module also
+    lives in `shared/py/`, where it is not; falling back to "no sound" there would mute every
+    transition cue without an error, so the catalogue is read directly instead.
+    """
+    import json
+    from pathlib import Path
+    global _TRANSITION_SFX
+    if _TRANSITION_SFX is None:
+        _TRANSITION_SFX = {}
+        here = Path(__file__).resolve()
+        for base in here.parents:
+            for candidate in (base / "medo-motion" / "motion" / "transitions.json",
+                              base / "motion" / "transitions.json"):
+                if candidate.is_file():
+                    try:
+                        spec = json.loads(candidate.read_text(encoding="utf-8"))["transitions"]
+                    except (OSError, KeyError, ValueError):
+                        continue
+                    _TRANSITION_SFX = {key: value.get("sfx") for key, value in spec.items()}
+                    break
+            if _TRANSITION_SFX:
+                break
+    return _TRANSITION_SFX.get(name)
+
+
+_TRANSITION_SFX = None
+
+
 def cues_for_transitions(cuts, gain=1.0, pan=(0.0, 0.0), lead=None):
     """Cut list → cue list, using the sound each transition declares in transitions.json.
 
@@ -436,8 +467,8 @@ def cues_for_transitions(cuts, gain=1.0, pan=(0.0, 0.0), lead=None):
     """
     try:
         from transition import sfx_for
-    except ImportError:  # pragma: no cover
-        sfx_for = lambda _n: None  # noqa: E731
+    except ImportError:
+        sfx_for = _catalogue_sfx_for
     cues = []
     for i, cut in enumerate(cuts):
         name = sfx_for(cut.get("name", ""))

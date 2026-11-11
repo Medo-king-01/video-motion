@@ -1,6 +1,6 @@
 """The engine's audio library must own the `audio_mix` name, in any collection order.
 
-`tools/audio_mix.py` (a CLI) and `medo-motion/templates/procedural-reels/audio_mix.py` (the library
+`tools/audio_mix.py` (a CLI) and `shared/py/audio_mix.py` (the library
 the audio tests import) share a name, and `tools/` sits above the engine directory on sys.path. Test
 modules push their own directory to the front while being collected, so before conftest claimed the
 name the library tests passed or failed depending on whether test_cover_generator.py happened to be
@@ -15,9 +15,9 @@ import sys
 import textwrap
 from pathlib import Path
 
-from conftest import ENGINE_P, ROOT
+from conftest import ENGINE_P, ROOT, SHARED_PY
 
-LIBRARY = (ENGINE_P / "audio_mix.py").resolve()
+LIBRARY = (SHARED_PY / "audio_mix.py").resolve()
 CLI = (ROOT / "tools" / "audio_mix.py").resolve()
 
 

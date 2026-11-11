@@ -35,6 +35,8 @@ ignore = [
 # care about real bugs there, so F (unused/undefined names) stays enabled.
 "medo-motion/scripts/*.py" = ["E401", "E402", "I", "UP", "B"]
 "medo-motion/templates/procedural-reels/*.py" = ["E401", "E402", "F403", "F405", "I", "UP", "B"]
+# shared/py is the editable copy of five of those files (byte-identical, tools/sync_shared_py.py).
+"shared/py/*.py" = ["E401", "E402", "F403", "F405", "I", "UP", "B"]
 "tools/ffprobe_shim.py" = ["B"]
 
 [tool.pytest.ini_options]

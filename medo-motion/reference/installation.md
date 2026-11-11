@@ -29,6 +29,30 @@ python3 tools/selftest.py --remotion --hybrid
 
 هذه الأوامر تفحص البيئة وتنفذ اختبارات فعلية؛ راجع أثر أي أمر قبل تشغيله على مشروع يحتوي بيانات مهمة.
 
+## الأدوات الاختيارية المجانية
+
+FFmpeg يأتي مع `bash tools/setup.sh` (نسخة ثابتة من `imageio-ffmpeg` داخل `tools/bin/`). الأدوات
+الثلاث التالية اختيارية ولا يحتاجها أي من المحركات P/K/R؛ ثبّت ما ستستخدمه فقط:
+
+```bash
+bash tools/setup_extras.sh whisper       # faster-whisper + نموذج Whisper-small محلي (~480 MB)
+bash tools/setup_extras.sh demucs        # Demucs لفصل المسارات (يسحب PyTorch — عدة جيجابايت)
+bash tools/setup_extras.sh hyperframes   # HyperFrames CLI 0.9.9 معزول (يتطلب Node >= 22)
+bash tools/setup_extras.sh all
+bash tools/setup_extras.sh --check       # جرد فقط بلا تثبيت
+```
+
+| الأداة | الرخصة | الاعتماديات | الاستخدام |
+|---|---|---|---|
+| FFmpeg | بحسب البناء (GPL للنسخة الثابتة) | `tools/requirements.txt` | كل المحركات |
+| Whisper | MIT | `tools/requirements-align.txt` | `tools/whisper_align.py`، `tools/caption_align.py` — `docs/alignment.md` |
+| Demucs | MIT | `tools/requirements-stems.txt` | `tools/stems.py`، `medo-motion/scripts/analyze_ref.py --stems` — استماع ومحاذاة فقط |
+| HyperFrames | Apache-2.0 | `tools/optional-hyperframes/` | `tools/html_scene.py` (و`bash tools/hyperframes.sh …` للـCLI الخام) — مسار تجريبي، ليس محركًا رابعًا (`docs/hyperframes-fit.md`) |
+
+- أوزان Demucs (`htdemucs`) تُنزَّل عند أول تشغيل من `dl.fbaipublicfiles.com`؛ في بيئة مقيدة الشبكة يفشل هذا التنزيل.
+- `tools/html_scene.py new` يولّد مشهدًا أوفلاين بلا GSAP ولا CDN (خطوط من `assets/fonts/` وألوان `brand.json`). قوالب HyperFrames الأصلية (`init`) تستدعي GSAP من CDN وتفشل بلا شبكة.
+- النماذج والأوزان و`node_modules` لا تدخل Git.
+
 ## استخدام المشروع مع وكيل برمجي
 
 1. افتح جذر المستودع في وكيل لديه صلاحية الوصول إلى الملفات وتشغيل الأوامر.

@@ -24,6 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "medo-motion" / "templates" / "procedural-reels"))
+sys.path.insert(0, str(ROOT / "shared" / "py"))  # audio + rhythm live here, not in engine P
 sys.path.insert(0, str(ROOT / "tools" / "lib"))
 from media_bin import ffmpeg, ffprobe  # noqa: E402
 
@@ -168,7 +169,7 @@ def main() -> int:
     silences = silences_of(audio, a.noise, a.min_gap)
     bounds = bounds_from_silences(silences, total, a.min_scene)
     if a.bpm > 0:
-        from beat import snap_bounds  # noqa: PLC0415  (engine P module, same maths as engine K)
+        from beat import snap_bounds  # noqa: PLC0415  (shared/py, same maths as engine K)
 
         before = list(bounds)
         bounds, moved = snap_bounds(bounds, a.bpm, a.snap_div, tol=a.snap_tol)

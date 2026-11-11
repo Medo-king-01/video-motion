@@ -14,6 +14,7 @@ import pytest
 from conftest import ROOT, SKILL
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
+sys.path.insert(0, str(SKILL.parent / "shared" / "py"))  # audio + rhythm: the editable copy
 
 SR = 44100
 
@@ -171,7 +172,7 @@ def test_reverb_ir_is_cached_per_rate_and_seed():
 
 def test_engine_has_no_module_level_rate_constant_in_filters():
     """Regression guard: filters must take `sr` instead of reading a mutable global."""
-    src = (SKILL / "templates" / "procedural-reels" / "audio_engine.py").read_text(encoding="utf-8")
+    src = (ROOT / "shared" / "py" / "audio_engine.py").read_text(encoding="utf-8")
     for line in src.splitlines():
         if "butter(" in line:
             assert "SR /" not in line and "SR/" not in line, f"filter baked the default rate: {line.strip()}"
@@ -179,7 +180,7 @@ def test_engine_has_no_module_level_rate_constant_in_filters():
 
 def test_cli_free_of_ffmpeg():
     """The DSP core must import and run with no ffmpeg binary on PATH (offline guarantee)."""
-    engine_dir = SKILL / "templates" / "procedural-reels"
+    engine_dir = ROOT / "shared" / "py"
     code = (f"import sys; sys.path.insert(0, {str(engine_dir)!r}); import audio_engine as ax; "
             "print(ax.lp(__import__('numpy').ones(1000), 1000, 44100).shape)")
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,

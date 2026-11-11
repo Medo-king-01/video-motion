@@ -34,6 +34,11 @@
 اعتماديات اختيارية: `pip install -r tools/requirements-align.txt` (`faster-whisper`, `ctranslate2`).
 دي مش ضمن `requirements.txt` الأساسي عشان الرندر العادي ما يحتاجهاش.
 
+**تسجيل تحته موسيقى؟** (اختياري) افصل الصوت الأول بـDemucs وحاذِ على مسار `vocals`:
+`python3 tools/stems.py vo.wav --out cache/stems --two-stems vocals` ثم
+`python3 tools/whisper_align.py cache/stems/vocals.wav …`. المسار المفصول تقدير نموذج — للمحاذاة بس؛
+صوت الفيديو النهائي يفضل تسجيلك الأصلي. الاعتماديات: `pip install -r tools/requirements-stems.txt`.
+
 ## خط الإنتاج
 
 ```bash

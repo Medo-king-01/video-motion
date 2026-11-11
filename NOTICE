@@ -45,8 +45,10 @@ trademarks of their owners and are not licensed for use as a brand or logo.
 | **FFmpeg** | static build via `imageio-ffmpeg` (0.6.0) | `imageio-ffmpeg` is BSD-2-Clause; the bundled FFmpeg binary keeps its own LGPL/GPL terms depending on the build | Not committed — resolved at setup; `FFMPEG_BIN` / `MEDO_FFMPEG` override |
 | Python runtime set | pinned in `tools/constraints.txt` | Pillow MIT-CMU · NumPy BSD-3-Clause · SciPy BSD-3-Clause · OpenCV Apache-2.0 · PyAV BSD-3-Clause · uharfbuzz Apache-2.0 · svgpathtools MIT · pytest MIT · pytest-xdist & execnet MIT · ruff MIT | See each package's own LICENSE |
 | Optional ASR set | `tools/requirements-align.txt` | faster-whisper / CTranslate2 under their own licenses; Whisper model weights fetched separately | Only installed when aligning captions |
+| Optional stems set | `tools/requirements-stems.txt` | Demucs 4.0.1 MIT (© Meta Platforms, Inc.) · PyTorch / torchaudio BSD-3-Clause (the Linux wheels pull NVIDIA runtime packages under NVIDIA's own terms) · soundfile BSD-3-Clause; model weights downloaded by Demucs on first use | Only installed for `tools/stems.py` / `analyze_ref.py --stems` |
+| Optional **HyperFrames** CLI | `hyperframes@0.9.9` (exact) in `tools/optional-hyperframes/`, 78 packages resolved by its lockfile | Apache-2.0 (© HeyGen); its registry blocks vendor GSAP under GSAP's own non-OSI licence — the studio scaffold (`tools/html_scene.py`) uses neither the registry nor GSAP | Only installed for `tools/html_scene.py`; isolated from the toolkit and the engines |
 
-No Python or npm package is vendored as source in this repository; the two
+No Python or npm package is vendored as source in this repository; the
 `package-lock.json` files and `tools/constraints.txt` pin what gets installed.
 
 ## 4. Trademarks

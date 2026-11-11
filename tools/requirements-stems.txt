@@ -1,0 +1,15 @@
+-c constraints.txt
+# Optional deps for music-stem separation (Demucs, MIT). Diagnostics only — see
+# medo-motion/reference/local-sound-workflow.md and docs/reference-workflow.md.
+# Not part of the base render requirements — install only when you need stems:
+#   pip install -r tools/requirements-stems.txt        (large: pulls PyTorch)
+# Used by: python3 medo-motion/scripts/analyze_ref.py <video> --stems
+# The htdemucs weights (~80 MB) are downloaded by Demucs on first use from
+# dl.fbaipublicfiles.com into the torch hub cache; they must NOT be committed.
+demucs==4.0.1
+# PyTorch 2.6 made `torch.load` default to weights_only=True; Demucs 4.0.1 checkpoints
+# pickle their model class and fail to load there ("Weights only load failed"). Stay below it.
+torch>=2.2,<2.6
+torchaudio>=2.2,<2.6
+soundfile>=0.12         # torchaudio WAV backend (no system FFmpeg libraries or SoX needed)
+numpy>=1.24

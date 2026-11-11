@@ -29,7 +29,24 @@ import numpy as np
 
 import audio_engine as ax
 
-PRESETS_PATH = Path(__file__).resolve().parents[2] / "motion" / "music-presets.json"
+
+
+def _presets_path() -> Path:
+    """`motion/music-presets.json`, found from wherever this file sits.
+
+    The editable copy lives in `shared/py/` and an identical copy ships in the engine-P template,
+    so the vocabulary is looked up by walking up to the studio root instead of a fixed depth.
+    """
+    here = Path(__file__).resolve()
+    for base in here.parents:
+        for candidate in (base / "medo-motion" / "motion" / "music-presets.json",
+                          base / "motion" / "music-presets.json"):
+            if candidate.is_file():
+                return candidate
+    return here.parents[2] / "motion" / "music-presets.json"
+
+
+PRESETS_PATH = _presets_path()
 SECTION_ORDER = ("intro", "build", "drop", "break", "outro", "stop")
 LAYERS = ("kick", "clap", "hat", "bass", "pad", "pluck", "melody", "texture")
 
