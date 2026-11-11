@@ -5,6 +5,16 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (README agrees with .gitignore and pyproject.toml)
+
+- README said a project's `BRIEF.md`, `plan/` and code "can be tracked by Git". `.gitignore` ignores
+  `projects/*` and every new project gets a `.gitignore` of `*`. README now says nothing under
+  `projects/` is tracked here and that a backup belongs in a separate place (its own repository, or
+  `--out`).
+- README said "install Python 3.12". The supported minimum is 3.10 (`pyproject.toml`, `setup.sh`);
+  README now says 3.10+ supported, 3.12 recommended. The minimum itself did not change.
+- `sync_docs_numbers.py --check` now also fails on these two contradictions (`claim_problems`).
+
 ## Unreleased — 2026-11-11 (gl-transitions: documented as a reference store, licences listed per file)
 
 `docs/GL_TRANSITIONS.md` described 189 "GPU transitions ready to use", with a `"type": "gl-Cube"`
