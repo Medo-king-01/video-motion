@@ -5,6 +5,16 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (hosted workflows removed)
+
+Owner decision: all six GitHub Actions workflows are deleted (`ci.yml`, `dependency-audit.yml`,
+`engine-p-chunks.yml`, `full-renderers.yml`, `remotion-effects-smoke.yml`, `remotion-typecheck.yml`)
+so that editing and experimenting on the repository is lighter. Nothing runs on push, on a pull
+request or nightly any more. What is lost: the automatic Python 3.10/3.12 matrix, the coverage
+floor, the nightly full P + K + R + Hybrid render, the Remotion typecheck and the weekly dependency
+audit. What remains: `bash tools/ci.sh` and the `make` targets, run by hand. Tests, tools and
+engines are unchanged; to restore the workflows, `git revert` this change.
+
 ## Unreleased — 2026-11-11 (unification path, stages 1–3: proof, drawn sprites on K, shared audio library)
 
 Owner order: stages 1–3 of `docs/engine-inventory.md` only. No default changed, no engine retired;

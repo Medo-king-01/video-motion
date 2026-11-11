@@ -2,7 +2,7 @@
 
 The suite is split so pull requests can run all of it as parallel jobs. These
 tests fail if a new test file would fall between the jobs, if a group entry
-points at a file that no longer exists, or if `.github/workflows/ci.yml` stops
+points at a file that no longer exists, or if a hosted `ci.yml`, when one exists, stops
 running one of the groups.
 """
 from __future__ import annotations
@@ -50,12 +50,13 @@ def test_the_groups_are_disjoint():
             seen[name] = group
 
 
-def test_the_workflow_runs_all_three_groups_and_the_guard():
-    workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    for group in ci_groups.GROUPS:
-        assert f"ci_groups.py {group}" in workflow, f"ci.yml never runs the '{group}' group"
-    assert "ci_groups.py --check" in workflow
-    assert "sync_docs_numbers.py --check" in workflow
+def test_the_local_pipeline_runs_the_tests_and_the_guards():
+    """The repository has no hosted workflows (owner decision, 2026-11-11); `tools/ci.sh` is the pipeline."""
+    assert not (ROOT / ".github" / "workflows").exists(), "hosted workflows were removed on purpose"
+    script = (ROOT / "tools" / "ci.sh").read_text(encoding="utf-8")
+    for needle in ("-m pytest", "ci_groups.py --check", "sync_docs_numbers.py --check",
+                   "sync_shared_libs.py --check", "sync_shared_py.py --check"):
+        assert needle in script, f"tools/ci.sh no longer runs: {needle}"
 
 
 def test_no_parallel_pytest_run_drops_the_xdist_groups():

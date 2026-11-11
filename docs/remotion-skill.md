@@ -52,7 +52,7 @@
 - `tests/test_remotion_skill.py` — 14 حراسة انجراف.
 - `docs/remotion-skill.md` — هذا التقرير.
 - `docs/README.md` — سطران في الفهرس.
-- `.github/workflows/ci.yml` — خطوة تشغيل اختبار الحراسة.
+- `.github/workflows/ci.yml` — خطوة تشغيل اختبار الحراسة (الملف اتشال 2026-11-11 مع باقي الـworkflows).
 - `assets/CREDITS.md` — سطر إسناد (تكييف لا نسخ).
 - `CHANGELOG.md` — قسم Unreleased بتاريخ 2026-11-09.
 
