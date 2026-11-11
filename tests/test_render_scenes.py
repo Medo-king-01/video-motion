@@ -42,13 +42,13 @@ TWO = [{"id": "intro", "start": 0, "end": 1}, {"id": "outro", "start": 1, "end":
 
 def test_scene_key_ignores_other_scenes(tmp_path: Path) -> None:
     project = make_skeleton(tmp_path, TWO)
-    shared = render_scenes.shared_key(project, fps=30, scale=1.0, crf=13)
+    shared = _shared(project)
     intro_before = render_scenes.scene_key(shared, project, TWO[0])
     outro_before = render_scenes.scene_key(shared, project, TWO[1])
 
     (project / "src" / "scenes" / "outro.js").write_text("export function draw() { /* v2 */ }\n",
                                                          encoding="utf-8")
-    shared_after = render_scenes.shared_key(project, fps=30, scale=1.0, crf=13)
+    shared_after = _shared(project)
     assert shared_after == shared  # the shared layer did not change
     assert render_scenes.scene_key(shared_after, project, TWO[0]) == intro_before
     assert render_scenes.scene_key(shared_after, project, TWO[1]) != outro_before
@@ -56,12 +56,303 @@ def test_scene_key_ignores_other_scenes(tmp_path: Path) -> None:
 
 def test_shared_key_tracks_libs_and_encode_settings(tmp_path: Path) -> None:
     project = make_skeleton(tmp_path, TWO)
-    base = render_scenes.shared_key(project, fps=30, scale=1.0, crf=13)
-    assert base == render_scenes.shared_key(project, fps=30, scale=1.0, crf=13)
-    assert base != render_scenes.shared_key(project, fps=30, scale=1.0, crf=18)
-    assert base != render_scenes.shared_key(project, fps=15, scale=1.0, crf=13)
+    base = _shared(project)
+    assert base == _shared(project)
+    assert base != _shared(project, crf=18)
+    assert base != _shared(project, fps=15)
     (project / "src" / "lib" / "kit.js").write_text("// kit v2\n", encoding="utf-8")
-    assert base != render_scenes.shared_key(project, fps=30, scale=1.0, crf=13)
+    assert base != _shared(project)
+
+
+def _shared(project: Path, *, fps: int = 30, crf: int = 13, scenes: list[dict] = TWO, **options) -> str:
+    return render_scenes.shared_key(project, fps=fps, scale=1.0, crf=crf,
+                                    scene_ids=[scene["id"] for scene in scenes], **options)
+
+
+def _keys(project: Path, scenes: list[dict] = TWO, **options) -> dict[str, str]:
+    """Every scene's cache key, exactly as `run()` builds it."""
+    shared = _shared(project, scenes=scenes, **options)
+    return {scene["id"]: render_scenes.scene_key(shared, project, scene) for scene in scenes}
+
+
+def _write(project: Path, relative: str, content: str | bytes) -> None:
+    target = project / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if isinstance(content, bytes):
+        target.write_bytes(content)
+    else:
+        target.write_text(content, encoding="utf-8")
+
+
+# Every file the renderer can put on screen. The plan list is render.js's own ALLOWED_PLANS (asserted
+# below against the template, so a plan the server starts serving cannot be forgotten here); the
+# rest is one representative per class the loopback server exposes: /assets/**, and all of src/.
+PLAN_INPUTS = ("plan/text-direction.json", "plan/beats.json", "plan/stage.json", "plan/slide-wall.json",
+               "plan/one-take.json", "plan/copy.json", "plan/word-timings.json")
+ASSET_INPUTS = ("assets/fonts/fonts.json", "assets/fonts/Cairo/Cairo_800ExtraBold.ttf",
+                "assets/poses/poses.json", "assets/poses/wave.png", "assets/images/deep/hero.jpg",
+                "assets/icons/arrow.svg", "assets/clips/b-roll.mp4")
+SRC_INPUTS = ("src/lib/brand.js", "src/lib/nested/tokens.json", "src/brand.json", "src/style.css",
+              "src/scenes/shared-helper.js", "src/components/card.js")
+VISUAL_INPUTS = PLAN_INPUTS + ASSET_INPUTS + SRC_INPUTS
+
+# Files that exist in every project but never reach a frame: the server refuses them (not in
+# ALLOWED_PLANS, dot-paths) or they are sound/notes/outputs.
+INERT_INPUTS = ("plan/script.md", "plan/visual-direction.json", "plan/cues.json", "BRIEF.md", "PROGRESS.md",
+                "assets/vo/vo.wav", "assets/sfx/whoosh.mp3", "assets/vo/TAKE2.WAV", "assets/music/bed.Flac",
+                "assets/a.m4a", "assets/a.aac", "assets/a.ogg", "assets/.DS_Store", "src/.cache/x.js", "plan/.stage.json.swp",
+                "out/final_audio.wav", "cache/scenes/old-000000000000.mp4", "cache/scenes.log")
+
+
+def test_the_plan_list_is_the_renderers_own() -> None:
+    """`ALLOWED_PLANS` in the K template is the source of truth for which plans can be fetched."""
+    import re  # noqa: PLC0415
+    source = (ROOT / "medo-motion" / "templates" / "render" / "render.js").read_text(encoding="utf-8")
+    declared = re.search(r"const ALLOWED_PLANS=\[([^\]]*)\]", source)
+    assert declared, "render.js no longer declares ALLOWED_PLANS — the scene cache must learn the new rule"
+    served = sorted(item.strip("'\" /") for item in declared.group(1).split(","))
+    assert served == sorted(PLAN_INPUTS)
+
+
+@pytest.mark.parametrize("relative", VISUAL_INPUTS)
+@pytest.mark.parametrize("change", ["edit", "create", "delete"])
+def test_every_visual_input_changes_every_scene_key(tmp_path: Path, relative: str, change: str) -> None:
+    """Edit, add or remove any file a frame can read: no scene may keep its old key."""
+    project = make_skeleton(tmp_path, TWO)
+    if change != "create":
+        _write(project, relative, "v1")
+    before = _keys(project)
+    if change == "delete":
+        (project / relative).unlink()
+    else:
+        _write(project, relative, "v2")
+    after = _keys(project)
+    assert all(after[scene] != before[scene] for scene in before), f"{change} {relative}: a stale segment would be reused"
+
+
+@pytest.mark.parametrize("relative", INERT_INPUTS)
+def test_inert_files_do_not_touch_the_cache(tmp_path: Path, relative: str) -> None:
+    """The reverse: a file no frame can read must not cost a re-render."""
+    project = make_skeleton(tmp_path, TWO)
+    before = _keys(project)
+    _write(project, relative, "v1")
+    assert _keys(project) == before
+    _write(project, relative, "v2 — longer")
+    assert _keys(project) == before
+
+
+def test_equal_bytes_under_another_name_is_a_different_input(tmp_path: Path) -> None:
+    """Renaming an asset changes what a URL resolves to, even though no byte changed."""
+    project = make_skeleton(tmp_path, TWO)
+    _write(project, "assets/poses/wave.png", "same")
+    before = _keys(project)
+    (project / "assets/poses/wave.png").rename(project / "assets/poses/point.png")
+    assert all(_keys(project)[scene] != before[scene] for scene in before)
+
+
+def test_the_assets_override_is_the_one_that_is_hashed(tmp_path: Path, monkeypatch) -> None:
+    """render.js serves /assets/ from MEDO_ASSETS_DIR (or KHAAM_…) when set — hash what it serves."""
+    project = make_skeleton(tmp_path, TWO)
+    external = tmp_path / "shared-assets"
+    _write(external, "img/hero.png", "v1")
+    for name in ("MEDO_ASSETS_DIR", "KHAAM_ASSETS_DIR"):
+        monkeypatch.delenv("MEDO_ASSETS_DIR", raising=False)
+        monkeypatch.delenv("KHAAM_ASSETS_DIR", raising=False)
+        local = _keys(project)
+        monkeypatch.setenv(name, str(external))
+        _write(external, "img/hero.png", "v1")
+        redirected = _keys(project)
+        assert redirected != local, name
+        _write(external, "img/hero.png", "v2")
+        assert all(_keys(project)[scene] != redirected[scene] for scene in redirected), name
+
+
+def test_the_motion_mode_is_part_of_the_key(tmp_path: Path, monkeypatch) -> None:
+    """render.js defaults --motion-mode from MEDO_MOTION_MODE, and reduced motion draws other frames."""
+    project = make_skeleton(tmp_path, TWO)
+    monkeypatch.delenv("MEDO_MOTION_MODE", raising=False)
+    normal = _keys(project)
+    monkeypatch.setenv("MEDO_MOTION_MODE", "normal")
+    assert _keys(project) == normal  # the explicit default is the default
+    monkeypatch.setenv("MEDO_MOTION_MODE", "reduced")
+    assert all(_keys(project)[scene] != normal[scene] for scene in normal)
+
+
+def test_a_scene_edit_still_costs_one_scene_with_plans_and_assets_present(tmp_path: Path) -> None:
+    """Widening the key must not turn every edit into a full re-render."""
+    project = make_skeleton(tmp_path, TWO)
+    for relative in VISUAL_INPUTS:
+        _write(project, relative, "v1")
+    before = _keys(project)
+    _write(project, "src/scenes/outro.js", "export function draw() { /* v2 */ }\n")
+    after = _keys(project)
+    assert after["intro"] == before["intro"] and after["outro"] != before["outro"]
+
+
+def test_a_helper_beside_the_scene_modules_is_shared(tmp_path: Path) -> None:
+    """Only `src/scenes/<id>.js` for a real scene id is that scene's own. Anything else — a helper
+    in src/scenes/, a module in src/components/, a module named like a scene that data.js does not
+    list — may be imported by any scene, so it invalidates all of them."""
+    project = make_skeleton(tmp_path, TWO)
+    for helper in ("src/scenes/draw-card.js", "src/components/card.js", "src/scenes/retired-scene.js"):
+        _write(project, helper, "export const v = 1;\n")
+        before = _keys(project)
+        _write(project, helper, "export const v = 2;\n")
+        after = _keys(project)
+        assert after["intro"] != before["intro"] and after["outro"] != before["outro"], helper
+    # …while the same edit to a listed scene's module still costs that scene only
+    before = _keys(project)
+    _write(project, "src/scenes/intro.js", "export function draw() { /* v2 */ }\n")
+    after = _keys(project)
+    assert after["intro"] != before["intro"] and after["outro"] == before["outro"]
+
+
+def test_old_cache_entries_cannot_match_the_new_keys(tmp_path: Path) -> None:
+    """A segment cached before plans/assets were hashed must miss. Rebuild the v1 key exactly as the
+    old code did and prove no scene keeps it — even for a project with nothing but v1's inputs."""
+    import hashlib  # noqa: PLC0415
+    project = make_skeleton(tmp_path, TWO)
+    src = project / "src"
+    old = hashlib.sha256()
+    old.update(b"engine-k-scene-cache-v1|30|1.0|13")
+    for path in [src / "data.js", src / "main.js", src / "render.js", src / "index.html", *sorted((src / "lib").rglob("*.js"))]:
+        old.update(f"src/{path.relative_to(src).as_posix()}".encode() + b"\0" + path.read_bytes() + b"\0")
+    for scene in TWO:
+        legacy = hashlib.sha256(old.hexdigest().encode("ascii"))
+        legacy.update(f"scene/{scene['id']}".encode() + b"\0" + (src / "scenes" / f"{scene['id']}.js").read_bytes() + b"\0")
+        legacy.update(repr((float(scene["start"]), float(scene["end"]))).encode("utf-8"))
+        assert _keys(project)[scene["id"]][:12] != legacy.hexdigest()[:12]
+    assert render_scenes.KEY_VERSION != "engine-k-scene-cache-v1"
+
+
+@pytest.mark.parametrize("tree", ["src", "assets"])
+@pytest.mark.parametrize("kind", ["file", "directory"])
+def test_a_symlink_that_leaves_the_root_stops_the_run(tmp_path: Path, tree: str, kind: str) -> None:
+    """render.js would serve the link's target, so it is a visual input the key cannot see. Leaving
+    it out silently is the stale-cache bug again; the tool refuses and names the link."""
+    project = make_skeleton(tmp_path, TWO)
+    outside = tmp_path / "outside"
+    _write(outside, "pic.png", "v1")
+    (project / tree).mkdir(exist_ok=True)
+    (project / tree / "escape").symlink_to(outside / "pic.png" if kind == "file" else outside,
+                                           target_is_directory=kind == "directory")
+    with pytest.raises(SystemExit) as error:
+        _keys(project)
+    assert f"{tree}/escape" in str(error.value) and "symlink" in str(error.value)
+
+
+def test_a_symlink_inside_the_root_is_followed_and_a_loop_ends(tmp_path: Path) -> None:
+    project = make_skeleton(tmp_path, TWO)
+    _write(project, "assets/real/hero.png", "v1")
+    (project / "assets" / "alias").symlink_to(project / "assets" / "real", target_is_directory=True)
+    (project / "assets" / "real" / "loop").symlink_to(project / "assets", target_is_directory=True)
+    before = _keys(project)
+    _write(project, "assets/real/hero.png", "v2")
+    assert all(_keys(project)[scene] != before[scene] for scene in before)
+
+
+def test_the_assets_root_itself_may_be_a_symlink(tmp_path: Path) -> None:
+    """Sharing one assets folder between projects is legitimate: the *resolved* root is the boundary."""
+    project = make_skeleton(tmp_path, TWO)
+    library = tmp_path / "library"
+    _write(library, "img/hero.png", "v1")
+    (project / "assets").symlink_to(library, target_is_directory=True)
+    before = _keys(project)
+    _write(library, "img/hero.png", "v2")
+    assert all(_keys(project)[scene] != before[scene] for scene in before)
+
+
+@pytest.mark.parametrize("relative", ["node_modules/.package-lock.json", "package.json", "package-lock.json",
+                                      "pnpm-lock.yaml", "yarn.lock"])
+def test_package_files_stand_in_for_node_modules(tmp_path: Path, relative: str) -> None:
+    """A bumped dependency (three, …) re-renders everything; the tree itself is never walked."""
+    project = make_skeleton(tmp_path, TWO)
+    _write(project, relative, '{"packages": {"node_modules/three": {"version": "0.187.0"}}}')
+    before = _keys(project)
+    _write(project, relative, '{"packages": {"node_modules/three": {"version": "0.188.0"}}}')
+    assert all(_keys(project)[scene] != before[scene] for scene in before)
+
+
+def test_lockfiles_are_hashed_as_bytes_not_parsed(tmp_path: Path) -> None:
+    """pnpm/yarn locks are not JSON; nothing may try to parse them."""
+    project = make_skeleton(tmp_path, TWO)
+    _write(project, "pnpm-lock.yaml", "lockfileVersion: '9.0'\npackages:\n  three@0.187.0: {}\n")
+    _write(project, "yarn.lock", '# yarn lockfile v1\n"three@0.187.0":\n  version "0.187.0"\n')
+    _write(project, "package.json", b"\xff\xfe not even utf-8")
+    assert _keys(project) == _keys(project)
+
+
+def test_no_package_files_is_not_an_error_and_is_stable(tmp_path: Path) -> None:
+    project = make_skeleton(tmp_path, TWO)
+    assert not any((project / name).exists() for name in render_scenes.PACKAGE_FILES)
+    assert _keys(project) == _keys(project)
+
+
+def test_the_contents_of_node_modules_are_not_walked(tmp_path: Path) -> None:
+    """The documented limit, pinned: a hand edit inside node_modules is not seen (and a toolkit of
+    thousands of files does not slow every run)."""
+    project = make_skeleton(tmp_path, TWO)
+    _write(project, "node_modules/three/build/three.module.js", "v1")
+    before = _keys(project)
+    _write(project, "node_modules/three/build/three.module.js", "v2")
+    assert _keys(project) == before
+
+
+def test_hash_audio_opts_one_sound_file_into_the_shared_key(tmp_path: Path) -> None:
+    """Audio is left out by extension. A scene that *draws* from a sound file (a waveform) names it
+    with --hash-audio, and from then on that file invalidates every scene like any other asset."""
+    project = make_skeleton(tmp_path, TWO)
+    _write(project, "assets/vo/vo.wav", "v1")
+    plain = _keys(project)
+    opted = _keys(project, extra=(Path("assets/vo/vo.wav"),))
+    assert all(opted[scene] != plain[scene] for scene in plain)  # adding the path invalidates all
+    _write(project, "assets/vo/vo.wav", "v2")
+    assert _keys(project) == plain  # still inert without the option
+    assert all(_keys(project, extra=(Path("assets/vo/vo.wav"),))[scene] != opted[scene] for scene in opted)
+    with pytest.raises(SystemExit) as error:
+        _keys(project, extra=(Path("assets/vo/missing.wav"),))
+    assert "missing.wav" in str(error.value)
+
+
+def test_motion_mode_is_resolved_cli_then_env_then_normal(monkeypatch) -> None:
+    monkeypatch.delenv("MEDO_MOTION_MODE", raising=False)
+    assert render_scenes.resolve_motion_mode(None) == "normal"
+    monkeypatch.setenv("MEDO_MOTION_MODE", "")
+    assert render_scenes.resolve_motion_mode(None) == "normal"  # render.js: `env || 'normal'`
+    monkeypatch.setenv("MEDO_MOTION_MODE", "reduced")
+    assert render_scenes.resolve_motion_mode(None) == "reduced"
+    assert render_scenes.resolve_motion_mode("normal") == "normal"  # the CLI wins over the environment
+    monkeypatch.setenv("MEDO_MOTION_MODE", "wild")
+    with pytest.raises(SystemExit):
+        render_scenes.resolve_motion_mode(None)
+
+
+def test_the_resolved_motion_mode_is_what_render_js_is_told(tmp_path: Path, monkeypatch) -> None:
+    """The key and the render must agree: the mode is passed explicitly, never left to the child's env."""
+    project = make_skeleton(tmp_path, TWO)
+    seen: list = []
+
+    def fake_run(cmd, **kwargs):
+        seen.append(cmd)
+        browser = json.dumps({"executablePath": "/opt/chrome", "libraryPath": None, "args": []})
+        return subprocess.CompletedProcess(cmd, 0, stdout=browser if "--json" in cmd else "", stderr="")
+
+    monkeypatch.setattr(render_scenes.subprocess, "run", fake_run)
+    render_scenes.render_segment(project, TWO[0], project / "cache" / "scenes" / "intro-abc.mp4", fps=30, crf=13,
+                                 log=project / "log.txt", motion_mode="reduced")
+    assert len(seen) == 2 and all(isinstance(cmd, list) for cmd in seen), seen  # browser probe, then the render
+    render_cmd = seen[-1]
+    assert "src/render.js" in render_cmd and "bash" not in render_cmd[0]
+    assert render_cmd.count("--motion-mode") == 1
+    assert render_cmd[render_cmd.index("--motion-mode") + 1] == "reduced"
+    assert not any("--motion-mode" in part for part in seen[0]), "the mode belongs to the render, not the probe"
+
+
+def test_the_explicit_motion_mode_changes_the_key(tmp_path: Path, monkeypatch) -> None:
+    project = make_skeleton(tmp_path, TWO)
+    monkeypatch.setenv("MEDO_MOTION_MODE", "reduced")
+    assert _keys(project, motion_mode="normal") != _keys(project)
+    assert _keys(project, motion_mode="reduced") == _keys(project)
 
 
 def test_expected_frames_rounds_half_open_ranges() -> None:
@@ -80,7 +371,7 @@ def test_load_scenes_reads_the_renderers_own_source(tmp_path: Path) -> None:
 def test_missing_scene_module_names_the_file(tmp_path: Path) -> None:
     project = make_skeleton(tmp_path, TWO)
     (project / "src" / "scenes" / "outro.js").unlink()
-    shared = render_scenes.shared_key(project, fps=30, scale=1.0, crf=13)
+    shared = _shared(project)
     with pytest.raises(SystemExit) as error:
         render_scenes.scene_key(shared, project, TWO[1])
     assert "src/scenes/outro.js" in str(error.value)
@@ -150,3 +441,253 @@ def test_real_run_reuses_unchanged_scene_and_refuses_overwrite(tmp_path: Path) -
 
     # the output is never overwritten silently
     assert render_scenes.main([str(project)]) == 2
+
+
+def _silence(path: Path, seconds: float, rate: int = 48000) -> Path:
+    import wave  # noqa: PLC0415
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(path), "wb") as handle:
+        handle.setnchannels(1)
+        handle.setsampwidth(2)
+        handle.setframerate(rate)
+        handle.writeframes(b"\0\0" * round(seconds * rate))
+    return path
+
+
+def _audio_seconds(path: Path) -> float | None:
+    """Decoded audio duration of a container, or None when it has no audio stream."""
+    import av  # noqa: PLC0415
+    with av.open(str(path)) as container:
+        if not container.streams.audio:
+            return None
+        stream = container.streams.audio[0]
+        samples = sum(frame.samples for frame in container.decode(stream))
+        return samples / stream.rate
+
+
+@pytest.mark.slow
+def test_real_run_rerenders_on_shared_inputs_and_only_then(tmp_path: Path) -> None:
+    """The cache bug, end to end: after a plan or an asset changes, the old MP4s must not be reused —
+    and a file no frame can read (notes, voice-over, the muxed mix itself) must not cost a render."""
+    if not (TOOLKIT / "playwright-core").is_dir() or not HAS_NODE:
+        pytest.skip("toolkit node_modules missing — run: npm ci --prefix tools/toolkit")
+    import time_to_first_video as ttfv  # noqa: PLC0415 - test helper shared with the TTFV suite
+
+    project = tmp_path / "k"
+    subprocess.run([sys.executable, str(ROOT / "tools" / "new_project.py"), "k", "--engine", "k",
+                    "--out", str(project)], check=True, capture_output=True)
+    (project / "node_modules").symlink_to(TOOLKIT)
+    (project / "src" / "data.js").write_text(
+        (project / "src" / "data.js").read_text(encoding="utf-8").split("export const scenes = [")[0]
+        + "export const scenes = [\n  { id: 'example', start: 0, end: 0.5 },\n"
+          "  { id: 'second', start: 0.5, end: 1 },\n];\n"
+        + "export const DURATION = scenes.at(-1).end;\n", encoding="utf-8")
+    shutil.copy(project / "src" / "scenes" / "example.js", project / "src" / "scenes" / "second.js")
+    (project / "plan" / "beats.json").write_text(json.dumps({
+        "duration": 1.0, "bpm": 100,
+        "scenes": [{"id": "example", "start": 0.0, "end": 0.5}, {"id": "second", "start": 0.5, "end": 1.0}],
+    }), encoding="utf-8")
+    direction = dict(ttfv.DIRECTION)
+    direction["scenes"] = [dict(ttfv.DIRECTION["scenes"][0], scene=index) for index in (1, 2)]
+    (project / "plan" / "text-direction.json").write_text(json.dumps(direction, ensure_ascii=False),
+                                                          encoding="utf-8")
+
+    def render(*extra: str) -> tuple[int, int, set[str]]:
+        assert render_scenes.main([str(project), "--force", *extra]) == 0
+        manifest = json.loads((project / "cache" / "scenes" / "manifest.json").read_text(encoding="utf-8"))
+        return manifest["hits"], manifest["misses"], {entry["segment"] for entry in manifest["scenes"]}
+
+    def touch(relative: str) -> None:
+        target = project / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((target.read_bytes() if target.exists() else b"") + b"\n")
+
+    hits, misses, first = render()
+    assert (hits, misses) == (0, 2)
+    assert render()[:2] == (2, 0)
+
+    segments = first
+    for relative in ("plan/stage.json", "plan/copy.json", "assets/fonts/fonts.json", "assets/images/new.png",
+                     "src/lib/kit.js", "package.json"):
+        hits, misses, now = render()
+        assert (hits, misses) == (2, 0), f"cache was not warm before touching {relative}"
+        touch(relative)
+        hits, misses, now = render()
+        assert (hits, misses) == (0, 2), f"{relative} changed but the old segments were reused"
+        assert not (now & segments), f"{relative}: a segment kept its old name"
+        segments = now
+
+    for relative in ("plan/script.md", "plan/visual-direction.json", "BRIEF.md", "assets/vo/take.wav"):
+        touch(relative)
+        hits, misses, now = render()
+        assert (hits, misses) == (2, 0), f"{relative} cannot reach a frame but cost a re-render"
+        assert now == segments
+
+    # The mix is muxed once over the finished reel — it is in no segment, so swapping it re-renders
+    # nothing, and the new sound is what the output carries.
+    master = project / "out" / "master.mp4"
+    assert _audio_seconds(master) is None
+    mix = _silence(project / "out" / "final_audio.wav", 1.0)
+    hits, misses, now = render()
+    assert (hits, misses) == (2, 0) and now == segments
+    assert _audio_seconds(master) == pytest.approx(1.0, abs=0.05)
+    _silence(mix, 1.0, rate=44100)
+    hits, misses, now = render()
+    assert (hits, misses) == (2, 0) and now == segments
+
+    # --hash-audio: naming a sound file a scene draws from invalidates everything, once
+    assert render("--hash-audio", "assets/vo/take.wav")[:2] == (0, 2)
+    assert render("--hash-audio", "assets/vo/take.wav")[:2] == (2, 0)
+    touch("assets/vo/take.wav")
+    assert render("--hash-audio", "assets/vo/take.wav")[:2] == (0, 2)
+
+    # reduced motion draws different frames: it cannot share segments with a normal render
+    hits, misses, reduced = render("--motion-mode", "reduced")
+    assert misses == 2 and not (reduced & segments)
+
+
+# --- audio mux: a length mismatch is refused, never cut silently ------------------------------
+
+def _picture(path: Path, frames: int, fps: int = 30) -> Path:
+    """A real H.264 clip of exactly `frames` frames (no Chromium: the mux does not care who drew it)."""
+    ffmpeg = render_scenes.media_bin.ffmpeg()
+    if not ffmpeg or not render_scenes.media_bin.ffprobe():
+        pytest.skip("ffmpeg/ffprobe missing — run: bash tools/setup.sh")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"color=c=red:s=1080x1920:r={fps}",
+                    "-frames:v", str(frames), "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+                    str(path)], check=True)
+    return path
+
+
+def _video_frames(path: Path) -> int:
+    """Frames actually decodable — not the container's claim."""
+    import av  # noqa: PLC0415
+    with av.open(str(path)) as container:
+        return sum(1 for _ in container.decode(container.streams.video[0]))
+
+
+HALF_FRAME = 0.5 / 30
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("audio_seconds", [0.5, 1.0 - HALF_FRAME - 0.004, 1.0 + HALF_FRAME + 0.004, 1.5, 3.0])
+def test_mux_refuses_audio_that_does_not_fit_the_picture(tmp_path: Path, audio_seconds: float) -> None:
+    """The reported bug: 1 s of picture + 0.5 s of sound produced a 13-frame file and "success"."""
+    picture = _picture(tmp_path / "picture.mp4", 30)
+    audio = _silence(tmp_path / "mix.wav", audio_seconds)
+    target = tmp_path / "out" / "master.mp4"
+    target.parent.mkdir()
+    target.write_bytes(b"previous good master")
+    with pytest.raises(SystemExit) as error:
+        render_scenes.mux_audio(picture, audio, target, tmp_path / "log.txt")
+    message = str(error.value)
+    assert "audio" in message and "picture" in message and "--audio-fit" in message
+    assert f"{audio_seconds:.3f}" in message and "1.000" in message  # both lengths, so the fix is obvious
+    assert target.read_bytes() == b"previous good master", "a refused mux must not touch the existing output"
+    assert not list(target.parent.glob("*.tmp.*")), "a refused mux left a partial file behind"
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("audio_seconds", [1.0, 1.0 - HALF_FRAME + 0.004, 1.0 + HALF_FRAME - 0.004])
+def test_mux_keeps_every_frame_when_the_lengths_agree(tmp_path: Path, audio_seconds: float) -> None:
+    picture = _picture(tmp_path / "picture.mp4", 30)
+    audio = _silence(tmp_path / "mix.wav", audio_seconds)
+    target = tmp_path / "master.mp4"
+    assert render_scenes.mux_audio(picture, audio, target, tmp_path / "log.txt") is True
+    assert _video_frames(target) == 30
+    assert _audio_seconds(target) == pytest.approx(audio_seconds, abs=0.05)
+    render_scenes.verify_output(target, frames=30, fps=30, audio_seconds=audio_seconds)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("policy, audio_seconds, accepted", [
+    ("pad", 0.5, True), ("pad", 1.5, False), ("trim", 1.5, True), ("trim", 0.5, False),
+    ("pad", 1.0, True), ("trim", 1.0, True),
+])
+def test_audio_fit_is_an_explicit_one_directional_policy(tmp_path: Path, policy: str, audio_seconds: float,
+                                                         accepted: bool) -> None:
+    """--audio-fit pad only lengthens the sound, trim only shortens it; the picture is never cut."""
+    picture = _picture(tmp_path / "picture.mp4", 30)
+    audio = _silence(tmp_path / "mix.wav", audio_seconds)
+    target = tmp_path / "master.mp4"
+    if not accepted:
+        with pytest.raises(SystemExit):
+            render_scenes.mux_audio(picture, audio, target, tmp_path / "log.txt", audio_fit=policy)
+        assert not target.exists()
+        return
+    assert render_scenes.mux_audio(picture, audio, target, tmp_path / "log.txt", audio_fit=policy) is True
+    assert _video_frames(target) == 30
+    assert _audio_seconds(target) == pytest.approx(1.0, abs=0.05)
+    render_scenes.verify_output(target, frames=30, fps=30, audio_seconds=1.0)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("fault", ["frames", "no-audio", "short-audio", "unreadable"])
+def test_verify_output_catches_a_bad_file(tmp_path: Path, fault: str) -> None:
+    """The last gate before the manifest: measured on the written file, not computed."""
+    good = _picture(tmp_path / "picture.mp4", 30)
+    target = tmp_path / "master.mp4"
+    if fault == "frames":
+        shutil.copy(_picture(tmp_path / "short.mp4", 13), target)
+        expect = {"frames": 30, "fps": 30, "audio_seconds": None}
+    elif fault == "no-audio":
+        shutil.copy(good, target)
+        expect = {"frames": 30, "fps": 30, "audio_seconds": 1.0}
+    elif fault == "short-audio":
+        render_scenes.mux_audio(good, _silence(tmp_path / "mix.wav", 1.0), target, tmp_path / "log.txt")
+        expect = {"frames": 30, "fps": 30, "audio_seconds": 2.0}
+    else:
+        target.write_bytes(b"not a video")
+        expect = {"frames": 30, "fps": 30, "audio_seconds": None}
+    with pytest.raises(SystemExit) as error:
+        render_scenes.verify_output(target, **expect)
+    assert "master.mp4" in str(error.value)
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not HAS_NODE, reason="node is required to read data.js")
+@pytest.mark.parametrize("audio_seconds, extra, ok", [
+    (2.5, [], True), (1.0, [], False), (4.0, [], False),
+    (1.0, ["--audio-fit", "pad"], True), (4.0, ["--audio-fit", "trim"], True),
+])
+def test_cli_reports_success_only_for_a_verified_master(tmp_path: Path, monkeypatch, capsys, audio_seconds: float,
+                                                        extra: list[str], ok: bool) -> None:
+    """Through main(): exit code, stderr, the output file and the manifest all tell the same story."""
+    project = make_skeleton(tmp_path, TWO)  # 1.0 s + 1.5 s = 75 frames
+
+    def fake_segment(project, scene, target, *, fps, crf, log, motion_mode="normal") -> bool:
+        _picture(target, render_scenes.expected_frames(scene, fps), fps)
+        return True
+
+    monkeypatch.setattr(render_scenes, "render_segment", fake_segment)
+    _silence(project / "out" / "final_audio.wav", audio_seconds)
+    code = render_scenes.main([str(project), *extra])
+    master = project / "out" / "master.mp4"
+    manifest = project / "cache" / "scenes" / "manifest.json"
+    if not ok:
+        assert code == 2
+        assert "--audio-fit" in capsys.readouterr().err
+        assert not master.exists() and not manifest.exists()
+        return
+    assert code == 0
+    assert _video_frames(master) == 75
+    assert _audio_seconds(master) == pytest.approx(2.5, abs=0.05)
+    assert not list(master.parent.glob("*.tmp.*"))
+    recorded = json.loads(manifest.read_text(encoding="utf-8"))
+    assert recorded["verified"]["frames"] == 75 and recorded["verified"]["audio_seconds"] == pytest.approx(2.5, abs=0.05)
+
+
+@pytest.mark.slow
+def test_a_short_concat_never_becomes_the_output(tmp_path: Path) -> None:
+    """The silent path has no mux to catch it: the joined picture is counted before it is published."""
+    segments = [_picture(tmp_path / "a.mp4", 15), _picture(tmp_path / "b.mp4", 15)]
+    target = tmp_path / "out" / "master.mp4"
+    target.parent.mkdir()
+    target.write_bytes(b"previous good master")
+    with pytest.raises(SystemExit) as error:
+        render_scenes.concat(segments, target, tmp_path / "log.txt", frames=45, fps=30)
+    assert "30 frames, expected 45" in str(error.value)
+    assert target.read_bytes() == b"previous good master" and not list(target.parent.glob("*.tmp.*"))
+    assert render_scenes.concat(segments, target, tmp_path / "log.txt", frames=30, fps=30) is True
+    assert _video_frames(target) == 30

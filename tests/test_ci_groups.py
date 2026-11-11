@@ -12,6 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 from conftest import ROOT
 
 TOOL = ROOT / "tools" / "ci_groups.py"
@@ -55,6 +56,37 @@ def test_the_workflow_runs_all_three_groups_and_the_guard():
         assert f"ci_groups.py {group}" in workflow, f"ci.yml never runs the '{group}' group"
     assert "ci_groups.py --check" in workflow
     assert "sync_docs_numbers.py --check" in workflow
+
+
+def test_no_parallel_pytest_run_drops_the_xdist_groups():
+    """Every `pytest -n` in the workflows/Makefile needs `--dist loadgroup`, or the marks are inert."""
+    assert ci_groups.parallel_pytest_problems(ROOT) == []
+
+
+@pytest.mark.parametrize("command, flagged", [
+    ("python -m pytest -q -n 2 tests", True),
+    ("python -m pytest -q -n2 tests", True),
+    ("python -m pytest -n auto --cov", True),
+    ("pytest --numprocesses=4", True),
+    ("$(PY) -m pytest -q -n 2 --cov --cov-fail-under=30", True),
+    ("python -m pytest -q -n 2 --cov \\\n          --cov-report=xml", True),
+    ("python -m pytest -q -n 2 --dist loadgroup tests", False),
+    ("python -m pytest -q -n 2 --dist=loadgroup tests", False),
+    ("python -m pytest -q -n 2 \\\n          --dist loadgroup tests", False),
+    ("python -m pytest -q tests", False),
+    ("npm ci -n 2", False),
+])
+def test_parallel_pytest_guard_covers_the_whole_class(tmp_path, command, flagged):
+    for relative in (".github/workflows/ci.yml", ".github/workflows/other.yaml", "Makefile"):
+        root = tmp_path / relative.replace("/", "_")
+        target = root / relative
+        target.parent.mkdir(parents=True)
+        target.write_text(f"jobs:\n  x:\n    steps:\n      - run: {command}\n" if "workflows" in relative
+                          else f"coverage:\n\t{command}\n", encoding="utf-8")
+        problems = ci_groups.parallel_pytest_problems(root)
+        assert bool(problems) is flagged, (relative, problems)
+        if flagged:
+            assert relative in problems[0] and "--dist loadgroup" in problems[0]
 
 
 def test_a_new_test_file_defaults_to_render(tmp_path):

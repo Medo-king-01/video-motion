@@ -242,3 +242,40 @@ def test_pose_occlusion_title_recipe_uses_native_p_k_layers():
         assert api in entry["how"]
     assert "transparent" in entry["summary"]
     assert "not assume an R port" in entry["how"]
+
+
+# --- reference-only entries are catalogued but never drawn -------------------------------------
+
+def _draws():
+    """Every way a gl-transition could be picked: all energies, many seeds, long reels, forced sizes."""
+    for energy in ("calm", "medium", "high"):
+        for seed in range(40):
+            yield techniques.draw(DATA, 24 + seed * 3, energy, seed=seed)
+        yield techniques.draw(DATA, 600, energy, seed=7, n=len(DATA["format"]["reel"]["order"]))
+
+
+def test_the_draw_can_reach_the_slot_where_gl_transitions_sit():
+    """Guard against a vacuous pass: the category is in the reel order and a long draw fills past it."""
+    order = DATA["format"]["reel"]["order"]
+    assert "gl-transition" in order
+    full = techniques.draw(DATA, 600, "high", seed=7, n=len(order))
+    assert len(full["picks"]) >= order.index("gl-transition"), "the draw never gets as far as that slot"
+
+
+def test_draw_never_returns_a_gl_transition():
+    for result in _draws():
+        drawn = [p["id"] for p in result["picks"] if p["category"] == "gl-transition" or p.get("source") == "gl-transitions"]
+        assert drawn == [], f"seed {result['seed']} · {result['energy']}: drew a shader no engine renders: {drawn}"
+
+
+def test_asking_for_the_category_by_name_draws_nothing_and_says_why(tmp_path):
+    assert techniques.draw(DATA, 24, "calm", seed=1, only="gl-transition")["picks"] == []
+    done = subprocess.run([sys.executable, str(ROOT / "tools" / "techniques.py"), "--draw", "--seconds", "24",
+                           "--category", "gl-transition", "--seed", "1"], capture_output=True, text=True)
+    assert done.returncode == 2 and "reference" in done.stderr and "transitions.json" in done.stderr
+
+
+def test_the_exclusion_removes_nothing_from_the_library():
+    entries = [e for e in DATA["techniques"] if e["category"] == "gl-transition"]
+    assert len(entries) == 189 and "gl-transition" in techniques.categories(DATA)
+    assert techniques.REFERENCE_ONLY == {"gl-transition"}

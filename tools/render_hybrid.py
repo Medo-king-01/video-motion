@@ -89,8 +89,35 @@ def canvas(draft: bool) -> tuple[int, int, int]:
 
 
 def draft_frames(start: int, end: int) -> int:
-    """Draft frames covered by source frames [start, end): draft frame k is source frame 2k."""
+    """How many draft frames a segment [start, end) contributes: `end // 2 - start // 2`.
+
+    Summed over consecutive segments this telescopes to `duration_frames // 2`, so a draft lasts as
+    long as its reel whatever the cuts are."""
     return end // 2 - start // 2
+
+
+def draft_samples(start: int, end: int) -> list[int]:
+    """The source frames a draft of [start, end) shows: `start`, then every second frame, stopping
+    before `end // 2 * 2`. There are exactly `draft_frames(start, end)` of them and every one lies
+    inside the segment, so a segment never opens on a frame that belongs to the one before it.
+
+    The price is paid at a cut on an odd frame: the last sample of one segment and the first of the
+    next are 1 or 3 source frames apart instead of 2. That is a property of drafts only.
+    Engine P (`render_p_segment.draft_source_frames`), engine K and the K alpha overlay all sample
+    this list — the runner asks K for it through `draft_k_window`."""
+    return list(range(start, end // 2 * 2, 2))
+
+
+def draft_k_window(start: int, end: int) -> tuple[str, str]:
+    """`--from`/`--to` (seconds) that make `render.js --fps 15` render exactly `draft_samples`.
+
+    render.js draws `ceil((to - from) * fps)` frames at `from + i / fps`. Starting at `start / 30`
+    puts frame i on source frame `start + 2i`; ending half a draft frame after the last sample makes
+    the count come out right without relying on float rounding, and never reaches past `end`."""
+    samples = draft_samples(start, end)
+    if not samples:
+        raise RuntimeError(f"a draft of frames [{start}, {end}) has no frame to show")
+    return f"{start / FPS:.12g}", f"{(samples[-1] + 1) / FPS:.12g}"
 
 
 class PlanError(ValueError):
@@ -449,7 +476,8 @@ def build_segment_command(engine: str, *, python: str, node: str, ffmpeg: str,
         return command + ["--draft"] if draft else command
     if engine == "k":
         fps, scale = (DRAFT_FPS, "0.5") if draft else (FPS, "1")
-        return [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
+        time_from, time_to = draft_k_window(start, end) if draft else (f"{start / FPS:.12g}", f"{end / FPS:.12g}")
+        return [node, "src/render.js", "--from", time_from, "--to", time_to,
                 "--fps", str(fps), "--scale", scale, "--out", str(frames_dir), "--name", sid]
     return [node, "scripts/render.mjs", "--silent", "--from-frame", str(start),
             "--to-frame", str(end), "--out", str(target)]
@@ -459,7 +487,8 @@ def build_alpha_command(node: str, start: int, end: int, frames_dir: Path,
                         only: list[str] | None = None, draft: bool = False) -> list[str]:
     """Engine K, transparent: one RGBA PNG per frame, no encoder. `only` picks the scenes."""
     fps, scale = (DRAFT_FPS, "0.5") if draft else (FPS, "1")
-    command = [node, "src/render.js", "--from", f"{start / FPS:.12g}", "--to", f"{end / FPS:.12g}",
+    time_from, time_to = draft_k_window(start, end) if draft else (f"{start / FPS:.12g}", f"{end / FPS:.12g}")
+    command = [node, "src/render.js", "--from", time_from, "--to", time_to,
                "--fps", str(fps), "--scale", scale, "--alpha", "--out", str(frames_dir)]
     if only:
         command += ["--only", ",".join(only)]

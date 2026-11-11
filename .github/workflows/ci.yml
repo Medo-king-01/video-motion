@@ -91,7 +91,7 @@ jobs:
       - name: Install pinned dependencies
         run: python -m pip install -r tools/requirements-dev.txt
       - name: Run the contracts group
-        run: python -m pytest -q -n 2 $(python tools/ci_groups.py contracts)
+        run: python -m pytest -q -n 2 --dist loadgroup $(python tools/ci_groups.py contracts)
 
   unit:
     name: Unit group (Arabic, audio, motion maths, icons)
@@ -110,13 +110,14 @@ jobs:
         with:
           node-version: "22"
       - name: Install FFmpeg tools
+        timeout-minutes: 5
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Install pinned dependencies
         run: python -m pip install -r tools/requirements-dev.txt
       - name: Run the unit group
-        run: python -m pytest -q -n 2 $(python tools/ci_groups.py unit)
+        run: python -m pytest -q -n 2 --dist loadgroup $(python tools/ci_groups.py unit)
 
   coverage:
     name: Coverage report (floor 30%)
@@ -135,9 +136,10 @@ jobs:
         with:
           node-version: "22"
       - name: Install FFmpeg tools
+        timeout-minutes: 5
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Install pinned dependencies
         run: python -m pip install -r tools/requirements-dev.txt
       - name: Install the K toolkit
@@ -145,7 +147,9 @@ jobs:
       - name: Full suite with coverage
         # Floor, not a target: it starts at 30% (measured fast-loop total is 33%) and rises
         # with the suite, so coverage can only move up without a deliberate decision here.
-        run: python -m pytest -q -n 2 --cov --cov-report=term-missing:skip-covered --cov-report=xml --cov-fail-under=30
+        # `--dist loadgroup`: this is the full suite, so it includes the Remotion bundling tests
+        # whose `xdist_group` marks are inert without it (tools/ci_groups.py --check enforces it).
+        run: python -m pytest -q -n 2 --dist loadgroup --cov --cov-report=term-missing:skip-covered --cov-report=xml --cov-fail-under=30
       - name: Keep the report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
@@ -175,9 +179,10 @@ jobs:
             tools/toolkit/package-lock.json
             medo-motion/templates/remotion/package-lock.json
       - name: Install FFmpeg tools
+        timeout-minutes: 5
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get install -y --no-install-recommends ffmpeg
           ffmpeg -version
           ffprobe -version
       - name: Install pinned dependencies and the Chromium toolkit

@@ -15,7 +15,8 @@ Steps (fail-fast; each timed; nothing is overwritten silently):
     lint   tools/reel_lint.py <project> --scan-code
     brand  medo-motion/scripts/brand_check.py --project <project>
     mix    tools/audio_mix.py --sheet <cues> --vo out/vo24.wav --out out/final_audio.wav
-           (skipped when out/final_audio.wav already exists; SKIP when no cue sheet)
+           (an existing out/final_audio.wav is kept only while out/final_audio.mix.json still
+           matches the VO + cue sheet; STALE fails until --remix or --keep-mix; SKIP when no cue sheet)
     render engine dispatch (p: run_all.py · k: render.js --crf 13 · r: Remotion · hybrid)
     mux    engine P only: ffmpeg mux video_only + final_audio -> out/master.mp4
     qa     tools/media_qa.py <master> --mode master|video-only --vo out/vo24.wav --beats plan/beats.json
@@ -27,6 +28,7 @@ numbers decide whether a real runner (with human stops) is worth building.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -99,17 +101,125 @@ def _cue_sheet(project: Path, override: Path | None) -> Path | None:
     return candidate if candidate.is_file() else None
 
 
+# --- mix freshness -------------------------------------------------------------------------
+#
+# `out/final_audio.wav` used to be kept whenever it existed, so a re-recorded VO or an edited cue
+# sheet shipped with the previous mix. The mix step now writes `out/final_audio.mix.json` next to
+# the WAV — a hash of everything the mix was made from, and of the WAV itself — and an existing
+# mix is kept only while that record still matches.
+MIX_RECORD_VERSION = 1
+MIX_CODE = (  # music and SFX are generated, not sampled: these files *are* the music/SFX used
+    ROOT / "tools" / "audio_mix.py",
+    SKILL / "templates" / "procedural-reels" / "audio_mix.py",
+    SKILL / "templates" / "procedural-reels" / "audio_engine.py",
+    SKILL / "templates" / "procedural-reels" / "music.py",
+    SKILL / "templates" / "procedural-reels" / "sfx.py",
+)
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while chunk := handle.read(1 << 20):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _sheet_hash(sheet: Path) -> str:
+    """Hash the cue sheet's *values*: reformatting the JSON is not a different mix."""
+    try:
+        document = json.loads(sheet.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return _sha256(sheet)
+    canonical = json.dumps(document, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def mix_inputs(project: Path, sheet: Path, ctx) -> dict[str, str]:
+    """Label -> hash for every input of the mix: voice, cue sheet (music, SFX cues, ducking, master
+    LUFS/true peak live in it), the generators, and whether ffmpeg's loudnorm masters it."""
+    vo = project / "out" / "vo24.wav"
+    try:
+        sheet_label = sheet.resolve().relative_to(project.resolve()).as_posix()
+    except ValueError:
+        sheet_label = str(sheet)
+    inputs = {
+        "out/vo24.wav": _sha256(vo) if vo.is_file() else "missing",
+        f"cue sheet ({sheet_label})": _sheet_hash(sheet),
+        "master (ffmpeg loudnorm available)": "yes" if ctx.ffmpeg else "no",
+    }
+    for path in MIX_CODE:
+        inputs[f"mix code ({path.name if path.parent.name != 'tools' else 'tools/' + path.name})"] = (
+            _sha256(path) if path.is_file() else "missing")
+    return inputs
+
+
+def _mix_record(out_wav: Path) -> Path:
+    return out_wav.with_name(out_wav.stem + ".mix.json")
+
+
+def _write_mix_record(out_wav: Path, inputs: dict[str, str], accepted_by: str) -> None:
+    record = {"version": MIX_RECORD_VERSION, "accepted_by": accepted_by, "inputs": inputs,
+              "output": {"file": out_wav.name, "sha256": _sha256(out_wav)}}
+    target = _mix_record(out_wav)
+    tmp = target.with_name(target.name + ".tmp")
+    tmp.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    os.replace(tmp, target)
+
+
+def mix_staleness(out_wav: Path, inputs: dict[str, str]) -> list[str]:
+    """Why the existing mix cannot be trusted — an empty list means it still matches its record."""
+    record_path = _mix_record(out_wav)
+    if not record_path.is_file():
+        return [f"no record of what it was mixed from ({record_path.name} is missing)"]
+    try:
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+        recorded, output = record["inputs"], record["output"]["sha256"]
+        if record.get("version") != MIX_RECORD_VERSION or not isinstance(recorded, dict):
+            raise ValueError("version")
+    except (OSError, ValueError, KeyError, TypeError):
+        return [f"{record_path.name} is unreadable or from another version"]
+    reasons = [f"{label} changed" for label in sorted(set(recorded) | set(inputs))
+               if recorded.get(label) != inputs.get(label)]
+    if _sha256(out_wav) != output:
+        reasons.append(f"{out_wav.name} itself was replaced after it was mixed")
+    return reasons
+
+
 def step_mix(project: Path, ctx) -> tuple[int, str]:
     out_wav = project / "out" / "final_audio.wav"
-    if out_wav.is_file():
-        return 0, "out/final_audio.wav already exists — kept as-is"
     sheet = _cue_sheet(project, ctx.mix_sheet)
+    remix = False
+    if out_wav.is_file():
+        if sheet is None:
+            return 0, ("out/final_audio.wav already exists — kept as-is (no cue sheet: an external mix, "
+                       "not checked against the VO)")
+        inputs = mix_inputs(project, sheet, ctx)
+        reasons = mix_staleness(out_wav, inputs)
+        if not reasons:
+            return 0, "out/final_audio.wav already exists and matches its VO + cue sheet — kept"
+        why = "; ".join(reasons)
+        if getattr(ctx, "keep_mix", False):
+            _write_mix_record(out_wav, inputs, "--keep-mix")
+            return 0, f"out/final_audio.wav kept by --keep-mix although STALE ({why}) — recorded as accepted"
+        if not getattr(ctx, "remix", False):
+            return 1, (f"out/final_audio.wav is STALE: {why}. Nothing was changed. Rebuild it with --remix "
+                       "(overwrites the WAV), or accept it as it is with --keep-mix")
+        remix = True
     if sheet is None:
         ctx.skipped.add("mix")
         return 0, "no plan/cues.json — mix step SKIPPED (build the cue sheet first)"
-    return run_cmd([sys.executable, str(ROOT / "tools" / "audio_mix.py"), "--sheet", str(sheet),
-                    "--vo", str(project / "out" / "vo24.wav"), "--out", str(out_wav)],
-                   project, log=ctx.log), "mixed -> out/final_audio.wav"
+    inputs = mix_inputs(project, sheet, ctx)
+    cmd = [sys.executable, str(ROOT / "tools" / "audio_mix.py"), "--sheet", str(sheet),
+           "--vo", str(project / "out" / "vo24.wav"), "--out", str(out_wav)]
+    if remix:
+        cmd.append("--force")
+    code = run_cmd(cmd, project, log=ctx.log)
+    if code != 0 or not out_wav.is_file():
+        return code or 1, "mix failed (see cache/pipeline.log)"
+    _write_mix_record(out_wav, inputs, "mixed")
+    return 0, ("re-mixed (the previous mix was stale) -> out/final_audio.wav" if remix
+               else "mixed -> out/final_audio.wav")
 
 
 def _beats_duration_seconds(project: Path) -> float:
@@ -293,6 +403,8 @@ class Ctx:
         self.engine = engine
         self.draft = draft
         self.scene_cache = scene_cache
+        self.remix = False
+        self.keep_mix = False
         self.ffmpeg = ffmpeg
         self.ffprobe = ffprobe
         self.mix_sheet = mix_sheet
@@ -309,6 +421,11 @@ def main() -> int:
     parser.add_argument("--from", dest="start", choices=STEPS, help="resume from this step")
     parser.add_argument("--steps", help="comma-separated subset of: " + ",".join(STEPS))
     parser.add_argument("--mix-sheet", type=Path, help="cue sheet for the mix step (default: plan/cues.json)")
+    stale = parser.add_mutually_exclusive_group()
+    stale.add_argument("--remix", action="store_true",
+                       help="mix step: rebuild out/final_audio.wav when it no longer matches its VO/cue sheet")
+    stale.add_argument("--keep-mix", action="store_true",
+                       help="mix step: keep a stale out/final_audio.wav on purpose and record that decision")
     parser.add_argument("--layout-report", type=Path, help="layout audit report.json for the deliver gate")
     parser.add_argument("--scene-cache", action="store_true",
                         help="engine K: render each scene once into cache/scenes and reuse unchanged ones")
@@ -369,6 +486,7 @@ def main() -> int:
                    encoding="utf-8")
     ctx = Ctx(engine, _ffmpeg(), _ffprobe(), args.mix_sheet, args.layout_report, log,
               draft=args.draft, scene_cache=args.scene_cache)
+    ctx.remix, ctx.keep_mix = args.remix, args.keep_mix
 
     print(f"Pipeline · {project} · engine={engine} · steps={','.join(steps)}")
     if args.draft:

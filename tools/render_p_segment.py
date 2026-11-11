@@ -16,6 +16,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "medo-motion" / "sc
 from _safe_paths import checked_path  # noqa: E402
 
 
+def draft_source_frames(start: int, end: int) -> list[int]:
+    """Source frames a draft of [start, end) renders: `start`, then every second one, stopping
+    before `end // 2 * 2` — `end // 2 - start // 2` frames, all inside the segment. The hybrid
+    runner asks engine K for the same list (`render_hybrid.draft_samples`); a test compares them."""
+    return list(range(start, end // 2 * 2, 2))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", required=True, type=Path, help="project root containing scenes.py")
@@ -38,11 +45,11 @@ def main() -> int:
         if profile_path == output or profile_path.exists(): parser.error("profile output must be a fresh separate path")
         profile_path.parent.mkdir(parents=True, exist_ok=True)
     count = args.to_frame - args.from_frame
-    # A draft is addressed in *draft frames* (15 fps) so the timeline stays anchored to absolute
-    # frame numbers: draft frame k is source frame 2k. Segment [start, end) therefore covers
-    # draft frames [start // 2, end // 2), and the total stays duration_frames / 2.
-    draft_first = (args.from_frame // 2) * 2
-    draft_count = args.to_frame // 2 - args.from_frame // 2
+    # A draft shows every second source frame *starting at the segment's own first frame* (see
+    # draft_source_frames): the count is to // 2 - from // 2, so consecutive segments still add up
+    # to duration_frames // 2, and no segment opens on a frame that belongs to the one before it.
+    draft_sources = draft_source_frames(args.from_frame, args.to_frame)
+    draft_count = len(draft_sources)
     if args.draft and draft_count <= 0:
         parser.error("draft preview needs at least one whole draft frame in the range")
     if not (project / "scenes.py").is_file():
@@ -115,8 +122,7 @@ def main() -> int:
                 initializer(resources)
             encoder = subprocess.Popen(command, stdin=subprocess.PIPE)
             assert encoder.stdin is not None
-            frames = (range(draft_first, args.to_frame, 2) if args.draft
-                      else range(args.from_frame, args.to_frame))
+            frames = draft_sources if args.draft else range(args.from_frame, args.to_frame)
             for frame in frames:
                 t0 = time.perf_counter() if profile_path else 0
                 image = render_frame(frame / args.fps)

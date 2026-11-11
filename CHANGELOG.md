@@ -5,6 +5,142 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (hybrid draft: one sampling rule for P, K and the overlay)
+
+A hybrid draft expected `end // 2 - start // 2` frames per segment, which is what engine P rendered,
+but asked engine K (base and alpha overlay) for `--from start/30 --to end/30 --fps 15`, which renders
+`ceil((end - start) / 2)`. Any K segment of odd length stopped the draft: `[0,3)` gave 2 frames for
+an expected 1, `[30,61)` 16 for 15, and an overlay failed with "produced 2 frame(s), expected 1".
+
+- Rule, for P, K and the overlay alike: a draft of `[start, end)` shows source frames `start`,
+  `start+2`, … stopping before `end // 2 * 2` — `end // 2 - start // 2` frames, all inside the
+  segment (`render_hybrid.draft_samples`, `render_p_segment.draft_source_frames`).
+- Engine P's draft used to start at `start // 2 * 2`, one frame *before* a segment that starts on an
+  odd frame; it now starts at `start`. Draft path only.
+- Behaviour change, drafts only: at a cut on an odd frame the samples on either side are 1 or 3
+  source frames apart instead of 2, and an odd-start P segment shows frames one later than before.
+  The master path is unchanged; its commands are pinned by a test.
+- `techniques.py --draw` never picks from the `gl-transition` category (reference shaders no engine
+  renders); `--draw --category gl-transition` exits 2 and says so. The library, ids, order and
+  counts are unchanged. A seeded draw that used to include one of them now returns a different plan.
+
+## Unreleased — 2026-11-11 (audit_projects: see what the hardening will stop, before it does)
+
+`tools/audit_projects.py` reads every folder under `projects/` (or the paths it is given) and
+reports, without writing or running anything in them: scene ids outside the allowlist that
+`render_scenes.py` enforces, an `out/final_audio.wav` with no `final_audio.mix.json` record, and a
+symlinked `cache/`. Ids are read from the text of `src/data.js`; `--node` imports it instead.
+Also: `tests/test_hybrid_draft.py` pins the master (non-draft) engine commands.
+
+## Unreleased — 2026-11-11 (gl-transitions: notices, a manifest, and catalogue wording)
+
+Follow-up to the entry below; still no licence decision and no loader.
+
+- `assets/gl-transitions/THIRD_PARTY.md`: the full BSD notice of `InvertedPageCurl.glsl` and
+  `StereoViewer.glsl`, copied from the files, plus the upstream `LICENSE` file as observed on
+  2026-11-11 (labelled as observed, not as applied).
+- `assets/gl-transitions/MANIFEST.json`: one entry per shader with its sha256 and declared licence.
+  The commit the files were copied from is not known and is written as "غير معروف".
+- The 30 files listed for review are marked "غير صالح لإعادة التوزيع قبل مراجعة" in the table, the
+  manifest, `NOTICE` and `docs/GL_TRANSITIONS.md`.
+- `assets/techniques.json`: the 189 `gl-transitions` entries no longer say "When you need a
+  GPU-accelerated transition"; they say the shader is a reference that no engine loads. Counts,
+  ids and order are unchanged; `docs/techniques.md` regenerated.
+- `docs/scene-cache.md` states the warm-run time (≈560–590 ms) and what it is made of.
+
+## Unreleased — 2026-11-11 (README agrees with .gitignore and pyproject.toml)
+
+- README said a project's `BRIEF.md`, `plan/` and code "can be tracked by Git". `.gitignore` ignores
+  `projects/*` and every new project gets a `.gitignore` of `*`. README now says nothing under
+  `projects/` is tracked here and that a backup belongs in a separate place (its own repository, or
+  `--out`).
+- README said "install Python 3.12". The supported minimum is 3.10 (`pyproject.toml`, `setup.sh`);
+  README now says 3.10+ supported, 3.12 recommended. The minimum itself did not change.
+- `sync_docs_numbers.py --check` now also fails on these two contradictions (`claim_problems`).
+
+## Unreleased — 2026-11-11 (gl-transitions: documented as a reference store, licences listed per file)
+
+`docs/GL_TRANSITIONS.md` described 189 "GPU transitions ready to use", with a `"type": "gl-Cube"`
+plan example, a `load_shader()` call, a GPU/FFmpeg-OpenGL requirement and a CPU fallback. None of it
+exists: no engine and no tool loads a `.glsl` file (the search is recorded in
+`tests/test_gl_transitions.py`). 19 of the 59 names in its tables were not files in the store. It also
+said "License: MIT" for the whole set, while `InvertedPageCurl.glsl` declares BSD 3 Clause and
+`StereoViewer.glsl` BSD 2 Clause.
+
+- `docs/GL_TRANSITIONS.md` rewritten: reference store, not wired to the render path; the 14
+  transitions in `medo-motion/motion/transitions.json` are the supported set. `README.md` and
+  `docs/transitions.md` follow.
+- `tools/gl_headers.py` reads every shader header and generates `docs/gl-transitions-headers.md`
+  (file, author, declared licence, other origin named); `--check` runs in the tests.
+- `NOTICE` names the two BSD files and marks the licence question undecided. No licence decision
+  was made and no loader was built.
+
+No behaviour change: nothing rendered through these files before either.
+
+## Unreleased — 2026-11-11 (render_scenes: no shell, an allowlist for scene ids, paths kept in the cache)
+
+`render_scenes.py` built `eval "$(node chromium.mjs --env)" && node src/render.js … --name <id>-<key>`
+and ran it with `bash -c`, and only checked that a scene id was non-empty. A scene id of
+`x;touch pwned` (with a matching module file) created `pwned-<key>` in the project — reproduced by a
+test, not inferred. Now: scene ids must match `^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$` and are checked as
+soon as `data.js` is read; every process is started from an argv list; the browser environment is
+parsed from `chromium.mjs --json`; the scene module, `cache/`, `cache/scenes/` and each segment must
+be real paths inside the project (no symlinks) before anything is unlinked or written; the ffconcat
+list escapes `'`.
+
+This is hardening, not isolation: engine K executes the project's JavaScript. Behaviour changes: a
+scene id with a space, a dot, non-ASCII letters, or a leading `_`/`-` is now rejected by
+`render_scenes.py` (`render.js` itself still accepts it); a symlinked `cache/` is refused. The output
+is also measured once instead of twice, on the temporary file just before it replaces the target.
+
+## Unreleased — 2026-11-11 (the pipeline stops on a stale audio mix)
+
+`pipeline.py` kept `out/final_audio.wav` whenever it existed, so a re-recorded VO or an edited cue
+sheet shipped with the previous mix. The mix step now writes `out/final_audio.mix.json` (hashes of the
+VO, the cue sheet's values, the music/SFX/mix code, loudnorm availability, and the WAV itself) and
+keeps an existing mix only while that record matches. Otherwise the step fails with `STALE: <what
+changed>` and touches nothing; `--remix` rebuilds, `--keep-mix` records an explicit acceptance.
+
+Refusal was chosen over an automatic re-mix: re-mixing overwrites a file that may have been edited by
+hand. Behaviour change: a project that already has `final_audio.wav` **and** a cue sheet but no record
+(mixed before this change) fails the mix step once, until `--keep-mix` or `--remix`. A mix without a
+cue sheet is still kept, and the note now says it is unchecked. See `docs/audio.md`.
+
+## Unreleased — 2026-11-11 (the scene-cache mux refuses a mix that does not fit the picture)
+
+`render_scenes.py` muxed with `-shortest`: one second of picture plus half a second of audio wrote a
+13-frame file and printed success. The mix and the picture are now measured before the mux; a
+difference above half a frame is refused with both lengths in the message and nothing is written.
+`--audio-fit pad|trim` is the explicit alternative (pad only lengthens the audio, trim only shortens
+it; the picture is never cut). The joined picture and the muxed file are measured (frames, duration,
+audio stream) before they replace the output, and the manifest records the measurement.
+
+Behaviour change: a project whose `out/final_audio.wav` differs from the summed scene frames by more
+than half a frame used to get a silently cut master from `render_scenes.py` / `pipeline.py
+--scene-cache`; it now fails until the timing is fixed or `--audio-fit` is passed to `render_scenes.py`.
+
+## Unreleased — 2026-11-11 (the K scene cache hashes every input a frame can read)
+
+`tools/render_scenes.py` keyed a scene on four files under `src/`, `src/lib/**/*.js` and the scene's
+module. Plans, assets, any other file under `src/`, the assets override and the motion mode were not
+in the key, so editing `plan/stage.json` or replacing an image reported `hits=2` and shipped the old
+MP4s. The key is now built from one table (`shared_inputs`): all of `src/` except the listed scene
+modules, the seven plans `render.js` serves, everything under the **resolved** assets root except
+audio, the package files that stand in for `node_modules`, and the resolved motion mode (now passed
+to `render.js` explicitly). Paths are hashed with the content, so add/remove/rename invalidates.
+`KEY_VERSION` is v2: segments cached before this change miss once.
+
+Trade-off, deliberate: a plan or asset edit re-renders **every** scene — nothing proves such a file
+belongs to one scene. Warm run on a scaffolded project (490 asset files, 116 MB): ~290 ms → ~445 ms.
+Behaviour changes: a symlink under `src/` or the assets root that leaves that root now stops the run;
+`--motion-mode` and `--hash-audio FILE` are new. See `docs/scene-cache.md`.
+
+## Unreleased — 2026-11-11 (every parallel pytest run keeps its xdist groups)
+
+The coverage, contracts and unit jobs and `make coverage` ran `pytest -n 2` without
+`--dist loadgroup`, which leaves the `xdist_group("remotion-bundler")` marks inert.
+`tools/ci_groups.py --check` now fails on any parallel pytest run without it.
+
 ## Unreleased — 2026-11-10 (engine P renders drafts into a real 540x960 buffer)
 
 Engine P drew every frame in one 1080x1920 canvas and shrank it before the encoder: the draft paid

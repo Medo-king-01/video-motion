@@ -178,6 +178,36 @@ def sync(root: Path | None = None, *, write: bool = True, values: dict[str, int]
     return problems, changes
 
 
+TRACKED_CLAIMS = ("قابلة للتتبع",)
+
+
+def claim_problems(root: Path | None = None) -> list[str]:
+    """README statements that a config file can contradict. Two of them, both cheap to derive:
+
+    - the install line must name the minimum Python that `pyproject.toml` declares (`<min>+`);
+    - while `.gitignore` ignores `projects/*`, README must not call project files tracked.
+    """
+    base = root or ROOT
+    readme, pyproject, gitignore = base / "README.md", base / "pyproject.toml", base / ".gitignore"
+    if not readme.is_file():
+        return []
+    text = readme.read_text(encoding="utf-8")
+    problems: list[str] = []
+    if pyproject.is_file():
+        found = re.search(r'^requires-python\s*=\s*">=\s*([0-9.]+)"', pyproject.read_text(encoding="utf-8"), re.M)
+        line = next((line for line in text.splitlines() if "Python" in line and "Node" in line), None)
+        if found and line is not None and f"{found.group(1)}+" not in line:
+            problems.append(f"README.md: the install line does not name the supported minimum Python "
+                            f"{found.group(1)}+ (pyproject.toml requires-python): {line.strip()[:80]}")
+    if gitignore.is_file():
+        ignored = "projects/*" in [line.strip() for line in gitignore.read_text(encoding="utf-8").splitlines()]
+        for claim in TRACKED_CLAIMS:
+            if ignored and claim in text:
+                problems.append(f"README.md: says project files are tracked ('{claim}') but .gitignore ignores projects/*")
+                break
+    return problems
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Keep documented counts derived from the libraries.")
     parser.add_argument("--check", action="store_true", help="report drift and exit 1 (writes nothing)")
@@ -195,6 +225,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     problems, changes = sync(root, write=not options.check)
+    problems.extend(claim_problems(root))
     if options.check:
         for change in changes:
             print(f"DRIFT {change}")

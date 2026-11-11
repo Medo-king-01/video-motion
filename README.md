@@ -62,7 +62,7 @@
 - **١٤٦ ستايل** من Opus Motion Library (woodcut, risograph, neon-noir, crt-terminal...)
 [التفاصيل](docs/STYLES.md).
 
-**<!-- AUTO:gl_transitions -->189<!-- /AUTO --> انتقال GLSL** (`assets/gl-transitions/`) — شيدورات GPU جاهزة: Accordion, Bloom, CircleIris, Cube, DoomScreen, Flash, Glitch, Morph, PageTurn, Ripple, Spiral, Wave, Zoom... [التفاصيل](docs/GL_TRANSITIONS.md).
+**<!-- AUTO:gl_transitions -->189<!-- /AUTO --> ملف شيدور GLSL** (`assets/gl-transitions/`) — مخزن مرجعي **مش موصّل بمسار الرندر**: مفيش محرك بيحمّل الملفات دي، والانتقالات اللي بتترندر فعلًا هي الـ<!-- AUTO:transitions -->14<!-- /AUTO --> اللي في [`docs/transitions.md`](docs/transitions.md). الرخص متنوعة وغير محسومة. [التفاصيل](docs/GL_TRANSITIONS.md).
 
 **مبادئ تصميم الحركة** (`docs/motion-principles/`) — مستوحاة من LottieFiles: 12 مبدأ ديزني مكيفة للواجهات، 4 شخصيات حركة، جداول توقيت، خرائط عاطفة→حركة. [التفاصيل](docs/MOTION_PRINCIPLES.md).
 
@@ -93,7 +93,7 @@
 
 ## أول تشغيل
 
-ثبّت Python 3.12 وNode 20.11+ مع npm الأول (السكربت مش بيثبتهم).
+ثبّت Python 3.10+ (المدعوم؛ 3.12 هو الموصى به) وNode 20.11+ مع npm الأول (السكربت مش بيثبتهم).
 ابدأ من جذر المستودع الكامل؛ [دليل البيئة النظيفة والتطوير](docs/development.md):
 
 ```bash
@@ -125,7 +125,7 @@ cd projects/my-reel && npm ci && npm run studio
 # محركات P وK: شغّل السكربتات مباشرة من جذر المشروع (شوف AGENTS.md §5)
 ```
 
-ملفات `BRIEF.md` و`plan/` وكود المشروع قابلة للتتبع بـGit؛ الفيديوهات والكاش ومجلدات `out/` متجاهلة.
+أي حاجة تحت `projects/` **مش بيتتبّع في Git المستودع ده** (`projects/*` في `.gitignore`، وكل مشروع بياخد `.gitignore` فيه `*`) — لا `BRIEF.md` ولا `plan/` ولا الكود ولا الفيديوهات. عايز نسخة احتياطية؟ خليها في مكان منفصل: مستودع منفصل للمشروع، أو أنشئه بره الاستوديو بـ`--out` ([`projects/README.md`](projects/README.md)).
 بعدها املأ `projects/<المشروع>/BRIEF.md` بالأربعة، وقول للوكيل: **«اقرأ AGENTS.md وابدأ»**.
 
 ---

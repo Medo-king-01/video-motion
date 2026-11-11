@@ -9,7 +9,7 @@
 | `qa_report.py` | صفحة HTML واحدة: lint + Final Media QA + contact sheet مضمّن، بلا شبكة وبلا كتابة فوق تقرير قديم | `python3 tools/qa_report.py <project> --media out/master.mp4` |
 | `time_to_first_video.py` | قياس «زمن أول فيديو» على خمس مراحل مع هدف رقمي موثَّق وتحقق من المدة الناتجة | `python3 tools/time_to_first_video.py --json docs/metrics/ttfv.json` |
 | `render_scenes.py` | كاش لكل مشهد في محرك K: يعيد رندر المشاهد اللي اتغيرت فقط ثم يدمج المقاطع ويزوّد الصوت | `python3 tools/render_scenes.py <project>` |
-| `pipeline.py` | المسار الحتمي vo→gate؛ `--draft` يعمل معاينة K/P بنصف الدقة و15fps في `out/draft.mp4`؛ `--from`/`--steps`/`--dry-run` | `python3 tools/pipeline.py <project>` |
+| `pipeline.py` | المسار الحتمي vo→gate؛ `--draft` يعمل معاينة K/P بنصف الدقة و15fps في `out/draft.mp4`؛ `--from`/`--steps`/`--dry-run`؛ مزيج قديم = `STALE` لحد `--remix` أو `--keep-mix` | `python3 tools/pipeline.py <project>` |
 | `selftest.py` | اختبار كامل: doctor + unit tests + رندر P/K؛ `--remotion` يضيف R منفردًا، و`--hybrid` يرندر ويجمع P/K/R + صوت end-to-end | `python3 tools/selftest.py --hybrid` |
 | `render_hybrid.py` | يرندر مخطط `plan/hybrid.json`: يتحقق من مقاطع P/K/R المتتابعة، ثم يوحّد الفيديو ويضيف الصوت مرة واحدة | `python3 ../../tools/render_hybrid.py --project .` من جذر المشروع |
 | `render_p_segment.py` | adapter داخلي لرندر مدى إطارات محدد من P بصيغة الفيديو المشتركة | يستخدمه `render_hybrid.py` |
@@ -17,6 +17,8 @@
 | `ffprobe_shim.py` | بديل `ffprobe` متوافق (JSON) مبني على PyAV — لأن FFmpeg الستاتيك بييجي من غير ffprobe | `ffprobe -v error -show_streams -of json in.mp4` |
 | `ci.sh` | نفس اللي الـCI بيعمله: ruff + pytest + أرقام الوثائق + مجموعات الاختبار + تطابق مكتبات K/R + تدقيق البراند | `bash tools/ci.sh` |
 | `sync_docs_numbers.py` | بيحسب أرقام المكتبة الحقيقية (تقنيات، خطوط، أيقونات…) ويكتبها جوه علامات `<!-- AUTO:key -->` في الوثائق؛ `--check` يفشل عند أي انحراف | `python3 tools/sync_docs_numbers.py` · `make docs-sync` |
+| `audit_projects.py` | تقرير **للقراءة فقط** على كل `projects/*/` (أو مسارات تديهاله): معرّفات المشاهد ضد قايمة `render_scenes.py` المسموحة، `out/final_audio.wav` من غير سجل `final_audio.mix.json`، و`cache/` كرابط رمزي. مابيغيّرش ولا بيشغّل حاجة في المشروع (إلا مع `--node`) | `python3 tools/audit_projects.py` · `python3 tools/audit_projects.py ~/reels/a --json` |
+| `gl_headers.py` | بيقرا رأس كل شيدور في `assets/gl-transitions/` (مؤلف، رخصة معلنة، مصدر تاني) ويولّد `docs/gl-transitions-headers.md` و`assets/gl-transitions/THIRD_PARTY.md` (نص إشعارات BSD كامل) و`MANIFEST.json` (sha256 لكل ملف)؛ `--check` يفشل لو أي واحد منهم اتأخر عن الملفات. نقل للي الملفات بتقوله، مش قرار رخص | `python3 tools/gl_headers.py --write` |
 | `sync_shared_libs.py` | مصدر واحد لمكتبات JS المشتركة: `shared/js/` يتنسخ لمحركَين K (`render/lib`) وR (`remotion/src/lib`)؛ `--check` يفشل عند أي انحراف أو نسخة مكرّرة بإيد | `python3 tools/sync_shared_libs.py --check` · `make sync-libs` |
 | `ci_groups.py` | بيقسّم الاختبارات لمجموعات `contracts` / `unit` / `render` اللي شغّالة كـjobs متوازية، و`--check` بيثبت إن مفيش ملف خارج التقسيم | `python3 tools/ci_groups.py --check` · `make ci-groups` |
 | `gpu_preflight.mjs` | فحص WebGL2 وWebGPU محلي ومحدود، بدون استنتاج وجود تسريع عتادي أو تثبيت حزم | `node tools/gpu_preflight.mjs --require webgl2` |

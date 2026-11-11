@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -32,26 +33,27 @@ GROUPS = ("contracts", "unit", "render")
 
 ASSIGNED: dict[str, tuple[str, ...]] = {
     "contracts": (
-        "test_beats_schema", "test_brand", "test_capability_contract", "test_changelogs", "test_ci_groups",
+        "test_brand", "test_capability_contract", "test_changelogs", "test_ci_groups",
         "test_contrast",
         "test_dependencies",
-        "test_design_system", "test_docs_numbers", "test_file_safety", "test_fonts",
+        "test_design_system", "test_audit_projects", "test_docs_claims", "test_docs_numbers", "test_file_safety", "test_fonts", "test_gl_transitions",
         "test_fonts_install", "test_fonts_lock", "test_hyperframes_fit", "test_import_precedence",
         "test_looks", "test_openmontage_fit", "test_recipes", "test_reel_lint",
         "test_reference_report", "test_remotion_skill", "test_repo_hygiene", "test_repo_weight",
         "test_scene_director",
         "test_setup",
         "test_skillry_fit", "test_studio_not_archive", "test_styles", "test_techniques", "test_test_layout",
-        "test_text_animations", "test_video_motion_paths", "test_vo_length",
+        "test_text_animations", "test_video_motion_paths",
     ),
     "unit": (
-        "test_arabic_shape", "test_audio_engine", "test_audio_generate", "test_caption_align",
+        "test_arabic_shape", "test_audio_engine", "test_audio_generate", "test_beats_schema", "test_caption_align",
         "test_frame_graph", "test_glow_sprite", "test_hybrid_env", "test_hybrid_draft", "test_hybrid_masks", "test_hybrid_stack",
         "test_icons", "test_motion", "test_motion_effects", "test_motion_final", "test_music",
         "test_p_draft_buffer", "test_p_draft_supersample", "test_presenter", "test_remotion_range", "test_remotion_isolation", "test_render_policy", "test_rhythm", "test_shared_libs",
         "test_sfx",
         "test_sfx_engine",
         "test_space3d_offline", "test_text_direction", "test_tool_contracts", "test_transitions",
+        "test_vo_length",
     ),
 }
 
@@ -72,6 +74,48 @@ def members(group: str, root: Path | None = None) -> list[Path]:
     if group not in GROUPS:
         raise SystemExit(f"unknown group '{group}' (known: {', '.join(GROUPS)})")
     return [base / "tests" / f"{name}.py" for name, owner in assignment(root).items() if owner == group]
+
+
+PARALLEL_PYTEST = re.compile(r"\bpytest\b.*?\s(?:-n|--numprocesses)[\s=]?\S+")
+LOADGROUP = re.compile(r"--dist[\s=]loadgroup\b")
+
+
+def _command_lines(text: str) -> list[tuple[int, str]]:
+    """Logical lines (backslash continuations joined) with the number of their first line."""
+    out: list[tuple[int, str]] = []
+    start, buffer = 0, ""
+    for number, line in enumerate(text.splitlines(), 1):
+        if not buffer:
+            start = number
+        if line.rstrip().endswith("\\"):
+            buffer += line.rstrip()[:-1] + " "
+            continue
+        out.append((start, buffer + line))
+        buffer = ""
+    if buffer:
+        out.append((start, buffer))
+    return out
+
+
+def parallel_pytest_problems(root: Path | None = None) -> list[str]:
+    """Every `pytest -n` the repository runs must keep the `xdist_group` marks real.
+
+    Without `--dist loadgroup` xdist ignores `@pytest.mark.xdist_group`, so the Remotion bundling
+    tests land on different workers and race on one webpack bundle (tests/conftest.py). The rule
+    covers every workflow and the Makefile, not one job: a new parallel run cannot forget it.
+    """
+    base = root or ROOT
+    sources = sorted((base / ".github" / "workflows").glob("*.y*ml"))
+    sources += [path for path in (base / "Makefile", base / "tools" / "ci.sh") if path.is_file()]
+    problems: list[str] = []
+    for path in sources:
+        for number, line in _command_lines(path.read_text(encoding="utf-8")):
+            if line.lstrip().startswith("#"):
+                continue
+            if PARALLEL_PYTEST.search(line) and not LOADGROUP.search(line):
+                problems.append(f"{path.relative_to(base).as_posix()}:{number} runs pytest in parallel without "
+                                "`--dist loadgroup` (xdist_group marks are ignored, Remotion bundles race)")
+    return problems
 
 
 def check(root: Path | None = None) -> list[str]:
@@ -106,6 +150,7 @@ def check(root: Path | None = None) -> list[str]:
             problems.append("ci.yml never runs tools/ci_groups.py --check")
     elif (base / ".github").is_dir():
         problems.append("ci.yml is missing, so the group wiring cannot be checked")
+    problems += parallel_pytest_problems(base)
     return problems
 
 
