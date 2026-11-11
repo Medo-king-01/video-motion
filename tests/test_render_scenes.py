@@ -340,8 +340,12 @@ def test_the_resolved_motion_mode_is_what_render_js_is_told(tmp_path: Path, monk
     monkeypatch.setattr(render_scenes.subprocess, "run", fake_run)
     render_scenes.render_segment(project, TWO[0], project / "cache" / "scenes" / "intro-abc.mp4", fps=30, crf=13,
                                  log=project / "log.txt", motion_mode="reduced")
+    assert len(seen) == 2 and all(isinstance(cmd, list) for cmd in seen), seen  # browser probe, then the render
     render_cmd = seen[-1]
+    assert "src/render.js" in render_cmd and "bash" not in render_cmd[0]
+    assert render_cmd.count("--motion-mode") == 1
     assert render_cmd[render_cmd.index("--motion-mode") + 1] == "reduced"
+    assert not any("--motion-mode" in part for part in seen[0]), "the mode belongs to the render, not the probe"
 
 
 def test_the_explicit_motion_mode_changes_the_key(tmp_path: Path, monkeypatch) -> None:

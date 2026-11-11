@@ -241,3 +241,4 @@ def test_concat_refuses_a_line_break_in_a_segment_path(tmp_path: Path) -> None:
     with pytest.raises(SystemExit) as error:
         render_scenes.concat([weird / "a.mp4"], tmp_path / "master.mp4", tmp_path / "log.txt")
     assert "line break" in str(error.value) and not (tmp_path / "scenes.txt").exists()
+    assert not (tmp_path / "master.mp4").exists(), "nothing may be joined from a list that could not be written safely"
