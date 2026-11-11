@@ -109,6 +109,17 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: "22"
+      - name: TEMPORARY apt diagnostic (to be reverted)
+        timeout-minutes: 6
+        run: |
+          set +e
+          note() { echo "::warning title=$1::$(printf '%s' "$2" | tail -n 14 | cut -c1-220 | sed -z 's/\n/%0A/g')"; }
+          note "procs-before" "$(ps -eo etimes,cmd | grep -E 'apt|dpkg|unattended|man-db' | grep -v grep)"
+          s=$(date +%s); out=$(sudo timeout 100 apt-get -o Acquire::Retries=3 update </dev/null 2>&1); rc=$?
+          note "update rc=$rc secs=$(( $(date +%s)-s ))" "$out"
+          s=$(date +%s); out=$(sudo timeout 150 apt-get install -y --no-install-recommends ffmpeg </dev/null 2>&1); rc=$?
+          note "install rc=$rc secs=$(( $(date +%s)-s ))" "$out"
+          note "procs-after" "$(ps -eo etimes,cmd | grep -E 'apt|dpkg|unattended|man-db' | grep -v grep)"
       - name: Install FFmpeg tools
         timeout-minutes: 5
         run: |
