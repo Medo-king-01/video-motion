@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# The checks CI would run, locally and anywhere: lint → unit tests → brand audit.
-# GitHub Actions needs the `workflows` permission to own .github/workflows, so this
-# script is the portable version of that pipeline (run it in any agent/terminal).
+# The studio's whole check pipeline: lint → tests → brand audit. Run it in any agent/terminal.
+# There are no hosted GitHub workflows (removed 2026-11-11 by owner decision), so nothing
+# runs on push or on a pull request: this script is the only gate, and it runs only when asked.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PY=${PY:-python3}
