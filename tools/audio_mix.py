@@ -34,6 +34,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 P_DIR = ROOT / "medo-motion" / "templates" / "procedural-reels"
 sys.path.insert(0, str(P_DIR))
+sys.path.insert(0, str(ROOT / "shared" / "py"))  # audio + rhythm live here, not in engine P
 sys.path.insert(0, str(ROOT / "tools" / "lib"))
 import audio_engine as ax  # noqa: E402
 import audio_mix as AM  # noqa: E402

@@ -24,6 +24,9 @@ $PY tools/ci_groups.py --check
 echo "== shared libs (K/R parity) =="
 $PY tools/sync_shared_libs.py --check
 
+echo "== shared audio/rhythm (shared/py -> engine P) =="
+$PY tools/sync_shared_py.py --check
+
 echo "== technique library =="
 $PY tools/techniques.py --validate
 $PY tools/techniques.py --markdown docs/techniques.md --check

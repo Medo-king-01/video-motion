@@ -69,7 +69,6 @@ def _dict_len_assignment(path: Path, name: str) -> int:
 def metrics(root: Path | None = None) -> dict[str, int]:
     """Measure every documented count from the source libraries."""
     base = (root or ROOT)
-    skill = base / "medo-motion"
 
     def read(relative: str | Path) -> dict:
         return _json(relative, base)
@@ -112,7 +111,7 @@ def metrics(root: Path | None = None) -> dict[str, int]:
         "backgrounds": len(read("medo-motion/motion/backgrounds.json")["backgrounds"]),
         "looks": len(looks["looks"]),
         "recipes": len(recipes["recipes"]),
-        "sfx": _dict_len_assignment(skill / "templates" / "procedural-reels" / "sfx.py", "CATALOG"),
+        "sfx": _dict_len_assignment(base / "shared" / "py" / "sfx.py", "CATALOG"),
         "music_presets": len(read("medo-motion/motion/music-presets.json")["presets"]),
     }
 

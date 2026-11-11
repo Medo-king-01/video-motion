@@ -1,0 +1,12 @@
+{
+  "name": "video-motion-optional-hyperframes",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Optional, isolated HyperFrames CLI (HTML-to-video). Experimental path only: not a render engine of record and not a base dependency. See docs/hyperframes-fit.md.",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "hyperframes": "0.9.9"
+  }
+}

@@ -5,6 +5,72 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (unification path, stages 1–3: proof, drawn sprites on K, shared audio library)
+
+Owner order: stages 1–3 of `docs/engine-inventory.md` only. No default changed, no engine retired;
+P is still the default for talking reels.
+
+- **Drawn sprites on K** — `medo-motion/templates/render/lib/art.js` (new, K only): engine P's
+  `laptop`, `desktop`, part icons, `person` (7 poses, 7 expressions), `paper_spec`, `follow_button`,
+  `cursor`, `sparkle`, `pill`, `bill`, `checkmark`, `crossmark`, `bubble`, with the same
+  coordinates, sizes and palette. `drawArt(ctx, name, cx, cy, options, place)` mirrors P's `paste`.
+- **Proof** — `tools/art_parity.py` (+ `art_parity.mjs`) draws 41 sprite cases and three typical
+  1080×1920 frames with both engines and measures them: identical sizes, outlines within one pixel
+  in 41/41, mean colour difference 0.28–3.54 of 255, five Arabic lines within one pixel of width.
+  `--check` exits 1 on drift. Reference sheets in `docs/assets/art-parity/`. Static frames only:
+  motion, transitions and animated captions were not compared.
+- **Shared audio library** — `shared/py/` is now the one editable copy of `audio_engine.py`,
+  `audio_mix.py`, `music.py`, `sfx.py`, `beat.py`; tools import from it. The P template keeps a
+  byte-identical copy (scaffolded projects stay self-contained), gated by
+  `tools/sync_shared_py.py --check` in `tools/ci.sh`, the workflow and `make check-libs`.
+  `music.py` finds its presets by walking up; `sfx.py` reads a transition's sound from
+  `motion/transitions.json` when engine P's `transition.py` is not importable. `mix.py`,
+  `text_direction.py`, `arabic_shape.py`, `text_measure.py`, `media_tools.py` were not moved.
+- Tests: `tests/test_art_parity.py`, `tests/test_shared_py.py`.
+
+## Unreleased — 2026-11-11 (engine inventory: what P and R do that K does not)
+
+Documentation only; no engine, contract or default changes. `docs/engine-inventory.md` answers the
+owner's question about three engines versus one: the capability matrix read from the code, the gaps
+K would have to close (drawn primitives in `art.py`/`lib.py`, browserless rendering, the 21 tools
+that depend on Python modules living in the P template), a measured P/K frame time on the template
+scenes (about 241 vs 29 ms per frame here; different scene content, so a direction, not a verdict),
+and a staged path whose first three steps delete nothing. R speed and any P/K visual parity were
+not measured.
+
+## Unreleased — 2026-11-11 (optional free tools: Whisper, Demucs, HyperFrames)
+
+Owner request: make FFmpeg, Whisper, Demucs and HyperFrames installable from the repository.
+FFmpeg was already provided by `tools/setup.sh`; the other three stay optional and outside the
+base render path.
+
+- `tools/setup_extras.sh whisper|demucs|hyperframes|all` installs them; `--check` is a read-only
+  inventory of all four.
+- `tools/requirements-stems.txt` (new): `demucs==4.0.1`, `torch`/`torchaudio` `<2.6` and `soundfile` as the WAV
+  backend. `analyze_ref.py --stems` called Demucs before, but nothing declared it.
+- `tools/optional-hyperframes/` (new): `hyperframes@0.9.9` pinned with a lockfile, isolated like
+  `tools/optional-three/`. `tools/hyperframes.sh` runs it with the studio Chromium and FFmpeg and
+  with telemetry and skill auto-install off. It is still not an engine and not a base dependency;
+  `docs/hyperframes-fit.md` records the update.
+- `tools/stems.py` (new): Demucs as a studio tool — any audio/video in, `vocals`/`no_vocals` or the
+  four stems out, plus `stems.json`. Windowing (`--start/--dur`), `--segment` for low memory,
+  `--weights DIR` for offline machines; a missing dependency or an unreachable weights host is
+  reported as a sentence, not a traceback. `docs/alignment.md` describes aligning captions on the
+  `vocals` stem when a recording has music under it.
+- `tools/html_scene.py` (new): the supported way to use HyperFrames. `new` scaffolds one offline
+  HTML/CSS scene (fonts copied from `assets/fonts/`, colours generated from `brand.json`, CSS
+  animation, no GSAP/CDN/registry); `check` rejects network URLs (H01), off-palette colours (H02),
+  a wrong canvas or a duration that is not a whole number of frames (H03) and HyperFrames lint
+  errors (H04); `render` verifies 1080x1920, 30 fps and the exact frame count. The clip is not
+  wired into `render_hybrid.py`.
+- Pin fix found while testing: Demucs 4.0.1 cannot load its checkpoints on PyTorch >= 2.6
+  (`weights_only` default), so `requirements-stems.txt` pins `torch`/`torchaudio` `<2.6`.
+- Neither upstream repository is copied into this one: both are consumed as pinned packages, so
+  their licences, updates and size stay upstream (`NOTICE` §3).
+- Not verified here: a real `htdemucs` separation — the weights host was unreachable. `stems.py`
+  was run end to end through the Demucs CLI with a local, untrained checkpoint, which proves the
+  plumbing and says nothing about separation quality.
+
 ## Unreleased — 2026-11-11 (hybrid draft: one sampling rule for P, K and the overlay)
 
 A hybrid draft expected `end // 2 - start // 2` frames per segment, which is what engine P rendered,

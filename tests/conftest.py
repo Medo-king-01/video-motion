@@ -19,6 +19,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 SKILL = ROOT / "medo-motion"
 ENGINE_P = SKILL / "templates" / "procedural-reels"
+SHARED_PY = ROOT / "shared" / "py"  # audio + rhythm: the editable copy (engine P ships a synced one)
 ENGINE_R = SKILL / "templates" / "remotion"
 FONTS = ROOT / "assets" / "fonts" / "Cairo"
 TOOLS = ROOT / "tools"
@@ -32,12 +33,12 @@ TOOLS = ROOT / "tools"
 # SystemExit unless it gets START_FRAME END_FRAME. Once `wave` is imported here the
 # stdlib module is cached and the engine folder can be on sys.path harmlessly.
 # Preserve the existing tools -> scripts -> engine precedence among local helpers.
-for _p in (str(ROOT / "tools"), str(SKILL / "scripts"), str(ENGINE_P)):
+for _p in (str(ROOT / "tools"), str(SKILL / "scripts"), str(SHARED_PY), str(ENGINE_P)):
     if _p not in sys.path:
         sys.path.append(_p)
 
 
-# `tools/audio_mix.py` is a CLI and `procedural-reels/audio_mix.py` is the library the audio tests
+# `tools/audio_mix.py` is a CLI and `shared/py/audio_mix.py` is the library the audio tests
 # mean. `tools/` sits above the engine directory on the path set up here, and test modules push their
 # own directory to the front while they are being *collected* — test_cover_generator.py inserts
 # `tools`, alphabetically after test_audio_mix.py inserts the engine directory. So the first
@@ -54,11 +55,11 @@ for _p in (str(ROOT / "tools"), str(SKILL / "scripts"), str(ENGINE_P)):
 # Only the one colliding name is claimed. Reordering the whole path would also shadow
 # `text_direction.py`, which exists in both trees with different contents and is used by
 # `reel_lint`, `stage_gate` and `layout_audit_p`.
-_ENGINE_OWNED = {"audio_mix": ENGINE_P / "audio_mix.py"}
+_ENGINE_OWNED = {"audio_mix": SHARED_PY / "audio_mix.py"}
 
 
 class _EngineModuleFinder(importlib.abc.MetaPathFinder):
-    """Resolve the claimed names from the engine directory, whatever sys.path says."""
+    """Resolve the claimed names from `shared/py`, whatever sys.path says."""
 
     def find_spec(self, fullname, path=None, target=None):
         location = _ENGINE_OWNED.get(fullname)
@@ -71,10 +72,10 @@ if not any(isinstance(_f, _EngineModuleFinder) for _f in sys.meta_path):
     _already = sys.modules.get("audio_mix")
     if _already is not None:
         _origin = Path(getattr(_already, "__file__", "") or "").resolve()
-        if _origin.parent != ENGINE_P.resolve():
+        if _origin.parent != SHARED_PY.resolve():
             raise RuntimeError(
                 f"'audio_mix' was imported from {_origin} before conftest ran; "
-                f"expected it from {ENGINE_P}"
+                f"expected it from {SHARED_PY}"
             )
     sys.meta_path.insert(0, _EngineModuleFinder())
 

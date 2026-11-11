@@ -80,4 +80,26 @@ npx hyperframes render -o out.mp4 --workers 1
 والفريم الأول غير الفاضي) وتصورات لـ`space3d`. أي مساس بحرّاس الهوية أو التوقيت أو العربي
 يُرفض، وأي استخدام مستقبلي يبقى مسارًا تجريبيًا معزولًا بخطوات موثّقة أعلاه.
 
+## تحديث 2026-11-11: تثبيت اختياري معزول بطلب صاحب المشروع
+
+صاحب المشروع طلب صراحةً أن يكون HyperFrames متاحًا داخل المستودع. القرار أعلاه لم يتغير في جوهره:
+ليس محركًا رابعًا، وليس ضمن `tools/setup.sh` ولا `tools/toolkit/`، ولا يستدعيه أي محرك أو اختبار.
+المتاح الآن أداة جانبية معزولة فقط:
+
+- `tools/optional-hyperframes/` — `hyperframes@0.9.9` (النسخة المراجَعة هنا) مع `package-lock.json`.
+- `bash tools/setup_extras.sh hyperframes` — تثبيت بـ`npm ci --ignore-scripts` (Node >= 22).
+- `bash tools/hyperframes.sh …` — يشغّل الـCLI بـChromium وFFmpeg بتوع الاستوديو، مع إيقاف
+  الـtelemetry وتثبيت الـskills التلقائي.
+
+- `python3 tools/html_scene.py new|check|render` — الطريق المعتمد لاستخدامه: مشهد HTML/CSS واحد،
+  خطوطه منسوخة من `assets/fonts/`، ألوانه متغيرات CSS مولّدة من `brand.json`، وحركته CSS animation
+  (بلا GSAP ولا CDN ولا registry). `check` يرفض قبل الرندر: أي رابط شبكة (H01)، أي لون خارج
+  البالِت (H02)، أي مقاس غير ١٠٨٠×١٩٢٠ أو مدة ليست عدد فريمات صحيحًا (H03)، وأخطاء lint (H04).
+  والناتج يُفحص بـffprobe: ١٠٨٠×١٩٢٠، ٣٠fps، عدد الفريمات بالضبط. الكليب **لا يدخل** `render_hybrid.py`
+  ولا عقد Hybrid؛ ضمّه لريل خطوة يدوية يقررها صاحب المشروع.
+
+اتجرّب على هذا الوضع: مشهد `html_scene.py` عربي بخط Cairo، ٤٥ فريم، رندر وتحقق ناجحان. وأيضًا: `init --example blank --resolution portrait` ثم `render --workers 1` →
+١٠ث / ٣٠٠ فريم ١٠٨٠×١٩٢٠ H.264 في ~١٩ ثانية، بعد نسخ `gsap.min.js` محليًا، وبـ`ffprobe` الـshim.
+شروط «متى يُسمح به» أعلاه سارية كما هي.
+
 الأثر المرجعي: `cache/hyperframes-ar-poc.png` (٤ فريمات من رندر عربي حقيقي) و`cache/hyperframes-ar-poc.mp4`.

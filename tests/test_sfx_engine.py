@@ -15,6 +15,7 @@ import pytest
 from conftest import ROOT, SKILL
 
 sys.path.insert(0, str(SKILL / "templates" / "procedural-reels"))
+sys.path.insert(0, str(SKILL.parent / "shared" / "py"))  # audio + rhythm: the editable copy
 
 SR = 44100
 # The 15 generators that existed before this work. Losing one is a regression, not a refactor.

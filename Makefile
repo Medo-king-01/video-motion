@@ -26,11 +26,13 @@ docs-sync:       ## rewrite the AUTO numbers from the libraries
 ci-groups:       ## show/verify the pytest groups the CI jobs run
 	$(PY) tools/ci_groups.py $(if $(CHECK),--check,)
 
-sync-libs:       ## copy shared/js into the K (render) and R (remotion) engines
+sync-libs:       ## copy shared/js into K and R, and shared/py into the engine-P template
 	$(PY) tools/sync_shared_libs.py --write
+	$(PY) tools/sync_shared_py.py --write
 
-check-libs:      ## verify the two engines still match shared/js
+check-libs:      ## verify the engines still match shared/js and shared/py
 	$(PY) tools/sync_shared_libs.py --check
+	$(PY) tools/sync_shared_py.py --check
 
 coverage:        ## full suite with a coverage report (floor 30%, raised as the suite grows)
 	$(PY) -m pytest -q -n 2 --dist loadgroup --cov --cov-report=term-missing --cov-report=xml --cov-fail-under=30

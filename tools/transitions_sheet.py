@@ -116,7 +116,7 @@ def video(names: list[str], out: Path, hold: float = 0.25, trans: float = 0.6, f
             n += 1
     audio = None
     if with_sfx:
-        sys.path.insert(0, str(P_DIR))
+        sys.path.insert(0, str(ROOT / "shared" / "py"))
         import sfx  # noqa: PLC0415
 
         cues = sfx.cues_for_transitions(cuts, gain=0.9, pan=(0.5, -0.5))

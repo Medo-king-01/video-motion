@@ -145,6 +145,7 @@ tools/                 ← setup.sh · doctor.py · selftest.py · new_project.p
                        · icons_sheet.py · icons_preview.mjs
                        · dev/_archive/ (6 سكربتات هجرة one-off: نتيجة تشغيلها محفوظة في assets/)
 shared/js/             ← المصدر الوحيد لمكتبات JS المشتركة بين K وR (`make sync-libs` ينسخهم)
+shared/py/             ← المصدر الوحيد لمكتبة الصوت والإيقاع (بايثون)؛ قالب P ياخد نسخة مطابقة
 tests/                 ← اختبارات pytest (تشكيل عربي، البراند، السكافولد، فريم حقيقي)
 docs/                  ← التحليل + قواعد الاتساق + STYLES.md · COMPARISON_MAJED.md · ALANSARI_INTEGRATION.md
 medo-motion/           ← حزمة أدوات Video Motion: الهوية، المراجع، الأيقونات، وقوالب المحركات

@@ -51,6 +51,8 @@ jobs:
         run: python tools/ci_groups.py --check
       - name: Shared JS matches both engines (K/R)
         run: python tools/sync_shared_libs.py --check
+      - name: Shared audio/rhythm Python matches the engine-P copy
+        run: python tools/sync_shared_py.py --check
       - name: Technique library and generated docs
         run: |
           python tools/techniques.py --validate

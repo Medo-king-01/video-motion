@@ -20,12 +20,14 @@
 | `audit_projects.py` | تقرير **للقراءة فقط** على كل `projects/*/` (أو مسارات تديهاله): معرّفات المشاهد ضد قايمة `render_scenes.py` المسموحة، `out/final_audio.wav` من غير سجل `final_audio.mix.json`، و`cache/` كرابط رمزي. مابيغيّرش ولا بيشغّل حاجة في المشروع (إلا مع `--node`) | `python3 tools/audit_projects.py` · `python3 tools/audit_projects.py ~/reels/a --json` |
 | `gl_headers.py` | بيقرا رأس كل شيدور في `assets/gl-transitions/` (مؤلف، رخصة معلنة، مصدر تاني) ويولّد `docs/gl-transitions-headers.md` و`assets/gl-transitions/THIRD_PARTY.md` (نص إشعارات BSD كامل) و`MANIFEST.json` (sha256 لكل ملف)؛ `--check` يفشل لو أي واحد منهم اتأخر عن الملفات. نقل للي الملفات بتقوله، مش قرار رخص | `python3 tools/gl_headers.py --write` |
 | `sync_shared_libs.py` | مصدر واحد لمكتبات JS المشتركة: `shared/js/` يتنسخ لمحركَين K (`render/lib`) وR (`remotion/src/lib`)؛ `--check` يفشل عند أي انحراف أو نسخة مكرّرة بإيد | `python3 tools/sync_shared_libs.py --check` · `make sync-libs` |
+| `sync_shared_py.py` | مصدر واحد لمكتبة الصوت والإيقاع: `shared/py/` (audio_engine, audio_mix, music, sfx, beat) يتنسخ لقالب المحرك P؛ `--check` يفشل عند أي انحراف | `python3 tools/sync_shared_py.py --check` |
 | `ci_groups.py` | بيقسّم الاختبارات لمجموعات `contracts` / `unit` / `render` اللي شغّالة كـjobs متوازية، و`--check` بيثبت إن مفيش ملف خارج التقسيم | `python3 tools/ci_groups.py --check` · `make ci-groups` |
 | `gpu_preflight.mjs` | فحص WebGL2 وWebGPU محلي ومحدود، بدون استنتاج وجود تسريع عتادي أو تثبيت حزم | `node tools/gpu_preflight.mjs --require webgl2` |
 | `chromium.mjs` | كروميوم مشترك لمحركَي K وR، من غير تنزيلات متصفح من CDN | `eval "$(node tools/chromium.mjs --env)"` |
 | `itshover_import.py` | يستورد مكوّنات itshover المنسوخة (٢٦٣) ويحوّلها geometry للمحركين | `python3 tools/itshover_import.py --list` |
 | `icons_sheet.py` | شيت مراجعة بصري لكل الأيقونات (المحرك P) | `python3 tools/icons_sheet.py --group itshover --limit 24` |
 | `icons_preview.mjs` | نفس الشيت بس من رسّام المحرك K (Canvas/Chromium) | `node tools/icons_preview.mjs --limit 24` |
+| `art_parity.py` | يرسم عناصر P المرسومة (`art.py`/`lib.py`) ونسختها على K (`lib/art.js`) وثلاثة فريمات نموذجية بالمحركين، ويقيس الفرق ويطلع شيتات P \| K \| الفرق | `python3 tools/art_parity.py --check` |
 | `motion_studio.html` | استوديو الحركة الأوفلاين: محرر تايملاين JSON + سكرَب + قيم لحظية | `python3 -m http.server 8080` ثم `/tools/motion_studio.html` |
 | `cover_generator.py` | مولّد غلاف 9:16 وثَمبنيل 16:9 بهوية البراند، مع فريم اختياري ووضعية PNG | `python3 tools/cover_generator.py --title "عنوان الفيديو" --pose explain` · [الدليل](../docs/cover-generator.md) |
 | `theatre_import.py` | يحوّل Theatre.js state export لـJSON الحركة المشتركة لـP/K/R | `python3 tools/theatre_import.py state.json --offset 18.5` |
@@ -35,6 +37,8 @@
 | `whisper_fetch.py` | تنزيل موديل Whisper-small CT2 int8 من npm (بديل أوفلاين لـHF/Azure المحجوبين) + تحقق SHA-256 | `python3 tools/whisper_fetch.py --out .cache/whisper-small-ct2-int8` |
 | `whisper_align.py` | تفريغ محلي بـfaster-whisper → كلمات بتوقيتات **مقاسة** من الـWAV (JSON) | `python3 tools/whisper_align.py vo.wav --model .cache/whisper-small-ct2-int8 --out cache/words.json --no-vad` |
 | `caption_align.py` | محاذاة الكلمات على السكريبت (DP) + سناب للسكتات + hold لحد الكلمة الجاية + إخراج كابشن و`data.js` | `python3 tools/caption_align.py --scenes plan/script-scenes.json --vo vo.wav --model .cache/whisper-small-ct2-int8 --out-dir src` |
+| `stems.py` | **اختياري (Demucs)**: يفصل الصوت عن الموسيقى (`vocals`/`no_vocals` أو ٤ مسارات) + `stems.json` — للاستماع والمحاذاة، مش تسليم نظيف | `python3 tools/stems.py vo.wav --out cache/stems --two-stems vocals` |
+| `html_scene.py` | **اختياري (HyperFrames)**: مشهد HTML/CSS أوفلاين ومقفول على البراند — `new` · `check` (H01–H04) · `render` لكليب ١٠٨٠×١٩٢٠/٣٠fps بعدد فريمات مضبوط. مسار تجريبي، مش محرك رابع | `python3 tools/html_scene.py new projects/x/html/intro --frames 90` |
 | `text_animations_import.py` | يستورد ٥١ حركة نص من مرجع ريلز ويحوّلها مسارات حركة رقمية (K/P/R) + مولّد أنماط كابشن، معاد تلوينها للبراند ومن غير صناديق | `python3 tools/text_animations_import.py --html reels_text_animations.html` |
 | `text_direction.py` | يتحقق/يهيّئ خطة حركة **كل نص ظاهر** اللي الوكيل بيختارها لكل مشهد (`plan/text-direction.json` v2 + تغطية `copy.json`) — مفيش style افتراضي | `python3 tools/text_direction.py projects/<slug> --init` ثم `--check` |
 | `medo-motion/scripts/analyze_ref.py` | تحليل مرجع محليًا: شيتات مؤرخة، حركة، palette تقريبية، إيقاع قطع وصوت؛ لا ينقل ألوان المرجع للهوية | `python3 medo-motion/scripts/analyze_ref.py ref.mp4 --dur 15 --out cache/ref` |

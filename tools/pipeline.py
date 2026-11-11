@@ -110,10 +110,10 @@ def _cue_sheet(project: Path, override: Path | None) -> Path | None:
 MIX_RECORD_VERSION = 1
 MIX_CODE = (  # music and SFX are generated, not sampled: these files *are* the music/SFX used
     ROOT / "tools" / "audio_mix.py",
-    SKILL / "templates" / "procedural-reels" / "audio_mix.py",
-    SKILL / "templates" / "procedural-reels" / "audio_engine.py",
-    SKILL / "templates" / "procedural-reels" / "music.py",
-    SKILL / "templates" / "procedural-reels" / "sfx.py",
+    ROOT / "shared" / "py" / "audio_mix.py",
+    ROOT / "shared" / "py" / "audio_engine.py",
+    ROOT / "shared" / "py" / "music.py",
+    ROOT / "shared" / "py" / "sfx.py",
 )
 
 
