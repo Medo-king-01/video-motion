@@ -5,6 +5,28 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (the K scene cache hashes every input a frame can read)
+
+`tools/render_scenes.py` keyed a scene on four files under `src/`, `src/lib/**/*.js` and the scene's
+module. Plans, assets, any other file under `src/`, the assets override and the motion mode were not
+in the key, so editing `plan/stage.json` or replacing an image reported `hits=2` and shipped the old
+MP4s. The key is now built from one table (`shared_inputs`): all of `src/` except the listed scene
+modules, the seven plans `render.js` serves, everything under the **resolved** assets root except
+audio, the package files that stand in for `node_modules`, and the resolved motion mode (now passed
+to `render.js` explicitly). Paths are hashed with the content, so add/remove/rename invalidates.
+`KEY_VERSION` is v2: segments cached before this change miss once.
+
+Trade-off, deliberate: a plan or asset edit re-renders **every** scene — nothing proves such a file
+belongs to one scene. Warm run on a scaffolded project (490 asset files, 116 MB): ~290 ms → ~445 ms.
+Behaviour changes: a symlink under `src/` or the assets root that leaves that root now stops the run;
+`--motion-mode` and `--hash-audio FILE` are new. See `docs/scene-cache.md`.
+
+## Unreleased — 2026-11-11 (every parallel pytest run keeps its xdist groups)
+
+The coverage, contracts and unit jobs and `make coverage` ran `pytest -n 2` without
+`--dist loadgroup`, which leaves the `xdist_group("remotion-bundler")` marks inert.
+`tools/ci_groups.py --check` now fails on any parallel pytest run without it.
+
 ## Unreleased — 2026-11-10 (engine P renders drafts into a real 540x960 buffer)
 
 Engine P drew every frame in one 1080x1920 canvas and shrank it before the encoder: the draft paid
