@@ -2,6 +2,13 @@
 
 **الحالة:** قرار تسجيل (2026-11-09) · دي أول مخطط رسمي (`beats.schema.json`) لأقدم ملف خطة في الاستوديو.
 
+## `unified-project.schema.json` — مشروع موحّد تجريبي
+
+مجموعة media أولية فقط، مستقلة عن `beats.schema.json` والمسارات الحالية. الفاحص
+`python3 tools/unified_project_check.py path/to/project.json` يتحقق من الشكل والعلاقات دون فتح
+الوسائط أو تشغيل محرك؛ المؤثرات والـkeyframes غير مدعومة بعد. التفاصيل والحدود وخطوات الهجرة في
+[`docs/unified-project-contract.md`](../../docs/unified-project-contract.md).
+
 ## `beats.schema.json` — `plan/beats.json`
 
 المصدر الوحيد للتوقيت في أي ريل: طول الفيديو = طول التعليق الصوتي المقاس، ولا يوجد أي رقم

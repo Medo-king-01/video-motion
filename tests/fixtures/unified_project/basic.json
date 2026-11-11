@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "id": "project-1",
+  "name": "Example",
+  "profile": {
+    "width": 1080,
+    "height": 1920,
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "sampleRate": 48000
+  },
+  "timebase": 240000,
+  "duration": 480000,
+  "seed": 42,
+  "assets": [
+    {
+      "id": "a1",
+      "kind": "video",
+      "uri": "media/shot.mp4",
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "duration": 720000
+    }
+  ],
+  "tracks": [
+    {
+      "id": "v1",
+      "kind": "video",
+      "enabled": true,
+      "clips": [
+        {
+          "id": "c1",
+          "kind": "media",
+          "assetId": "a1",
+          "start": 0,
+          "duration": 480000,
+          "sourceIn": 0,
+          "effects": [],
+          "keyframes": []
+        }
+      ]
+    }
+  ]
+}

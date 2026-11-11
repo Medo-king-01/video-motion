@@ -46,7 +46,7 @@ ASSIGNED: dict[str, tuple[str, ...]] = {
         "test_text_animations", "test_video_motion_paths",
     ),
     "unit": (
-        "test_arabic_shape", "test_audio_engine", "test_audio_generate", "test_beats_schema", "test_caption_align",
+        "test_arabic_shape", "test_audio_engine", "test_audio_generate", "test_beats_schema", "test_caption_align", "test_unified_project", "test_unified_project_author", "test_unified_project_edit", "test_unified_project_effect_edit", "test_unified_project_effects", "test_unified_project_media", "test_unified_render_graph", "test_unified_reference_preview", "test_unified_reference_export",
         "test_frame_graph", "test_glow_sprite", "test_hybrid_env", "test_hybrid_draft", "test_hybrid_masks", "test_hybrid_stack",
         "test_icons", "test_motion", "test_motion_effects", "test_motion_final", "test_music",
         "test_p_draft_buffer", "test_p_draft_supersample", "test_presenter", "test_remotion_range", "test_remotion_isolation", "test_render_policy", "test_rhythm", "test_shared_libs", "test_shared_py", "test_art_parity",
