@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -74,6 +75,48 @@ def members(group: str, root: Path | None = None) -> list[Path]:
     return [base / "tests" / f"{name}.py" for name, owner in assignment(root).items() if owner == group]
 
 
+PARALLEL_PYTEST = re.compile(r"\bpytest\b.*?\s(?:-n|--numprocesses)[\s=]?\S+")
+LOADGROUP = re.compile(r"--dist[\s=]loadgroup\b")
+
+
+def _command_lines(text: str) -> list[tuple[int, str]]:
+    """Logical lines (backslash continuations joined) with the number of their first line."""
+    out: list[tuple[int, str]] = []
+    start, buffer = 0, ""
+    for number, line in enumerate(text.splitlines(), 1):
+        if not buffer:
+            start = number
+        if line.rstrip().endswith("\\"):
+            buffer += line.rstrip()[:-1] + " "
+            continue
+        out.append((start, buffer + line))
+        buffer = ""
+    if buffer:
+        out.append((start, buffer))
+    return out
+
+
+def parallel_pytest_problems(root: Path | None = None) -> list[str]:
+    """Every `pytest -n` the repository runs must keep the `xdist_group` marks real.
+
+    Without `--dist loadgroup` xdist ignores `@pytest.mark.xdist_group`, so the Remotion bundling
+    tests land on different workers and race on one webpack bundle (tests/conftest.py). The rule
+    covers every workflow and the Makefile, not one job: a new parallel run cannot forget it.
+    """
+    base = root or ROOT
+    sources = sorted((base / ".github" / "workflows").glob("*.y*ml"))
+    sources += [path for path in (base / "Makefile", base / "tools" / "ci.sh") if path.is_file()]
+    problems: list[str] = []
+    for path in sources:
+        for number, line in _command_lines(path.read_text(encoding="utf-8")):
+            if line.lstrip().startswith("#"):
+                continue
+            if PARALLEL_PYTEST.search(line) and not LOADGROUP.search(line):
+                problems.append(f"{path.relative_to(base).as_posix()}:{number} runs pytest in parallel without "
+                                "`--dist loadgroup` (xdist_group marks are ignored, Remotion bundles race)")
+    return problems
+
+
 def check(root: Path | None = None) -> list[str]:
     base = root or ROOT
     problems: list[str] = []
@@ -106,6 +149,7 @@ def check(root: Path | None = None) -> list[str]:
             problems.append("ci.yml never runs tools/ci_groups.py --check")
     elif (base / ".github").is_dir():
         problems.append("ci.yml is missing, so the group wiring cannot be checked")
+    problems += parallel_pytest_problems(base)
     return problems
 
 

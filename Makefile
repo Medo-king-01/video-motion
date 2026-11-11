@@ -33,7 +33,7 @@ check-libs:      ## verify the two engines still match shared/js
 	$(PY) tools/sync_shared_libs.py --check
 
 coverage:        ## full suite with a coverage report (floor 30%, raised as the suite grows)
-	$(PY) -m pytest -q -n 2 --cov --cov-report=term-missing --cov-report=xml --cov-fail-under=30
+	$(PY) -m pytest -q -n 2 --dist loadgroup --cov --cov-report=term-missing --cov-report=xml --cov-fail-under=30
 
 ci:              ## lint + unit tests + brand audit (what CI would run)
 	bash tools/ci.sh
