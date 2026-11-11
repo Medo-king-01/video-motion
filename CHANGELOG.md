@@ -5,6 +5,22 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (render_scenes: no shell, an allowlist for scene ids, paths kept in the cache)
+
+`render_scenes.py` built `eval "$(node chromium.mjs --env)" && node src/render.js … --name <id>-<key>`
+and ran it with `bash -c`, and only checked that a scene id was non-empty. A scene id of
+`x;touch pwned` (with a matching module file) created `pwned-<key>` in the project — reproduced by a
+test, not inferred. Now: scene ids must match `^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$` and are checked as
+soon as `data.js` is read; every process is started from an argv list; the browser environment is
+parsed from `chromium.mjs --json`; the scene module, `cache/`, `cache/scenes/` and each segment must
+be real paths inside the project (no symlinks) before anything is unlinked or written; the ffconcat
+list escapes `'`.
+
+This is hardening, not isolation: engine K executes the project's JavaScript. Behaviour changes: a
+scene id with a space, a dot, non-ASCII letters, or a leading `_`/`-` is now rejected by
+`render_scenes.py` (`render.js` itself still accepts it); a symlinked `cache/` is refused. The output
+is also measured once instead of twice, on the temporary file just before it replaces the target.
+
 ## Unreleased — 2026-11-11 (the pipeline stops on a stale audio mix)
 
 `pipeline.py` kept `out/final_audio.wav` whenever it existed, so a re-recorded VO or an edited cue

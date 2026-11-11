@@ -31,6 +31,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -40,8 +41,31 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "tools" / "lib"))
+sys.path.insert(0, str(ROOT / "medo-motion" / "scripts"))
 
 import media_bin  # noqa: E402
+from _safe_paths import checked_path  # noqa: E402
+
+# A scene id becomes a module path, a cache file name and a `--name` argument. It is limited to
+# what all three can carry without quoting. This is hardening, not isolation: engine K executes
+# the project's own JavaScript, so a project you do not trust must not be rendered at all.
+SCENE_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}")
+
+
+def validate_scene_id(scene_id: object) -> str:
+    if not isinstance(scene_id, str) or not SCENE_ID.fullmatch(scene_id):
+        raise SystemExit(f"render_scenes: invalid scene id {scene_id!r} — a scene id is 1-64 letters, digits, "
+                         "'_' or '-' and starts with a letter or digit (it names src/scenes/<id>.js and the cache file)")
+    return scene_id
+
+
+def _checked(path: Path, within: Path, what: str) -> Path:
+    """`path` must sit inside `within` with no symlink on the way (see `_safe_paths.checked_path`)."""
+    try:
+        return checked_path(path, within=within)
+    except ValueError as error:
+        raise SystemExit(f"render_scenes: {what}: {error} — symlinks and paths that leave "
+                         f"{within} are refused") from None
 
 
 def load_scenes(project: Path) -> list[dict]:
@@ -58,8 +82,9 @@ def load_scenes(project: Path) -> list[dict]:
     if not isinstance(scenes, list) or not scenes:
         raise SystemExit("render_scenes: src/data.js exports no scenes")
     for scene in scenes:
-        if not isinstance(scene, dict) or not scene.get("id") or "start" not in scene or "end" not in scene:
+        if not isinstance(scene, dict) or "id" not in scene or "start" not in scene or "end" not in scene:
             raise SystemExit(f"render_scenes: every scene needs id/start/end, got {scene!r}")
+        validate_scene_id(scene["id"])  # before the id reaches any path or command
         if float(scene["end"]) <= float(scene["start"]):
             raise SystemExit(f"render_scenes: scene {scene['id']} ends before it starts")
     return scenes
@@ -183,9 +208,11 @@ def shared_key(project: Path, *, fps: int, scale: float, crf: int, scene_ids: li
 def scene_key(shared: str, project: Path, scene: dict) -> str:
     """A scene's own module plus its timing — the only things an edit to it can touch."""
     hasher = hashlib.sha256(shared.encode("ascii"))
-    module = project / "src" / "scenes" / f"{scene['id']}.js"
+    project = project.resolve()
+    module = project / "src" / "scenes" / f"{validate_scene_id(scene['id'])}.js"
     if not module.is_file():
         raise SystemExit(f"render_scenes: scene module missing: {module.relative_to(project)}")
+    _checked(module, project / "src" / "scenes", f"scene module src/scenes/{scene['id']}.js")
     _hash_file(hasher, module, f"scene/{scene['id']}")
     hasher.update(repr((float(scene["start"]), float(scene["end"]))).encode("utf-8"))
     return hasher.hexdigest()
@@ -223,30 +250,71 @@ def expected_frames(scene: dict, fps: int) -> int:
     return max(1, round((float(scene["end"]) - float(scene["start"])) * fps))
 
 
+def chromium_env(log_handle) -> dict[str, str] | None:
+    """The bundled browser's environment, read as JSON from `tools/chromium.mjs --json`.
+
+    This used to be `eval "$(node chromium.mjs --env)"` inside `bash -c`: another program's output
+    executed as shell. The same three variables are now built from a parsed object.
+    """
+    node = shutil.which("node") or "node"
+    result = subprocess.run([node, str(ROOT / "tools" / "chromium.mjs"), "--json"],
+                            capture_output=True, text=True, check=False)
+    try:
+        if result.returncode:
+            raise ValueError(f"exit {result.returncode}")
+        config = json.loads(result.stdout)
+        executable, library, args = config["executablePath"], config.get("libraryPath"), config.get("args") or []
+        if not isinstance(executable, str) or not executable or not isinstance(library, str | None) \
+                or not isinstance(args, list) or not all(isinstance(arg, str) for arg in args):
+            raise ValueError("unexpected shape")
+    except (ValueError, KeyError, TypeError) as error:
+        log_handle.write(f"render_scenes: tools/chromium.mjs --json failed ({error}): "
+                         f"{(result.stderr or result.stdout or '').strip()[:400]}\n")
+        return None
+    env = os.environ.copy()
+    env["MEDO_CHROMIUM"] = executable
+    if library:
+        existing = env.get("LD_LIBRARY_PATH")
+        env["LD_LIBRARY_PATH"] = f"{library}:{existing}" if existing else library
+    env["MEDO_CHROMIUM_ARGS"] = " ".join(args)
+    return env
+
+
 def render_segment(project: Path, scene: dict, target: Path, *, fps: int, crf: int, log: Path,
                    motion_mode: str = "normal") -> bool:
-    """Render one scene range into the cache directory (render.js owns the encoding)."""
+    """Render one scene range into the cache directory (render.js owns the encoding).
+
+    Every process is started from an argv list — no shell ever sees a scene id or a path.
+    """
     target.parent.mkdir(parents=True, exist_ok=True)
-    name = target.stem
-    cmd = (f'eval "$(node {ROOT}/tools/chromium.mjs --env)" && '
-           f'node src/render.js --from {float(scene["start"]):.6f} --to {float(scene["end"]):.6f} '
-           f'--fps {fps} --scale 1 --crf {crf} --motion-mode {motion_mode} --out {target.parent.relative_to(project)} --name {name}')
+    node = shutil.which("node") or "node"
+    cmd = [node, "src/render.js", "--from", f"{float(scene['start']):.6f}", "--to", f"{float(scene['end']):.6f}",
+           "--fps", str(fps), "--scale", "1", "--crf", str(crf), "--motion-mode", motion_mode,
+           "--out", target.parent.relative_to(project).as_posix(), "--name", target.stem]
     with log.open("a", encoding="utf-8") as handle:
-        handle.write("\n$ " + cmd + "\n")
+        env = chromium_env(handle)
+        if env is None:
+            return False
+        handle.write("\n$ " + " ".join(cmd) + "\n")
         handle.flush()
-        return subprocess.run(["bash", "-c", cmd], cwd=str(project or Path.cwd()), env=os.environ.copy(),
-                              stdout=handle, stderr=subprocess.STDOUT, check=False).returncode == 0
+        return subprocess.run(cmd, cwd=str(project), env=env, stdout=handle, stderr=subprocess.STDOUT,
+                              check=False).returncode == 0
 
 
-def concat(segments: list[Path], target: Path, log: Path, *, frames: int | None = None, fps: int = 30) -> bool:
+def concat(segments: list[Path], target: Path, log: Path, *, frames: int | None = None, fps: int = 30,
+           report: dict | None = None) -> bool:
     """Stream-copy the segments into `target`. With `frames`, the joined file is measured before it
-    replaces `target`, so a short concat never becomes the output."""
+    replaces `target`, so a short concat never becomes the output; `report` receives the measurement."""
     ffmpeg = media_bin.ffmpeg()
     if not ffmpeg:
         return False
     listing = target.with_name("scenes.txt")
     include = [seg.resolve() for seg in segments if seg.is_file()]
-    listing.write_text("".join(f"file '{seg}'\n" for seg in include), encoding="utf-8")
+    # ffconcat quoting: inside '…' the only special character is ' itself, written as '\\''.
+    if any("\n" in str(seg) or "\r" in str(seg) for seg in include):
+        raise SystemExit("render_scenes: a segment path contains a line break; move the project")
+    listing.write_text("".join("file '" + str(seg).replace("'", "'\\''") + "'\n" for seg in include),
+                       encoding="utf-8")
     tmp = target.with_name(target.stem + ".tmp" + target.suffix)
     cmd = [ffmpeg, "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(listing),
            "-c", "copy", str(tmp)]
@@ -255,10 +323,12 @@ def concat(segments: list[Path], target: Path, log: Path, *, frames: int | None 
             return False
     if frames is not None:
         try:
-            verify_output(tmp, frames=frames, fps=fps, audio_seconds=None)
+            measured = verify_output(tmp, frames=frames, fps=fps, audio_seconds=None, name=target)
         except SystemExit:
             tmp.unlink(missing_ok=True)
             raise
+        if report is not None:
+            report.update(measured)
     os.replace(tmp, target)
     listing.unlink(missing_ok=True)
     return True
@@ -293,7 +363,7 @@ def probe_audio_seconds(path: Path) -> float | None:
 
 
 def mux_audio(picture: Path, audio: Path, target: Path, log: Path, *, fps: int = 30,
-              audio_fit: str = "reject") -> bool:
+              audio_fit: str = "reject", picture_frames: int | None = None, report: dict | None = None) -> bool:
     """Put the mix on the picture without ever cutting the picture.
 
     The old `-shortest` let a short mix truncate the video and still reported success. The two
@@ -306,10 +376,12 @@ def mux_audio(picture: Path, audio: Path, target: Path, log: Path, *, fps: int =
     ffmpeg = media_bin.ffmpeg()
     if not ffmpeg:
         return False
-    info = probe_video(picture)
-    if not info or not info["frames"]:
-        raise SystemExit(f"render_scenes: cannot measure the picture before the mux: {picture}")
-    picture_seconds = info["frames"] / fps
+    if picture_frames is None:  # the caller has usually just counted it; do not pay for a second probe
+        info = probe_video(picture)
+        if not info or not info["frames"]:
+            raise SystemExit(f"render_scenes: cannot measure the picture before the mux: {picture}")
+        picture_frames = info["frames"]
+    picture_seconds = picture_frames / fps
     audio_seconds = probe_audio_seconds(audio)
     if audio_seconds is None:
         raise SystemExit(f"render_scenes: cannot measure the audio before the mux (no audio stream?): {audio}")
@@ -320,7 +392,7 @@ def mux_audio(picture: Path, audio: Path, target: Path, log: Path, *, fps: int =
         if not allowed:
             raise SystemExit(
                 f"render_scenes: audio is {audio_seconds:.3f}s but the picture is {picture_seconds:.3f}s "
-                f"({info['frames']} frames at {fps} fps) — {abs(delta):.3f}s {'short' if delta < 0 else 'long'}, "
+                f"({picture_frames} frames at {fps} fps) — {abs(delta):.3f}s {'short' if delta < 0 else 'long'}, "
                 f"tolerance {length_tolerance(fps):.3f}s (half a frame). Nothing was written. Fix the mix or the "
                 f"scene timing, or choose a policy: --audio-fit {'pad' if delta < 0 else 'trim'} "
                 f"({'add silence to' if delta < 0 else 'cut the end of'} the audio; the picture is never cut)")
@@ -334,21 +406,27 @@ def mux_audio(picture: Path, audio: Path, target: Path, log: Path, *, fps: int =
             tmp.unlink(missing_ok=True)
             return False
     try:
-        verify_output(tmp, frames=info["frames"], fps=fps,
-                      audio_seconds=picture_seconds if fit else audio_seconds)
+        measured = verify_output(tmp, frames=picture_frames, fps=fps,
+                                 audio_seconds=picture_seconds if fit else audio_seconds, name=target)
     except SystemExit:
         tmp.unlink(missing_ok=True)
         raise
+    if report is not None:
+        report.update(measured)
     os.replace(tmp, target)
     return True
 
 
-def verify_output(path: Path, *, frames: int, fps: int, audio_seconds: float | None) -> dict:
+def verify_output(path: Path, *, frames: int, fps: int, audio_seconds: float | None,
+                  name: Path | None = None) -> dict:
     """Measure the written file: frame count, picture length, and the audio stream if one is due.
 
     Raises SystemExit naming the file and the first thing that is wrong; returns what it measured.
+    `name` is what to call the file in a message when `path` is the temporary copy about to replace it.
     """
+    measured_file = path
     info = probe_video(path)
+    path = name or path
     if not info:
         raise SystemExit(f"render_scenes: output is not a readable video: {path}")
     if info["frames"] != frames:
@@ -359,7 +437,7 @@ def verify_output(path: Path, *, frames: int, fps: int, audio_seconds: float | N
         raise SystemExit(f"render_scenes: {path} video stream lasts {info['seconds']:.3f}s, "
                          f"expected {frames / fps:.3f}s")
     if audio_seconds is not None:
-        actual = probe_audio_seconds(path)
+        actual = probe_audio_seconds(measured_file)
         if actual is None:
             raise SystemExit(f"render_scenes: {path} has no audio stream, but a mix was muxed")
         if abs(actual - audio_seconds) > length_tolerance(fps) + _AAC_SLACK:
@@ -371,8 +449,10 @@ def verify_output(path: Path, *, frames: int, fps: int, audio_seconds: float | N
 def run(project: Path, *, fps: int, crf: int, output: Path, audio: Path | None, force: bool,
         log: Path, motion_mode: str | None = None, hash_audio: tuple[Path, ...] = (),
         audio_fit: str = "reject") -> dict:
+    project = project.resolve()
     scenes = load_scenes(project)
     cache = project / "cache" / "scenes"
+    _checked(cache, project, "cache directory")
     motion_mode = resolve_motion_mode(motion_mode)
     shared = shared_key(project, fps=fps, scale=1.0, crf=crf, scene_ids=[scene["id"] for scene in scenes],
                         motion_mode=motion_mode, extra=hash_audio)
@@ -381,7 +461,7 @@ def run(project: Path, *, fps: int, crf: int, output: Path, audio: Path | None, 
     cache_hits = 0
     for scene in scenes:
         key = scene_key(shared, project, scene)[:12]
-        target = cache / f"{scene['id']}-{key}.mp4"
+        target = _checked(cache / f"{validate_scene_id(scene['id'])}-{key}.mp4", cache, "cache segment")
         want = expected_frames(scene, fps)
         started = time.perf_counter()
         info = probe_video(target)
@@ -406,20 +486,18 @@ def run(project: Path, *, fps: int, crf: int, output: Path, audio: Path | None, 
         raise SystemExit(f"render_scenes: refusing to overwrite {output} (use --force)")
     output.parent.mkdir(parents=True, exist_ok=True)
     total_frames = sum(entry["frames"] for entry in entries)
+    # Success is what the written file measures (frames, duration, audio stream), taken on the
+    # finished file just before it replaces the output — never what the steps returned.
+    verified: dict = {}
     if audio is not None:
         picture = cache / "picture.mp4"
         if not concat(segments, picture, log, frames=total_frames, fps=fps):
             raise SystemExit(f"render_scenes: concat failed — see {log}")
-        if not mux_audio(picture, audio, output, log, fps=fps, audio_fit=audio_fit):
+        if not mux_audio(picture, audio, output, log, fps=fps, audio_fit=audio_fit,
+                         picture_frames=total_frames, report=verified):
             raise SystemExit(f"render_scenes: audio mux failed — see {log}")
-    elif not concat(segments, output, log, frames=total_frames, fps=fps):
+    elif not concat(segments, output, log, frames=total_frames, fps=fps, report=verified):
         raise SystemExit(f"render_scenes: concat failed — see {log}")
-    # Success is what the published file measures, not what the steps above returned.
-    verified = verify_output(output, frames=total_frames, fps=fps, audio_seconds=None)
-    if audio is not None:
-        verified["audio_seconds"] = probe_audio_seconds(output)
-        if verified["audio_seconds"] is None:
-            raise SystemExit(f"render_scenes: {output} has no audio stream, but a mix was muxed")
 
     manifest = {
         "engine": "k", "fps": fps, "crf": crf, "motion_mode": motion_mode, "key_version": KEY_VERSION,
@@ -469,6 +547,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"render_scenes: audio not found: {audio}", file=sys.stderr)
         return 2
     log = project / "cache" / "scenes.log"
+    try:
+        _checked(log, project, "cache directory")
+    except SystemExit as error:
+        print(str(error), file=sys.stderr)
+        return 2
     log.parent.mkdir(parents=True, exist_ok=True)
 
     try:
