@@ -36,7 +36,7 @@ ASSIGNED: dict[str, tuple[str, ...]] = {
         "test_beats_schema", "test_brand", "test_capability_contract", "test_changelogs", "test_ci_groups",
         "test_contrast",
         "test_dependencies",
-        "test_design_system", "test_docs_claims", "test_docs_numbers", "test_file_safety", "test_fonts", "test_gl_transitions",
+        "test_design_system", "test_audit_projects", "test_docs_claims", "test_docs_numbers", "test_file_safety", "test_fonts", "test_gl_transitions",
         "test_fonts_install", "test_fonts_lock", "test_hyperframes_fit", "test_import_precedence",
         "test_looks", "test_openmontage_fit", "test_recipes", "test_reel_lint",
         "test_reference_report", "test_remotion_skill", "test_repo_hygiene", "test_repo_weight",

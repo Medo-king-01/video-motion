@@ -121,3 +121,30 @@ def test_a_segment_too_short_to_halve_is_refused(tmp_path, monkeypatch):
     monkeypatch.setattr(sys, "argv", ["render_hybrid.py", "--project", str(project), "--draft"])
     with pytest.raises(RuntimeError, match="too short"):
         render_hybrid.main()
+
+
+# --- the master path is pinned: a draft fix must not move a single master argument ------------
+
+MASTER_RANGES = [(0, 3, "0", "0.1"), (3, 6, "0.1", "0.2"), (4, 7, "0.133333333333", "0.233333333333"),
+                 (30, 61, "1", "2.03333333333"), (0, 60, "0", "2")]
+
+
+@pytest.mark.parametrize("start, end, time_from, time_to", MASTER_RANGES)
+def test_the_master_commands_are_exactly_these(tmp_path, start, end, time_from, time_to):
+    """Regression guard, written before the draft frame rule is changed: full size, 30 fps, [start, end)."""
+    project, target, frames = tmp_path / "reel", tmp_path / "s.mp4", tmp_path / "frames"
+    common = dict(python="py", node="node", ffmpeg="ff", project=project, start=start, end=end, sid="s",
+                  target=target, frames_dir=frames)
+    assert build_segment_command("k", **common) == [
+        "node", "src/render.js", "--from", time_from, "--to", time_to, "--fps", "30", "--scale", "1",
+        "--out", str(frames), "--name", "s"]
+    assert build_segment_command("p", **common) == [
+        "py", str(render_hybrid.ROOT / "tools" / "render_p_segment.py"), "--project", str(project),
+        "--from-frame", str(start), "--to-frame", str(end), "--out", str(target), "--ffmpeg", "ff", "--fps", "30"]
+    assert build_segment_command("r", **common) == [
+        "node", "scripts/render.mjs", "--silent", "--from-frame", str(start), "--to-frame", str(end),
+        "--out", str(target)]
+    assert build_alpha_command("node", start, end, frames) == [
+        "node", "src/render.js", "--from", time_from, "--to", time_to, "--fps", "30", "--scale", "1",
+        "--alpha", "--out", str(frames)]
+    assert build_alpha_command("node", start, end, frames, only=["a", "b"])[-2:] == ["--only", "a,b"]

@@ -5,6 +5,14 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (audit_projects: see what the hardening will stop, before it does)
+
+`tools/audit_projects.py` reads every folder under `projects/` (or the paths it is given) and
+reports, without writing or running anything in them: scene ids outside the allowlist that
+`render_scenes.py` enforces, an `out/final_audio.wav` with no `final_audio.mix.json` record, and a
+symlinked `cache/`. Ids are read from the text of `src/data.js`; `--node` imports it instead.
+Also: `tests/test_hybrid_draft.py` pins the master (non-draft) engine commands.
+
 ## Unreleased — 2026-11-11 (gl-transitions: notices, a manifest, and catalogue wording)
 
 Follow-up to the entry below; still no licence decision and no loader.
