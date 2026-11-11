@@ -62,7 +62,7 @@
 - **١٤٦ ستايل** من Opus Motion Library (woodcut, risograph, neon-noir, crt-terminal...)
 [التفاصيل](docs/STYLES.md).
 
-**<!-- AUTO:gl_transitions -->189<!-- /AUTO --> انتقال GLSL** (`assets/gl-transitions/`) — شيدورات GPU جاهزة: Accordion, Bloom, CircleIris, Cube, DoomScreen, Flash, Glitch, Morph, PageTurn, Ripple, Spiral, Wave, Zoom... [التفاصيل](docs/GL_TRANSITIONS.md).
+**<!-- AUTO:gl_transitions -->189<!-- /AUTO --> ملف شيدور GLSL** (`assets/gl-transitions/`) — مخزن مرجعي **مش موصّل بمسار الرندر**: مفيش محرك بيحمّل الملفات دي، والانتقالات اللي بتترندر فعلًا هي الـ<!-- AUTO:transitions -->14<!-- /AUTO --> اللي في [`docs/transitions.md`](docs/transitions.md). الرخص متنوعة وغير محسومة. [التفاصيل](docs/GL_TRANSITIONS.md).
 
 **مبادئ تصميم الحركة** (`docs/motion-principles/`) — مستوحاة من LottieFiles: 12 مبدأ ديزني مكيفة للواجهات، 4 شخصيات حركة، جداول توقيت، خرائط عاطفة→حركة. [التفاصيل](docs/MOTION_PRINCIPLES.md).
 

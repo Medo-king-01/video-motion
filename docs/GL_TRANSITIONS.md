@@ -1,184 +1,48 @@
-# انتقالات GLSL — GPU Transitions
+# انتقالات GLSL — مخزن مرجعي
 
-**١٨٩ انتقال** مدعوم بالمعالج الرسومي (GPU) من [gl-transitions.com](https://gl-transitions.com).
+`assets/gl-transitions/` فيه **<!-- AUTO:gl_transitions -->189<!-- /AUTO --> ملف شيدور** (`*.glsl`) من مجموعة
+[gl-transitions](https://github.com/gl-transitions/gl-transitions).
 
----
+> **المخزن ده مش موصّل بمسار الرندر.** مفيش محرك (P ولا K ولا R) ولا أداة بتحمّل ملف `.glsl` أو
+> بتشغّله: مفيش loader، ومفيش نوع انتقال اسمه `gl-…` في أي خطة، ومفيش مسار GPU للانتقالات.
+> الملفات مرجع للأفكار والأسماء فقط.
 
-## 🎬 الأنواع
+## اللي بيشتغل فعلًا
 
-### 📦 أشكال هندسية
+الانتقالات المدعومة في الرندر هي **<!-- AUTO:transitions -->14<!-- /AUTO --> انتقال** متعرّفين في
+`medo-motion/motion/transitions.json`، ومحسوبين vector/CPU بنفس الأرقام في المحركات — التفاصيل
+والأسماء في [`docs/transitions.md`](transitions.md). لو عايز انتقال في ريل، اختاره من هناك.
 
-| الانتقال | الوصف | المعاملات |
-|----------|-------|-----------|
-| **Accordion** | طي أكورديون | pleats, direction, shading, perspective |
-| **ArrowWipe** | مسح بشكل سهم | — |
-| **BandWipe** | مسح بأشرطة | — |
-| **BowTie** | عقدة فراشة | — |
-| **BowTieHorizontal** | عقدة فراشة أفقية | — |
-| **CircleIris** | دائرة قزحية | angle, center |
-| **CircleOpen** | دائرة تفتح | opening, center |
-| **ClockWipe** | مسح عقارب الساعة | — |
-| **Cube** | مكعب ثلاثي الأبعاد | persp, oxyz, unzoom |
-| **DirectionalWipe** | مسح اتجاهي | direction, smoothness |
+## إيه اللي بيقرا المخزن
 
-### 🌊 تأثيرات سائلة
+| القارئ | بيعمل إيه |
+|---|---|
+| `assets/techniques.json` | <!-- AUTO:techniques_glsl -->189<!-- /AUTO --> مدخل `source: "gl-transitions"` — بيانات وصفية بس (اسم، وصف، `glsl_file`، `uniforms`). وصف المدخل "GPU-accelerated transition" بيوصف الشيدور نفسه، مش حاجة الاستوديو بيرندرها. |
+| `tests/test_techniques.py` | بيتأكد إن كل `glsl_file` بيشاور على ملف موجود. |
+| `tools/sync_docs_numbers.py` | بيعدّ الملفات عشان الأرقام اللي في الوثائق. |
+| `tools/gl_headers.py` | بيقرا رؤوس الملفات ويولّد جدول الرخص تحت. |
+| `tools/dev/_archive/merge_gl_transitions.py` | سكربت الاستيراد الأصلي (أرشيف، مابيشتغلش). |
 
-| الانتقال | الوصف | المعاملات |
-|----------|-------|-----------|
-| **ButterflyWave** | موجة فراشة | amplitude, waves, color |
-| **Dreamy** | حلمي ضبابي | — |
-| **GlitchDisplace** | خلل مزاح | strength |
-| **LinearBlur** | ضبابية خطية | — |
-| **Morph** | تحول شكل | strength |
-| **Ripple** | تموج | amplitude, smoothness, center |
-| **WaterDrop** | قطرة ماء | amplitude, size, iterations |
-| **Wave** | موجة | amplitude, frequency |
-| **Wind** | رياح | size |
+`tests/test_gl_transitions.py` بيفشل لو أي ملف في مسار الرندر بدأ يقرا المخزن — ساعتها الوثيقة دي
+لازم تتحدّث.
 
-### 💥 تأثيرات انفجارية
+## الرخص — غير محسوم
 
-| الانتقال | الوصف | المعاملات |
-|----------|-------|-----------|
-| **BloomDissolve** | ذوبان متوهج | — |
-| **BokehDissolve** | ذوبان بوكيه | — |
-| **BurnThrough** | حرق | color |
-| **CellDissolve** | ذوبان خلايا | — |
-| **ColorPhase** | تحول ألوان | — |
-| **DoomScreen** | شاشة دوم | amplitude, noise |
-| **Flash** | وميض | color, intensity |
-| **RadialBlur** | ضبابية شعاعية | — |
-| **Spiral** | حلزوني | — |
-| **Swirl** | دوامة | — |
+كل ملف بيعلن رخصته في رأسه، والمخزن **مش رخصة واحدة**. الجدول الكامل (ملف · مؤلف · رخصة معلنة ·
+مصدر تاني مذكور) في [`docs/gl-transitions-headers.md`](gl-transitions-headers.md)، متولّد من الملفات
+نفسها بـ`python3 tools/gl_headers.py --write`:
 
-### 🚀 حركات ديناميكية
+- 187 ملف رأسه بيقول `License: MIT`.
+- `InvertedPageCurl.glsl` — `License: BSD 3 Clause`، وفيه نص حقوق Hewlett-Packard (2010) كامل.
+- `StereoViewer.glsl` — `License: BSD 2 Clause`، وفيه نص حقوق Theodore K Schundler (2016) كامل.
+- ملفات تانية رخصتها المعلنة MIT لكن بتذكر مصدر تاني جواها (Shadertoy، gist، مكتبة noise، سطر
+  حقوق للمؤلف) — متعلّمة في الجدول تحت "Files that need a look".
 
-| الانتقال | الوصف | المعاملات |
-|----------|-------|-----------|
-| **CameraShake** | اهتزاز كاميرا | — |
-| **CrossZoom** | زوم متقاطع | strength |
-| **Fade** | تلاشي | — |
-| **FadeColor** | تلاشي لوني | colorA, colorB, colorPhase |
-| **Flip** | قلب | direction, axis |
-| **Push** | دفع | direction |
-| **Slide** | انزلاق | direction |
-| **SquareSwizzle** | مربعات متبادلة | — |
-| **Stretch** | تمدد | — |
-| **Swap** | تبديل | direction |
+الجدول **نقل للي الملفات بتقوله، مش قرار قانوني**. اللي لسه **غير محسوم** ومحتاج قرار من صاحب المشروع:
 
-### 🎨 تأثيرات فنية
+1. المستودع الأصلي مابيعلنش رخصة SPDX واحدة (GitHub: `NOASSERTION`) — هل الرؤوس كافية؟
+2. ملفات BSD بتشترط بقاء نص الحقوق عند إعادة التوزيع — النص موجود جوه الملفين؛ هل مطلوب حاجة زيادة؟
+3. الملفات اللي بتذكر مصدر تاني: هل رخصة المصدر ده متوافقة مع اللي الملف معلنه؟
+4. مفيش ملف `LICENSE` ولا رقم commit للمصدر جوه `assets/gl-transitions/`.
 
-| الانتقال | الوصف | المعاملات |
-|----------|-------|-----------|
-| **Ascii** | ASCII art | — |
-| **BlockCover** | تغطية بمربعات | — |
-| **BlockSlide** | انزلاق مربعات | — |
-| **BrushWipe** | مسح بفرشاة | — |
-| **Chessboard** | رقعة شطرنج | — |
-| **Comb** | مشط | — |
-| **CrazyParametricFun** | بارامتري مجنون | — |
-| **Dissolve** | ذوبان | — |
-| **Perlin** | ضوضاء بيرلين | — |
-| **SquaresWire** | أسلاك مربعات | — |
-
-### 📐 انتقالات متقدمة
-
-| الانتقال | الوصف | المعاملات |
-|----------|-------|-----------|
-| **CrossWarp** | تشويه متقاطع | — |
-| **DirectionalWarp** | تشويه اتجاهي | — |
-| **KaleidoScope** | مشكال | speed, angle |
-| **MultiPageWipe** | مسح متعدد الصفحات | — |
-| **Pixelize** | بكسلة | — |
-| **PolarFunction** | دالة قطبية | segments |
-| **Squeeze** | ضغط | color |
-| **TangentMotionBlur** | ضبابية حركة | — |
-| **Wind** | رياح | size |
-| **ZoomBlur** | ضبابية زوم | strength |
-
----
-
-## 🔧 الاستخدام
-
-### في المشروع
-
-```json
-{
-  "transition": {
-    "type": "gl-Cube",
-    "duration": "0.8s",
-    "params": {
-      "persp": 2.0,
-      "unzoom": 0.5
-    }
-  }
-}
-```
-
-### في الكود
-
-```python
-# من assets/gl-transitions/
-glsl_code = load_shader('Cube.glsl')
-uniforms = {
-    'persp': 2.0,
-    'oxyz': [0, 0, 0.5],
-    'unzoom': 0.5
-}
-```
-
----
-
-## 📁 الملفات
-
-```
-assets/gl-transitions/
-├── Accordion.glsl
-├── ArrowWipe.glsl
-├── BloomDissolve.glsl
-├── CircleIris.glsl
-├── Cube.glsl
-├── Dreamy.glsl
-├── Flash.glsl
-├── GlitchDisplace.glsl
-├── Morph.glsl
-├── Ripple.glsl
-├── ... (189 ملف)
-└── README.md
-```
-
----
-
-## ⚠️ متطلبات
-
-- **GPU** مدعوم (WebGL/WebGPU)
-- **FFmpeg** مع دعم OpenGL (للرندر)
-- عند عدم توفر GPU: fallback للانتقالات العادية
-
----
-
-## 🎯 متى تستخدمها
-
-### ✅ مناسب
-
-- رندر على GPU متاح
-- تريد تأثيرات معقدة (Bloom, Glitch, 3D)
-- سرعة الرندر مهمة
-- تأثيرات سائلة وعضوية
-
-### ❌ غير مناسب
-
-- رندر CPU فقط
-- تحتاج توافق كامل
-- تأثيرات بسيطة كافية
-
----
-
-## 🔗 المصادر
-
-- [gl-transitions.com](https://gl-transitions.com) — معرض تفاعلي
-- [GitHub](https://github.com/gl-transitions/gl-transitions) — الكود المصدر
-- **الرخصة:** MIT
-
----
-
-**المجموع:** ١٨٩ انتقال GPU جاهز للاستخدام
+لحد ما ده يتحسم: ماتعيدش توزيع المخزن بره المشروع على إنه MIT.

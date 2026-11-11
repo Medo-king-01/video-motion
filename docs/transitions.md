@@ -10,7 +10,7 @@
 كل الأرقام **مُطبّعة** (x/w بنسبة عرض الفريم، y/h بارتفاعه، نصف قطر الدايرة بنسبة العرض)، عشان نفس
 الماسك يطلع متطابق في الاتنين — و`tests/test_transitions.py` بيقارن الـJS والـPython رقم برقم.
 
-لغة التسمية مستوحاة من مجموعة **gl-transitions** (MIT، ١٢٥ shader) لكن الحساب هنا **vector/CPU** مش GLSL:
+لغة التسمية مستوحاة من مجموعة **gl-transitions** (الأسماء بس — مفيش كود منها هنا؛ رخص ملفاتها في [`GL_TRANSITIONS.md`](GL_TRANSITIONS.md)) لكن الحساب هنا **vector/CPU** مش GLSL:
 مفيش GPU، مفيش وقت حقيقي، فالفريم بيتصدّر بنفس الشكل كل مرة.
 
 ## الكتالوج | 14 transitions (`medo-motion/motion/transitions.json`)

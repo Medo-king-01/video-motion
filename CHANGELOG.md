@@ -5,6 +5,25 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (gl-transitions: documented as a reference store, licences listed per file)
+
+`docs/GL_TRANSITIONS.md` described 189 "GPU transitions ready to use", with a `"type": "gl-Cube"`
+plan example, a `load_shader()` call, a GPU/FFmpeg-OpenGL requirement and a CPU fallback. None of it
+exists: no engine and no tool loads a `.glsl` file (the search is recorded in
+`tests/test_gl_transitions.py`). 19 of the 59 names in its tables were not files in the store. It also
+said "License: MIT" for the whole set, while `InvertedPageCurl.glsl` declares BSD 3 Clause and
+`StereoViewer.glsl` BSD 2 Clause.
+
+- `docs/GL_TRANSITIONS.md` rewritten: reference store, not wired to the render path; the 14
+  transitions in `medo-motion/motion/transitions.json` are the supported set. `README.md` and
+  `docs/transitions.md` follow.
+- `tools/gl_headers.py` reads every shader header and generates `docs/gl-transitions-headers.md`
+  (file, author, declared licence, other origin named); `--check` runs in the tests.
+- `NOTICE` names the two BSD files and marks the licence question undecided. No licence decision
+  was made and no loader was built.
+
+No behaviour change: nothing rendered through these files before either.
+
 ## Unreleased — 2026-11-11 (render_scenes: no shell, an allowlist for scene ids, paths kept in the cache)
 
 `render_scenes.py` built `eval "$(node chromium.mjs --env)" && node src/render.js … --name <id>-<key>`
