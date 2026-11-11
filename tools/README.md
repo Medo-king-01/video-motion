@@ -17,7 +17,7 @@
 | `ffprobe_shim.py` | بديل `ffprobe` متوافق (JSON) مبني على PyAV — لأن FFmpeg الستاتيك بييجي من غير ffprobe | `ffprobe -v error -show_streams -of json in.mp4` |
 | `ci.sh` | نفس اللي الـCI بيعمله: ruff + pytest + أرقام الوثائق + مجموعات الاختبار + تطابق مكتبات K/R + تدقيق البراند | `bash tools/ci.sh` |
 | `sync_docs_numbers.py` | بيحسب أرقام المكتبة الحقيقية (تقنيات، خطوط، أيقونات…) ويكتبها جوه علامات `<!-- AUTO:key -->` في الوثائق؛ `--check` يفشل عند أي انحراف | `python3 tools/sync_docs_numbers.py` · `make docs-sync` |
-| `gl_headers.py` | بيقرا رأس كل شيدور في `assets/gl-transitions/` (مؤلف، رخصة معلنة، مصدر تاني) ويولّد `docs/gl-transitions-headers.md`؛ `--check` يفشل لو الجدول اتأخر عن الملفات. نقل للي الملفات بتقوله، مش قرار رخص | `python3 tools/gl_headers.py --write` |
+| `gl_headers.py` | بيقرا رأس كل شيدور في `assets/gl-transitions/` (مؤلف، رخصة معلنة، مصدر تاني) ويولّد `docs/gl-transitions-headers.md` و`assets/gl-transitions/THIRD_PARTY.md` (نص إشعارات BSD كامل) و`MANIFEST.json` (sha256 لكل ملف)؛ `--check` يفشل لو أي واحد منهم اتأخر عن الملفات. نقل للي الملفات بتقوله، مش قرار رخص | `python3 tools/gl_headers.py --write` |
 | `sync_shared_libs.py` | مصدر واحد لمكتبات JS المشتركة: `shared/js/` يتنسخ لمحركَين K (`render/lib`) وR (`remotion/src/lib`)؛ `--check` يفشل عند أي انحراف أو نسخة مكرّرة بإيد | `python3 tools/sync_shared_libs.py --check` · `make sync-libs` |
 | `ci_groups.py` | بيقسّم الاختبارات لمجموعات `contracts` / `unit` / `render` اللي شغّالة كـjobs متوازية، و`--check` بيثبت إن مفيش ملف خارج التقسيم | `python3 tools/ci_groups.py --check` · `make ci-groups` |
 | `gpu_preflight.mjs` | فحص WebGL2 وWebGPU محلي ومحدود، بدون استنتاج وجود تسريع عتادي أو تثبيت حزم | `node tools/gpu_preflight.mjs --require webgl2` |

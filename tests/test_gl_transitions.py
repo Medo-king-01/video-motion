@@ -108,10 +108,82 @@ def test_the_inventory_check_notices_a_changed_header(tmp_path: Path) -> None:
     store.mkdir()
     (store / "A.glsl").write_text("// Author: someone\n// License: MIT\nvec4 transition(vec2 uv){return vec4(0.);}\n", encoding="utf-8")
     table = tmp_path / "table.md"
-    table.write_text(gl_headers.render(gl_headers.inventory(store)), encoding="utf-8")
+    assert gl_headers.main(["--write", "--store", str(store), "--out", str(table)]) == 0
     assert gl_headers.main(["--check", "--store", str(store), "--out", str(table)]) == 0
     (store / "A.glsl").write_text("// Author: someone\n// License: BSD 3 Clause\n", encoding="utf-8")
     assert gl_headers.main(["--check", "--store", str(store), "--out", str(table)]) == 1
     (store / "B.glsl").write_text("vec4 transition(vec2 uv){return vec4(0.);}\n", encoding="utf-8")
     rows = {row["file"]: row for row in gl_headers.inventory(store)}
     assert rows["B.glsl"]["licence"] == "" and rows["B.glsl"]["flag"], "a file with no licence line must be flagged"
+
+
+# --- follow-up: notices kept in one place, a manifest, and catalogue wording -------------------
+
+THIRD_PARTY = STORE / "THIRD_PARTY.md"
+MANIFEST = STORE / "MANIFEST.json"
+UNKNOWN = "غير معروف"
+BLOCKED = "غير صالح لإعادة التوزيع قبل مراجعة"
+
+
+def _notice_lines(path: Path) -> list[str]:
+    """The licence notice as the shader carries it: from its copyright line to the end of the disclaimer."""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    start = next(i for i, line in enumerate(lines) if "Copyright (c)" in line)
+    end = max(i for i, line in enumerate(lines) if "DAMAGE." in line)
+    return [re.sub(r"^\s*//\s?", "", line).strip() for line in lines[start:end + 1] if line.strip(" /")]
+
+
+@pytest.mark.parametrize("name", ["InvertedPageCurl.glsl", "StereoViewer.glsl"])
+def test_third_party_carries_the_full_notice_of_each_bsd_file(name: str) -> None:
+    assert THIRD_PARTY.is_file(), "assets/gl-transitions/THIRD_PARTY.md is missing"
+    text = THIRD_PARTY.read_text(encoding="utf-8")
+    flat = " ".join(text.split())
+    notice = _notice_lines(STORE / name)
+    assert len(notice) >= 5 and any("Redistribution and use" in line for line in notice)
+    for line in notice:
+        assert " ".join(line.split()) in flat, f"{name}: this notice line is not in THIRD_PARTY.md: {line[:70]}"
+    assert name in text and "غير محسوم" in text
+
+
+def test_the_manifest_lists_every_file_and_invents_nothing() -> None:
+    import hashlib
+    import json
+
+    assert MANIFEST.is_file(), "assets/gl-transitions/MANIFEST.json is missing"
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    assert manifest["imported_from_commit"] == UNKNOWN, "nobody recorded the commit the files were copied from"
+    assert manifest["review_status"] == "غير محسوم"
+    files = {entry["file"]: entry for entry in manifest["files"]}
+    assert sorted(files) == [p.name for p in SHADERS]
+    for path in SHADERS:
+        assert files[path.name]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert files["InvertedPageCurl.glsl"]["declared_licence"] == "BSD 3 Clause"
+    assert files["StereoViewer.glsl"]["declared_licence"] == "BSD 2 Clause"
+
+
+def test_every_file_listed_for_review_is_marked_not_redistributable() -> None:
+    import json
+
+    import gl_headers
+
+    flagged = {row["file"] for row in gl_headers.inventory() if row["flag"]}
+    assert {"InvertedPageCurl.glsl", "StereoViewer.glsl"} <= flagged
+    manifest = {e["file"]: e for e in json.loads(MANIFEST.read_text(encoding="utf-8"))["files"]}
+    assert {name for name, entry in manifest.items() if entry["redistribution"] == BLOCKED} == flagged
+    table = INVENTORY.read_text(encoding="utf-8").split("## All files", 1)[0]
+    rows = [line for line in table.splitlines() if re.match(r"^\| `\w+\.glsl` \|", line)]
+    assert len(rows) == len(flagged) and all(BLOCKED in row for row in rows)
+    assert BLOCKED in DOC.read_text(encoding="utf-8") and BLOCKED in NOTICE.read_text(encoding="utf-8")
+
+
+def test_the_catalogue_does_not_offer_the_shaders_as_gpu_transitions() -> None:
+    import json
+
+    entries = [e for e in json.loads((ROOT / "assets" / "techniques.json").read_text(encoding="utf-8"))["techniques"]
+               if e.get("source") == "gl-transitions"]
+    assert len(entries) == len(SHADERS) == 189
+    for entry in entries:
+        advice = " ".join(str(entry[key]) for key in ("use_when", "use_when_ar", "avoid_when", "avoid_when_ar"))
+        for promise in ("GPU-accelerated", "GPU support", "المعالج الرسومي", "دعم GPU"):
+            assert promise not in advice, f"{entry['id']} still promises: {promise}"
+        assert "not wired" in entry["use_when"] and "مش موصّل" in entry["use_when_ar"], entry["id"]

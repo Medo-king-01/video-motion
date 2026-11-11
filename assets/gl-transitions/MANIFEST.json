@@ -1,0 +1,1733 @@
+{
+  "generated_by": "tools/gl_headers.py --write",
+  "what_this_is": "what each file declares about itself, plus its sha256 — not a licence decision",
+  "review_status": "غير محسوم",
+  "imported_from_commit": "غير معروف",
+  "imported_on": "غير معروف",
+  "upstream_as_observed": {
+    "repository": "https://github.com/gl-transitions/gl-transitions",
+    "observed_on": "2026-11-11",
+    "observed_at_commit": "1fe42183109f1585efb7a282c9b6b1c459cd548f",
+    "licence_file": {
+      "path": "LICENSE",
+      "git_blob": "7a1f053650848112e9448f829b3a5c81ea405e45"
+    },
+    "licence_reported_by_github": "NOASSERTION",
+    "readme_statement": "Each transition states its license in its header, and the packages give it with each transition: all are MIT except two under BSD licenses.",
+    "transitions_upstream_at_that_commit": 214,
+    "files_here_identical_to_that_commit": 181,
+    "files_here_that_differ_from_that_commit": [
+      "BookFlip.glsl",
+      "Cube.glsl",
+      "Doorway.glsl",
+      "GridFlip.glsl",
+      "HeartWipe.glsl",
+      "Shatter.glsl",
+      "Swirl.glsl",
+      "WaterDrop.glsl"
+    ]
+  },
+  "files": [
+    {
+      "file": "Accordion.glsl",
+      "sha256": "664a7cc59feddbcdff2067b90a636eee83186ab9d84d8e7e5aec0ccfeaa9a29d",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ApertureWipe.glsl",
+      "sha256": "70b11738873f88f756b303b5f8104863a93bac9d9374b6ef63fc20e19c17dbaf",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ArrowWipe.glsl",
+      "sha256": "6050006ea0ef726fffb05171a29f227bfb87dd662717a7e232217959ccfa4423",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Ascii.glsl",
+      "sha256": "d27b371aec0372fe41494ab50fd662d404fbac58c4ea4a48234bf275fa945d5e",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BandWipe.glsl",
+      "sha256": "2cc39ee3906cd2fc1da1794cf9771212b0187dc99f56201d5a4afe1fba720547",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BlockCover.glsl",
+      "sha256": "510464f5b92c5cf5ec323d39c8964336e97b9206c0817cd3b108569fbb93e574",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BlockSlide.glsl",
+      "sha256": "00aa98771693046171eade9d673d1d1870249f258285c098f14d8edf0b60b620",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BloomDissolve.glsl",
+      "sha256": "fba070a90fd1cdbf840a0c9be3f09ee869d5fa13c729aa2608078f7a081fc941",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BokehDissolve.glsl",
+      "sha256": "2c15de03fd44e180d6d0b175ff89c6571560a0a42692a0cf6ec63bbfda07763e",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BookFlip.glsl",
+      "sha256": "9ad879d44c84b47f5c077030d3a6301fb2542ecc4835a5b4300a95be4e71bc74",
+      "author": "hong",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Bounce.glsl",
+      "sha256": "cd741e187f79e905e8221225d5350eff6c87004b94c111e039643d9dae497dcd",
+      "author": "Adrian Purser",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BowTie.glsl",
+      "sha256": "02751a29f1a6aaa2d0fd10df1fdedea31f5dd32feb695be433f87af455a40347",
+      "author": "KMojek",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BowTieHorizontal.glsl",
+      "sha256": "fcd134626185864b9c9dd0eb7d713f367e63afc445ace442ace6849a4700ec59",
+      "author": "huynx",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BrushWipe.glsl",
+      "sha256": "1c4a5e21a71554c204f31393520a473c5b8be994d616ed5e130d8ce7100b22ec",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "BurnThrough.glsl",
+      "sha256": "d572b6d93c74292c14c1feb3cf55eccfc03ffb98a6bfa3b0900162295f6aa0e9",
+      "author": "liubailin2020@gmail.com",
+      "declared_licence": "MIT",
+      "other_origin_named": "Based on Morgan McGuire @morgan3d ⏎ https://www.shadertoy.com/view/4dS3Wd",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "ButterflyWaveScrawler.glsl",
+      "sha256": "9cab563e54fd5bf0c339c0d40f38f48efd3c6c5471e36e3e87caa51cb2da37cd",
+      "author": "mandubian",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CameraShake.glsl",
+      "sha256": "fc3a3ecad4f88dceb14ead18400447054926c3e8671a88b0335fef89ef0733b0",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CardSwipe.glsl",
+      "sha256": "cfa454fc9679c9403a94efb6a6109274108d37646e3e403a551c52e5f0979f42",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CellDissolve.glsl",
+      "sha256": "afccb4bae91a8b91844dd5f59e23608a0d41c8903c1b29f95858261afe6062d7",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Chessboard.glsl",
+      "sha256": "4e56fa83ae55978d4687a8a23b7d362c67682af11d7177d8038515b88c1b7915",
+      "author": "lql",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CircleIris.glsl",
+      "sha256": "181e702df47bd41754c0da32e33347f71767ba649f72f92a2a4bc5ef10987901",
+      "author": "Fernando Kuteken",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CircleOpen.glsl",
+      "sha256": "f50be414d91a67965db1733abc664a2340ccbc215531bc263511bd206a1c93f7",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ClockWipe.glsl",
+      "sha256": "bd7e6168eec558178685c6ea4ad4f7e0902c3feb904e39b7435f24971409dee3",
+      "author": "Fernando Kuteken",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ColorCoords.glsl",
+      "sha256": "3e234018be5dfe9feb12f8f4a551f8f6e409bf85cb826d3384cec0e4b89a1fd4",
+      "author": "haiyoucuv",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ColorDistance.glsl",
+      "sha256": "23fe510bb77ab400098ef7c50d032ed834add102b192e629ba0f966beb72ec58",
+      "author": "P-Seebauer",
+      "declared_licence": "MIT",
+      "other_origin_named": "ported by gre from https://gist.github.com/P-Seebauer/2a5fa2f77c883dd661f9",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "ColorPanelWipe.glsl",
+      "sha256": "583d0741fd1b3950999b3437520c2a617ed8f0e768d1bc23b909fb8c1f057f40",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ColorPhase.glsl",
+      "sha256": "464c552944723e9d62bcd0bdcaeca67523e4b7c85a3a5591bc062e0056a5fd34",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ColorWrap.glsl",
+      "sha256": "12fa1d8ea0241ffd45e403c67e8c92148eb09a16d874e1b6658631ff745fa8fa",
+      "author": "Yoni Maltsman @friendlyspinach",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Comb.glsl",
+      "sha256": "b84fb2bb1f549eb17ff23fa9976e213c319f482228de1d88ccc749ce8a308a3c",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CrazyParametricFun.glsl",
+      "sha256": "116645084d197df4a50a737bcfaa126d76f6289aff59dccce9bf28929284379d",
+      "author": "mandubian",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CrossWarp.glsl",
+      "sha256": "a3a8a4800489f26f8ff3be6b63ccef2ab53279d97df16d469db3d4f57b7df381",
+      "author": "Eke Péter <peterekepeter@gmail.com>",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CrossZoom.glsl",
+      "sha256": "a30adba2a78deac0ac114a30ea285e972fdd7d488ed0cde90e15bc0eef333e84",
+      "author": "rectalogic",
+      "declared_licence": "MIT",
+      "other_origin_named": "ported by gre from https://gist.github.com/rectalogic/b86b90161503a0023231 ⏎ Converted from https://github.com/rectalogic/rendermix-basic-effects/blob/master/assets/com/rendermix/CrossZoom/CrossZoom.frag ⏎ Which is based on https://github.com/evanw/glfx.js/blob/master/src/filters/blur/zoomblur.js ⏎ With additional easing functions from https://github.com/rectalogic/rendermix-basic-effects/blob/master/assets/com/rendermix/Easing/Easing.glsllib",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "Crosshatch.glsl",
+      "sha256": "8066e3d78c79a6be454bae058ff69d3fef87596d562826bddc638a461e1d032c",
+      "author": "pthrasher",
+      "declared_licence": "MIT",
+      "other_origin_named": "adapted by gre from https://gist.github.com/pthrasher/04fd9a7de4012cbb03f6",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "Crumple.glsl",
+      "sha256": "882a3a3fd3653a54994614902562f44e163f56597028b66748dfa863c8b40a0f",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Cube.glsl",
+      "sha256": "908ff08f54ee4f1db13a0cea2621a4024576fda5694fbbf1cea08ad046edc465",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Curtains.glsl",
+      "sha256": "d5b6075810dc02a7122b3c330926e27c7b481872ed2343abc5675b64f509382e",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CurvedWipe.glsl",
+      "sha256": "cd20a2628f20c0e5b889146d4caa6315dbc99e903331f4edffc628bcd78678ff",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "CylinderRoll.glsl",
+      "sha256": "791a08239062f26575c02ec86d8d524a2b7aee8eece8bd878ab40bcbcf40e4f0",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "DefocusBlur.glsl",
+      "sha256": "9fdd45ebf44c532644e2c27ef589666fa962f70c53195c0ca802dd275dac4761",
+      "author": "Sergey Kosarevsky",
+      "declared_licence": "MIT",
+      "other_origin_named": "Ported from https://gist.github.com/corporateshark/b9f8e5675c647e615419 ⏎ https://github.com/spite/Wagner/blob/master/fragment-shaders/poisson-disc-blur-fs.glsl",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "DiamondWipe.glsl",
+      "sha256": "90c076ec578eb236b2ffa68b78883280886eaccd961706358fe91f77416f2728",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Directional.glsl",
+      "sha256": "fd217e157ec516a0770d4cf4e343b5d92b147b88ea3075842f16adcc5c3e7341",
+      "author": "Gaëtan Renaudeau",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "DirectionalEased.glsl",
+      "sha256": "20aeaac21aa4cf192ac808163aa0121f5ddf966a1c487e045a94e7ca9d7e321c",
+      "author": "Max Plotnikov",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "DirectionalScaled.glsl",
+      "sha256": "3ccff0df6ca18f1c4011ece47d4c041ac8be7eb3ec7ab707396e4f4999a9cbf9",
+      "author": "Thibaut Foussard",
+      "declared_licence": "MIT",
+      "other_origin_named": "based on Directional transition by Gaëtan Renaudeau ⏎ https://gl-transitions.com/editor/Directional",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "DirectionalWarp.glsl",
+      "sha256": "9b4988a12affa2fc89a7a1d87ad2df8c8bfaf185fc83e958188e5c674dbf03ce",
+      "author": "pschroen",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "DirectionalWipe.glsl",
+      "sha256": "561ed1d6ece1df699bff208a4e30d411748b156e390959c684c63c128e1b5394",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Disintegrate.glsl",
+      "sha256": "8b8f87de11cdff32a6b4fd16f88d04f2a2c3a4b33b4764ec7fb9daded6e7c08c",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "DisplacementMap.glsl",
+      "sha256": "ef090908787642ad5c43104d84562b57ee3ac80b51c787bd67b88016e2674290",
+      "author": "Travis Fischer",
+      "declared_licence": "MIT",
+      "other_origin_named": "Adapted from a Codrops article by Robin Delaporte ⏎ https://tympanus.net/Development/DistortionHoverEffect",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "DitherDissolve.glsl",
+      "sha256": "7775dbc0feef21ccf8e0cd58760f1db53ec32fd78832c8de7bf8b2cd22d089d8",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "DoomMelt.glsl",
+      "sha256": "fa526e5c56977d85d321fd2363bc643101b294334d0619664fcfc1194f01543d",
+      "author": "Zeh Fernando",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Doorway.glsl",
+      "sha256": "a68a916ffc50abf5c4e646494da44c02c6e898dbc3acec2272653a264a50abb8",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Dreamy.glsl",
+      "sha256": "ad95fba01344f89815da3deb1c023478800af04a25c4d56f2ff291448138ae4c",
+      "author": "mikolalysenko",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "DreamyZoom.glsl",
+      "sha256": "8d3b21accab1dafe21e35c131aec87ce494977f43671ae3d318b3b4dde1ed259",
+      "author": "Zeh Fernando",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "EdgeGlow.glsl",
+      "sha256": "22b5f23cda2ace57786c91a06138b085d0a910b821cd733b9650769fe811f9db",
+      "author": "Woohyun Kim",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "EyeBlink.glsl",
+      "sha256": "077ee64af624cffd142d298e95652f3365b4e6c1a86bbc5bf53f44b19a792fac",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Fade.glsl",
+      "sha256": "4fbafcd1e5b536b37e256c27a6d7a3d217460b3a6dea0cfee343c3db8b06c5ed",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FadeColor.glsl",
+      "sha256": "288e47ed048ddc2aa091f1f41efac527048900783cb299f8c93ee248a362d243",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FadeGrayscale.glsl",
+      "sha256": "54dc0a077c7949f87c6697d1a8dc8e0e167ca9a5ebddd4ccbc1022dfe9c283c0",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FallOver.glsl",
+      "sha256": "b0edd20db513c36bc921f854d7af9c14c2828474f0ef5d0964ddaa59ebd5f379",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FilmBurn.glsl",
+      "sha256": "cbd7ffe97b9e582bb0d775f81ddf309a263746d4d48bae08777e788118cb9dac",
+      "author": "Anastasia Dunbar",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FilmDissolve.glsl",
+      "sha256": "e8c88dcbd9ad53cdd07a8d411870ceb5dd2cea579362238f788141132e695584",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FilmStrip.glsl",
+      "sha256": "962e5290644441c774caf9d7dbaf43c830d60bb94f18d42ca9516f671e61d75f",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Fisheye.glsl",
+      "sha256": "11f552b7a239fb099b09e0a5d5b3b1b881d1dee637556a76fbc2dfd4872ada1e",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FlameWipe.glsl",
+      "sha256": "2da6d0993361430679b9e57301b4486c7783141f28df4411b092a8f8daff6092",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FlashFade.glsl",
+      "sha256": "810e7783e743e2acd37b31c301e5986850671d712996e0066886b71fd436405a",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FlowerWipe.glsl",
+      "sha256": "2c871b5ed66346789de03721d1eb20df3ba097341330d667cd37c53d43e3e1b0",
+      "author": "Fernando Kuteken",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "FlyEye.glsl",
+      "sha256": "a0fb22e999d5660585378fe0747e47f4813889c3e8cdb102af5c96d7318e2b21",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Fold.glsl",
+      "sha256": "402b1ce24ae2ac62b28390817568fafb83329dc480d150411c9a8085bf959264",
+      "author": "nwoeanhinnogaehr",
+      "declared_licence": "MIT",
+      "other_origin_named": "Ported from https://gist.github.com/nwoeanhinnogaehr/f6fc39f4cfcbb97f96a6",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "FrostWipe.glsl",
+      "sha256": "a38153f571e5d3d9039a0e9d051a8a992c529481049db18dd95fd9fdc92eb0f2",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Gallery.glsl",
+      "sha256": "564e8e410e4f9ada7f83b8bf6fea5f817f36a2b342d4fa872edde2e20b33efb4",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "GlintDissolve.glsl",
+      "sha256": "33dabd1e0666caab1eea6dcd1a12e91471c322c658b5febbbfb61755d00e8136",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "GlitchBands.glsl",
+      "sha256": "ca3130de774ed1e7df36d31730a2d84a7ff59812749897e3b1531e2cbeeeeb32",
+      "author": "Yoni Maltsman @friendlyspinach",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "GlitchDisplace.glsl",
+      "sha256": "4bd0134076bc71fce46da4d359a7965aee32bb0d7e301e3945dfe0d59e98abe1",
+      "author": "Matt DesLauriers",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "GlitchFlicker.glsl",
+      "sha256": "fb8a99e24ca668cf9c823fcb9c749bb9441bbfbbfd99007811f65e17fb55bde4",
+      "author": "bread",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "GlitchMemories.glsl",
+      "sha256": "95ac53da9e6db7efc350ea26cbfb71e9ee7ec2a23d68b044cb9fa41c1118b407",
+      "author": "Gunnar Roth",
+      "declared_licence": "MIT",
+      "other_origin_named": "based on work from natewave",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "GlowDissolve.glsl",
+      "sha256": "edfc67e62093d13dae3085aa34f43d239e29d8579e4857e3c0d2fcee7104f51d",
+      "author": "hjm1fb",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "GooeyWipe.glsl",
+      "sha256": "238e7279c1aa1a5865a9946d9ed4671eca9c9d49c1d522904baaaa7a93daa9b3",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "GridFlip.glsl",
+      "sha256": "f84096ffe6fc44808189a381a4e48dfde949beabed8df110fb45e68f6557810c",
+      "author": "TimDonselaar",
+      "declared_licence": "MIT",
+      "other_origin_named": "ported by gre from https://gist.github.com/TimDonselaar/9bcd1c4b5934ba60087bdb55c2ea92e5",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "Halftone.glsl",
+      "sha256": "e829979de3686fa761fc9cec9fbd17fb7aa1dead14df5f3de26d2a599b240d1f",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "HeartWipe.glsl",
+      "sha256": "b8449852a155a7b44e07d2b409721dd1a149e789e5b08158cf6a6a5a2712c96d",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "HeatHaze.glsl",
+      "sha256": "b7a46092a17d9b73f8ae13f1e70960da28ea5c151b024f2fa11d1504dadcd311",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Hexagonalize.glsl",
+      "sha256": "abcac2efc147d397875a233ad010d72b03986237f0955ae2b18a214987d75c08",
+      "author": "Fernando Kuteken",
+      "declared_licence": "MIT",
+      "other_origin_named": "Hexagonal math from: http://www.redblobgames.com/grids/hexagons",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "Hologram.glsl",
+      "sha256": "004beb279e3cf03ce2d20cb5181316b65ec061719316928380f57f7b0ab6dddc",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Honeycomb.glsl",
+      "sha256": "a7baa00ebc0392c5462a80897d6e2fe15b32dbd1ce995bd56318fe386047e693",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "HorizontalClose.glsl",
+      "sha256": "5c55ac5442076047eab1c60ba18ce8b8dd21eef54079946bc4285a8588280c29",
+      "author": "martiniti",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "HorizontalOpen.glsl",
+      "sha256": "5ee392050ae9d757dd8634796b25dccb4ce19f67d6d05ca2a6d66e0cfd0d1ddb",
+      "author": "martiniti",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "HsvFade.glsl",
+      "sha256": "90a42def6d0da00932f79643b9f96c3d318f87dbfb2ca6fd201c4bca63aefdba",
+      "author": "nwoeanhinnogaehr",
+      "declared_licence": "MIT",
+      "other_origin_named": "Ported from https://gist.github.com/nwoeanhinnogaehr/b185145363d65751009b ⏎ HSV functions from http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "InkBleed.glsl",
+      "sha256": "d60021b4da66c3ccb99c65c4d5009ce1e6a2f5936a8de1d7a3220922cbc734dd",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "InsetWipe.glsl",
+      "sha256": "0a6b449de627e70833b8a0d669497689eb69805b62fad0cddfc6e06375cccab5",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "InvertedPageCurl.glsl",
+      "sha256": "108cebf8c85984b4827ac177d85c58c1e215308e5dbef87187a9f4335c2f00d3",
+      "author": "Hewlett-Packard",
+      "declared_licence": "BSD 3 Clause",
+      "other_origin_named": "Adapted by Sergey Kosarevsky from: ⏎ http://rectalogic.github.io/webvfx/examples_2transition-shader-pagecurl_8html-example.html ⏎ Copyright (c) 2010 Hewlett-Packard Development Company, L.P. All rights reserved. ⏎ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT",
+      "listed_for_review_because": "not MIT, carries its own copyright notice, names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "Kaleidoscope.glsl",
+      "sha256": "1abd2c1eed0a3b5aadcdb1023dbe05db1aa3dd2a9b31a62ba055e082bf3cc72b",
+      "author": "nwoeanhinnogaehr",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LeafWipe.glsl",
+      "sha256": "a058e1e84f2986a6e6ab9ec2abac69113315ffa7223a0ccfdb22191b3bf8f3f7",
+      "author": "@Flexi23",
+      "declared_licence": "MIT",
+      "other_origin_named": "inspired by http://www.wolframalpha.com/input/?i=cannabis+curve",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "LeftRight.glsl",
+      "sha256": "4c3a8683df10ee0b4a71e6c84132e9659aff58309ec1410a7f9607a037377216",
+      "author": "zhmy",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LensFlare.glsl",
+      "sha256": "0ad2f6eaa55e8d3a625e8b40e9aa4a595e2a9fa38c739f1133486f5a48fd4699",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LightRays.glsl",
+      "sha256": "a1291a1b41c74e0379c9b9a7ffdff46d880134253e0ec106338a9179b6361190",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LightStreaks.glsl",
+      "sha256": "fb6f36ed1e014d51a03be245876d9422a611ef9fcca5881c8c58c8b45121a692",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LightWipe.glsl",
+      "sha256": "f4491464de9a2e431638b95d42bc5c2158036692504ddc92da5bab6fa0aa67af",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LightningFlash.glsl",
+      "sha256": "dc39e97d29d3451de80b49d5799674e06cde05557d3ca3dbce6a78b937c7d0a0",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LiquidFill.glsl",
+      "sha256": "b1141cae2bf915f677c949c63ca962342e02b86bb4b057ebb03731917ee8fc9d",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LissajousTiles.glsl",
+      "sha256": "648216f14cf2c2980ef552d6e252349033195d0741e5a9e876c1693716860649",
+      "author": "Boundless <info@boundless-beta.com>",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LumaWipe.glsl",
+      "sha256": "63d4adf2851eeb9f136cf95f89e1e53edf4af1b47aab1e0df1fec0d188ccccda",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "LuminanceMelt.glsl",
+      "sha256": "3980732a493577b250f8c5ff5fe38b3aad7af6fda8c2d67ef5abf974affa99a0",
+      "author": "0gust1 · Ian McEwan, Ashima Arts.",
+      "declared_licence": "MIT",
+      "other_origin_named": "My own first transition — based on crosshatch code (from pthrasher), using  simplex noise formula (copied and pasted) ⏎ luminance (see http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color#answer-596241) ⏎ Distributed under the MIT License. See LICENSE file. ⏎ https://github.com/ashima/webgl-noise",
+      "listed_for_review_because": "more than one licence line, names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "Morph.glsl",
+      "sha256": "be0b79ca27ba19dacd350a8f20988ab4b847937585fac878ac08ecc684fdcfba",
+      "author": "paniq",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Mosaic.glsl",
+      "sha256": "0be8036eeeb346a3896445ba30b7e517f32dfb7674a9c690e66773e1e90160f9",
+      "author": "Xaychru",
+      "declared_licence": "MIT",
+      "other_origin_named": "ported by gre from https://gist.github.com/Xaychru/130bb7b7affedbda9df5",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "MultiplyBlend.glsl",
+      "sha256": "881452e2099c875d281dae71c85152318c769f02e9acf8ad52c247bb22f4b1b8",
+      "author": "Fernando Kuteken",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "NoiseDissolve.glsl",
+      "sha256": "094522489c79dc7241d6809f7229838d8807c9fa569218109ca778b2297e40bd",
+      "author": "towrabbit",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Overexposure.glsl",
+      "sha256": "fbae3411c39af59e0b0fa6536c9a9797c6be0702a7e69303c7db8bc087efe26c",
+      "author": "Ben Zhang",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "PaperTear.glsl",
+      "sha256": "b2226446485a71b5c3aff6c40d06da692cbb7bc54881a2febb9e97614fe0fb64",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "PerlinDissolve.glsl",
+      "sha256": "14913f1110ab9fc2e0a8c08bf9cc566490e6399c1a0afb9300079dba4c0ca69a",
+      "author": "Rich Harris",
+      "declared_licence": "MIT",
+      "other_origin_named": "http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0 ⏎ 2D Noise based on Morgan McGuire @morgan3d ⏎ https://www.shadertoy.com/view/4dS3Wd",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "PhotoDevelop.glsl",
+      "sha256": "14b2bf3fc6173ccde34d804d4e5fff0e67f881df1da6c3b14d2ea2af50876af3",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Pinwheel.glsl",
+      "sha256": "fb8dea2ecd066a23d683726714add1f40885e68ac124532be1d774f169b08d8d",
+      "author": "Mr Speaker",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "PixelStretch.glsl",
+      "sha256": "f864f83e4b356926a9a914fa5506e9cd1377f88b6dc3ee7cf0db28e29a9f4c75",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Pixelize.glsl",
+      "sha256": "f5c541b779364dcf92d71f4928efa07c414ffd83a5bfb5b8ca9280a1c73c8b32",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "forked from https://gist.github.com/benraziel/c528607361d90a072e98",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "PlasmaDissolve.glsl",
+      "sha256": "46bbd5edae60103840f7ac397c548842043ad2e8c4de6755c548e5fcb43fdb81",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "PlusWipe.glsl",
+      "sha256": "ce8d571391fe8421402540ae254c7a57a4dc85ba2f08449327d1180ff5470a9b",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "PolkaDotsCurtain.glsl",
+      "sha256": "1a11af446cf3c50bf58d1a2b1547092e386bdcf1b7dff71179661f6a4c71d29a",
+      "author": "bobylito",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "PopIn.glsl",
+      "sha256": "3b4d07cbfe20870ff217bf4bad7ac9ac2766856e06ea76b2fa92c9fa440ea6a0",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "PowerKaleido.glsl",
+      "sha256": "f6448f3aa5446f5f9ff623ffda299b5ab573522a69c863cbb2a8e4c63f3d7291",
+      "author": "Boundless",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Prisms.glsl",
+      "sha256": "17dbce692a3cf98e71d4ca89b69762d26abcd5f2c79b66c70e31340e1d9df441",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Puzzle.glsl",
+      "sha256": "7a9a29bc9c1e076fe0e7275391568b75777f01d98ce85a2e362f637f287e62c5",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "RadialWipe.glsl",
+      "sha256": "2cbfc2e12b26f59b6312cdc152df46c3648d3bdbcee5ea50bc0ef08aac1d932d",
+      "author": "Xaychru",
+      "declared_licence": "MIT",
+      "other_origin_named": "ported by gre from https://gist.github.com/Xaychru/ce1d48f0ce00bb379750",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "RandomSquares.glsl",
+      "sha256": "844211ca33ae9f126fddfa9f3987bc853933c7ee2f919ca2d09def7d8040cb6a",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "RectangleCover.glsl",
+      "sha256": "abae2ef1148ae96a8b01ae4bc5b91127c328283dc3a88b43a15974e2efbe7b2d",
+      "author": "martiniti",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "RectangleIris.glsl",
+      "sha256": "21d769de57567c4a428228181d6a619c9e5b0b066b34acc01854a40d780471f4",
+      "author": "martiniti",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Refraction.glsl",
+      "sha256": "330078e22a3be3d971ac161fd0e41b9db54ca94c6f8310c839b3d7a3d5039271",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Revolve.glsl",
+      "sha256": "1653efd36293ce0371396bac077a845384963d9b260fd9e9e91dd1a6ccb09de3",
+      "author": "bread",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "RibbonTwist.glsl",
+      "sha256": "4da5b23c7c352297573842b5afb4d19cb62221471fbf97174d14f7cfedac33c2",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "RingsWipe.glsl",
+      "sha256": "9715b26fb080531704807740537ffe70c8877aeb0d080abb5f270182be41dc1d",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Ripple.glsl",
+      "sha256": "3d71067791beccc32c0a388260ac099d8213e5fd312d896a4a46f1285b94b9d1",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Rolls.glsl",
+      "sha256": "30781dc66fa788977b19a549ca72cb754ccde4a6fdf990b5f082a3d5ae25f171",
+      "author": "Mark Craig",
+      "declared_licence": "MIT",
+      "other_origin_named": "mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ Rolls Transition by Mark Craig (Copyright © 2022)",
+      "listed_for_review_because": "carries its own copyright notice, names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "RotateScaleFade.glsl",
+      "sha256": "4484386f72f9d955851feea332d4c449c70e9e25de4cbcefda6e6764c6709144",
+      "author": "Fernando Kuteken",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "RotateScaleVanish.glsl",
+      "sha256": "c097a0b1ae8ea518ca71744416ba18c2cc821fe9bc7cc359988f5b278b96fc86",
+      "author": "Mark Craig",
+      "declared_licence": "MIT",
+      "other_origin_named": "mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ RotateScaleVanish Transition by Mark Craig (Copyright © 2022)",
+      "listed_for_review_because": "carries its own copyright notice, names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "SawtoothWipe.glsl",
+      "sha256": "d32f7c03add6fed1e7680b8d9eec330500c98ab3682856664ee075345225eb22",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Shatter.glsl",
+      "sha256": "7e119f40247737b0b703fc1d79a2fb5d72aa96b910584086b1d73c865100a93b",
+      "author": "lbl",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Shred.glsl",
+      "sha256": "7f84781b39bb90020b69b00b699c3be6408fbea3107bd816cdf4f34eb315c98b",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SimpleFlip.glsl",
+      "sha256": "f2a6719ab89ba57ba47cc2ffbb7ecbf6d43cb60e29c5e3016e69da4f3186a286",
+      "author": "nwoeanhinnogaehr",
+      "declared_licence": "MIT",
+      "other_origin_named": "Ported from https://gist.github.com/nwoeanhinnogaehr/408045772d255df97520",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "SimpleZoom.glsl",
+      "sha256": "3e971d871ba681b7d118c5c2d23baf3becc4ad63b0e18b482dc9a56cdc3ec16e",
+      "author": "0gust1",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SimpleZoomOut.glsl",
+      "sha256": "5ec96c4549092157e316783aa7aeee48a2898081cf9a2aa03e46efa648e84f53",
+      "author": "Tianshuo",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SlideAwayRight.glsl",
+      "sha256": "86b10d99bb1fb2b1861f31c57b018d85e8dd5c3f3feaa6721cb91d08db106289",
+      "author": "lizhongjian",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Slides.glsl",
+      "sha256": "cd22cf496b485f7c4b9fcefca6f18bbcc6b7e01fbb93e4c01b0620e392bd1245",
+      "author": "Mark Craig",
+      "declared_licence": "MIT",
+      "other_origin_named": "mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ Slides Transition by Mark Craig (Copyright © 2022)",
+      "listed_for_review_because": "carries its own copyright notice, names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "SmokeDissolve.glsl",
+      "sha256": "6120453162d094519224e966c8e8936220e576bcc147828e88e5e0368562c452",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SnakeBlockWipe.glsl",
+      "sha256": "0d335dc3e043f2c2d3b9e9993f7a91b003f6f6da1493bf8d97668e2c512aba72",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Snapshot.glsl",
+      "sha256": "2c3b1509aed836aceb45b4797b3c7e4bc8cb755a1bf8847cae80440613d7122d",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Sphere.glsl",
+      "sha256": "c8fa72d5d63fa1188c82e09c9948b84ebc831d1328507069c3f02120e65cd20c",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SpiralBlockWipe.glsl",
+      "sha256": "383693740f2c22fc9e561e57c4fc551055cfd716d20646938f635c4c951b986d",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SpiralWipe.glsl",
+      "sha256": "8a867f341fa32794e72e33d39b613697da981bb15ff1d2e637a8085368bd1aaa",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SplatterWipe.glsl",
+      "sha256": "f7f06c20cd26e974fa5a1b939ab7ff670d2c2c1377d065318120e4e38bf72ae7",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SplitFlap.glsl",
+      "sha256": "0dd7417dc2c16de017e7859766ce6e9ad83bac316c93145f96196f6d798a920e",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SplitSlideInHorizontal.glsl",
+      "sha256": "e1d69a2bde5ad47c98bd32a7514239068458e9d602179db580e9112b450069cb",
+      "author": "OllyOllyOlly",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SplitSlideInOutHorizontal.glsl",
+      "sha256": "97986bf69c869fb3fd18eb67f9fc5eb6b2bad3e2e548cf711756992b3b0ae7eb",
+      "author": "OllyOllyOlly",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SplitSlideInOutVertical.glsl",
+      "sha256": "fcd1d4b1b6bbe67168d5e2c842f4ce58acdff2349eb7e0050cd41b94d915675c",
+      "author": "OllyOllyOlly",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SplitSlideInVertical.glsl",
+      "sha256": "e1e38f4127539b7c54d60642ebdb18f5df7504edee0c5afc6e2cb09ef2056105",
+      "author": "OllyOllyOlly",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SplitSlideOutHorizontal.glsl",
+      "sha256": "db2906f53ffc0e825886755a927dbb0d25699b86ab4740aaa48496d690d42a20",
+      "author": "OllyOllyOlly",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SplitSlideOutVertical.glsl",
+      "sha256": "50a48ee3de8e739ba48d93d054bd8e97705c2009ecee89651805c573882a00b6",
+      "author": "OllyOllyOlly",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "SquaresWipe.glsl",
+      "sha256": "32f24c18612a2e5647eedad26b65a02605be7e69871403d911323a9f13cbe9e3",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Squeeze.glsl",
+      "sha256": "e48ac3f52c807c1af39d1e8cbf359ac76ff833a8796e88806461a888582739ab",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "StarWipe.glsl",
+      "sha256": "304c8cd4848b74c032a8a51907916af4b2f5f2d7ef9dd19a2b26752f3180c448",
+      "author": "Ben Lucas",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "StaticFade.glsl",
+      "sha256": "8475f60724f13a1167cfebb1603ee9af4b77ffa52c6b1d33aca7f7b3e636337c",
+      "author": "Ben Lucas",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "StaticWipe.glsl",
+      "sha256": "5481a72ed376ffcaf544870ee9e2b0cdb3e388f620be5e72106219a13b855fb1",
+      "author": "Ben Lucas",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "StereoViewer.glsl",
+      "sha256": "39f7e0f98e4f51bbf7cb3d885e07760e630b4ca4216b20af9ff6e7d19760232f",
+      "author": "Ted Schundler",
+      "declared_licence": "BSD 2 Clause",
+      "other_origin_named": "Free for use and modification by anyone with credit ⏎ Copyright (c) 2016, Theodore K Schundler ⏎ Inspired by ViewMaster / Image3D image viewer devices. ⏎ Screen blend mode - https://en.wikipedia.org/wiki/Blend_modes",
+      "listed_for_review_because": "not MIT, carries its own copyright notice, names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "StretchSlide.glsl",
+      "sha256": "64dfe5dc52f93295e3db2b39a2cfb74f6229f387b39650bc48378f041aafedd0",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "StripDatamoshGlitch.glsl",
+      "sha256": "2a084d39f6c015875d9de6a2c64063afad98b733855ab335d988e277c9bd3250",
+      "author": "bread",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Swap.glsl",
+      "sha256": "9400e6e61331cb9f62e26b70781928c80d48139ac29b1352a5e4bcd5f0c726ab",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Swirl.glsl",
+      "sha256": "fbbea8a885ed8cdf913fe481ee09e8897a79fd4f7c9ec6a1f459f6010147301e",
+      "author": "Sergey Kosarevsky",
+      "declared_licence": "MIT",
+      "other_origin_named": "( http://www.linderdaum.com ) ⏎ ported by gre from https://gist.github.com/corporateshark/cacfedb8cca0f5ce3f7c",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "TangentMotionBlur.glsl",
+      "sha256": "a97d2db63cc40171a1aa17ad5ae7a864d9fe68e9a73fdfd0285f6bdd92d7e0a3",
+      "author": "chenkai",
+      "declared_licence": "MIT",
+      "other_origin_named": "ported from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/671116",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "TilesWave.glsl",
+      "sha256": "38516173c9f2ebf3ffd4d7fd3f57afd8fa7d679effde2f4e363eef5b03bb4f9a",
+      "author": "numb3r23",
+      "declared_licence": "MIT",
+      "other_origin_named": "Ported from https://gist.github.com/numb3r23/169781bb76f310e2bfde",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "TopBottom.glsl",
+      "sha256": "7bb0e7817beadd52ad0c803a64df4b433ec4aed56167543602817e5d8745cdee",
+      "author": "zhmy",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Tunnel.glsl",
+      "sha256": "4ffe8fba089ef6a6440b350cdd46013935f3ce663c078fb9d0206c87344eadaf",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "TvLostSignal.glsl",
+      "sha256": "9fdf5df439eca16ff5e0aedc3765a37dd1b55a7b7a16a9991c3a41738a761e55",
+      "author": "mernking (gitlab.com/Godswork)",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "TvRoll.glsl",
+      "sha256": "8c2658fa1263b84f4ad3a498339c54a08f3d19c0c80f7a9aa3ef22388521fc1d",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "TvStatic.glsl",
+      "sha256": "de84e6fe6dbbc2fc2318312e1ec66b01478f18e48e1add736096ff238d230574",
+      "author": "Brandon Anzaldi",
+      "declared_licence": "MIT",
+      "other_origin_named": "http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "TvTurnOff.glsl",
+      "sha256": "fd9e432ab98935a1e6f8648e78eafe162b32ae71d007ef392d943b9064a1a9c4",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "UndulatingBurnOut.glsl",
+      "sha256": "9d780311c1088a4e1cfa63f236d095b6dca26986872c4a7724940ab91e4ecc6d",
+      "author": "pthrasher",
+      "declared_licence": "MIT",
+      "other_origin_named": "adapted by gre from https://gist.github.com/pthrasher/8e6226b215548ba12734",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "VerticalClose.glsl",
+      "sha256": "e59bf2cf60a971c86b919ce1777c592349cc79794c3ef9a3540e68d43e82c021",
+      "author": "martiniti",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "VerticalOpen.glsl",
+      "sha256": "b50977b4591039c0cbad58da7126ae9732a6290a663260f9ffde1067beaf9f73",
+      "author": "martiniti",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "VhsTracking.glsl",
+      "sha256": "3af3b6f4c9f496ce2f8a0a5dcfaad05a9155ba7df08b5561aab4a14e3aff0d1b",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Vortex.glsl",
+      "sha256": "2ab94864bd5bd77d51f1079c40a9c25401fff62e4c99b636f06f172c4af5ff70",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "WarpSpeed.glsl",
+      "sha256": "afc4dedf58ae94c8aa1f7a69aff980629c599baf4d0851f3c4f267a4d6afd5ee",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "WaterDrop.glsl",
+      "sha256": "35c80cdb1b528c3da5e5a993c4133dd0fef4d8c288909fb0d8daca4e4c74ef2b",
+      "author": "Paweł Płóciennik",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "WedgeWipe.glsl",
+      "sha256": "42d216a78800397beb78c3c9d1a61bb8c794548294dede7477c61bac6e3369ff",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "WhipPan.glsl",
+      "sha256": "56e2d8dd6ae5154690c0669550c2193a8104ea9f3285e4c0d2e453b34d8ffb54",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "WhipSpin.glsl",
+      "sha256": "48986a110f323639efea86e5a7a961e446ff3c387d3b0577e9ce973ef784a45a",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "WhipTilt.glsl",
+      "sha256": "4d247fdd6459af37a7244cb4011bb9a30041179901523ed00b90b3fc7ecb6d8b",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "Wind.glsl",
+      "sha256": "a6af68366cd1feb21da596e6503994da8bb052c616ec73d4346006837494a01f",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "WindowBlinds.glsl",
+      "sha256": "418d400c85cab13a0aa7235efb772fc8cd0da2d82d30518803861665b282edfd",
+      "author": "Fabien Benetou",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "WindowSlices.glsl",
+      "sha256": "128052b76eaa2802487cbc8940178daa54c2e91bfd0e157de69f2d6295e51449",
+      "author": "gre",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ZoomInCircles.glsl",
+      "sha256": "c042e9846b3aca993f4102c13c7aa32f92306bd13b7b3c98be3cbff93173ec0c",
+      "author": "dycm8009",
+      "declared_licence": "MIT",
+      "other_origin_named": "ported by gre from https://gist.github.com/dycm8009/948e99b1800e81ad909a",
+      "listed_for_review_because": "names another origin",
+      "redistribution": "غير صالح لإعادة التوزيع قبل مراجعة"
+    },
+    {
+      "file": "ZoomInOut.glsl",
+      "sha256": "8d0cb76efed82130c90d50fd1c191391a462b1d79aa7f40c1f4511fa070d8d91",
+      "author": "OllyOllyOlly",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ZoomWipeLeft.glsl",
+      "sha256": "6e51d2564ef6bb6f8c6addea5c53349f1c610970b91b16e6e4e9b85fd8804f3b",
+      "author": "Handk",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    },
+    {
+      "file": "ZoomWipeRight.glsl",
+      "sha256": "b7a9bc528a704218c1e1479dc7a5a4cc3dc217e349396dd9ef3a6a992db8f051",
+      "author": "Handk",
+      "declared_licence": "MIT",
+      "other_origin_named": "",
+      "listed_for_review_because": "",
+      "redistribution": "لم يُراجَع"
+    }
+  ]
+}

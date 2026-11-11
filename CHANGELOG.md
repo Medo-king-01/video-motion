@@ -5,6 +5,22 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-11 (gl-transitions: notices, a manifest, and catalogue wording)
+
+Follow-up to the entry below; still no licence decision and no loader.
+
+- `assets/gl-transitions/THIRD_PARTY.md`: the full BSD notice of `InvertedPageCurl.glsl` and
+  `StereoViewer.glsl`, copied from the files, plus the upstream `LICENSE` file as observed on
+  2026-11-11 (labelled as observed, not as applied).
+- `assets/gl-transitions/MANIFEST.json`: one entry per shader with its sha256 and declared licence.
+  The commit the files were copied from is not known and is written as "غير معروف".
+- The 30 files listed for review are marked "غير صالح لإعادة التوزيع قبل مراجعة" in the table, the
+  manifest, `NOTICE` and `docs/GL_TRANSITIONS.md`.
+- `assets/techniques.json`: the 189 `gl-transitions` entries no longer say "When you need a
+  GPU-accelerated transition"; they say the shader is a reference that no engine loads. Counts,
+  ids and order are unchanged; `docs/techniques.md` regenerated.
+- `docs/scene-cache.md` states the warm-run time (≈560–590 ms) and what it is made of.
+
 ## Unreleased — 2026-11-11 (README agrees with .gitignore and pyproject.toml)
 
 - README said a project's `BRIEF.md`, `plan/` and code "can be tracked by Git". `.gitignore` ignores

@@ -25178,9 +25178,9 @@ Description: The outgoing image folds up like a pleated paper toward one side wh
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-aperturewipe` — ApertureWipe
 
@@ -25190,9 +25190,9 @@ Description: A camera aperture opens its turning blades to reveal the incoming i
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-arrowwipe` — ArrowWipe
 
@@ -25202,9 +25202,9 @@ Description: A notched arrowhead window onto the incoming image flies in from th
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-ascii` — Ascii
 
@@ -25214,9 +25214,9 @@ Description: The image turns into text-mode characters, denser where it is brigh
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-bandwipe` — BandWipe
 
@@ -25226,9 +25226,9 @@ Description: Alternating bands wipe in from opposite sides together and interlea
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-blockcover` — BlockCover
 
@@ -25238,9 +25238,9 @@ Description: Blocks of a solid color pop in at random over the outgoing image un
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-blockslide` — BlockSlide
 
@@ -25250,9 +25250,9 @@ Description: The frame is cut into a grid of blocks that slide out one after ano
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-bloomdissolve` — BloomDissolve
 
@@ -25262,9 +25262,9 @@ Description: The highlights of the outgoing image blow out into a soft, wide glo
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-bokehdissolve` — BokehDissolve
 
@@ -25274,9 +25274,9 @@ Description: The image falls out of focus like a camera lens, its highlights swe
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-bookflip` — BookFlip
 
@@ -25286,9 +25286,9 @@ Description: The outgoing image turns like a book page from right to left, revea
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-bounce` — Bounce
 
@@ -25298,9 +25298,9 @@ Description: The outgoing image drops out of the frame with a few bounces, revea
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-bowtie` — BowTie
 
@@ -25310,9 +25310,9 @@ Description: Two triangles grow from the top and bottom edges into a bow tie tha
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-bowtiehorizontal` — BowTieHorizontal
 
@@ -25322,9 +25322,9 @@ Description: Two triangles grow from the left and right edges into a bow tie tha
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-brushwipe` — BrushWipe
 
@@ -25334,9 +25334,9 @@ Description: A few broad brush strokes sweep across the frame in turn, back and 
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-burnthrough` — BurnThrough
 
@@ -25346,9 +25346,9 @@ Description: The outgoing image burns away in noisy, glowing patches
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-butterflywavescrawler` — ButterflyWaveScrawler
 
@@ -25358,9 +25358,9 @@ Description: Wavy, color-separated ripples scramble the outgoing image into the 
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-camerashake` — CameraShake
 
@@ -25370,9 +25370,9 @@ Description: The camera jolts violently in random directions, with motion blur a
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-cardswipe` — CardSwipe
 
@@ -25382,9 +25382,9 @@ Description: The outgoing image is flicked off like the top card of a stack, swi
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-celldissolve` — CellDissolve
 
@@ -25394,9 +25394,9 @@ Description: Irregular cells, like cracked mud or soap foam, switch to the incom
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-chessboard` — Chessboard
 
@@ -25406,9 +25406,9 @@ Description: A chessboard pattern of squares reveals the incoming image
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-circleiris` — CircleIris
 
@@ -25418,9 +25418,9 @@ Description: The outgoing image closes into a circle over a background color, th
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-circleopen` — CircleOpen
 
@@ -25430,9 +25430,9 @@ Description: A soft-edged circle opens from the center to reveal the incoming im
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-clockwipe` — ClockWipe
 
@@ -25442,9 +25442,9 @@ Description: A wipe that sweeps around the center from a starting angle
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-colorcoords` — ColorCoords
 
@@ -25454,9 +25454,9 @@ Description: A crossfade in which the colors of one image displace the other
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-colordistance` — ColorDistance
 
@@ -25466,9 +25466,9 @@ Description: Pixels switch to the incoming image in order of how close their col
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-colorpanelwipe` — ColorPanelWipe
 
@@ -25478,9 +25478,9 @@ Description: Solid color panels, slightly staggered, sweep across and cover the 
 
 **How:** GLSL shader with 7 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-colorphase` — ColorPhase
 
@@ -25490,9 +25490,9 @@ Description: A crossfade in which each color channel changes at a different time
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-colorwrap` — ColorWrap
 
@@ -25502,9 +25502,9 @@ Description: Each color channel of the outgoing image is shifted and wraps aroun
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-comb` — Comb
 
@@ -25514,9 +25514,9 @@ Description: The frame is cut into interleaved strips that slide in opposite dir
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-crazyparametricfun` — CrazyParametricFun
 
@@ -25526,9 +25526,9 @@ Description: The outgoing image is pulled along a parametric curve into a psyche
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-crosswarp` — CrossWarp
 
@@ -25538,9 +25538,9 @@ Description: The outgoing image zooms in while the incoming one zooms out into p
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-crosszoom` — CrossZoom
 
@@ -25550,9 +25550,9 @@ Description: A crossfade through a strong zoom blur
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-crosshatch` — Crosshatch
 
@@ -25562,9 +25562,9 @@ Description: The incoming image appears through a crosshatch of lines spreading 
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-crumple` — Crumple
 
@@ -25574,9 +25574,9 @@ Description: The outgoing image crumples into a creased paper ball, shaded along
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-cube` — Cube
 
@@ -25586,9 +25586,9 @@ Description: The two images are faces of a rotating 3D cube, with a floor reflec
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-curtains` — Curtains
 
@@ -25598,9 +25598,9 @@ Description: The outgoing image parts in the middle like stage curtains, gatheri
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-curvedwipe` — CurvedWipe
 
@@ -25610,9 +25610,9 @@ Description: The outgoing image is pulled away by its middle: the wipe edge bulg
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-cylinderroll` — CylinderRoll
 
@@ -25622,9 +25622,9 @@ Description: The frame wraps around a drum that rolls up, the outgoing image tur
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-defocusblur` — DefocusBlur
 
@@ -25634,9 +25634,9 @@ Description: A crossfade through an out-of-focus blur
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-diamondwipe` — DiamondWipe
 
@@ -25646,9 +25646,9 @@ Description: A soft-edged diamond grows from the center to reveal the incoming i
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-directional` — Directional
 
@@ -25658,9 +25658,9 @@ Description: The incoming image pushes the outgoing one out in a given direction
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-directionaleased` — DirectionalEased
 
@@ -25670,9 +25670,9 @@ Description: Like Directional, with an eased movement
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-directionalscaled` — DirectionalScaled
 
@@ -25682,9 +25682,9 @@ Description: Like Directional, with both images scaled down while they slide
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-directionalwarp` — DirectionalWarp
 
@@ -25694,9 +25694,9 @@ Description: A diagonal wipe with a warped, smeared edge
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-directionalwipe` — DirectionalWipe
 
@@ -25706,9 +25706,9 @@ Description: A straight wipe in any direction, diagonal and soft-edged by defaul
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-disintegrate` — Disintegrate
 
@@ -25718,9 +25718,9 @@ Description: The outgoing image crumbles into fine dust from one side, its grain
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-displacementmap` — DisplacementMap
 
@@ -25730,9 +25730,9 @@ Description: A crossfade in which a displacement map (an extra grayscale texture
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-ditherdissolve` — DitherDissolve
 
@@ -25742,9 +25742,9 @@ Description: The incoming image appears through a regular 8x8 ordered dither pat
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-doommelt` — DoomMelt
 
@@ -25754,9 +25754,9 @@ Description: The outgoing image melts down in uneven columns, like the Doom scre
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-doorway` — Doorway
 
@@ -25766,9 +25766,9 @@ Description: The outgoing image opens like double doors as the incoming one come
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-dreamy` — Dreamy
 
@@ -25778,9 +25778,9 @@ Description: A crossfade with a gentle wavy distortion
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-dreamyzoom` — DreamyZoom
 
@@ -25790,9 +25790,9 @@ Description: Zooms and rotates into a bright flash, then out to the incoming ima
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-edgeglow` — EdgeGlow
 
@@ -25802,9 +25802,9 @@ Description: Both images fade through black with their edges glowing
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-eyeblink` — EyeBlink
 
@@ -25814,9 +25814,9 @@ Description: Curved eyelids close from the top and bottom over the outgoing imag
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-fade` — Fade
 
@@ -25826,9 +25826,9 @@ Description: A linear crossfade between the two images
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-fadecolor` — FadeColor
 
@@ -25838,9 +25838,9 @@ Description: A fade through a solid color, black by default
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-fadegrayscale` — FadeGrayscale
 
@@ -25850,9 +25850,9 @@ Description: A crossfade through grayscale
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-fallover` — FallOver
 
@@ -25862,9 +25862,9 @@ Description: The outgoing image falls over backward, hinged on its bottom edge, 
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-filmburn` — FilmBurn
 
@@ -25874,9 +25874,9 @@ Description: Glowing film-burn light leaks wash over the image and reveal the in
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-filmdissolve` — FilmDissolve
 
@@ -25886,9 +25886,9 @@ Description: A cross-dissolve blended in linear light, as light adds up on film:
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-filmstrip` — FilmStrip
 
@@ -25898,9 +25898,9 @@ Description: The picture slips like film in a projector gate: it shrinks to show
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-fisheye` — Fisheye
 
@@ -25910,9 +25910,9 @@ Description: The outgoing image bulges toward the viewer through a strong fishey
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-flamewipe` — FlameWipe
 
@@ -25922,9 +25922,9 @@ Description: A wall of flames sweeps across the frame, scorching the outgoing im
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-flashfade` — FlashFade
 
@@ -25934,9 +25934,9 @@ Description: A crossfade that brightens toward a color in the middle
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-flowerwipe` — FlowerWipe
 
@@ -25946,9 +25946,9 @@ Description: A flower shape with several petals grows to reveal the incoming ima
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-flyeye` — FlyEye
 
@@ -25958,9 +25958,9 @@ Description: The image breaks into a fly's-eye grid of lenses with color separat
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-fold` — Fold
 
@@ -25970,9 +25970,9 @@ Description: The incoming image unfolds from the left while the outgoing one fol
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-frostwipe` — FrostWipe
 
@@ -25982,9 +25982,9 @@ Description: Ice crystals grow in from the edges of the frame with feathery, bra
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-gallery` — Gallery
 
@@ -25994,9 +25994,9 @@ Description: The camera pulls back from the outgoing image to show it as a slide
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-glintdissolve` — GlintDissolve
 
@@ -26006,9 +26006,9 @@ Description: The bright points of the outgoing image sparkle into crisp four-poi
 
 **How:** GLSL shader with 7 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-glitchbands` — GlitchBands
 
@@ -26018,9 +26018,9 @@ Description: A crossfade with glitchy horizontal bands and color shifts
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-glitchdisplace` — GlitchDisplace
 
@@ -26030,9 +26030,9 @@ Description: Blocks of the image are displaced in a glitch that flashes into the
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-glitchflicker` — GlitchFlicker
 
@@ -26042,9 +26042,9 @@ Description: A flickering glitch with RGB offset, ghosting and scanlines that fl
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-glitchmemories` — GlitchMemories
 
@@ -26054,9 +26054,9 @@ Description: A crossfade with glitchy, color-shifted blocks
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-glowdissolve` — GlowDissolve
 
@@ -26066,9 +26066,9 @@ Description: The incoming image spreads over the outgoing one with a hot, glowin
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-gooeywipe` — GooeyWipe
 
@@ -26078,9 +26078,9 @@ Description: Soft, glossy blobs of liquid pop up over the outgoing image, swell 
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-gridflip` — GridFlip
 
@@ -26090,9 +26090,9 @@ Description: The image splits into a grid of tiles that flip one by one to the i
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-halftone` — Halftone
 
@@ -26102,9 +26102,9 @@ Description: The image breaks into printed halftone dots whose size follows its 
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-heartwipe` — HeartWipe
 
@@ -26114,9 +26114,9 @@ Description: A heart shape grows from the center to reveal the incoming image
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-heathaze` — HeatHaze
 
@@ -26126,9 +26126,9 @@ Description: Shimmering heat waves rise through the frame, strongest at the bott
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-hexagonalize` — Hexagonalize
 
@@ -26138,9 +26138,9 @@ Description: Both images turn into hexagons, crossfade, then sharpen again
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-hologram` — Hologram
 
@@ -26150,9 +26150,9 @@ Description: The outgoing image turns into a flickering hologram (blue by defaul
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-honeycomb` — Honeycomb
 
@@ -26162,9 +26162,9 @@ Description: The image splits into hexagons that spin and shrink away in a wave 
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-horizontalclose` — HorizontalClose
 
@@ -26174,9 +26174,9 @@ Description: The incoming image closes in from the top and bottom edges toward t
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-horizontalopen` — HorizontalOpen
 
@@ -26186,9 +26186,9 @@ Description: The incoming image opens from a line in the middle toward the top a
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-hsvfade` — HsvFade
 
@@ -26198,9 +26198,9 @@ Description: A crossfade through the HSV color space that cycles through hues
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-inkbleed` — InkBleed
 
@@ -26210,9 +26210,9 @@ Description: The incoming image spreads over the outgoing one like drops of ink 
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-insetwipe` — InsetWipe
 
@@ -26222,9 +26222,9 @@ Description: A rectangle anchored in a corner, on an edge or in the center grows
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-invertedpagecurl` — InvertedPageCurl
 
@@ -26234,9 +26234,9 @@ Description: The outgoing image curls away like a page, revealing the incoming o
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-kaleidoscope` — Kaleidoscope
 
@@ -26246,9 +26246,9 @@ Description: A crossfade through a spinning kaleidoscope
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-leafwipe` — LeafWipe
 
@@ -26258,9 +26258,9 @@ Description: A leaf shape grows from the center to reveal the incoming image
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-leftright` — LeftRight
 
@@ -26270,9 +26270,9 @@ Description: The outgoing image shrinks away to the left while the incoming one 
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-lensflare` — LensFlare
 
@@ -26282,9 +26282,9 @@ Description: A bright light sweeps across the frame and flares the lens: a long 
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-lightrays` — LightRays
 
@@ -26294,9 +26294,9 @@ Description: Shafts of light burst from the highlights of the outgoing image and
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-lightstreaks` — LightStreaks
 
@@ -26306,9 +26306,9 @@ Description: The highlights of the outgoing image flare into long horizontal (or
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-lightwipe` — LightWipe
 
@@ -26318,9 +26318,9 @@ Description: A band of intense light sweeps across the frame like a glint on gla
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-lightningflash` — LightningFlash
 
@@ -26330,9 +26330,9 @@ Description: Forked lightning bolts crack down from the top of the frame, the sc
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-liquidfill` — LiquidFill
 
@@ -26342,9 +26342,9 @@ Description: The incoming image rises over the outgoing one like liquid filling 
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-lissajoustiles` — LissajousTiles
 
@@ -26354,9 +26354,9 @@ Description: The image breaks into a grid of tiles that swirl along Lissajous cu
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-lumawipe` — LumaWipe
 
@@ -26366,9 +26366,9 @@ Description: A wipe that follows the brightness of a grayscale mask (the luma te
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-luminancemelt` — LuminanceMelt
 
@@ -26378,9 +26378,9 @@ Description: The outgoing image melts away in noisy vertical streaks, depending 
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-morph` — Morph
 
@@ -26390,9 +26390,9 @@ Description: A crossfade in which each image is displaced by the other's colors,
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-mosaic` — Mosaic
 
@@ -26402,9 +26402,9 @@ Description: The view pans across a mosaic of rotated tiles from both images and
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-multiplyblend` — MultiplyBlend
 
@@ -26414,9 +26414,9 @@ Description: A crossfade through the multiplied blend of both images
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-noisedissolve` — NoiseDissolve
 
@@ -26426,9 +26426,9 @@ Description: The incoming image appears pixel by pixel in random noise
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-overexposure` — Overexposure
 
@@ -26438,9 +26438,9 @@ Description: A crossfade through a washed-out, overexposed white
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-papertear` — PaperTear
 
@@ -26450,9 +26450,9 @@ Description: The outgoing image tears in two along a ragged line, and the halves
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-perlindissolve` — PerlinDissolve
 
@@ -26462,9 +26462,9 @@ Description: The incoming image appears through blobs of Perlin noise
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-photodevelop` — PhotoDevelop
 
@@ -26474,9 +26474,9 @@ Description: The outgoing image washes out to a blank cream card, then the incom
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-pinwheel` — Pinwheel
 
@@ -26486,9 +26486,9 @@ Description: A spinning pinwheel reveals the incoming image
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-pixelstretch` — PixelStretch
 
@@ -26498,9 +26498,9 @@ Description: A line sweeps across the frame and drags the outgoing image's pixel
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-pixelize` — Pixelize
 
@@ -26510,9 +26510,9 @@ Description: Both images pixelate, crossfade, then sharpen again
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-plasmadissolve` — PlasmaDissolve
 
@@ -26522,9 +26522,9 @@ Description: A flowing plasma of sine waves, as in the old demos, draws moving b
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-pluswipe` — PlusWipe
 
@@ -26534,9 +26534,9 @@ Description: A plus-shaped cross grows from the center and widens its arms until
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-polkadotscurtain` — PolkaDotsCurtain
 
@@ -26546,9 +26546,9 @@ Description: The incoming image appears through growing polka dots
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-popin` — PopIn
 
@@ -26558,9 +26558,9 @@ Description: The incoming image pops in as a rounded card over the outgoing one,
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-powerkaleido` — PowerKaleido
 
@@ -26570,9 +26570,9 @@ Description: The image folds into an animated kaleidoscope before revealing the 
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-prisms` — Prisms
 
@@ -26582,9 +26582,9 @@ Description: The frame is cut into 3D prisms that turn in a cascade, like a rota
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-puzzle` — Puzzle
 
@@ -26594,9 +26594,9 @@ Description: The image is cut into jigsaw puzzle pieces that lift one after anot
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-radialwipe` — RadialWipe
 
@@ -26606,9 +26606,9 @@ Description: A radial wipe that sweeps around the center like a clock hand
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-randomsquares` — RandomSquares
 
@@ -26618,9 +26618,9 @@ Description: The incoming image appears in random squares
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-rectanglecover` — RectangleCover
 
@@ -26630,9 +26630,9 @@ Description: A rectangle grows from the center to cover the outgoing image, then
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-rectangleiris` — RectangleIris
 
@@ -26642,9 +26642,9 @@ Description: The outgoing image shrinks into a small rectangle over a background
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-refraction` — Refraction
 
@@ -26654,9 +26654,9 @@ Description: The frame is seen through flowing liquid glass that bends the outgo
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-revolve` — Revolve
 
@@ -26666,9 +26666,9 @@ Description: The outgoing image swirls and zooms with motion blur into the incom
 
 **How:** GLSL shader with 10 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-ribbontwist` — RibbonTwist
 
@@ -26678,9 +26678,9 @@ Description: The image twists like a ribbon around its horizontal center line, t
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-ringswipe` — RingsWipe
 
@@ -26690,9 +26690,9 @@ Description: Concentric rings ripple out from the center and, one after another,
 
 **How:** GLSL shader with 7 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-ripple` — Ripple
 
@@ -26702,9 +26702,9 @@ Description: Ripples spread from the center while crossfading
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-rolls` — Rolls
 
@@ -26714,9 +26714,9 @@ Description: The outgoing image rolls away around a corner, revealing the incomi
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-rotatescalefade` — RotateScaleFade
 
@@ -26726,9 +26726,9 @@ Description: The outgoing image spins and zooms while fading to the incoming one
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-rotatescalevanish` — RotateScaleVanish
 
@@ -26738,9 +26738,9 @@ Description: The outgoing image spins and shrinks away over the incoming one
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-sawtoothwipe` — SawtoothWipe
 
@@ -26750,9 +26750,9 @@ Description: A wipe whose edge is a row of sharp, regular triangular teeth sweep
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-shatter` — Shatter
 
@@ -26762,9 +26762,9 @@ Description: The outgoing image shatters into fragments that fly away
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-shred` — Shred
 
@@ -26774,9 +26774,9 @@ Description: The outgoing image is cut into paper strips that drop away at uneve
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-simpleflip` — SimpleFlip
 
@@ -26786,9 +26786,9 @@ Description: The outgoing image flips around the vertical axis into the incoming
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-simplezoom` — SimpleZoom
 
@@ -26798,9 +26798,9 @@ Description: Zooms into the outgoing image, then fades to the incoming one
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-simplezoomout` — SimpleZoomOut
 
@@ -26810,9 +26810,9 @@ Description: The incoming image zooms out into place while fading in
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-slideawayright` — SlideAwayRight
 
@@ -26822,9 +26822,9 @@ Description: The outgoing image slides to the right, uncovering a crossfade to t
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-slides` — Slides
 
@@ -26834,9 +26834,9 @@ Description: The outgoing image slides out, or the incoming one slides in, towar
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-smokedissolve` — SmokeDissolve
 
@@ -26846,9 +26846,9 @@ Description: Billowing smoke drifts in across the outgoing image, with lit tops,
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-snakeblockwipe` — SnakeBlockWipe
 
@@ -26858,9 +26858,9 @@ Description: Blocks switch to the incoming image one at a time, row after row fr
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-snapshot` — Snapshot
 
@@ -26870,9 +26870,9 @@ Description: A camera flash freezes the outgoing image into a printed photo with
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-sphere` — Sphere
 
@@ -26882,9 +26882,9 @@ Description: The outgoing image wraps itself onto a shaded ball that shrinks and
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-spiralblockwipe` — SpiralBlockWipe
 
@@ -26894,9 +26894,9 @@ Description: Square blocks switch to the incoming image one after another along 
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-spiralwipe` — SpiralWipe
 
@@ -26906,9 +26906,9 @@ Description: A spiral arm winds out from the center and widens to reveal the inc
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-splatterwipe` — SplatterWipe
 
@@ -26918,9 +26918,9 @@ Description: Splats of paint land one after another, each popping in with a spik
 
 **How:** GLSL shader with 6 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-splitflap` — SplitFlap
 
@@ -26930,9 +26930,9 @@ Description: The frame becomes a split-flap board: in each cell the top half of 
 
 **How:** GLSL shader with 8 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-splitslideinhorizontal` — SplitSlideInHorizontal
 
@@ -26942,9 +26942,9 @@ Description: The incoming image slides in as two halves moving horizontally in o
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-splitslideinouthorizontal` — SplitSlideInOutHorizontal
 
@@ -26954,9 +26954,9 @@ Description: The halves of both images slide horizontally in opposite directions
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-splitslideinoutvertical` — SplitSlideInOutVertical
 
@@ -26966,9 +26966,9 @@ Description: The halves of both images slide vertically in opposite directions, 
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-splitslideinvertical` — SplitSlideInVertical
 
@@ -26978,9 +26978,9 @@ Description: The incoming image slides in as two halves moving vertically in opp
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-splitslideouthorizontal` — SplitSlideOutHorizontal
 
@@ -26990,9 +26990,9 @@ Description: The outgoing image slides out as two halves moving horizontally in 
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-splitslideoutvertical` — SplitSlideOutVertical
 
@@ -27002,9 +27002,9 @@ Description: The outgoing image slides out as two halves moving vertically in op
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-squareswipe` — SquaresWipe
 
@@ -27014,9 +27014,9 @@ Description: Squares grow along a diagonal sweep to reveal the incoming image
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-squeeze` — Squeeze
 
@@ -27026,9 +27026,9 @@ Description: The outgoing image is squeezed into a line with color separation, r
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-starwipe` — StarWipe
 
@@ -27038,9 +27038,9 @@ Description: A growing star reveals the incoming image
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-staticfade` — StaticFade
 
@@ -27050,9 +27050,9 @@ Description: Cuts to the incoming image halfway, hidden behind a burst of TV sta
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-staticwipe` — StaticWipe
 
@@ -27062,9 +27062,9 @@ Description: A wipe from top to bottom with a band of TV static at its edge
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-stereoviewer` — StereoViewer
 
@@ -27074,9 +27074,9 @@ Description: Both images shrink into rounded cards that swap, like a stereo view
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-stretchslide` — StretchSlide
 
@@ -27086,9 +27086,9 @@ Description: The outgoing image stretches out long as it shoots away to one side
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-stripdatamoshglitch` — StripDatamoshGlitch
 
@@ -27098,9 +27098,9 @@ Description: A datamosh glitch: torn strips, chroma shifts and scan noise drag t
 
 **How:** GLSL shader with 9 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-swap` — Swap
 
@@ -27110,9 +27110,9 @@ Description: The two images swap places in 3D, with a floor reflection
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-swirl` — Swirl
 
@@ -27122,9 +27122,9 @@ Description: Both images swirl around the center while crossfading
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-tangentmotionblur` — TangentMotionBlur
 
@@ -27134,9 +27134,9 @@ Description: The outgoing image is flung away along a curve with motion blur
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-tileswave` — TilesWave
 
@@ -27146,9 +27146,9 @@ Description: The incoming image is revealed tile by tile in a diagonal wave
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-topbottom` — TopBottom
 
@@ -27158,9 +27158,9 @@ Description: The outgoing image shrinks away upward while the incoming one slide
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-tunnel` — Tunnel
 
@@ -27170,9 +27170,9 @@ Description: The camera flies down a tunnel lined with the outgoing image toward
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-tvlostsignal` — TvLostSignal
 
@@ -27182,9 +27182,9 @@ Description: A crossfade with drifting tracking lines and tearing, like a TV los
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-tvroll` — TvRoll
 
@@ -27194,9 +27194,9 @@ Description: The outgoing image rolls faster and faster, like an old TV losing i
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-tvstatic` — TvStatic
 
@@ -27206,9 +27206,9 @@ Description: Cuts to full-screen TV static, then to the incoming image
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-tvturnoff` — TvTurnOff
 
@@ -27218,9 +27218,9 @@ Description: The outgoing image collapses into a glowing line and a dot, like an
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-undulatingburnout` — UndulatingBurnOut
 
@@ -27230,9 +27230,9 @@ Description: A circle with a wavy edge burns out from the center to reveal the i
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-verticalclose` — VerticalClose
 
@@ -27242,9 +27242,9 @@ Description: The incoming image closes in from the left and right edges toward t
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-verticalopen` — VerticalOpen
 
@@ -27254,9 +27254,9 @@ Description: The incoming image opens from a line in the middle toward the left 
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-vhstracking` — VhsTracking
 
@@ -27266,9 +27266,9 @@ Description: Tape-tracking bands of white snow roll down the frame, tearing the 
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-vortex` — Vortex
 
@@ -27278,9 +27278,9 @@ Description: The outgoing image breaks into hundreds of small squares that a tor
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-warpspeed` — WarpSpeed
 
@@ -27290,9 +27290,9 @@ Description: The camera jumps to light speed: star streaks shoot out from the ce
 
 **How:** GLSL shader with 5 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-waterdrop` — WaterDrop
 
@@ -27302,9 +27302,9 @@ Description: Ripples spread from the center like a drop falling into water, cros
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-wedgewipe` — WedgeWipe
 
@@ -27314,9 +27314,9 @@ Description: Two hands sweep away from each other around the center, opening a w
 
 **How:** GLSL shader with 3 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-whippan` — WhipPan
 
@@ -27326,9 +27326,9 @@ Description: A fast camera pan that streaks both images with motion blur, the in
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-whipspin` — WhipSpin
 
@@ -27338,9 +27338,9 @@ Description: The camera rolls faster and faster around the center of the frame, 
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-whiptilt` — WhipTilt
 
@@ -27350,9 +27350,9 @@ Description: The camera tilts fast from the outgoing image to the incoming one, 
 
 **How:** GLSL shader with 4 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-wind` — Wind
 
@@ -27362,9 +27362,9 @@ Description: A ragged left-to-right wipe, as if the image was blown away by the 
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-windowblinds` — WindowBlinds
 
@@ -27374,9 +27374,9 @@ Description: A crossfade through horizontal window blinds
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-windowslices` — WindowSlices
 
@@ -27386,9 +27386,9 @@ Description: The incoming image appears through vertical slices that widen
 
 **How:** GLSL shader with 2 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-zoomincircles` — ZoomInCircles
 
@@ -27398,9 +27398,9 @@ Description: Concentric rings of the outgoing image zoom at different speeds bef
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-zoominout` — ZoomInOut
 
@@ -27410,9 +27410,9 @@ Description: Zooms into the outgoing image until it blurs into a flat color, the
 
 **How:** GLSL shader with 0 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-zoomwipeleft` — ZoomWipeLeft
 
@@ -27422,9 +27422,9 @@ Description: Zooms into the outgoing image, then the incoming one wipes in from 
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file
 
 ### `gl-zoomwiperight` — ZoomWipeRight
 
@@ -27434,6 +27434,6 @@ Description: Zooms into the outgoing image, then the incoming one wipes in from 
 
 **How:** GLSL shader with 1 uniform parameters
 
-**Use when:** When you need a GPU-accelerated transition
+**Use when:** Reference only: this shader is not wired to any render path. For a transition that renders, pick one from medo-motion/motion/transitions.json
 
-**Avoid when:** When rendering without GPU support
+**Avoid when:** As a transition in a reel plan: no engine (P, K or R) loads this file

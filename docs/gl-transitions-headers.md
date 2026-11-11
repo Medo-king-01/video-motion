@@ -14,40 +14,42 @@ Files: 189. Declared licence:
 
 ## Files that need a look (30)
 
-Anything other than a single `License: MIT` line with no other origin named.
+Anything other than a single `License: MIT` line with no other origin named. Every file in this
+table is marked **غير صالح لإعادة التوزيع قبل مراجعة** (not to be redistributed before a review); the remaining files are
+لم يُراجَع (not reviewed) — that is not a clearance either.
 
-| File | Author | Declared licence | Why it is listed | Other origin named in the file |
-|---|---|---|---|---|
-| `BurnThrough.glsl` | liubailin2020@gmail.com | MIT | names another origin | Based on Morgan McGuire @morgan3d ⏎ https://www.shadertoy.com/view/4dS3Wd |
-| `ColorDistance.glsl` | P-Seebauer | MIT | names another origin | ported by gre from https://gist.github.com/P-Seebauer/2a5fa2f77c883dd661f9 |
-| `CrossZoom.glsl` | rectalogic | MIT | names another origin | ported by gre from https://gist.github.com/rectalogic/b86b90161503a0023231 ⏎ Converted from https://github.com/rectalogic/rendermix-basic-effects/blob/master/assets/com/rendermix/CrossZoom/CrossZoom.frag ⏎ Which is base… |
-| `Crosshatch.glsl` | pthrasher | MIT | names another origin | adapted by gre from https://gist.github.com/pthrasher/04fd9a7de4012cbb03f6 |
-| `DefocusBlur.glsl` | Sergey Kosarevsky | MIT | names another origin | Ported from https://gist.github.com/corporateshark/b9f8e5675c647e615419 ⏎ https://github.com/spite/Wagner/blob/master/fragment-shaders/poisson-disc-blur-fs.glsl |
-| `DirectionalScaled.glsl` | Thibaut Foussard | MIT | names another origin | based on Directional transition by Gaëtan Renaudeau ⏎ https://gl-transitions.com/editor/Directional |
-| `DisplacementMap.glsl` | Travis Fischer | MIT | names another origin | Adapted from a Codrops article by Robin Delaporte ⏎ https://tympanus.net/Development/DistortionHoverEffect |
-| `Fold.glsl` | nwoeanhinnogaehr | MIT | names another origin | Ported from https://gist.github.com/nwoeanhinnogaehr/f6fc39f4cfcbb97f96a6 |
-| `GlitchMemories.glsl` | Gunnar Roth | MIT | names another origin | based on work from natewave |
-| `GridFlip.glsl` | TimDonselaar | MIT | names another origin | ported by gre from https://gist.github.com/TimDonselaar/9bcd1c4b5934ba60087bdb55c2ea92e5 |
-| `Hexagonalize.glsl` | Fernando Kuteken | MIT | names another origin | Hexagonal math from: http://www.redblobgames.com/grids/hexagons |
-| `HsvFade.glsl` | nwoeanhinnogaehr | MIT | names another origin | Ported from https://gist.github.com/nwoeanhinnogaehr/b185145363d65751009b ⏎ HSV functions from http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl |
-| `InvertedPageCurl.glsl` | Hewlett-Packard | BSD 3 Clause | not MIT, carries its own copyright notice, names another origin | Adapted by Sergey Kosarevsky from: ⏎ http://rectalogic.github.io/webvfx/examples_2transition-shader-pagecurl_8html-example.html ⏎ Copyright (c) 2010 Hewlett-Packard Development Company, L.P. All rights reserved. ⏎ A PAR… |
-| `LeafWipe.glsl` | @Flexi23 | MIT | names another origin | inspired by http://www.wolframalpha.com/input/?i=cannabis+curve |
-| `LuminanceMelt.glsl` | 0gust1 · Ian McEwan, Ashima Arts. | MIT | more than one licence line, names another origin | My own first transition — based on crosshatch code (from pthrasher), using  simplex noise formula (copied and pasted) ⏎ luminance (see http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-col… |
-| `Mosaic.glsl` | Xaychru | MIT | names another origin | ported by gre from https://gist.github.com/Xaychru/130bb7b7affedbda9df5 |
-| `PerlinDissolve.glsl` | Rich Harris | MIT | names another origin | http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0 ⏎ 2D Noise based on Morgan McGuire @morgan3d ⏎ https://www.shadertoy.com/view/4dS3Wd |
-| `Pixelize.glsl` | gre | MIT | names another origin | forked from https://gist.github.com/benraziel/c528607361d90a072e98 |
-| `RadialWipe.glsl` | Xaychru | MIT | names another origin | ported by gre from https://gist.github.com/Xaychru/ce1d48f0ce00bb379750 |
-| `Rolls.glsl` | Mark Craig | MIT | carries its own copyright notice, names another origin | mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ Rolls Transition by Mark Craig (Copyright © 2022) |
-| `RotateScaleVanish.glsl` | Mark Craig | MIT | carries its own copyright notice, names another origin | mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ RotateScaleVanish Transition by Mark Craig (Copyright © 2022) |
-| `SimpleFlip.glsl` | nwoeanhinnogaehr | MIT | names another origin | Ported from https://gist.github.com/nwoeanhinnogaehr/408045772d255df97520 |
-| `Slides.glsl` | Mark Craig | MIT | carries its own copyright notice, names another origin | mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ Slides Transition by Mark Craig (Copyright © 2022) |
-| `StereoViewer.glsl` | Ted Schundler | BSD 2 Clause | not MIT, carries its own copyright notice, names another origin | Free for use and modification by anyone with credit ⏎ Copyright (c) 2016, Theodore K Schundler ⏎ Inspired by ViewMaster / Image3D image viewer devices. ⏎ Screen blend mode - https://en.wikipedia.org/wiki/Blend_modes |
-| `Swirl.glsl` | Sergey Kosarevsky | MIT | names another origin | ( http://www.linderdaum.com ) ⏎ ported by gre from https://gist.github.com/corporateshark/cacfedb8cca0f5ce3f7c |
-| `TangentMotionBlur.glsl` | chenkai | MIT | names another origin | ported from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/671116 |
-| `TilesWave.glsl` | numb3r23 | MIT | names another origin | Ported from https://gist.github.com/numb3r23/169781bb76f310e2bfde |
-| `TvStatic.glsl` | Brandon Anzaldi | MIT | names another origin | http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0 |
-| `UndulatingBurnOut.glsl` | pthrasher | MIT | names another origin | adapted by gre from https://gist.github.com/pthrasher/8e6226b215548ba12734 |
-| `ZoomInCircles.glsl` | dycm8009 | MIT | names another origin | ported by gre from https://gist.github.com/dycm8009/948e99b1800e81ad909a |
+| File | Author | Declared licence | Why it is listed | Redistribution | Other origin named in the file |
+|---|---|---|---|---|---|
+| `BurnThrough.glsl` | liubailin2020@gmail.com | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Based on Morgan McGuire @morgan3d ⏎ https://www.shadertoy.com/view/4dS3Wd |
+| `ColorDistance.glsl` | P-Seebauer | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | ported by gre from https://gist.github.com/P-Seebauer/2a5fa2f77c883dd661f9 |
+| `CrossZoom.glsl` | rectalogic | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | ported by gre from https://gist.github.com/rectalogic/b86b90161503a0023231 ⏎ Converted from https://github.com/rectalogic/rendermix-basic-effects/blob/master/assets/com/rendermix/CrossZoom/CrossZoom.frag ⏎ Which is base… |
+| `Crosshatch.glsl` | pthrasher | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | adapted by gre from https://gist.github.com/pthrasher/04fd9a7de4012cbb03f6 |
+| `DefocusBlur.glsl` | Sergey Kosarevsky | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Ported from https://gist.github.com/corporateshark/b9f8e5675c647e615419 ⏎ https://github.com/spite/Wagner/blob/master/fragment-shaders/poisson-disc-blur-fs.glsl |
+| `DirectionalScaled.glsl` | Thibaut Foussard | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | based on Directional transition by Gaëtan Renaudeau ⏎ https://gl-transitions.com/editor/Directional |
+| `DisplacementMap.glsl` | Travis Fischer | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Adapted from a Codrops article by Robin Delaporte ⏎ https://tympanus.net/Development/DistortionHoverEffect |
+| `Fold.glsl` | nwoeanhinnogaehr | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Ported from https://gist.github.com/nwoeanhinnogaehr/f6fc39f4cfcbb97f96a6 |
+| `GlitchMemories.glsl` | Gunnar Roth | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | based on work from natewave |
+| `GridFlip.glsl` | TimDonselaar | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | ported by gre from https://gist.github.com/TimDonselaar/9bcd1c4b5934ba60087bdb55c2ea92e5 |
+| `Hexagonalize.glsl` | Fernando Kuteken | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Hexagonal math from: http://www.redblobgames.com/grids/hexagons |
+| `HsvFade.glsl` | nwoeanhinnogaehr | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Ported from https://gist.github.com/nwoeanhinnogaehr/b185145363d65751009b ⏎ HSV functions from http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl |
+| `InvertedPageCurl.glsl` | Hewlett-Packard | BSD 3 Clause | not MIT, carries its own copyright notice, names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Adapted by Sergey Kosarevsky from: ⏎ http://rectalogic.github.io/webvfx/examples_2transition-shader-pagecurl_8html-example.html ⏎ Copyright (c) 2010 Hewlett-Packard Development Company, L.P. All rights reserved. ⏎ A PAR… |
+| `LeafWipe.glsl` | @Flexi23 | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | inspired by http://www.wolframalpha.com/input/?i=cannabis+curve |
+| `LuminanceMelt.glsl` | 0gust1 · Ian McEwan, Ashima Arts. | MIT | more than one licence line, names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | My own first transition — based on crosshatch code (from pthrasher), using  simplex noise formula (copied and pasted) ⏎ luminance (see http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-col… |
+| `Mosaic.glsl` | Xaychru | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | ported by gre from https://gist.github.com/Xaychru/130bb7b7affedbda9df5 |
+| `PerlinDissolve.glsl` | Rich Harris | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0 ⏎ 2D Noise based on Morgan McGuire @morgan3d ⏎ https://www.shadertoy.com/view/4dS3Wd |
+| `Pixelize.glsl` | gre | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | forked from https://gist.github.com/benraziel/c528607361d90a072e98 |
+| `RadialWipe.glsl` | Xaychru | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | ported by gre from https://gist.github.com/Xaychru/ce1d48f0ce00bb379750 |
+| `Rolls.glsl` | Mark Craig | MIT | carries its own copyright notice, names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ Rolls Transition by Mark Craig (Copyright © 2022) |
+| `RotateScaleVanish.glsl` | Mark Craig | MIT | carries its own copyright notice, names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ RotateScaleVanish Transition by Mark Craig (Copyright © 2022) |
+| `SimpleFlip.glsl` | nwoeanhinnogaehr | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Ported from https://gist.github.com/nwoeanhinnogaehr/408045772d255df97520 |
+| `Slides.glsl` | Mark Craig | MIT | carries its own copyright notice, names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | mrmcsoftware on github and youtube ( http://www.youtube.com/MrMcSoftware ) ⏎ Slides Transition by Mark Craig (Copyright © 2022) |
+| `StereoViewer.glsl` | Ted Schundler | BSD 2 Clause | not MIT, carries its own copyright notice, names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Free for use and modification by anyone with credit ⏎ Copyright (c) 2016, Theodore K Schundler ⏎ Inspired by ViewMaster / Image3D image viewer devices. ⏎ Screen blend mode - https://en.wikipedia.org/wiki/Blend_modes |
+| `Swirl.glsl` | Sergey Kosarevsky | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | ( http://www.linderdaum.com ) ⏎ ported by gre from https://gist.github.com/corporateshark/cacfedb8cca0f5ce3f7c |
+| `TangentMotionBlur.glsl` | chenkai | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | ported from https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/671116 |
+| `TilesWave.glsl` | numb3r23 | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | Ported from https://gist.github.com/numb3r23/169781bb76f310e2bfde |
+| `TvStatic.glsl` | Brandon Anzaldi | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0 |
+| `UndulatingBurnOut.glsl` | pthrasher | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | adapted by gre from https://gist.github.com/pthrasher/8e6226b215548ba12734 |
+| `ZoomInCircles.glsl` | dycm8009 | MIT | names another origin | **غير صالح لإعادة التوزيع قبل مراجعة** | ported by gre from https://gist.github.com/dycm8009/948e99b1800e81ad909a |
 
 ## All files (189)
 
