@@ -110,9 +110,10 @@ jobs:
         with:
           node-version: "22"
       - name: Install FFmpeg tools
+        timeout-minutes: 5
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Install pinned dependencies
         run: python -m pip install -r tools/requirements-dev.txt
       - name: Run the unit group
@@ -135,9 +136,10 @@ jobs:
         with:
           node-version: "22"
       - name: Install FFmpeg tools
+        timeout-minutes: 5
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get install -y --no-install-recommends ffmpeg
       - name: Install pinned dependencies
         run: python -m pip install -r tools/requirements-dev.txt
       - name: Install the K toolkit
@@ -177,9 +179,10 @@ jobs:
             tools/toolkit/package-lock.json
             medo-motion/templates/remotion/package-lock.json
       - name: Install FFmpeg tools
+        timeout-minutes: 5
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get install -y --no-install-recommends ffmpeg
           ffmpeg -version
           ffprobe -version
       - name: Install pinned dependencies and the Chromium toolkit
