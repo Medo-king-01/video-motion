@@ -9,6 +9,7 @@
 | `profiles.md` | **B6**: ملفات تعريف التسليم (`reel-30` · `motion-film-60` · `stop-motion-12` · `draft-15`)، الـticks الثابتة، أكواد P01–P06، وقرار الـ60fps الصريح |
 | `contract-1.3.md` | **عقد 1.3**: نص عربي/خطوط، سرعة المقطع، اختيار streams، أكواد `U08`–`U10`، الهجرة في اتجاه واحد (`M01`–`M03`)، والاسترداد بعد انهيار |
 | `adapter-p.md` | **أول adapter حقيقي**: محرّك P ينفّذ عقد الـrender — إيه اللي بيرسمه، إيه اللي بيرفضه (`R02`–`R10`)، والمعاينة=التصدير بالقياس |
+| `adapter-r.md` | **المحرّك R خلف العقد**: يقرا ويولّد الـgraph، ويرفض بالاسم — `R13` (مفيش مشهد Remotion موصول) و`R14` (الـtoolchain مش متسطّب) + `toolchain()` بيقيس الجهاز |
 | `editor-ui.md` | **المحرر المحلي**: صفحة واحدة فوق النواة — timeline · معاينة · قص/قصّ/شد · نصوص · undo · export · autosave، والـAPI والحدود |
 | `workflows.md` | **طرق العمل الثمانية**: Free Edit · Script · Talking Head · Montage · Podcast · Explainer · Product Review · Motion Design — كل واحدة مشروع قابل للتحرير، وأكواد `W01`–`W04` |
 | `delivery.md` | **صيغ التسليم الخمس**: EDL · OTIO (تصدير واستيراد) · تسلسل صور · WAV · MP4/H.264 — إيه اللي كل واحدة بتحمله، الأكواد `O/N/A/M/Q/E10/X`، والانتقالات في النموذج |
@@ -22,6 +23,7 @@
 | `unified-editor-roadmap.md` | ما أُنجز وخطة استكمال المنصة ومعيار التسليم |
 | `development-plan-status.md` | **لوحة متابعة (2026-11-12)**: الخطط الثلاث في صفحة واحدة، الحالة المتحقَّقة من الكود، المتبقي مرتّبًا، الدورات المقترحة، والقرارات المطلوبة من المالك |
 | `contract-1.4.md` | **العقد 1.4**: لفّ النص وتحريكه كلمة‑كلمة (`U11`)، انتقال wipe باتجاه، وopacity على مسار النص |
+| `contract-1.5.md` | **العقد 1.5**: `runs` — لون/حجم/خط داخل السطر (`U12`) — وتحريك حرف‑بحرف (`letters-up`/`letters-fade`) فوق clusters HarfBuzz |
 | `adapters-k-hybrid.md` | **K وHybrid**: K يقرأ ويتحقق ويرفض الرسم (`R11`)، وHybrid قرار توجيه مكتوب في الـgraph (`routing`، `R12`) |
 | `editor-source-review.md` | مراجعة ساكنة أولية لـHojas وVideo Ad Editor عند commits مثبتة، مع حدود التراخيص والادعاءات |
 | `alignment.md` | مخطط الكابشن وfreeze، شرط mono PCM16، ومحاذاة ASR المقاسة |

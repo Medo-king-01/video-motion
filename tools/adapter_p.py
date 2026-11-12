@@ -61,11 +61,8 @@ def _unsupported(project):
                              f"{track['kind']} tracks are not drawn by engine P"})
             continue
         if track["kind"] == "audio":
-            for ci, clip in enumerate(track["clips"]):
-                speed = clip.get("speed")
-                if speed and (speed["num"], speed["den"]) != (1, 1):
-                    problems.append({"code": "R03", "path": f"{path}.clips[{ci}].speed",
-                                     "message": "clip speed is not implemented for audio"})
+            # Audio speed used to be R03. `audio_export` now resamples by the clip's fraction, so the
+            # adapter has nothing left to refuse on an audio track: it mixes and records the artifact.
             continue
         for ci, clip in enumerate(track["clips"]):
             clip_path = f"{path}.clips[{ci}]"

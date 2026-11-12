@@ -80,14 +80,11 @@ def test_preflight_is_supported_for_stills_text_and_crossfades(tmp_path: Path) -
 @pytest.mark.parametrize("mutation,code", [
     # A graphics track is still refused: nothing draws it.
     (lambda p: p["tracks"].append({"id": "g", "kind": "graphics", "enabled": True, "clips": []}), "R02"),
-    # Audio plays, but a speed ramp on it does not: the mixer has no resampler.
-    (lambda p: p["tracks"].append({"id": "au", "kind": "audio", "enabled": True, "clips": [
-        {"id": "m1", "kind": "media", "assetId": "a3", "start": 0, "duration": 240_000,
-         "sourceIn": 0, "speed": {"num": 2, "den": 1}, "effects": [], "keyframes": []}]}), "R03"),
+
 ])
 def test_unsupported_features_are_refused_before_a_frame_is_drawn(tmp_path: Path, mutation, code) -> None:
     data = project(tmp_path)
-    if code in ("R02", "R03"):
+    if code == "R02":
         data["assets"].append({"id": "a3", "kind": "audio", "uri": "tone.wav",
                                "sha256": data["assets"][0]["sha256"], "duration": 480_000})
         (tmp_path / "tone.wav").write_bytes(b"RIFF")
@@ -100,6 +97,30 @@ def test_unsupported_features_are_refused_before_a_frame_is_drawn(tmp_path: Path
     with pytest.raises(adapter_p.AdapterError) as excinfo:
         adapter.render(graph, (0, 1), tmp_path / "out", {"root": tmp_path})
     assert excinfo.value.code == code
+
+
+def test_audio_speed_is_mixed_not_refused(tmp_path: Path) -> None:
+    """R03 is retired: a 2x clip is resampled by the mixer and recorded as the audio artifact."""
+    import wave
+
+    tone = tmp_path / "vo.wav"
+    with wave.open(str(tone), "wb") as handle:
+        handle.setnchannels(1)
+        handle.setsampwidth(2)
+        handle.setframerate(48_000)
+        handle.writeframes(b"\x10\x00" * 24_000)
+    data = project(tmp_path)
+    data["assets"].append({"id": "au", "kind": "audio", "uri": "vo.wav", "duration": 240_000,
+                           "sha256": __import__("hashlib").sha256(tone.read_bytes()).hexdigest()})
+    data["tracks"].append({"id": "at", "kind": "audio", "enabled": True, "clips": [
+        {"id": "am", "kind": "media", "assetId": "au", "start": 0, "duration": 120_000,
+         "sourceIn": 0, "speed": {"num": 2, "den": 1}, "effects": [], "keyframes": []}]})
+    adapter = adapter_p.PAdapter()
+    graph = adapter.compile(data)
+    assert adapter.preflight(graph)["status"] == "supported"
+    result = adapter.render(graph, (0, 2), tmp_path / "out", {"root": tmp_path})
+    assert result["manifest"]["audio"]["file"] == "mix.wav"
+    assert (tmp_path / "out" / "mix.wav").is_file()
 
 
 def test_a_video_clip_is_decoded_not_refused(tmp_path: Path) -> None:

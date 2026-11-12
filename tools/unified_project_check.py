@@ -85,6 +85,38 @@ def _safe_uri(uri):
             and all(part not in ("", ".", "..") for part in uri.split("/")))
 
 
+
+def _run_errors(path, text):
+    """U12: a run is a styled range of one text block, and it may only cut at a word boundary.
+
+    Cutting inside a word would hand the shaper two halves of a joined Arabic word and print the
+    isolated letterforms — a wrong picture that looks like a rendering bug, so it is refused here.
+    """
+    errors = []
+    value = text["value"]
+    runs = text.get("runs") or []
+    previous_end = 0
+    for index, run in enumerate(runs):
+        loc = f"{path}.runs[{index}]"
+        start, end = run["start"], run["end"]
+        if start >= end:
+            errors.append(f"U12 {loc}: start must come before end")
+            continue
+        if end > len(value):
+            errors.append(f"U12 {loc}.end: past the end of the text ({len(value)} characters)")
+            continue
+        if start < previous_end:
+            errors.append(f"U12 {loc}: runs must be sorted and must not overlap")
+        previous_end = max(previous_end, end)
+        if start > 0 and value[start - 1].strip():
+            errors.append(f"U12 {loc}.start: a run must begin at a word boundary")
+        if end < len(value) and value[end].strip():
+            errors.append(f"U12 {loc}.end: a run must end at a word boundary")
+        if not {"color", "size", "font"} & set(run):
+            errors.append(f"U12 {loc}: a run that changes nothing is not a run")
+    return errors
+
+
 def validate(project):
     """Return diagnostic strings. No file access or mutation of the input project."""
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
@@ -136,6 +168,11 @@ def validate(project):
                 value_words = [word for word in text["value"].split() if word]
                 if len(value_words) < 2:
                     errors.append(f"U11 {path}.animation: a word animation needs more than one word")
+            if animation["kind"].startswith("letters-"):
+                letters = [char for char in text["value"] if char.strip()]
+                if len(letters) < 2:
+                    errors.append(f"U11 {path}.animation: a letter animation needs more than one letter")
+        errors.extend(_run_errors(path, text))
     for i, track in enumerate(project["tracks"]):
         path = f"$.tracks[{i}]"
         add_id(track["id"], path + ".id")

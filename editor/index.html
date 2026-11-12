@@ -53,6 +53,10 @@
   .field input,.field select{width:100%}
   .fx{border:1px solid var(--line);border-radius:6px;padding:5px;margin-bottom:6px;background:#101012}
   .kf{font-size:10.5px;color:var(--dim);display:flex;gap:6px;align-items:center;justify-content:space-between}
+  .runs{display:flex;flex-direction:column;gap:4px;margin-top:5px}
+  .runs .row.kf{display:grid;grid-template-columns:52px 52px 30px 56px auto auto;gap:4px}
+  .runs input{padding:2px 4px;font-size:10.5px;min-width:0}
+  .runs .hint{font-size:10px;color:var(--dim)}
   .drop{outline:2px dashed transparent;transition:outline-color .15s}
   .drop.over{outline-color:var(--red)}
   .pill{font-size:10px;border:1px solid var(--line);border-radius:999px;padding:0 6px;color:var(--dim)}
@@ -456,17 +460,85 @@ function render() {
     wrapBox.onchange = () => op({ op: "text", textId: text.id, wrap: wrapBox.checked });
     wrap.append(wrapBox, document.createTextNode(" wrap"));
     const anim = document.createElement("select");
-    anim.innerHTML = ["none", "fade", "words-up", "words-fade"].map(
+    anim.innerHTML = ["none", "fade", "words-up", "words-fade", "letters-up", "letters-fade"].map(
       (kind) => `<option value="${kind}"${(text.animation?.kind || "none") === kind ? " selected" : ""}>${kind}</option>`).join("");
     anim.onchange = () => op({ op: "text", textId: text.id,
                                animation: anim.value === "none" ? "none"
-                                 : { kind: anim.value, stagger: 24000, ease: "cubic-out" } });
-    row.append(wrap, anim);
+                                 : { kind: anim.value, stagger: text.animation?.stagger ?? 24000,
+                                     ease: text.animation?.ease ?? "cubic-out" } });
+    const stagger = document.createElement("input");
+    stagger.type = "number";
+    stagger.title = "stagger (ticks بين كل كلمة/حرف)";
+    stagger.style.width = "90px";
+    stagger.value = text.animation?.stagger ?? 24000;
+    stagger.onchange = () => op({ op: "text", textId: text.id,
+                                  animation: { kind: text.animation?.kind ?? "fade",
+                                               stagger: Number(stagger.value),
+                                               ease: text.animation?.ease ?? "cubic-out" } });
+    row.append(wrap, anim, stagger);
     box.append(input, row);
+
+    // styled runs: a range of the text with its own colour/size/font
+    const runsBox = document.createElement("div");
+    runsBox.className = "runs";
+    for (const [index, run] of (text.runs || []).entries()) {
+      const runRow = document.createElement("div");
+      runRow.className = "row kf";
+      const start = Object.assign(document.createElement("input"), { type: "number", value: run.start, title: "بداية (حرف)" });
+      const end = Object.assign(document.createElement("input"), { type: "number", value: run.end, title: "نهاية (حرف، بدون آخر حرف)" });
+      const colour = Object.assign(document.createElement("input"), { type: "color", value: run.color || "#ffffff", title: "اللون" });
+      const size = Object.assign(document.createElement("input"), { type: "number", value: run.size || "", placeholder: "size", title: "حجم اختياري" });
+      const apply = document.createElement("button");
+      apply.className = "tiny";
+      apply.textContent = "تطبيق";
+      apply.onclick = () => {
+        const updated = (text.runs || []).map((item, position) => position === index
+          ? { ...item, start: Number(start.value), end: Number(end.value),
+              color: colour.value, ...(size.value ? { size: Number(size.value) } : {}) }
+          : item);
+        return op({ op: "runs", textId: text.id, runs: updated });
+      };
+      const drop = document.createElement("button");
+      drop.className = "tiny";
+      drop.textContent = "×";
+      drop.onclick = () => op({ op: "runs", textId: text.id,
+                                runs: (text.runs || []).filter((_item, position) => position !== index) });
+      runRow.append(start, end, colour, size, apply, drop);
+      runsBox.appendChild(runRow);
+    }
+    const addRun = document.createElement("button");
+    addRun.className = "tiny";
+    addRun.textContent = "+ run";
+    addRun.onclick = () => {
+      // Runs may only start and end on word boundaries, and may not overlap: pick the first word
+      // that no run covers yet, so the button never sends an edit the checker will refuse.
+      const existing = text.runs || [];
+      const taken = (start, end) => existing.some((run) => start < run.end && run.start < end);
+      let offset = 0;
+      for (const word of text.value.split(/\s+/).filter(Boolean)) {
+        offset = text.value.indexOf(word, offset);
+        const end = offset + word.length;
+        if (!taken(offset, end)) {
+          return op({ op: "runs", textId: text.id,
+                      runs: [...existing, { start: offset, end, color: "#ffab00" }] });
+        }
+        offset = end;
+      }
+      banner("كل الكلمات عندها run بالفعل", false);
+      return Promise.resolve();
+    };
+    runsBox.appendChild(addRun);
+    if ((text.runs || []).length) {
+      const hint = document.createElement("div");
+      hint.className = "hint";
+      hint.textContent = "بداية/نهاية بالحرف، لازم يقفوا على حدود كلمة وميتقاطعوش.";
+      runsBox.appendChild(hint);
+    }
+    box.append(runsBox);
     captions.appendChild(box);
   }
   $("captionsHint").textContent = (project.texts || []).length
-    ? "wrap بيقسّم النص لأسطر داخل الإطار، والـanimation كلمة‑كلمة بترتيب زمني."
+    ? "wrap بيقسّم النص لأسطر داخل الإطار؛ الـanimation كلمة‑كلمة أو حرف‑بحرف (letters-*)، والـruns بتلوّن/تكبّر جزءًا من النص — حدودها لازم تكون عند حدود الكلمة."
     : "المشروع مافيهوش نصوص؛ أضف block من JSON أو من tools/workflows.py";
 
   for (const id of ["split", "trim", "ripple"]) $(id).disabled = !selected;

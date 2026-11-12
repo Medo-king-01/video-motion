@@ -55,16 +55,17 @@ Hybrid مش راسم تالت؛ هو **التركيب**: كل مسار في ال
 ## 3. الحالة في `render_backend.py --check`
 
 ```
-OK: 3 real adapter(s) (Hybrid, K, P) and 1 null adapter(s) (R) keep the contract.
+OK: 4 real adapter(s) (Hybrid, K, P, R) and 0 null adapter(s) (none) keep the contract.
 ```
 
 `REAL` في `tools/render_backend.py` هو سجل الـadapters الموجودين؛ كل اسم مش موجود فيه بيتفحص بـ
-`NullAdapter` (رافض، صادق، وبلا رسم). R لسه هناك لحد ما يتقرّر مصيره.
+`NullAdapter` (رافض، صادق، وبلا رسم). الأربعة بقوا حقيقيين: R ليه `tools/adapter_r.py` بيقرا ويقول
+`R13`/`R14` بالاسم — شوف [`adapter-r.md`](adapter-r.md).
 
 ## 4. الحدود
 
 - K ما بيرسمش، وHybrid ما بيرسمش أكتر من P — **مفيش تكافؤ بكسلات مع Remotion**، ومفيش ادّعاء إن
   K «بيشتغل على جهاز المالك».
-- Hybrid بيرسم بكسلات P بالكامل، فاللي P بيرفضه (`R02`, `R03`, `R07`, `R08`…) Hybrid بيرفضه كذلك.
+- Hybrid بيرسم بكسلات P بالكامل، فاللي P بيرفضه (`R02`, `R06`, `R07`, `R08`…) Hybrid بيرفضه كذلك.
 - الـ`routing` مبنى على نوع المسار فقط؛ تقسيم **داخل** المسار (نصف المقاطع على K والنصف التاني على P)
   مش منفّذ ولا مدّعى.

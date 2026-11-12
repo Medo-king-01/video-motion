@@ -5,6 +5,39 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-12 (contract 1.5, VFR + colour, audio speed, engine R, real browser)
+
+The four stragglers of the plan, closed together. What is measured: a contract that can dress a line
+of Arabic in two colours and animate it letter by letter, a decoder that trusts the file's own
+timestamps and colour tags instead of the file name, audio that is resampled instead of refused, a
+fourth backend that answers the contract by naming exactly what is missing, and an editor page that
+was finally opened in a real browser.
+
+- **Contract 1.5** (`docs/contract-1.5.md`) — `text.runs` (≤16, `start`/`end` plus optional
+  `color`/`size`/`font`) guarded by `U12`: sorted, non-overlapping, inside the text, **cutting on word
+  boundaries**, and each run must change something; `animation.kind` gains `letters-up` and
+  `letters-fade`, built on HarfBuzz clusters so joined Arabic stays joined. `CURRENT` is `1.5`, and a
+  1.4 project migrates without a single field changing.
+- **The decoder stopped guessing** — `_read_video` picks the frame that covers the requested tick from
+  real PTS (VFR and edit lists included), upsamples chroma generically for 4:2:0/4:2:2/4:4:4, and
+  converts the declared matrix (`bt709`/`bt601`/`fcc`/`smpte240m`, full or limited) into sRGB. HDR and
+  non-sRGB stills are refused by name (`V09`, `V10`) instead of being tinted.
+- **Audio speed is mixed, not refused** — `audio_export` resamples a clip's samples by its `speed`
+  fraction, and `R03` is retired from `adapter_p` (`test_audio_speed_is_mixed_not_refused`).
+- **Engine R answers** (`tools/adapter_r.py`, `docs/adapter-r.md`) — compiles the shared graph with
+  `executable: false`, reports `R13` (no unified-graph → Remotion scene yet) and `R14` (pinned npm
+  toolchain absent) as separate diagnostics, and measures the machine with `toolchain()`. `render()`
+  refuses and writes nothing. `render_backend.py --check` now says **4 real adapters, 0 null**.
+- **The editor met a browser** — the page was driven in **Chromium 138** (headless) against the live
+  server: `dir=rtl`, no horizontal overflow, correct RTL column order, preview loading a real 270×480
+  frame with the animated, two-colour caption, animation select round-tripping to the server, `+ run`
+  adding a run the checker accepts, and **zero console errors** after two bugs were fixed (the `+ run`
+  button used to overlap an existing run and get `U12`; the run rows now sit in a fixed grid).
+  Screenshots: `docs/assets/editor-1.5-chromium.png`, `docs/assets/editor-1.5-stage.png`.
+- **Editor surfaces 1.5** — an `runs` op (`tools/editor_ops.set_runs`), a `/api/op` verb, an animation
+  select covering all six kinds with an editable `stagger`, and a per-run row editor
+  (start/end/colour/size, apply, delete).
+
 ## Unreleased — 2026-11-12 (contract 1.4, video/audio in P, K + Hybrid, editor v2, text animation)
 
 The four remaining items of the plan's second wave landed together. What is measured here: a

@@ -194,16 +194,18 @@
       "features": {
         "project.read": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_r.py",
+            "tests/test_adapter_r.py"
           ]
         },
         "graph.execute": {
           "version": 1,
           "state": "unsupported",
           "evidence": [
-            "tools/unified_render_graph.py"
+            "tools/adapter_r.py",
+            "tests/test_adapter_r.py"
           ]
         },
         "draft.half": {
