@@ -103,12 +103,22 @@ def test_only_a_backend_with_an_adapter_claims_to_read_the_unified_project(manif
             assert state in ("unsupported", "unknown"), f"{backend} claims project.read without an adapter"
 
 
-def test_claiming_graph_execution_before_an_adapter_fails(manifest) -> None:
+def test_claiming_graph_execution_before_an_adapter_fails(manifest, monkeypatch) -> None:
+    """All four backends have adapters today, so the gate is exercised by pretending one is missing."""
     broken = copy.deepcopy(manifest)
     broken["backends"]["R"]["features"]["graph.execute"] = {
-        "version": 1, "state": "supported", "evidence": ["docs/editor-architecture.md"]}
+        "version": 1, "state": "supported", "evidence": ["tools/adapter_r.py"]}
+    monkeypatch.setattr(caps, "adapter_path",
+                        lambda backend: caps.ROOT / "tools" / f"adapter_{backend.lower()}_missing.py")
     errors = caps.validate(broken)
     assert any("cannot be claimed before an adapter exists" in error for error in errors), errors
+
+
+def test_every_backend_now_has_an_adapter(manifest) -> None:
+    for backend in caps.BACKENDS:
+        assert caps.adapter_path(backend).is_file(), f"{backend} has no adapter"
+        state = manifest["backends"][backend]["features"]["project.read"]["state"]
+        assert state in ("supported", "conditional"), f"{backend} has an adapter but claims {state}"
 
 
 def test_duplicate_json_keys_are_refused(tmp_path: Path) -> None:

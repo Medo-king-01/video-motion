@@ -228,7 +228,8 @@ duration × rate`، ورفض أي `rate` لا يحافظ على حدود صحي�
 و`preflight()` يرجع `status: "unsupported"` مع `R01` لكل المحركات. **العقد نفسه مجمَّد في كود**:
 `tools/render_backend.py` فيه `RenderBackend` (Protocol) و`conformance_problems()` و`NullAdapter`
 لكل محرك، وتوقيعات الدوال محروسة في `tests/test_render_backend_contract.py`. **لا يوجد adapter حقيقي
-واحد بعد** — الـ`NullAdapter` يعلن `unsupported` ويرفض الرندر صراحةً.
+واحد بعد** — أي باكند لسه بلا adapter بيرجع لـ`NullAdapter` ويعلن `unsupported` صراحةً. الأربعة
+(P/K/Hybrid/R) عندهم adapters حقيقيين؛ R بيرفض بـ`R13`/`R14` بالاسم ([`adapter-r.md`](adapter-r.md)).
 
 ### 7.1 عقد الـadapter (منفّذ كهيكل — يُنفَّذ محتواه لاحقًا)
 

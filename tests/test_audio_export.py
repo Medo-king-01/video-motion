@@ -260,3 +260,64 @@ def test_cli_refuses_a_project_without_audio(tmp_path: Path) -> None:
 
 def test_cli_reports_a_missing_project(tmp_path: Path) -> None:
     assert run("build", str(tmp_path / "gone.json"), "-o", str(tmp_path / "mix.wav")).returncode == 2
+
+
+# ---------------------------------------------------------------- speed (R03 retired)
+def ramp(path: Path, frames: int = 4_800, rate: int = 48_000) -> list[int]:
+    """A ramp reads back exactly, so decimation and repetition are obvious in the mix."""
+    values = [((index * 7) % 400) - 200 for index in range(frames)]
+    with wave.open(str(path), "wb") as handle:
+        handle.setnchannels(1)
+        handle.setsampwidth(2)
+        handle.setframerate(rate)
+        handle.writeframes(struct.pack(f"<{frames}h", *values))
+    return values
+
+
+def ramped(tmp_path: Path, speed: dict) -> tuple[dict, list[int]]:
+    values = ramp(tmp_path / "ramp.wav")
+    payload = (tmp_path / "ramp.wav").read_bytes()
+    project_dict = project(tmp_path, duration=96_000, clips=[
+        {"id": "m1", "kind": "media", "assetId": "a1", "start": 0, "duration": 48_000,
+         "sourceIn": 0, "speed": speed, "effects": [], "keyframes": []}])
+    project_dict["assets"][0].update(uri="ramp.wav", duration=240_000,
+                                     sha256=hashlib.sha256(payload).hexdigest())
+    return project_dict, values
+
+
+def mix_values(pcm: bytes) -> list[int]:
+    return list(struct.unpack(f"<{len(pcm) // 2}h", pcm))
+
+
+def test_a_double_speed_clip_reads_every_other_source_sample(tmp_path: Path) -> None:
+    project_dict, values = ramped(tmp_path, {"num": 2, "den": 1})
+    pcm, manifest = audio_export.build(project_dict, tmp_path)
+    out = mix_values(pcm)
+    assert manifest["clips"][0]["duration"] == 48_000, "a speed change never moves the clip on the timeline"
+    assert len(out) == 19_200, "the mix is the project length (96 000 ticks)"
+    assert out[:8] == values[0:16:2], "speed 2/1 must consume two source samples per output sample"
+    assert set(out[9_600:]) == {0}, "the clip still ends exactly at its 48 000 ticks"
+
+
+def test_a_half_speed_clip_repeats_every_source_sample(tmp_path: Path) -> None:
+    project_dict, values = ramped(tmp_path, {"num": 1, "den": 2})
+    pcm, _ = audio_export.build(project_dict, tmp_path)
+    out = mix_values(pcm)
+    assert out[:8] == [values[0], values[0], values[1], values[1], values[2], values[2], values[3], values[3]]
+
+
+def test_a_fractional_speed_rounds_the_step_down_deterministically(tmp_path: Path) -> None:
+    project_dict, values = ramped(tmp_path, {"num": 3, "den": 2})
+    pcm, _ = audio_export.build(project_dict, tmp_path)
+    out = mix_values(pcm)
+    expected = [values[(index * 3) // 2] for index in range(8)]
+    assert out[:8] == expected
+    again, _ = audio_export.build(project_dict, tmp_path)
+    assert again == pcm, "the same project must produce the same bytes"
+
+
+def test_speed_is_refused_when_it_is_not_a_fraction(tmp_path: Path) -> None:
+    project_dict, _ = ramped(tmp_path, {"num": 0, "den": 1})
+    with pytest.raises(audio_export.AudioError) as error:
+        audio_export.build(project_dict, tmp_path)
+    assert error.value.code in ("A01", "U08")

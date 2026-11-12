@@ -21,7 +21,7 @@ from unified_project_edit import move_clip, ripple_delete, split_clip, trim_clip
 __all__ = [
     "add_asset", "add_clip", "add_effect", "add_keyframe", "add_text", "add_text_clip", "add_track",
     "delete_clip", "move_clip", "remove_asset", "remove_effect", "remove_keyframe",
-    "remove_track", "ripple_delete", "set_effect_value", "set_project", "set_text",
+    "remove_track", "ripple_delete", "set_effect_value", "set_project", "set_runs", "set_text",
     "split_clip", "trim_clip", "update_clip",
 ]
 
@@ -76,6 +76,20 @@ def set_text(project, text_id, **fields):
                     continue
                 text[key] = value
             return _checked(result)
+    raise ValueError(f"unknown text {text_id!r}")
+
+
+def set_runs(project, text_id, runs):
+    """Replace a text block's styled runs; an empty list clears them. The checker decides validity."""
+    result = copy.deepcopy(project)
+    for text in result.get("texts") or []:
+        if text["id"] != text_id:
+            continue
+        if runs:
+            text["runs"] = copy.deepcopy(runs)
+        else:
+            text.pop("runs", None)
+        return _checked(result)
     raise ValueError(f"unknown text {text_id!r}")
 
 

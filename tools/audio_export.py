@@ -165,10 +165,10 @@ def build(project: dict, root: Path, *, sample_rate: int | None = None) -> tuple
             end_tick = clip["start"] + clip["duration"]
             if end_tick > project["duration"]:
                 raise AudioError("A04", f"clip {clip['id']}: ends at {end_tick} beyond {project['duration']}")
-            speed = clip.get("speed")
-            if speed and (speed["num"], speed["den"]) != (1, 1):
-                raise AudioError("A07", f"clip {clip['id']}: speed {speed['num']}/{speed['den']} "
-                                        "needs a resampler, which this mixer does not have")
+            speed = clip.get("speed") or {"num": 1, "den": 1}
+            num, den = int(speed["num"]), int(speed["den"])
+            if num < 1 or den < 1:
+                raise AudioError("A01", f"clip {clip['id']}: speed must be a positive fraction")
             samples, _ = read_audio(path, rate)
             window = fades.get(clip["id"])
             span = window[1] - window[0] if window else 0
@@ -182,7 +182,10 @@ def build(project: dict, root: Path, *, sample_rate: int | None = None) -> tuple
             entry = {"timebase": timebase, "project": project}
             static_gain = _constant_gain(clip) if not clip.get("keyframes") else None
             for index in range(length):
-                source_index = offset + index
+                # Speed = how many source samples one output sample consumes: 2/1 skips every other
+                # sample (the clip plays twice as fast, the pitch rises with it — this is a rate
+                # change, not a time-stretch), 1/2 repeats each sample once.
+                source_index = offset + index * num // den
                 if source_index < 0 or source_index >= len(samples):
                     continue
                 gain = static_gain if static_gain is not None else _gain_at(

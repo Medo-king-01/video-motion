@@ -123,6 +123,7 @@ def perform(session: Session, payload: dict):
                                       **{key: payload[key] for key in ("value", "size", "color", "align",
                                                                        "wrap", "animation", "font")
                                          if key in payload}),
+        "runs": lambda: session.apply(ops.set_runs, payload["textId"], payload.get("runs") or []),
         "add_text": lambda: session.apply(ops.add_text, payload["textId"], payload["value"],
                                           **{key: payload[key] for key in ("font", "size", "color", "align",
                                                                            "direction", "wrap", "animation")

@@ -438,6 +438,99 @@ def _compose(font_path, text, size, color, rtl, stroke, stroke_color, pad=0):
     return img, width, asc
 
 
+# ---------------------------------------------------------------- clusters
+def _shape_with_clusters(text: str, hb_font, upem: int, size: int, rtl: bool):
+    """Like `_shape`, but keeps each glyph's source-character cluster index."""
+    buf = hb.Buffer()
+    buf.add_str(text)
+    buf.direction = 'rtl' if rtl else 'ltr'
+    buf.guess_segment_properties()
+    if rtl:
+        buf.script = 'Arab'
+        buf.language = 'ar'
+    hb.shape(hb_font, buf, {'kern': True, 'liga': True, 'calt': True})
+    glyphs, pen = [], 0.0
+    k = size / upem
+    for info, pos in zip(buf.glyph_infos, buf.glyph_positions):
+        glyphs.append((
+            info.codepoint,
+            pen + pos.x_offset * k,
+            -pos.y_offset * k,
+            info.cluster,
+        ))
+        pen += pos.x_advance * k
+    return glyphs, pen
+
+
+def text_clusters(font_path, text, size, color=(255, 255, 255), rtl=True):
+    """Shape one word and return one sprite per *cluster* (a letter plus its marks).
+
+    Arabic joins its letters, so splitting a word into characters before shaping would print the
+    isolated forms and lose the ligatures. Shaping runs once on the whole word and the resulting
+    glyphs are grouped by their source cluster, which keeps the letterforms correct while letting
+    each letter move on its own.
+
+    Returns `(clusters, width, asc, desc)`, where each cluster is
+    `{'cluster': int, 'sprite': RGBA image, 'x': int, 'y': int, 'width': int}` with `x` measured
+    from the left edge of the word box.
+    """
+    hb_font, ft, upem = _font(font_path, size)
+    placements, width = [], 0.0
+    for run_text, run_rtl in _runs(text, rtl):
+        glyphs, adv = _shape_with_clusters(run_text, hb_font, upem, size, run_rtl)
+        for gid, gx, gy, cluster in glyphs:
+            placements.append((gid, width + gx, gy, cluster))
+        width += adv
+    asc = ft.size.ascender / 64.0
+    desc = abs(ft.size.descender) / 64.0
+    pad = 3
+    box_w = int(np.ceil(width)) + pad * 2
+    box_h = int(np.ceil(asc + desc)) + pad * 2
+    baseline = asc + pad
+    per_cluster = {}
+    for gid, gx, gy, cluster in placements:
+        try:
+            ft.load_glyph(int(gid), freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_NORMAL)
+        except Exception:
+            continue
+        glyph = ft.glyph
+        bitmap = glyph.bitmap
+        if bitmap.width <= 0 or bitmap.rows <= 0:
+            continue
+        coverage = np.array(bitmap.buffer, dtype=np.uint8).reshape(bitmap.rows, bitmap.pitch)[:, :bitmap.width]
+        px = int(round(gx + glyph.bitmap_left)) + pad
+        py = int(round(baseline - glyph.bitmap_top - gy))
+        canvas = per_cluster.setdefault(cluster, (px, py, np.zeros((box_h, box_w), dtype=np.uint8)))[2]
+        x0, y0 = max(px, 0), max(py, 0)
+        x1, y1 = min(px + bitmap.width, box_w), min(py + bitmap.rows, box_h)
+        if x1 <= x0 or y1 <= y0:
+            continue
+        source = coverage[y0 - py:y1 - py, x0 - px:x1 - px]
+        np.maximum(canvas[y0:y1, x0:x1], source, out=canvas[y0:y1, x0:x1])
+    colour = tuple(color[:3]) if isinstance(color, (tuple, list)) else (255, 255, 255)
+    clusters = []
+    for cluster in sorted(per_cluster):
+        _origin, _origin_y, canvas = per_cluster[cluster]
+        coverage = Image.fromarray(canvas, 'L')
+        box = coverage.getbbox()
+        if not box:
+            continue
+        left, top, right, bottom = box
+        sprite = Image.new('RGBA', (right - left, bottom - top), colour + (0,))
+        sprite.putalpha(coverage.crop(box))
+        # Coordinates stay in the shaped word's canvas frame, so a letter can be dropped straight
+        # into the same box a whole-word sprite would occupy.
+        clusters.append({'cluster': int(cluster), 'sprite': sprite,
+                         'x': left, 'y': top, 'width': right - left})
+    return clusters, width, asc, desc
+
+
+def word_canvas(font_path, text, size, color=(255, 255, 255), rtl=True):
+    """The whole shaped word on its full canvas (no ink crop) — the frame letters are cut from."""
+    rgba, _width, _asc = _compose(font_path, text, size, color, rtl, 0, (0, 0, 0), pad=0)
+    return rgba
+
+
 # ---------------------------------------------------------------- public API
 LAYOUT_NAME = 'harfbuzz-fallback'
 

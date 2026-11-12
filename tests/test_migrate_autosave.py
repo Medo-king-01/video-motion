@@ -51,7 +51,7 @@ def test_a_1_2_project_keeps_its_transitions() -> None:
 
 def test_an_unknown_or_newer_version_is_refused() -> None:
     newer = copy.deepcopy(FIXTURE)
-    newer["schemaVersion"] = "1.5"
+    newer["schemaVersion"] = "1.6"
     with pytest.raises(migrate.MigrationError) as newer_error:
         migrate.migrate(newer)
     assert newer_error.value.code == "M02"

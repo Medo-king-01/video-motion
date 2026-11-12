@@ -72,7 +72,16 @@ def _read_image(root, asset, width, height, path):
         from PIL import Image  # noqa: PLC0415
 
         try:
-            image = Image.open(__import__("io").BytesIO(data)).convert("RGBA")
+            source = Image.open(__import__("io").BytesIO(data))
+            # The pipeline works in sRGB and has no ICC engine: a tagged still that is not sRGB is a
+            # refusal, not something to silently reinterpret.
+            profile = source.info.get("icc_profile")
+            if profile and not _is_srgb_profile(profile):
+                raise PreviewError("V10", path, "the still carries a non-sRGB ICC profile; "
+                                                "convert it to sRGB before importing")
+            image = source.convert("RGBA")
+        except PreviewError:
+            raise
         except Exception as exc:  # noqa: BLE001 - any decoder failure is the same diagnosis
             raise PreviewError("V04", path, f"cannot decode image: {exc}") from exc
         if image.size != (width, height):
@@ -85,6 +94,104 @@ def _read_image(root, asset, width, height, path):
 def _video_stream_index(asset):
     streams = asset.get("streams") or {}
     return int(streams.get("video", 0))
+
+
+#: AVColorSpace values this build converts. Anything else is refused rather than guessed.
+COLOUR_SPACES = {1: "bt709", 4: "fcc", 5: "bt601", 6: "bt601", 7: "smpte240m"}
+HDR_SPACES = {9: "bt2020-ncl", 10: "bt2020-cl", 11: "smpte2085", 12: "chroma-derived-ncl",
+              13: "ictcp", 14: "ipt-c2", 15: "ycbcr", 16: "ycycgco"}
+#: ITU-R coefficients for the two matrices actually used here (Kr, Kb).
+COLOUR_MATRIX = {"bt709": (0.2126, 0.0722), "bt601": (0.299, 0.114), "fcc": (0.30, 0.11),
+                 "smpte240m": (0.212, 0.087)}
+
+
+def _is_srgb_profile(profile):
+    """sRGB is the only profile this pipeline can honour; recognise it by its description."""
+    text = profile.lower()
+    return b"srgb" in text or b"iec61966" in text
+
+
+def colour_space_of(frame, stream, height):
+    """Which matrix a frame must be converted with, or a `V09` refusal.
+
+    Unspecified is the common case in real files: HD follows BT.709 and SD follows BT.601, which is
+    the same rule every player applies. HDR and anything unknown is refused — guessing there would
+    produce a plausible-looking, wrong picture.
+    """
+    code = getattr(frame, "colorspace", None)
+    if code in (None, 0, 2):
+        code = getattr(stream, "colorspace", None)
+    if code in (None, 0, 2):
+        return "bt709" if height >= 720 else "bt601"
+    if code in HDR_SPACES:
+        raise PreviewError("V09", "$.tracks", f"{HDR_SPACES[code]} sources are not converted "
+                                              f"(this build works in sRGB/Rec.709)")
+    if code not in COLOUR_SPACES:
+        raise PreviewError("V09", "$.tracks", f"unknown colour space {code}; refusing to guess")
+    return COLOUR_SPACES[code]
+
+
+def full_range_of(frame, stream):
+    code = getattr(frame, "color_range", None) or getattr(stream, "color_range", None)
+    return code == 2  # AVCOL_RANGE_JPEG; unspecified and MPEG both mean limited
+
+
+def _plane(frame, index):
+    import numpy as np  # noqa: PLC0415
+
+    plane = frame.planes[index]
+    return np.frombuffer(bytes(plane), dtype=np.uint8).reshape(plane.height, plane.line_size)
+
+
+def _yuv_to_rgba(frame, matrix, full_range):
+    """YUV → RGBA with the declared matrix; chroma is upsampled nearest-neighbour (4:2:0, 4:2:2 or 4:4:4)."""
+    import numpy as np  # noqa: PLC0415
+
+    height, width = frame.height, frame.width
+    y = _plane(frame, 0)[:height, :width].astype(np.float32)
+
+    def chroma(index):
+        plane = frame.planes[index]
+        values = _plane(frame, index)[:plane.height, :plane.width].astype(np.float32)
+        rows = max(1, height // plane.height)
+        columns = max(1, width // plane.width)
+        values = np.repeat(np.repeat(values, rows, axis=0), columns, axis=1)
+        return values[:height, :width]
+
+    u, v = chroma(1), chroma(2)
+    if full_range:
+        yy, cb, cr = y, u - 128.0, v - 128.0
+    else:
+        yy, cb, cr = (y - 16.0) * (255.0 / 219.0), (u - 128.0) * (255.0 / 224.0), (v - 128.0) * (255.0 / 224.0)
+    kr, kb = COLOUR_MATRIX[matrix]
+    kg = 1.0 - kr - kb
+    red = yy + 2.0 * (1.0 - kr) * cr
+    blue = yy + 2.0 * (1.0 - kb) * cb
+    green = (yy - kr * red - kb * blue) / kg
+    rgb = np.stack([red, green, blue], axis=-1)
+    rgb = np.rint(np.clip(rgb, 0, 255)).astype(np.uint8)
+    rgba = np.empty((height, width, 4), dtype=np.uint8)
+    rgba[..., :3] = rgb
+    rgba[..., 3] = 255
+    return rgba.tobytes()
+
+
+def _frame_at(container, stream, seconds):
+    """The frame on screen at `seconds`: the last one whose timestamp is at or before it.
+
+    This is what makes variable frame rate work: a frame covers the span until the next frame's
+    presentation time, so picking by timestamp is correct whether the gaps are regular or not.
+    """
+    chosen = None
+    for frame in container.decode(stream):
+        if frame.pts is None:
+            chosen = chosen or frame
+            continue
+        moment = float(frame.pts * (frame.time_base or stream.time_base))
+        if moment > seconds + 1e-6:
+            break
+        chosen = frame
+    return chosen
 
 
 def _read_video(root, asset, width, height, source_tick, path):
@@ -103,15 +210,21 @@ def _read_video(root, asset, width, height, source_tick, path):
             stream = container.streams.video[_video_stream_index(asset)]
             stream.thread_type = "AUTO"
             container.seek(int(seconds / stream.time_base), stream=stream, backward=True)
-            chosen = None
-            for frame in container.decode(stream):
-                moment = float(frame.pts * stream.time_base) if frame.pts is not None else 0.0
-                chosen = frame
-                if moment >= seconds:
-                    break
+            chosen = _frame_at(container, stream, seconds)
+            if chosen is None:
+                # the seek landed past the requested instant (possible with sparse keyframes):
+                # decode from the head once instead of returning a later picture
+                container.seek(0, stream=stream)
+                chosen = _frame_at(container, stream, seconds)
             if chosen is None:
                 raise PreviewError("V08", path, "no decodable video frame")
-            image = chosen.to_image().convert("RGBA")
+            matrix = colour_space_of(chosen, stream, height)
+            pixels = _yuv_to_rgba(chosen, matrix, full_range_of(chosen, stream))
+            if chosen.format.name not in ("yuv420p", "yuvj420p", "yuv422p", "yuv444p"):
+                # anything exotic falls back to PyAV's own conversion, which applies the same matrix
+                image = chosen.to_image().convert("RGBA")
+            else:
+                image = Image.frombytes("RGBA", (chosen.width, chosen.height), pixels)
     except PreviewError:
         raise
     except Exception as exc:  # noqa: BLE001
@@ -222,31 +335,51 @@ def _shaper():
     return arabic_shape
 
 
-def _word_sprite(text, word, color, rtl):
-    from PIL import Image  # noqa: PLC0415
-
-    shaper = _shaper()
-    path = str(font_path(text["font"]))
-    shaper = _shaper()
-    width, height = shaper.measure(path, word, text["size"], rtl=rtl)
-    sprite = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    shaper.draw(sprite, (width / 2, height / 2), path, word, text["size"], color, rtl=rtl, anchor="mm")
-    return sprite
+def _word_sprite(font, word, size, color, rtl):
+    """The shaped word on its full canvas — the same frame `text_clusters` cuts letters out of."""
+    return _shaper().word_canvas(str(font_path(font)), word, size, color, rtl)
 
 
-def _wrap_words(text, words, max_width):
-    """Group words into lines that fit `max_width`, measuring each candidate with the shaper."""
+def _word_positions(value):
+    """`[(word, character_offset)]` — the offset is what a `run` is matched against."""
+    words, index = [], 0
+    for token in value.split():
+        index = value.index(token, index)
+        words.append((token, index))
+        index += len(token)
+    return words
+
+
+def _colour(value):
+    return tuple(int(value[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def _style_at(text, offset):
+    """The style of the word that starts at `offset`: the text's own, refined by any run covering it."""
+    style = {"font": text["font"], "size": text["size"], "color": _colour(text["color"])}
+    for run in text.get("runs") or []:
+        if run["start"] <= offset < run["end"]:
+            for key in ("font", "size", "color"):
+                if key in run:
+                    style[key] = _colour(run[key]) if key == "color" else run[key]
+            break
+    return style
+
+
+def _wrap_words(text, words, max_width, styles):
+    """Group words into lines that fit `max_width`, measuring each candidate with its own style."""
     shaper = _shaper()
-    path = str(font_path(text["font"]))
     rtl = text["direction"] == "rtl"
-    lines, current = [], []
-    for word in words:
-        candidate = " ".join(current + [word])
-        if current and shaper.measure(path, candidate, text["size"], rtl=rtl)[0] > max_width:
+    lines, current, width = [], [], 0
+    for index, (word, _offset) in enumerate(words):
+        style = styles[index]
+        span = shaper.measure(str(font_path(style["font"])), word, style["size"], rtl=rtl)[0]
+        if current and width + span > max_width:
             lines.append(current)
-            current = [word]
+            current, width = [index], span
         else:
-            current.append(word)
+            current.append(index)
+            width += span
     if current:
         lines.append(current)
     return lines
@@ -259,10 +392,26 @@ def _ease(progress, ease):
     return progress
 
 
-def _text_layers(project, tick, height, width):
-    """Sprites for the text clips visible at `tick`, with wrapping and word animation."""
-    from PIL import Image  # noqa: PLC0415
+def _word_pieces(style, word, rtl, per_letter):
+    """One piece per word, or one per letter cluster when the animation moves letters."""
+    shaper = _shaper()
+    path = str(font_path(style["font"]))
+    if per_letter:
+        # The letter path and the word path must agree on the box, or a finished animation would sit
+        # a few pixels off the static caption. Both use the shaped word's measured box; each letter
+        # is placed inside it at its shaped offset.
+        canvas = shaper.word_canvas(path, word, style["size"], style["color"], rtl)
+        clusters, _advance, _ascender, _descender = shaper.text_clusters(
+            path, word, style["size"], style["color"], rtl)
+        pieces = [{"sprite": item["sprite"], "dx": item["x"], "dy": item["y"],
+                   "order": item["cluster"]} for item in clusters]
+        return pieces, canvas.width, canvas.height
+    sprite = _word_sprite(style["font"], word, style["size"], style["color"], rtl)
+    return [{"sprite": sprite, "dx": 0, "dy": 0, "order": 0}], sprite.width, sprite.height
 
+
+def _text_layers(project, tick, height, width):
+    """Sprites for the text clips visible at `tick`: wrapping to the frame, runs, word/letter animation."""
     layers = []
     texts = {text["id"]: text for text in project.get("texts") or []}
     margin = max(8, width // 12)
@@ -278,74 +427,101 @@ def _text_layers(project, tick, height, width):
                 raise PreviewError("V02", path + ".keyframes", "only opacity can be keyframed on text")
             text = texts[clip["textId"]]
             rtl = text["direction"] == "rtl"
-            color = tuple(int(text["color"][i:i + 2], 16) for i in (1, 3, 5))
-            words = [word for word in text["value"].split() if word]
-            lines = _wrap_words(text, words, room) if text.get("wrap") else [words]
+            words = _word_positions(text["value"])
+            styles = [_style_at(text, offset) for _word, offset in words]
             animation = text.get("animation") or {"kind": "none"}
+            kind = animation["kind"]
+            per_letter = kind.startswith("letters-")
             stagger = int(animation.get("stagger", 0))
             ease = animation.get("ease", "linear")
             local = tick - clip["start"]
-            sprites = []
-            flat_index = 0
+            lines = (_wrap_words(text, words, room, styles) if text.get("wrap")
+                     else [list(range(len(words)))])
+            pieces_seen = 0  # letters: one step per cluster, in reading order
+            words_seen = 0   # words: one step per word, in reading order
+            rows = []
             for line in lines:
-                line_sprites = []
-                for word in line:
-                    progress = 1000
-                    if animation["kind"] != "none" and stagger > 0:
-                        start = flat_index * stagger
-                        progress = max(0, min(1000, (local - start) * 1000 // stagger))
-                        progress = _ease(progress, ease)
-                    if progress > 0:
-                        sprite = _word_sprite(text, word, color, rtl)
-                        if animation["kind"] in ("fade", "words-fade", "words-up"):
+                row = []
+                for index in line:
+                    word, _offset = words[index]
+                    style = styles[index]
+                    items, advance, box_height = _word_pieces(style, word, rtl, per_letter)
+                    for piece in items:
+                        step = pieces_seen if per_letter else words_seen
+                        progress = 1000
+                        if kind != "none" and stagger > 0:
+                            start = step * stagger
+                            progress = max(0, min(1000, (local - start) * 1000 // stagger))
+                            progress = _ease(progress, ease)
+                        piece["progress"] = progress
+                        if per_letter:
+                            pieces_seen += 1
+                    row.append({"width": advance, "height": box_height, "pieces": items})
+                    if not per_letter:
+                        words_seen += 1
+                if row:
+                    rows.append(row)
+            if not rows:
+                continue
+
+            def shrink(ratio):
+                for row in rows:
+                    for item in row:
+                        item["width"] *= ratio
+                        item["height"] *= ratio
+                        for piece in item["pieces"]:
+                            piece["dx"] *= ratio
+                            piece["dy"] *= ratio
+                            piece["sprite"] = piece["sprite"].resize(
+                                (max(1, int(piece["sprite"].width * ratio)),
+                                 max(1, int(piece["sprite"].height * ratio))))
+
+            line_height = max(max(item["height"] for item in row) for row in rows)
+            if line_height * len(rows) > height - 2 * margin:
+                shrink((height - 2 * margin) / (line_height * len(rows)))
+                line_height = max(max(item["height"] for item in row) for row in rows)
+            block_height = line_height * len(rows)
+            top = (height - block_height) // 2
+            first = len(layers)
+            for index, row in enumerate(rows):
+                line_width = sum(item["width"] for item in row)
+                if line_width > room:
+                    shrink(room / line_width)
+                    line_width = sum(item["width"] for item in row)
+                y = top + index * line_height
+                if rtl:
+                    x = {"left": margin, "center": (width - line_width) // 2,
+                         "right": width - margin - line_width}[text["align"]] + line_width
+                else:
+                    x = {"left": margin, "center": (width - line_width) // 2,
+                         "right": width - margin - line_width}[text["align"]]
+                for item in row:
+                    base = x - item["width"] if rtl else x
+                    for piece in item["pieces"]:
+                        progress = piece["progress"]
+                        if progress <= 0:
+                            continue
+                        sprite = piece["sprite"]
+                        if kind in ("fade", "words-fade", "words-up", "letters-fade", "letters-up"):
+                            sprite = sprite.copy()
                             sprite.putalpha(sprite.getchannel("A").point(
                                 lambda value, p=progress: value * p // 1000))
                         rise = 0
-                        if animation["kind"] == "words-up":
-                            rise = text["size"] * (1000 - progress) // 1000
-                        line_sprites.append((sprite, rise))
-                    flat_index += 1
-                if line_sprites:
-                    sprites.append(line_sprites)
-            if not sprites:
-                continue
-            line_height = max(max(sprite.height for sprite, _ in line) for line in sprites)
-            block_height = line_height * len(sprites)
-            if block_height > height - 2 * margin:
-                ratio = (height - 2 * margin) / block_height
-                for line in sprites:
-                    for index, (sprite, rise) in enumerate(line):
-                        line[index] = (sprite.resize((max(1, int(sprite.width * ratio)),
-                                                     max(1, int(sprite.height * ratio)))), rise)
-                line_height = max(max(sprite.height for sprite, _ in line) for line in sprites)
-                block_height = line_height * len(sprites)
-            top = (height - block_height) // 2
-            for row, line in enumerate(sprites):
-                line_width = sum(sprite.width for sprite, _ in line)
-                if line_width > room:
-                    ratio = room / line_width
-                    line = [(sprite.resize((max(1, int(sprite.width * ratio)),
-                                            max(1, int(sprite.height * ratio)))), rise)
-                            for sprite, rise in line]
-                    line_width = sum(sprite.width for sprite, _ in line)
-                x = {"left": margin, "center": (width - line_width) // 2,
-                     "right": width - margin - line_width}[text["align"]]
-                y = top + row * line_height
-                ordered = line if not rtl else list(reversed(line))
-                for sprite, rise in ordered:
-                    layers.append((sprite, (x, y + (line_height - sprite.height) // 2 + rise)))
-                    x += sprite.width
+                        if kind in ("words-up", "letters-up"):
+                            rise = int((item["height"] * 0.6) * (1000 - progress) // 1000)
+                        layers.append((sprite, (int(base + piece["dx"]),
+                                                int(y + piece["dy"] + rise))))
+                    x = x - item["width"] if rtl else x + item["width"]
             opacity = _opacity(project, clip, local)
             if opacity < 10000:
-                scaled = []
-                for sprite, position in layers[-sum(len(line) for line in sprites):]:
+                for index in range(first, len(layers)):
                     if opacity <= 0:
                         continue
+                    sprite, position = layers[index]
                     faded = sprite.copy()
                     faded.putalpha(faded.getchannel("A").point(
                         lambda value, o=opacity: value * o // 10000))
-                    scaled.append((faded, position))
-                layers = layers[:-sum(len(line) for line in sprites)] + scaled
+                    layers[index] = (faded, position)
     return layers
 
 
@@ -354,8 +530,8 @@ def render_frame(project, root, frame_index):
     """Compile and preview one absolute frame as detached, row-major RGBA8 bytes.
 
     Rejects an out-of-range index, more than one enabled video track, more than one enabled text
-    track, and any clip whose asset cannot be decoded. Disabled tracks are ignored; gaps stay
-    transparent.
+    track, a graphics track, and any clip whose asset cannot be decoded. Audio tracks and disabled
+    tracks are ignored — a frame has no samples; gaps stay transparent.
     """
     graph = compile_project(project)
     p = graph["project"]
@@ -370,10 +546,12 @@ def render_frame(project, root, frame_index):
     enabled_text = [i for i, track in enumerate(p["tracks"]) if track["enabled"] and track["kind"] == "text"]
     if len(enabled_text) > 1:
         raise PreviewError("V02", "$.tracks", "multiple enabled text tracks are not supported")
+    # A frame is pixels only: an audio track contributes nothing to it and is skipped (the mixer
+    # writes it), while a graphics track is refused because nothing in this build draws it.
     for index, track in enumerate(p["tracks"]):
-        if track["enabled"] and track["kind"] not in ("video", "text"):
+        if track["enabled"] and track["kind"] not in ("video", "text", "audio"):
             raise PreviewError("V02", f"$.tracks[{index}]",
-                               f"only video and text tracks are drawn; {track['kind']} is mixed elsewhere")
+                               f"only video and text tracks are drawn; {track['kind']} has no renderer")
     tick = frame_index * graph["clock"]["frameTicks"]
     active = None
     for ti, track in enumerate(p["tracks"]):

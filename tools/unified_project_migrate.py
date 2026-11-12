@@ -27,8 +27,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from unified_project_check import validate  # noqa: E402
 
-CURRENT = "1.4"
-KNOWN = ("1.0", "1.1", "1.2", "1.3", "1.4")
+CURRENT = "1.5"
+KNOWN = ("1.0", "1.1", "1.2", "1.3", "1.4", "1.5")
 
 
 class MigrationError(ValueError):
@@ -67,6 +67,9 @@ def migrate(project):
     if _order(version) < _order("1.4"):
         steps.append({"step": "1.4", "change": "keep the project as-is; wrap/animation/wipe are optional",
                       "note": "text wrapping, word animation and wipe transitions are opt-in"})
+    if _order(version) < _order("1.5"):
+        steps.append({"step": "1.5", "change": "keep the project as-is; runs and letter animation are optional",
+                      "note": "styled runs and per-letter animation are opt-in"})
     migrated["schemaVersion"] = CURRENT
     errors = validate(migrated)
     if errors:

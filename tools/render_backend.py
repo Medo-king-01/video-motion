@@ -115,7 +115,7 @@ class NullAdapter:
 
 #: The adapters that exist. Everything not listed here is still a `NullAdapter` on purpose.
 REAL = {"P": ("adapter_p", "PAdapter"), "K": ("adapter_k", "KAdapter"),
-        "Hybrid": ("adapter_hybrid", "HybridAdapter")}
+        "Hybrid": ("adapter_hybrid", "HybridAdapter"), "R": ("adapter_r", "RAdapter")}
 
 
 def real_adapters() -> dict[str, Any]:
