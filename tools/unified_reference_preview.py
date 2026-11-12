@@ -40,6 +40,13 @@ def _read_image(root, asset, width, height, path):
     return data[len(header):]
 
 
+def _blend(outgoing, incoming, offset, length):
+    """Integer crossfade: at `offset` 0 the outgoing picture, at length-1 the incoming one."""
+    here, there = length - offset, offset
+    return bytes((incoming[i] * there + outgoing[i] * here + length // 2) // length
+                 for i in range(len(outgoing)))
+
+
 def render_frame(project, root, frame_index):
     """Compile and preview one absolute frame as detached, row-major RGBA8 bytes.
 
@@ -64,6 +71,7 @@ def render_frame(project, root, frame_index):
     for ti, track in enumerate(p["tracks"]):
         if not track["enabled"]:
             continue
+        pictures = {}
         for ci, clip in enumerate(track["clips"]):
             path = f"$.tracks[{ti}].clips[{ci}]"
             if track["kind"] != "video":
@@ -74,8 +82,21 @@ def render_frame(project, root, frame_index):
             if asset["kind"] != "image":
                 raise PreviewError("V02", path, "only still images are supported")
             rgb = _read_image(Path(root), asset, width, height, path + ".assetId")
+            pictures[clip["id"]] = rgb
             if clip["start"] <= tick < clip["start"] + clip["duration"]:
                 active = rgb
+        for tk, transition in enumerate(track.get("transitions") or []):
+            path = f"$.tracks[{ti}].transitions[{tk}]"
+            clips = {clip["id"]: clip for clip in track["clips"]}
+            source, target = clips.get(transition["fromClipId"]), clips.get(transition["toClipId"])
+            if source is None or target is None or transition["kind"] != "crossfade":
+                raise PreviewError("V05", path, "a crossfade needs two known clips on this track")
+            half = transition["duration"] // 2
+            start = target["start"] - half
+            if start <= tick < start + transition["duration"]:
+                offset = tick - start
+                active = _blend(pictures[source["id"]], pictures[target["id"]], offset,
+                                transition["duration"])
     rgba = bytearray(width * height * 4)
     if active is not None:
         rgba[0::4], rgba[1::4], rgba[2::4] = active[0::3], active[1::3], active[2::3]

@@ -1,0 +1,377 @@
+{
+  "manifestVersion": 1,
+  "note": "Declared execution capabilities per backend (see docs/editor-architecture.md §8). `state` is a claim about the CURRENT code, not a roadmap: supported/conditional must point at evidence that exists in this repository. Add a feature only when the platform can represent, preview and render it — or reject it explicitly.",
+  "features": {
+    "project.read": "قراءة مشروع موحّد والتحقق منه",
+    "graph.execute": "تنفيذ graph موحّد وإنتاج إطارات",
+    "draft.half": "درافت 540×960 @15fps",
+    "scene.cache": "كاش على مستوى المشهد",
+    "range.render": "رندر نطاق إطارات جزئي",
+    "alpha.layer": "طبقة شفافة تُركَّب فوق أساس",
+    "text.arabic": "نص عربي مُشكَّل ومحرَّك",
+    "icons.animated": "أيقونات متحركة من مكتبة الاستوديو",
+    "transitions.catalog": "انتقالات من كتالوج الاستوديو",
+    "three.layer": "طبقة Three.js اختيارية",
+    "offscreen.render": "رندر بلا متصفح"
+  },
+  "backends": {
+    "P": {
+      "features": {
+        "project.read": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        },
+        "graph.execute": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "tools/unified_render_graph.py"
+          ]
+        },
+        "draft.half": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/preview.md",
+            "tests/test_pipeline.py"
+          ]
+        },
+        "scene.cache": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/scene-cache.md"
+          ]
+        },
+        "range.render": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        },
+        "alpha.layer": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/hybrid.md"
+          ]
+        },
+        "text.arabic": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "tests/test_arabic_shape.py"
+          ]
+        },
+        "icons.animated": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/icons.md"
+          ]
+        },
+        "transitions.catalog": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/transitions.md"
+          ]
+        },
+        "three.layer": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/motion-three.md"
+          ]
+        },
+        "offscreen.render": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        }
+      }
+    },
+    "K": {
+      "features": {
+        "project.read": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        },
+        "graph.execute": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "tools/unified_render_graph.py"
+          ]
+        },
+        "draft.half": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/preview.md"
+          ]
+        },
+        "scene.cache": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/scene-cache.md",
+            "tests/test_render_scenes.py"
+          ]
+        },
+        "range.render": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "tests/test_remotion_range.py"
+          ]
+        },
+        "alpha.layer": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/hybrid.md",
+            "tests/test_hybrid_layers.py"
+          ]
+        },
+        "text.arabic": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "tests/test_arabic_shape.py"
+          ]
+        },
+        "icons.animated": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/icons.md"
+          ]
+        },
+        "transitions.catalog": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/transitions.md"
+          ]
+        },
+        "three.layer": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/motion-three.md",
+            "tests/test_three_layer.py"
+          ]
+        },
+        "offscreen.render": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        }
+      }
+    },
+    "R": {
+      "features": {
+        "project.read": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        },
+        "graph.execute": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "tools/unified_render_graph.py"
+          ]
+        },
+        "draft.half": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/preview.md"
+          ]
+        },
+        "scene.cache": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/scene-cache.md"
+          ]
+        },
+        "range.render": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "tests/test_remotion_range.py"
+          ]
+        },
+        "alpha.layer": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/hybrid.md"
+          ]
+        },
+        "text.arabic": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "المكوّنات الحالية فقط: Presenter وCaptions؛ لا كتالوج حركات نص كامل"
+          ],
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        },
+        "icons.animated": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        },
+        "transitions.catalog": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        },
+        "three.layer": {
+          "version": 1,
+          "state": "supported",
+          "evidence": [
+            "docs/motion-three.md",
+            "tests/test_three_remotion.py"
+          ]
+        },
+        "offscreen.render": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        }
+      }
+    },
+    "Hybrid": {
+      "features": {
+        "project.read": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/editor-architecture.md"
+          ]
+        },
+        "graph.execute": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "tools/unified_render_graph.py"
+          ]
+        },
+        "draft.half": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "أساس P أو K فقط؛ أساس R مرفوض في الدرافت"
+          ],
+          "evidence": [
+            "docs/hybrid.md",
+            "tests/test_hybrid_draft.py"
+          ]
+        },
+        "scene.cache": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "حسب المحرك المختار لكل طبقة"
+          ],
+          "evidence": [
+            "docs/scene-cache.md"
+          ]
+        },
+        "range.render": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "يعتمد على نطاق إطارات المحرك الذي يرسم الطبقة"
+          ],
+          "evidence": [
+            "docs/hybrid.md"
+          ]
+        },
+        "alpha.layer": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "الطبقات من K فقط، بحد أقصى 4، وماسك ساكن، والأساس معتم"
+          ],
+          "evidence": [
+            "docs/hybrid.md",
+            "tests/test_hybrid_stack.py"
+          ]
+        },
+        "text.arabic": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "حسب المحرك الذي يرسم الطبقة أو الأساس"
+          ],
+          "evidence": [
+            "docs/hybrid.md"
+          ]
+        },
+        "icons.animated": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "على طبقة K فقط"
+          ],
+          "evidence": [
+            "docs/hybrid.md"
+          ]
+        },
+        "transitions.catalog": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "داخل مشاهد المحرك نفسه، لا بين طبقات Hybrid"
+          ],
+          "evidence": [
+            "docs/hybrid.md"
+          ]
+        },
+        "three.layer": {
+          "version": 1,
+          "state": "conditional",
+          "conditions": [
+            "على طبقة K فقط"
+          ],
+          "evidence": [
+            "docs/hybrid.md"
+          ]
+        },
+        "offscreen.render": {
+          "version": 1,
+          "state": "unsupported",
+          "evidence": [
+            "docs/hybrid.md"
+          ]
+        }
+      }
+    }
+  }
+}

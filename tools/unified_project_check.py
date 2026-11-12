@@ -170,6 +170,38 @@ def validate(project):
         for left, right in zip(ranges, ranges[1:], strict=False):
             if right[0] < left[1]:
                 errors.append(f"U05 {right[2]}: overlaps another clip on this track")
+        by_clip = {clip["id"]: clip for clip in track["clips"]}
+        windows = []
+        for k, transition in enumerate(track.get("transitions") or []):
+            tpath = f"{path}.transitions[{k}]"
+            add_id(transition["id"], tpath + ".id")
+            if track["kind"] not in ("video", "audio"):
+                errors.append(f"U07 {tpath}: a crossfade needs a video or audio track")
+            source = by_clip.get(transition["fromClipId"])
+            target = by_clip.get(transition["toClipId"])
+            if source is None or target is None:
+                errors.append(f"U07 {tpath}: both clips must live on this track")
+                continue
+            if source["id"] == target["id"]:
+                errors.append(f"U07 {tpath}: a transition needs two different clips")
+                continue
+            if source["start"] + source["duration"] != target["start"]:
+                errors.append(f"U07 {tpath}: clips are not adjacent — no cut to dissolve")
+                continue
+            length = transition["duration"]
+            if length % 2:
+                errors.append(f"U07 {tpath}.duration: must be even so the cut sits mid-transition")
+                continue
+            half = length // 2
+            if half > min(source["duration"], target["duration"]):
+                errors.append(f"U07 {tpath}.duration: longer than the clips it joins")
+                continue
+            cut = target["start"]
+            windows.append((cut - half, cut + half, tpath))
+        windows.sort()
+        for left, right in zip(windows, windows[1:], strict=False):
+            if right[0] < left[1]:
+                errors.append(f"U07 {right[2]}: overlaps another transition on this track")
     return errors
 
 
