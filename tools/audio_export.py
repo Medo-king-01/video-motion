@@ -165,6 +165,10 @@ def build(project: dict, root: Path, *, sample_rate: int | None = None) -> tuple
             end_tick = clip["start"] + clip["duration"]
             if end_tick > project["duration"]:
                 raise AudioError("A04", f"clip {clip['id']}: ends at {end_tick} beyond {project['duration']}")
+            speed = clip.get("speed")
+            if speed and (speed["num"], speed["den"]) != (1, 1):
+                raise AudioError("A07", f"clip {clip['id']}: speed {speed['num']}/{speed['den']} "
+                                        "needs a resampler, which this mixer does not have")
             samples, _ = read_audio(path, rate)
             window = fades.get(clip["id"])
             span = window[1] - window[0] if window else 0

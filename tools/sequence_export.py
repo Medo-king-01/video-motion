@@ -48,8 +48,12 @@ def project_frames(project: dict) -> int:
 
 
 def build(project: dict, root: Path, out_dir: Path, *, frames: list[int] | None = None,
-          max_frames: int = MAX_FRAMES) -> dict:
-    """Render the requested frames (default: all) and write them beside a manifest."""
+          max_frames: int = MAX_FRAMES, progress=None, cancel=None) -> dict:
+    """Render the requested frames (default: all) and write them beside a manifest.
+
+    `progress(done, total)` fires per frame; `cancel()` is polled per frame and raises Q06.
+    A cancelled run removes the PNGs it wrote, so the folder never looks complete when it is not.
+    """
     errors = validate(project)
     if errors:
         raise SequenceError("Q01", "project is invalid: " + "; ".join(errors))
@@ -73,7 +77,12 @@ def build(project: dict, root: Path, out_dir: Path, *, frames: list[int] | None 
         raise SequenceError("Q04", "Pillow is required to write PNG frames") from exc
 
     files = []
-    for index in sorted(chosen):
+    ordered = sorted(chosen)
+    for position, index in enumerate(ordered):
+        if cancel is not None and cancel():
+            for entry in files:
+                (out_dir / entry["file"]).unlink(missing_ok=True)
+            raise SequenceError("Q06", f"cancelled before frame {index}")
         try:
             frame = render_frame(project, Path(root), index)
         except PreviewError as exc:
@@ -83,6 +92,12 @@ def build(project: dict, root: Path, out_dir: Path, *, frames: list[int] | None 
         Image.frombytes("RGBA", (frame["width"], frame["height"]), frame["pixels"]).save(path, format="PNG")
         files.append({"index": index, "tick": frame["tick"], "pixelSha256": _sha(frame["pixels"]),
                       "file": name, "fileSha256": _sha(path.read_bytes())})
+        if progress is not None:
+            progress(position + 1, len(ordered))
+        if cancel is not None and cancel():
+            for entry in files:
+                (out_dir / entry["file"]).unlink(missing_ok=True)
+            raise SequenceError("Q06", f"cancelled after frame {index} of {len(ordered)}")
 
     manifest = {
         "version": VERSION,

@@ -40,7 +40,7 @@ def test_matrix_covers_the_four_backends(manifest) -> None:
     summary = caps.matrix(manifest)
     assert set(summary) == set(caps.BACKENDS)
     assert summary["K"]["alpha.layer"] == "supported"
-    assert summary["P"]["alpha.layer"] == "unsupported"
+    assert summary["P"]["alpha.layer"] == "supported"  # P renders a real text/overlay layer now
 
 
 def test_a_missing_feature_is_reported(manifest) -> None:
@@ -93,16 +93,19 @@ def test_unknown_top_level_field_is_rejected(manifest) -> None:
     assert any("unknown top-level field" in error for error in errors), errors
 
 
-def test_no_backend_claims_to_read_the_unified_project_yet(manifest) -> None:
-    """The phase-0 gate: remove this guard together with the first adapter, not before."""
+def test_only_a_backend_with_an_adapter_claims_to_read_the_unified_project(manifest) -> None:
+    """The claim and the adapter land together; a manifest ahead of the tree is a lie."""
     for backend in caps.BACKENDS:
         state = manifest["backends"][backend]["features"]["project.read"]["state"]
-        assert state in ("unsupported", "unknown"), f"{backend} claims project.read without an adapter"
+        if (TOOLS / f"adapter_{backend.lower()}.py").exists():
+            assert state in ("supported", "conditional"), f"{backend} has an adapter but claims {state}"
+        else:
+            assert state in ("unsupported", "unknown"), f"{backend} claims project.read without an adapter"
 
 
 def test_claiming_graph_execution_before_an_adapter_fails(manifest) -> None:
     broken = copy.deepcopy(manifest)
-    broken["backends"]["K"]["features"]["graph.execute"] = {
+    broken["backends"]["R"]["features"]["graph.execute"] = {
         "version": 1, "state": "supported", "evidence": ["docs/editor-architecture.md"]}
     errors = caps.validate(broken)
     assert any("cannot be claimed before an adapter exists" in error for error in errors), errors

@@ -155,13 +155,16 @@ def test_a_wider_transition_blends_more_frames(tmp_path: Path) -> None:
     assert channels == sorted(channels)
 
 
-def test_the_preview_still_refuses_effects_next_to_a_transition(tmp_path: Path) -> None:
+def test_an_effect_next_to_a_transition_is_drawn_not_refused(tmp_path: Path) -> None:
+    """The preview used to refuse this pair; it now draws both, so the test asserts the pixels."""
     data = project(tmp_path)
     data["tracks"][0]["clips"][0]["effects"] = [{"id": "e1", "type": "opacity", "version": 1,
                                                 "enabled": True, "params": {"value": 5_000}}]
-    with pytest.raises(unified_reference_preview.PreviewError) as excinfo:
-        unified_reference_preview.render_frame(data, tmp_path, 0)
-    assert excinfo.value.code == "V02"
+    plain = unified_reference_preview.render_frame(project(tmp_path), tmp_path, 0)["pixels"]
+    faded = unified_reference_preview.render_frame(data, tmp_path, 0)["pixels"]
+    # straight-alpha output: the colour stays, the alpha carries the 50% opacity (127/255)
+    assert faded[:3] == plain[:3]
+    assert plain[3] == 255 and faded[3] == 127
 
 
 # ---------------------------------------------------------------- OTIO

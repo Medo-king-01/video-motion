@@ -19,16 +19,19 @@
       "features": {
         "project.read": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/unified_project_check.py",
+            "tools/adapter_p.py"
           ]
         },
         "graph.execute": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "tools/unified_render_graph.py"
+            "tools/adapter_p.py",
+            "tests/test_adapter_p.py",
+            "docs/adapter-p.md"
           ]
         },
         "draft.half": {
@@ -48,28 +51,31 @@
         },
         "range.render": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_p.py",
+            "tests/test_adapter_p.py"
           ]
         },
         "alpha.layer": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/hybrid.md"
+            "tools/unified_reference_preview.py",
+            "tools/adapter_p.py"
           ]
         },
         "text.arabic": {
           "version": 1,
           "state": "supported",
           "evidence": [
-            "tests/test_arabic_shape.py"
+            "tools/unified_reference_preview.py",
+            "docs/adapter-p.md"
           ]
         },
         "icons.animated": {
           "version": 1,
-          "state": "supported",
+          "state": "unsupported",
           "evidence": [
             "docs/icons.md"
           ]
@@ -78,7 +84,9 @@
           "version": 1,
           "state": "supported",
           "evidence": [
-            "docs/transitions.md"
+            "tools/adapter_p.py",
+            "tools/unified_reference_preview.py",
+            "docs/adapter-p.md"
           ]
         },
         "three.layer": {
@@ -92,7 +100,7 @@
           "version": 1,
           "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_p.py"
           ]
         }
       }
@@ -101,9 +109,10 @@
       "features": {
         "project.read": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_k.py",
+            "tests/test_adapter_k.py"
           ]
         },
         "graph.execute": {
@@ -270,16 +279,18 @@
       "features": {
         "project.read": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_hybrid.py",
+            "tests/test_adapter_hybrid.py"
           ]
         },
         "graph.execute": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "tools/unified_render_graph.py"
+            "tools/adapter_hybrid.py",
+            "tests/test_adapter_hybrid.py"
           ]
         },
         "draft.half": {

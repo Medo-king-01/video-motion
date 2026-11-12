@@ -76,7 +76,7 @@ def test_an_unknown_backend_name_is_reported() -> None:
 def test_runtime_state_may_not_contradict_the_manifest() -> None:
     adapter = rb.NullAdapter("P")
     capabilities = adapter.capabilities()
-    capabilities["features"]["alpha.layer"]["state"] = "supported"
+    capabilities["features"]["three.layer"]["state"] = "supported"
     adapter.capabilities = lambda: capabilities
     problems = rb.conformance_problems(adapter)
     assert any("runtime state contradicts the manifest" in problem for problem in problems), problems
@@ -122,7 +122,11 @@ def run(*args: str) -> subprocess.CompletedProcess[str]:
 def test_cli_check_passes() -> None:
     result = run("--check")
     assert result.returncode == 0, result.stderr
-    assert "none renders yet" in result.stdout
+    assert "real adapter(s) (Hybrid, K, P)" in result.stdout
+
+
+def test_the_cli_knows_which_adapters_are_real() -> None:
+    assert set(rb.real_adapters()) == {"P", "K", "Hybrid"}
 
 
 def test_cli_prints_one_backend() -> None:

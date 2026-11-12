@@ -9,7 +9,9 @@
       "enum": [
         "1.0",
         "1.1",
-        "1.2"
+        "1.2",
+        "1.3",
+        "1.4"
       ]
     },
     "id": {
@@ -95,6 +97,12 @@
       "items": {
         "$ref": "#/$defs/track"
       }
+    },
+    "texts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/text"
+      }
     }
   },
   "required": [
@@ -138,6 +146,22 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 9007199254740991
+        },
+        "streams": {
+          "type": "object",
+          "properties": {
+            "video": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 63
+            },
+            "audio": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 63
+            }
+          },
+          "additionalProperties": false
         }
       },
       "required": [
@@ -271,19 +295,67 @@
           "items": {
             "$ref": "#/$defs/curve"
           }
+        },
+        "speed": {
+          "$ref": "#/$defs/speed"
+        },
+        "textId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
         }
       },
       "required": [
         "id",
         "kind",
-        "assetId",
         "start",
         "duration",
         "sourceIn",
         "effects",
         "keyframes"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "textId"
+            ]
+          },
+          "then": {
+            "allOf": [
+              {
+                "not": {
+                  "required": [
+                    "assetId"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "required": [
+                    "speed"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "required": [
+                "textId"
+              ]
+            }
+          },
+          "then": {
+            "required": [
+              "assetId"
+            ]
+          }
+        }
+      ]
     },
     "effect": {
       "type": "object",
@@ -393,7 +465,8 @@
         },
         "kind": {
           "enum": [
-            "crossfade"
+            "crossfade",
+            "wipe"
           ]
         },
         "fromClipId": {
@@ -410,6 +483,14 @@
           "type": "integer",
           "minimum": 2,
           "maximum": 9007199254740991
+        },
+        "direction": {
+          "enum": [
+            "left",
+            "right",
+            "up",
+            "down"
+          ]
         }
       },
       "required": [
@@ -418,6 +499,149 @@
         "fromClipId",
         "toClipId",
         "duration"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "wipe"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "direction"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "crossfade"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "direction"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "speed": {
+      "type": "object",
+      "properties": {
+        "num": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "den": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        }
+      },
+      "required": [
+        "num",
+        "den"
+      ],
+      "additionalProperties": false
+    },
+    "text": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "font": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 8,
+          "maximum": 400
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "align": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "direction": {
+          "enum": [
+            "rtl",
+            "ltr"
+          ]
+        },
+        "wrap": {
+          "type": "boolean"
+        },
+        "animation": {
+          "$ref": "#/$defs/animation"
+        }
+      },
+      "required": [
+        "id",
+        "value",
+        "font",
+        "size",
+        "color",
+        "align",
+        "direction"
+      ],
+      "additionalProperties": false
+    },
+    "animation": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "none",
+            "fade",
+            "words-up",
+            "words-fade"
+          ]
+        },
+        "stagger": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 240000
+        },
+        "ease": {
+          "enum": [
+            "linear",
+            "cubic-out"
+          ]
+        }
+      },
+      "required": [
+        "kind"
       ],
       "additionalProperties": false
     }

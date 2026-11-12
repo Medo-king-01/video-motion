@@ -5,6 +5,92 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-12 (contract 1.4, video/audio in P, K + Hybrid, editor v2, text animation)
+
+The four remaining items of the plan's second wave landed together. What is measured here: a
+contract that describes motion instead of implying it, an adapter that decodes real video and mixes
+real audio, two more backends that answer the same contract honestly, an editor with a media bin and
+a keyframe editor, and Arabic captions that wrap and animate word by word.
+
+- **Contract 1.4** (`docs/contract-1.4.md`) — `text.wrap`, `text.animation` (`fade`/`words-up`/
+  `words-fade`, `stagger`, `ease`) guarded by `U11`; `transition.kind: "wipe"` with a required
+  `direction` and a ban on audio wipes (`U07`); `opacity` on text tracks (`U06`). `CURRENT` in
+  `unified_project_migrate.py` is `1.4` and migrating 1.3 changes no field.
+- **Engine P grew up** — the reference preview and the adapter now decode **video** (PyAV, bilinear
+  resize, speed-aware source ticks), **PNG/JPEG** stills, draw **opacity keyframes**, **hard-edge
+  wipe** transitions and weighted **audio** (mixed by `audio_export`, recorded as `mix.wav` with a
+  peak in the manifest). Retired: `R04` (keyframes) and video `R05`. Remaining refusals: `R02`
+  (graphics), `R03` (audio speed — no resampler), `R07` (unknown/audio wipe), `R08`–`R10`.
+- **Text that behaves** — auto-wrap measured through the shaper, multi-line layout that shrinks to
+  fit, per-word stagger with linear or cubic-out easing, and Arabic shaping kept per word.
+- **Engine K answers** (`tools/adapter_k.py`, `docs/adapters-k-hybrid.md`) — compiles and validates,
+  declares `graph.execute` unsupported, refuses to draw with `R11`. Its `project.read` claim is now
+  backed by a real adapter, so the capability gate accepts it.
+- **Hybrid is a routing decision** (`tools/adapter_hybrid.py`) — `compile()` writes a per-track
+  `routing` table, disabled/empty tracks are not routed, an undrawable track carrying clips is
+  `R12` (a guard: the checker rejects such a project first), and `render()` delegates to P while
+  stamping `routing` + `routedBy: "Hybrid"` into the manifest. `render_backend.py --check` now
+  reports **3 real adapters (Hybrid, K, P) and 1 null adapter (R)**.
+- **Editor v2** (`docs/editor-ui.md`) — media bin with lazy thumbnails and drag-and-drop upload
+  (64 MiB cap, SHA-256, de-dup rename, kind sniffing), a full inspector with an effect editor and a
+  keyframe editor, a project panel (name/duration/tracks/enabled), timeline drag with frame
+  snapping, and a 22-verb op table. New verbs: `add_text` (a text block plus its clip) and
+  `enabled`. The page was then driven against the live server through `jsdom`: load, duration edit,
+  track toggle, caption edit, add track, add effect, add keyframe, upload, undo — all pass with no
+  JS error. Two real bugs fell out of that: the inspector held a stale clip object (so a new effect
+  never appeared until you re-selected the clip) and keyframe ticks were project-global instead of
+  clip-local. Both are fixed. A real browser (CSS/RTL look) is still unchecked, and that is written
+  down, not hidden.
+- **Tests** — new: `test_adapter_k.py` (5), `test_adapter_hybrid.py` (7), `test_editor_ops.py` (7);
+  grown: `test_editor_server.py` (13), `test_adapter_p.py` (14), `test_unified_reference_preview.py`
+  (6), `test_render_backend_contract.py` (13). 26 suite failures remain and are environmental
+  (no ffmpeg on PATH, no device buffer, no libraqm); the same 26 fail at the merge commit.
+
+## Unreleased — 2026-11-12 (contract 1.3, engine P adapter, editor, eight methods)
+
+The plan's remaining items 1–5 stopped being prose. What is measured here: a project that carries
+Arabic text and clip speed, a migration that only moves forward, a crash-safe autosave, **the first real
+render backend**, a local editor page over the same core, eight methods that produce editable projects,
+and long renders that can be watched and stopped.
+
+- **Contract 1.3** (`docs/contract-1.3.md`) — `texts[]` + `clip.textId` (`U10`), `clip.speed` as a reduced
+  fraction that widens the source range it consumes (`U08`), `asset.streams` for multi-stream media
+  (`U09`), and opacity allowed on text tracks. Every 1.3 field is optional: 1.0–1.2 projects stay valid.
+- **Migration** (`tools/unified_project_migrate.py`) — forward only. Adds exactly what the newer contract
+  requires (`transitions: []` before 1.2), is idempotent, refuses an invalid project (`M01`), an unknown
+  or **newer** version (`M02`) and a migration that fails its own re-check (`M03`). `--check` for CI.
+- **Recovery** (`tools/unified_project_store.py`) — `autosave`/`recover`/`discard_autosave` write a sibling
+  `<project>.autosave.json` carrying `savedAt` and the revision it grew from. A stale candidate is
+  reported and **refused**, never written over newer work; an unreadable candidate is an error, not a
+  silent delete.
+- **Engine P is a real backend** (`tools/adapter_p.py`, `docs/adapter-p.md`) — implements the frozen
+  contract (`compile`/`preflight`/`render`/`cancel`) and draws stills, crossfades, Arabic captions and
+  opacity offscreen. It refuses speed (`R03`), keyframes (`R04`), video/audio assets (`R02`/`R05`),
+  non-crossfade transitions (`R07`), out-of-range frames (`R08`) and overwriting an output folder
+  (`R10`) — before a frame is written. Publishing is atomic and cancelling leaves nothing behind.
+  Tested claim: **the exported frame is the previewed frame**, by hash.
+- **Capabilities** — P now declares `project.read`, `graph.execute`, `range.render`, `alpha.layer`,
+  `text.arabic` and `offscreen.render` as supported, `transitions.catalog` as conditional. The phase-0
+  guard narrowed instead of disappearing: a backend may claim read/execute only when
+  `tools/adapter_<x>.py` exists for it, so K/R/Hybrid stay honest.
+- **Local editor** (`tools/editor_server.py` + `editor/index.html`, `docs/editor-ui.md`) — one page, no
+  framework, over the same validated core: multi-track timeline, PNG preview, split/trim/ripple,
+  undo/redo, caption editing, MP4 export, autosave on every operation, and a banner that shows engine P's
+  refusal reasons. Every invalid edit returns HTTP 400 with the core's own message.
+- **Eight working methods** (`tools/workflows.py`, `docs/workflows.md`) — Free Edit, Script to Video,
+  Talking Head, Montage, Podcast, Explainer, Product Review, Motion Design. Each produces a validating
+  schema-1.3 project that engine P can draw; captions are distributed without overlapping and their ink is chosen
+  from the measured luminance of the band they sit in (`W03` refuses to invent them, `W01`/`W02`/`W04` cover empty, unknown and self-invalid cases).
+- **Progress and cancel** — `video_export.build(..., progress=, cancel=)` and
+  `sequence_export.build(..., progress=, cancel=)`. Cancelling raises `M07`/`Q06` and removes the partial
+  file or the frames already written, so a stopped render never looks finished.
+- Tests added: `test_contract_13.py` 12, `test_migrate_autosave.py` 11, `test_adapter_p.py` 13,
+  `test_workflows.py` 25, `test_editor_server.py` 9, `test_progress_cancel.py` 5 — **75 new tests**, and
+  three older tests were corrected where the truth changed (1.3 is now a valid version; P's
+  `alpha.layer` is supported; the frame dict carries `texts`).
+- Still refused, and named: video/audio decoding inside the adapter, keyframes, wipes, speed rendering,
+  clips drag-and-drop in the UI, and the two owner decisions (N4 storage, N9 device timing).
+
 ## Unreleased — 2026-11-12 (MP4, WAV, OTIO import, crossfades, K/R canvases)
 
 Five gaps closed in one batch, each measured before it was claimed. The earlier "no MP4 is claimed,

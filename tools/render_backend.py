@@ -113,6 +113,24 @@ class NullAdapter:
         return None
 
 
+#: The adapters that exist. Everything not listed here is still a `NullAdapter` on purpose.
+REAL = {"P": ("adapter_p", "PAdapter"), "K": ("adapter_k", "KAdapter"),
+        "Hybrid": ("adapter_hybrid", "HybridAdapter")}
+
+
+def real_adapters() -> dict[str, Any]:
+    """Return the implemented adapters, skipping any whose module is not installed."""
+    import importlib  # noqa: PLC0415
+
+    found: dict[str, Any] = {}
+    for name, (module, attribute) in REAL.items():
+        try:
+            found[name] = getattr(importlib.import_module(module), attribute)()
+        except ImportError:  # pragma: no cover - an adapter ships with its engine
+            continue
+    return found
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -124,12 +142,17 @@ def main(argv=None) -> int:
 
         print(json.dumps(NullAdapter(args.backend).capabilities(), ensure_ascii=False, indent=2))
         return 0
-    problems = [problem for name in BACKENDS
+    real = real_adapters()
+    problems = [problem for name in BACKENDS if name not in real
                 for problem in conformance_problems(NullAdapter(name))]
+    for name, adapter in sorted(real.items()):
+        problems.extend(conformance_problems(adapter))
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
-    print(f"OK: the contract is satisfied by {len(BACKENDS)} null adapters; none renders yet.")
+    null = [name for name in BACKENDS if name not in real]
+    print(f"OK: {len(real)} real adapter(s) ({', '.join(sorted(real)) or 'none'}) and "
+          f"{len(null)} null adapter(s) ({', '.join(null) or 'none'}) keep the contract.")
     return 0
 
 

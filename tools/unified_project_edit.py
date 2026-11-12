@@ -29,6 +29,12 @@ def _find_clip(project, clip_id):
     raise ValueError(f"Unknown clip: {clip_id!r}")
 
 
+def _source_asset(project, clip):
+    """The asset a clip reads, or None for a text clip (which has no source range)."""
+    asset_id = clip.get("assetId")
+    return None if asset_id is None else _asset(project, asset_id)
+
+
 def _asset(project, asset_id):
     return next(a for a in project["assets"] if a["id"] == asset_id)
 
@@ -48,7 +54,8 @@ def split_clip(project, clip_id, at, new_id):
         raise ValueError("split of clips with effects is not supported without an ID and curve mapping")
     right = deepcopy(clip)
     right.update(id=new_id, start=at, duration=clip["duration"] - offset)
-    if _asset(result, clip["assetId"])["kind"] != "image":
+    asset = _source_asset(result, clip)
+    if asset is not None and asset["kind"] != "image":
         right["sourceIn"] += offset
     clip["duration"] = offset
     track["clips"].insert(index + 1, right)
@@ -68,7 +75,8 @@ def trim_clip(project, clip_id, start, end):
         raise ValueError("trim must be a nonempty interval inside the original clip")
     if clip["keyframes"] and (start != old_start or end != old_start + clip["duration"]):
         raise ValueError("trim of animated clips is not supported without curve remapping")
-    if _asset(result, clip["assetId"])["kind"] != "image":
+    asset = _source_asset(result, clip)
+    if asset is not None and asset["kind"] != "image":
         clip["sourceIn"] += start - old_start
     clip.update(start=start, duration=end - start)
     _checked(result)
