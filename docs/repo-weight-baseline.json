@@ -2,18 +2,18 @@
   "allowance_mb": 2.0,
   "categories_files": {
     "audio": 6,
-    "data": 52,
+    "data": 65,
     "fonts": 314,
-    "images": 100,
-    "text": 1427,
+    "images": 104,
+    "text": 1553,
     "video": 0
   },
   "categories_mb": {
     "audio": 6.18,
-    "data": 3.66,
+    "data": 3.88,
     "fonts": 81.72,
-    "images": 64.44,
-    "text": 9.25,
+    "images": 65.63,
+    "text": 10.63,
     "video": 0.0
   },
   "heavy": {
@@ -21,7 +21,7 @@
     "assets/fonts/Merriweather/Merriweather[opsz,wdth,wght].ttf": 4.41
   },
   "heavy_mb": 3.0,
-  "total_mb": 165.25,
-  "tracked_files": 1899,
+  "total_mb": 168.04,
+  "tracked_files": 2042,
   "version": 1
 }
