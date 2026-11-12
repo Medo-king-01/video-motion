@@ -1,0 +1,98 @@
+{
+  "_doc": "Delivery profiles for the studio. One project keeps its ticks; a profile only changes how many frames those ticks are sampled into. `frameTicks` must divide the project timebase exactly (240000), so 12/15/30/60 fps all land on integer ticks. `requiresApproval` profiles are declared but never applied by default: the 60 fps go-ahead is an owner decision, and this file must not make it.",
+  "version": 1,
+  "timebase": 240000,
+  "profiles": [
+    {
+      "id": "reel-30",
+      "label": "ريلز 30",
+      "width": 1080,
+      "height": 1920,
+      "fps": {
+        "num": 30,
+        "den": 1
+      },
+      "sampleRate": 48000,
+      "use": "الريلز اليومية — الافتراضي الوحيد (هوية ميدو)",
+      "requiresApproval": false
+    },
+    {
+      "id": "motion-film-60",
+      "label": "موشن فيلم 60",
+      "width": 1080,
+      "height": 1920,
+      "fps": {
+        "num": 60,
+        "den": 1
+      },
+      "sampleRate": 48000,
+      "use": "تجريبي — بالطلب فقط وبموافقة صريحة (قرار المالك 2026-11-12)",
+      "requiresApproval": true
+    },
+    {
+      "id": "stop-motion-12",
+      "label": "ستوب موشن 12",
+      "width": 1080,
+      "height": 1920,
+      "fps": {
+        "num": 12,
+        "den": 1
+      },
+      "sampleRate": 48000,
+      "use": "إيقاع مجزّأ/ستوب موشن — نفس الزمن بتكات مختلفة",
+      "requiresApproval": false
+    },
+    {
+      "id": "draft-15",
+      "label": "مسودة 15",
+      "width": 540,
+      "height": 960,
+      "fps": {
+        "num": 15,
+        "den": 1
+      },
+      "sampleRate": 48000,
+      "use": "مراجعة سريعة بنصف الدقة — ليست ملف تسليم",
+      "requiresApproval": false
+    },
+    {
+      "id": "reel-4x5",
+      "label": "ريل 4:5",
+      "width": 1080,
+      "height": 1350,
+      "fps": {
+        "num": 30,
+        "den": 1
+      },
+      "sampleRate": 48000,
+      "use": "فيد إنستجرام 4:5 — نفس معدل الريلز",
+      "requiresApproval": false
+    },
+    {
+      "id": "reel-1x1",
+      "label": "مربع 1:1",
+      "width": 1080,
+      "height": 1080,
+      "fps": {
+        "num": 30,
+        "den": 1
+      },
+      "sampleRate": 48000,
+      "use": "منشور مربّع — نفس معدل الريلز",
+      "requiresApproval": false
+    },
+    {
+      "id": "reel-16x9",
+      "label": "أفقي 16:9",
+      "width": 1920,
+      "height": 1080,
+      "fps": {
+        "num": 30,
+        "den": 1
+      },
+      "sampleRate": 48000,
+      "use": "يوتيوب/عرض أفقي — نفس معدل الريلز",
+      "requiresApproval": false
+    }
+  ]
+}

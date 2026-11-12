@@ -497,6 +497,130 @@ def expand_machine_model(spec: dict[str, Any]) -> dict[str, Any]:
     raise ValueError(f"Unsupported machine archetype: {arch}")
 
 
+EXPLODE_LIMITS = {"max_spread": 240, "default_spread": 110, "max_hold": 0.9}
+LAYER_LIFT = {"back": 0.0, "mid": 0.32, "front": 0.92, "overlay": 0.8}
+
+
+def _hash01(text: str) -> float:
+    """Deterministic 0..1 from a part id (FNV-1a), identical to the JS kit."""
+    h = 2166136261
+    for ch in text:
+        h ^= ord(ch)
+        h = (h * 16777619) & 0xFFFFFFFF
+    return (h % 1000) / 1000
+
+
+def _part_centre(part: dict[str, Any]) -> list[float]:
+    prim = part.get("primitive")
+    pts = part.get("points")
+    if prim == "wire" and isinstance(pts, list) and pts:
+        n = len(pts)
+        return [sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n, sum(p[2] for p in pts) / n]
+    if prim == "coil":
+        return [part.get("x", 0.0), part.get("y", 0.0), part.get("z", 0.0) + (part.get("h") or 0) / 2]
+    if prim in ("cylinder", "ring"):
+        return [part.get("x", 0.0), part.get("y", 0.0), part.get("z", 0.0) + float(part.get("h") or 20) / 2]
+    faces = part.get("faces3d")
+    if prim == "poly3d" and isinstance(faces, list) and faces:
+        sx = sy = sz = 0.0
+        n = 0
+        for face in faces:
+            for vx, vy, vz in face:
+                sx += vx
+                sy += vy
+                sz += vz
+                n += 1
+        if n:
+            return [sx / n, sy / n, sz / n]
+        return [part.get("x", 0.0), part.get("y", 0.0), part.get("z", 0.0)]
+    count = max(1, int(part.get("count") or 1)) if prim == "ticks" else 1
+    span_x = float(part.get("stepX") or 0) * (count - 1) if prim == "ticks" else float(part.get("dx") or 0)
+    span_y = float(part.get("stepY") or 0) * (count - 1) if prim == "ticks" else float(part.get("dy") or 0)
+    return [float(part.get("x") or 0.0) + span_x / 2, float(part.get("y") or 0.0) + span_y / 2,
+            float(part.get("z") or 0.0) + float(part.get("dz") or 0.0) / 2]
+
+
+def _shift_part(part: dict[str, Any], dx: float, dy: float, dz: float) -> dict[str, Any]:
+    out = dict(part)
+    prim = part.get("primitive")
+    if prim == "wire" and isinstance(part.get("points"), list):
+        out["points"] = [[_round4(x + dx), _round4(y + dy), _round4(z + dz)] for x, y, z in part["points"]]
+        return out
+    if prim == "poly3d" and isinstance(part.get("faces3d"), list):
+        out["faces3d"] = [[[_round4(x + dx), _round4(y + dy), _round4(z + dz)] for x, y, z in face]
+                          for face in part["faces3d"]]
+        return out
+    out["x"] = _round4(float(part.get("x") or 0.0) + dx)
+    out["y"] = _round4(float(part.get("y") or 0.0) + dy)
+    out["z"] = _round4(float(part.get("z") or 0.0) + dz)
+    return out
+
+
+def explode_progress_at(spec: Any, time: float) -> dict[str, Any]:
+    """Where the exploded view sits at `time`: 0 closed, 1 fully open, with its phase named."""
+    if not _finite(time):
+        raise ValueError("time must be finite")
+    cfg = (spec or {}).get("explode") if isinstance(spec, dict) else None
+    if not cfg:
+        return {"amount": 0.0, "phase": "off", "open": 0.0}
+    amount = cfg.get("amount")
+    if not _finite(amount) or float(amount) < 0 or float(amount) > 1:
+        raise ValueError("explode.amount must be within 0..1")
+    start, end = cfg.get("start"), cfg.get("end")
+    if not _finite(start) or not _finite(end) or float(end) <= float(start):
+        raise ValueError("explode requires finite start < end")
+    hold = float(cfg["hold"]) if _finite(cfg.get("hold")) else 0.35
+    if hold < 0 or hold > EXPLODE_LIMITS["max_hold"]:
+        raise ValueError(f"explode.hold must be within 0..{EXPLODE_LIMITS['max_hold']}")
+    span = float(end) - float(start)
+    travel = (span * (1 - hold)) / 2
+    if time <= start or time >= end:
+        return {"amount": 0.0, "phase": "closed", "open": 0.0}
+    if time < float(start) + travel:
+        opened = _ease_out_cubic((time - float(start)) / travel)
+        phase = "opening"
+    elif time < float(end) - travel:
+        opened = 1.0
+        phase = "hold"
+    else:
+        back = (time - (float(end) - travel)) / travel
+        opened = 1.0 - (4 * back ** 3 if back < 0.5 else 1 - ((-2 * back + 2) ** 3) / 2)
+        phase = "closing"
+    return {"amount": _round4(float(amount) * _clamp01(opened)), "phase": phase, "open": _round4(_clamp01(opened))}
+
+
+def explode_machine_model(model: dict[str, Any], amount: float, *, spread: float | None = None,
+                          focus: str | None = None) -> dict[str, Any]:
+    """Move every top-level part away from the model centre by `amount` (0..1), deterministically."""
+    a = _clamp01(float(amount) if _finite(amount) else 0.0)
+    if a <= 0:
+        return model
+    width = float(spread) if _finite(spread) else EXPLODE_LIMITS["default_spread"]
+    parts = model.get("parts") if isinstance(model.get("parts"), list) else []
+    centres = [_part_centre(part) for part in parts]
+    n = max(1, len(parts))
+    cx = sum(c[0] for c in centres) / n
+    cy = sum(c[1] for c in centres) / n
+    moved = []
+    for index, (part, centre) in enumerate(zip(parts, centres, strict=True)):
+        if focus and part.get("tag") == focus:
+            moved.append(part)
+            continue
+        rx, ry = centre[0] - cx, centre[1] - cy
+        length = math.hypot(rx, ry)
+        if length > 1e-6:
+            rx, ry = rx / length, ry / length
+        else:
+            ang = _hash01(str(part.get("id"))) * math.pi * 2
+            rx, ry = math.cos(ang), math.sin(ang)
+        jitter = 0.82 + 0.36 * _hash01(f"{part.get('id')}:spread")
+        mag = a * width * jitter
+        rank = index / (n - 1) if n > 1 else 0.5
+        lift = a * width * (LAYER_LIFT.get(part.get("layer") or "mid", LAYER_LIFT["mid"]) * 0.55 + 0.9 * rank)
+        moved.append(_shift_part(part, _round4(rx * mag), _round4(ry * mag), _round4(lift)))
+    return {**model, "parts": moved}
+
+
 def validate_machine_spec(spec: Any, *, fps: int | None = None) -> list[str]:
     resolved_fps = int(fps or layout_p.FPS or 30)
     errors: list[str] = []
@@ -559,6 +683,25 @@ def validate_machine_spec(spec: Any, *, fps: int | None = None) -> list[str]:
         if not model["parts"]:
             errors.append("expanded machine model contains zero parts")
     known_tags = {p.get("tag") for p in model["parts"] if _non_empty(p.get("tag"))}
+    if "explode" in spec:
+        ex = spec.get("explode")
+        if not isinstance(ex, dict):
+            errors.append("explode must be an object")
+        else:
+            if not _finite(ex.get("amount")) or float(ex["amount"]) < 0 or float(ex["amount"]) > 1:
+                errors.append("explode.amount must be a finite number within 0..1")
+            ex_start, ex_end = ex.get("start"), ex.get("end")
+            if not _finite(ex_start) or not _finite(ex_end) or float(ex_end) <= float(ex_start):
+                errors.append("explode requires finite start < end")
+            elif _finite(start) and _finite(end) and (float(ex_start) < float(start) - 1e-9 or float(ex_end) > float(end) + 1e-9):
+                errors.append("explode window must sit inside [spec.start, spec.end]")
+            if "hold" in ex and (not _finite(ex.get("hold")) or float(ex["hold"]) < 0 or float(ex["hold"]) > EXPLODE_LIMITS["max_hold"]):
+                errors.append(f"explode.hold must be within 0..{EXPLODE_LIMITS['max_hold']}")
+            if "spread" in ex and (not _finite(ex.get("spread")) or float(ex["spread"]) <= 0
+                                   or float(ex["spread"]) > EXPLODE_LIMITS["max_spread"]):
+                errors.append(f"explode.spread must be within 0..{EXPLODE_LIMITS['max_spread']}")
+            if "focus" in ex and known_tags and ex.get("focus") not in known_tags:
+                errors.append(f'explode.focus "{ex.get("focus")}" does not match any part tag')
 
     steps = spec.get("steps")
     if not isinstance(steps, list) or not steps:
@@ -867,7 +1010,11 @@ def build_machine_scene(
         return iso_project_point(x, y, z, origin_x=ox, origin_y=oy, scale=sc)
 
     model = expand_machine_model(spec)
-    flat_parts = _normalize_primitives(model["parts"])
+    exploded = explode_progress_at(spec, time)
+    shaped = (explode_machine_model(model, exploded["amount"], spread=spec.get("explode", {}).get("spread"),
+                                    focus=spec.get("explode", {}).get("focus"))
+              if exploded["amount"] > 0 else model)
+    flat_parts = _normalize_primitives(shaped["parts"])
     rev = 1.0 if force_full_reveal else float(state["revealProgress"])
     active_tag_set = set(state["activeTags"])
     active_step = state["activeStep"]
@@ -1148,6 +1295,7 @@ def build_machine_scene(
         "origin": {"x": ox, "y": oy, "scale": sc},
         "ops": ops,
         "bounds": bounds,
+        "explode": {"amount": exploded["amount"], "phase": exploded["phase"], "open": exploded["open"]},
         "vertices": all_vertices,
         "world": world_projected,
     }

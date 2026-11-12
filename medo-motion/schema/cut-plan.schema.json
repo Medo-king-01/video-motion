@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://medo.studio/schema/cut-plan.schema.json",
+  "title": "Video Motion cut plan (B4)",
+  "description": "A reviewable cutting proposal. Structural reference only: the semantic contract (tiling the source, minimum shot length, matching totals) lives in tools/cut_plan.py and is enforced by validate().",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "source", "video", "settings", "cuts", "totals"],
+  "properties": {
+    "version": { "const": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "duration", "fps"],
+      "properties": {
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "duration": { "type": "number", "exclusiveMinimum": 0 },
+        "fps": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "video": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height", "fps", "duration", "frames", "vfr"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "duration": { "type": "number", "exclusiveMinimum": 0 },
+        "frames": { "type": "integer", "minimum": 2 },
+        "vfr": { "type": "boolean" }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["threshold", "minShot"],
+      "properties": {
+        "threshold": { "type": "number", "exclusiveMinimum": 0, "maximum": 255 },
+        "minShot": { "type": "number", "minimum": 0 }
+      }
+    },
+    "cuts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "in", "out", "keep", "reason", "score"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "in": { "type": "number", "minimum": 0 },
+          "out": { "type": "number", "exclusiveMinimum": 0 },
+          "keep": { "type": "boolean" },
+          "reason": { "enum": ["first-shot", "visual-cut"] },
+          "score": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shots", "keptSeconds", "rejectedSeconds", "duration"],
+      "properties": {
+        "shots": { "type": "integer", "minimum": 1 },
+        "keptSeconds": { "type": "number", "minimum": 0 },
+        "rejectedSeconds": { "type": "number", "minimum": 0 },
+        "duration": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    }
+  }
+}

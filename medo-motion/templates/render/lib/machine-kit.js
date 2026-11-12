@@ -364,6 +364,126 @@ export function expandMachineModel(spec) {
   throw new Error(`Unsupported machine archetype: ${arch}`);
 }
 
+const LAYER_LIFT = Object.freeze({ back: 0, mid: 0.32, front: 0.92, overlay: 0.8 });
+export const EXPLODE_LIMITS = Object.freeze({ maxSpread: 240, defaultSpread: 110, maxHold: 0.9 });
+
+/** Deterministic 0..1 from a part id: no RNG, so K/P/R agree frame for frame. */
+function hash01(text) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < text.length; i += 1) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return (h % 1000) / 1000;
+}
+
+function partCentre(part) {
+  const prim = part.primitive;
+  if (prim === 'wire' && Array.isArray(part.points) && part.points.length) {
+    let sx = 0; let sy = 0; let sz = 0;
+    for (const [x, y, z] of part.points) { sx += x; sy += y; sz += z; }
+    const n = part.points.length;
+    return [sx / n, sy / n, sz / n];
+  }
+  if (prim === 'coil') return [part.x, part.y, part.z + (part.h || 0) / 2];
+  if (prim === 'cylinder' || prim === 'ring') return [part.x, part.y, part.z + (part.h || 20) / 2];
+  if (prim === 'poly3d' && Array.isArray(part.faces3d) && part.faces3d.length) {
+    let sx = 0; let sy = 0; let sz = 0; let n = 0;
+    for (const face of part.faces3d) {
+      for (const [x, y, z] of face) { sx += x; sy += y; sz += z; n += 1; }
+    }
+    return n ? [sx / n, sy / n, sz / n] : [part.x || 0, part.y || 0, part.z || 0];
+  }
+  const count = prim === 'ticks' ? Math.max(1, part.count || 1) : 1;
+  const spanX = prim === 'ticks' ? (part.stepX || 0) * (count - 1) : (part.dx || 0);
+  const spanY = prim === 'ticks' ? (part.stepY || 0) * (count - 1) : (part.dy || 0);
+  return [
+    (part.x || 0) + spanX / 2,
+    (part.y || 0) + spanY / 2,
+    (part.z || 0) + (part.dz || 0) / 2,
+  ];
+}
+
+function shiftPart(part, dx, dy, dz) {
+  const out = { ...part };
+  if (part.primitive === 'wire' && Array.isArray(part.points)) {
+    out.points = part.points.map(([x, y, z]) => [round4(x + dx), round4(y + dy), round4(z + dz)]);
+    return out;
+  }
+  if (part.primitive === 'poly3d' && Array.isArray(part.faces3d)) {
+    out.faces3d = part.faces3d.map(face => face.map(([x, y, z]) => [round4(x + dx), round4(y + dy), round4(z + dz)]));
+    return out;
+  }
+  out.x = round4((part.x || 0) + dx);
+  out.y = round4((part.y || 0) + dy);
+  out.z = round4((part.z || 0) + dz);
+  return out;
+}
+
+/** Where the exploded view sits at `time`: 0 closed, 1 fully open, with its phase named. */
+export function explodeProgressAt(spec, time) {
+  if (!finite(time)) throw new Error('time must be finite');
+  const cfg = spec?.explode;
+  if (!cfg) return { amount: 0, phase: 'off', open: 0 };
+  const amount = Number(cfg.amount);
+  if (!finite(amount) || amount < 0 || amount > 1) throw new Error('explode.amount must be within 0..1');
+  if (!finite(cfg.start) || !finite(cfg.end) || cfg.end <= cfg.start) {
+    throw new Error('explode requires finite start < end');
+  }
+  const hold = finite(cfg.hold) ? cfg.hold : 0.35;
+  if (hold < 0 || hold > EXPLODE_LIMITS.maxHold) throw new Error(`explode.hold must be within 0..${EXPLODE_LIMITS.maxHold}`);
+  const span = cfg.end - cfg.start;
+  const travel = (span * (1 - hold)) / 2;
+  if (time <= cfg.start || time >= cfg.end) return { amount: 0, phase: 'closed', open: 0 };
+  let open;
+  let phase;
+  if (time < cfg.start + travel) {
+    open = easeOutCubic((time - cfg.start) / travel);
+    phase = 'opening';
+  } else if (time < cfg.end - travel) {
+    open = 1;
+    phase = 'hold';
+  } else {
+    const back = (time - (cfg.end - travel)) / travel;
+    open = 1 - (back < 0.5 ? 4 * back ** 3 : 1 - ((-2 * back + 2) ** 3) / 2);
+    phase = 'closing';
+  }
+  return { amount: round4(amount * clamp01(open)), phase, open: round4(clamp01(open)) };
+}
+
+/**
+ * Move every top-level part away from the model centre by `amount` (0..1), deterministically.
+ * A part whose tag matches `focus` stays put, which is the classic "base plate holds" look.
+ */
+export function explodeMachineModel(model, amount, { spread, focus } = {}) {
+  const a = clamp01(finite(amount) ? amount : 0);
+  if (a <= 0) return model;
+  const width = finite(spread) ? spread : EXPLODE_LIMITS.defaultSpread;
+  const parts = Array.isArray(model?.parts) ? model.parts : [];
+  let cx = 0; let cy = 0; let cz = 0;
+  const centres = parts.map(part => partCentre(part));
+  for (const [x, y, z] of centres) { cx += x; cy += y; cz += z; }
+  const n = Math.max(1, parts.length);
+  cx /= n; cy /= n; cz /= n;
+  const moved = parts.map((part, i) => {
+    if (focus && part.tag === focus) return part;
+    const [px, py] = centres[i];
+    let rx = px - cx;
+    let ry = py - cy;
+    const len = Math.hypot(rx, ry);
+    if (len > 1e-6) { rx /= len; ry /= len; } else {
+      const ang = hash01(String(part.id)) * Math.PI * 2;
+      rx = Math.cos(ang); ry = Math.sin(ang);
+    }
+    const jitter = 0.82 + 0.36 * hash01(`${part.id}:spread`);
+    const mag = a * width * jitter;
+    const rank = n > 1 ? i / (n - 1) : 0.5;
+    const lift = a * width * ((LAYER_LIFT[part.layer] ?? LAYER_LIFT.mid) * 0.55 + 0.9 * rank);
+    return shiftPart(part, round4(rx * mag), round4(ry * mag), round4(lift));
+  });
+  return { ...model, parts: moved };
+}
+
 export function validateMachineSpec(spec, { fps = 30 } = {}) {
   const errors = [];
   if (!spec || typeof spec !== 'object') return ['machine spec must be an object'];
@@ -425,6 +545,32 @@ export function validateMachineSpec(spec, { fps = 30 } = {}) {
     }
   }
   const knownTags = new Set(model.parts.map(p => p.tag).filter(nonEmpty));
+
+  if ('explode' in spec) {
+    const ex = spec.explode;
+    if (!ex || typeof ex !== 'object' || Array.isArray(ex)) {
+      errors.push('explode must be an object');
+    } else {
+      if (!finite(ex.amount) || ex.amount < 0 || ex.amount > 1) {
+        errors.push('explode.amount must be a finite number within 0..1');
+      }
+      if (!finite(ex.start) || !finite(ex.end) || ex.end <= ex.start) {
+        errors.push('explode requires finite start < end');
+      } else if (finite(spec.start) && finite(spec.end)
+          && (ex.start < spec.start - 1e-9 || ex.end > spec.end + 1e-9)) {
+        errors.push('explode window must sit inside [spec.start, spec.end]');
+      }
+      if ('hold' in ex && (!finite(ex.hold) || ex.hold < 0 || ex.hold > EXPLODE_LIMITS.maxHold)) {
+        errors.push(`explode.hold must be within 0..${EXPLODE_LIMITS.maxHold}`);
+      }
+      if ('spread' in ex && (!finite(ex.spread) || ex.spread <= 0 || ex.spread > EXPLODE_LIMITS.maxSpread)) {
+        errors.push(`explode.spread must be within 0..${EXPLODE_LIMITS.maxSpread}`);
+      }
+      if ('focus' in ex && knownTags.size > 0 && !knownTags.has(ex.focus)) {
+        errors.push(`explode.focus "${ex.focus}" does not match any part tag`);
+      }
+    }
+  }
 
   if (!Array.isArray(spec.steps) || !spec.steps.length) {
     errors.push('steps must be a non-empty array');
@@ -719,7 +865,11 @@ export function buildMachineScene(spec, time, opts = {}) {
   const proj = (x, y, z) => isoProjectPoint(x, y, z, { originX: ox, originY: oy, scale: sc });
 
   const model = expandMachineModel(spec);
-  const flatParts = normalizePrimitives(model.parts);
+  const exploded = explodeProgressAt(spec, time);
+  const shaped = exploded.amount > 0
+    ? explodeMachineModel(model, exploded.amount, { spread: spec?.explode?.spread, focus: spec?.explode?.focus })
+    : model;
+  const flatParts = normalizePrimitives(shaped.parts);
   const rev = forceFullReveal ? 1 : state.revealProgress;
   const activeTagSet = new Set(state.activeTags);
   const activeTintName = state.activeStep?.motion?.tint === 'intake' ? 'intake' : 'active';
@@ -1008,6 +1158,7 @@ export function buildMachineScene(spec, time, opts = {}) {
     origin: { x: ox, y: oy, scale: sc },
     ops,
     bounds,
+    explode: { amount: exploded.amount, phase: exploded.phase, open: exploded.open },
     vertices: allVertices,
     world: worldProjected,
   };

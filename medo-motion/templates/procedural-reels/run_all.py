@@ -16,7 +16,13 @@ from media_tools import find_media  # noqa: E402 - template-local helper, works 
 FF = find_media("ffmpeg") or "ffmpeg"
 FFPROBE = find_media("ffprobe") or "ffprobe"
 
-FPS = 30
+from canvas_profile import describe, plan  # noqa: E402 - template-local helper
+
+CANVAS = plan()
+if CANVAS["scale"] != 1.0:
+    # `lib` reads REEL_SCALE at import time: the device buffer follows the declared profile size.
+    os.environ.setdefault("REEL_SCALE", f"{CANVAS['scale']:g}")
+FPS = CANVAS["fps"]
 CH = int(os.environ.get("REEL_CHUNK", "276"))
 if CH <= 0:
     raise SystemExit("REEL_CHUNK must be a positive integer")
@@ -32,6 +38,11 @@ import scenes
 from scenes import B
 from render_policy import motion_mode
 from lib import W, H, DW, DH, FONT, SS as SUPERSAMPLE
+
+if (DW, DH) != CANVAS["device"]:
+    raise SystemExit(f"device buffer {DW}×{DH} does not match the declared canvas {CANVAS['device'][0]}×"
+                     f"{CANVAS['device'][1]} — unset REEL_SCALE/REEL_DRAFT when REEL_CANVAS sets the size")
+print(describe(CANVAS))
 from chunk_utils import build_signature, expected_chunks, is_valid_chunk
 import text_direction as td
 

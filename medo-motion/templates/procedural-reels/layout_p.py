@@ -18,6 +18,8 @@ from typing import Any
 
 import numpy as np
 
+from canvas_profile import plan as _canvas_plan
+
 W, H = 1080, 1920
 FPS = 30
 MARGIN = 40
@@ -52,6 +54,23 @@ def _load_safe_zones() -> None:
         ZONES = {"content": CONTENT_Y, "caption": CAPTION_Y, "hud": HUD_Y}
     except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
         pass
+    _apply_canvas_override()
+
+
+def _apply_canvas_override() -> None:
+    """A declared profile may shrink (never reshape) the canvas: every zone scales with it."""
+    global W, H, FPS, MARGIN, CONTENT_Y, CAPTION_Y, HUD_Y, ZONES
+    doc = _canvas_plan(W, H)
+    if not doc["overridden"]:
+        return
+    scale = doc["scale"]
+    W, H = doc["device"]
+    FPS = doc["fps"]
+    MARGIN = int(round(MARGIN * scale))
+    CONTENT_Y = tuple(int(round(value * scale)) for value in CONTENT_Y)
+    CAPTION_Y = tuple(int(round(value * scale)) for value in CAPTION_Y)
+    HUD_Y = (0, CONTENT_Y[0])
+    ZONES = {"content": CONTENT_Y, "caption": CAPTION_Y, "hud": HUD_Y}
 
 
 _load_safe_zones()

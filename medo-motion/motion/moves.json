@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "note": "The executable motion catalog: every family here is either runnable (code path + evidence) or explicitly descriptive. The descriptive technique library is NOT a move bank — see docs/moves.md and docs/exploitation-map.md §1.",
+  "families": {
+    "caption-entrances": {
+      "title": "مداخل الكابشن والنص",
+      "state": "executable",
+      "source": "medo-motion/motion/text-animations.json",
+      "sourceCollection": "animations",
+      "count": 51,
+      "unit": "text entrance",
+      "timing": "نافذة دخول بالثواني، مربوطة بالكلمة المقاسة؛ المدة القصوى من العقد",
+      "preview": "docs/text-animations.md",
+      "limits": [
+        "11 من 51 موسومة boxed وغير آمنة للكابشن (tests/test_text_animations.py يفرض ذلك)",
+        "المسارات المحركة محدودة في opacity/x/y/rotate/scale/blur"
+      ],
+      "engines": {
+        "K": {
+          "state": "supported",
+          "impl": "medo-motion/templates/render/lib/caption-motion.js",
+          "symbols": [
+            "captionTransform",
+            "resolveTextStyle"
+          ],
+          "evidence": [
+            "tests/test_text_animations.py"
+          ]
+        },
+        "R": {
+          "state": "supported",
+          "impl": "medo-motion/templates/remotion/src/lib/caption-motion.js",
+          "symbols": [
+            "captionTransform"
+          ],
+          "evidence": [
+            "tests/test_shared_libs.py",
+            "tests/test_text_animations.py"
+          ]
+        },
+        "P": {
+          "state": "supported",
+          "impl": "medo-motion/templates/procedural-reels/caption_motion.py",
+          "symbols": [
+            "caption_transform",
+            "resolve_text_style"
+          ],
+          "evidence": [
+            "tests/test_text_animations.py"
+          ]
+        }
+      }
+    },
+    "element-effects": {
+      "title": "مؤثرات العنصر (light sweep / whip pan / particle dissolve)",
+      "state": "executable",
+      "source": "docs/motion-effects.md",
+      "members": [
+        "light-sweep",
+        "whip-pan",
+        "particle-dissolve"
+      ],
+      "count": 3,
+      "unit": "element effect",
+      "timing": "نافذة زمنية صريحة لكل مؤثر (start + duration) على العنصر",
+      "preview": "docs/motion-effects.md",
+      "limits": [
+        "تحتاج استدعاءً صريحًا من المشهد؛ لا تُطبَّق تلقائيًا على كل شيء"
+      ],
+      "engines": {
+        "K": {
+          "state": "supported",
+          "impl": "medo-motion/templates/render/lib/effects.js",
+          "symbols": [
+            "lightSweep",
+            "whipPan",
+            "particleDissolve"
+          ],
+          "evidence": [
+            "tests/test_motion_effects.py"
+          ]
+        },
+        "P": {
+          "state": "supported",
+          "impl": "medo-motion/templates/procedural-reels/effects.py",
+          "symbols": [
+            "light_sweep",
+            "whip_pan",
+            "particle_dissolve"
+          ],
+          "evidence": [
+            "tests/test_motion_effects.py"
+          ]
+        },
+        "R": {
+          "state": "conditional",
+          "conditions": [
+            "النسخة المشتركة موجودة في src/lib/effects.js، لكن لا كتالوج مشاهد R يستهلكها تلقائيًا"
+          ],
+          "impl": "medo-motion/templates/remotion/src/lib/effects.js",
+          "symbols": [
+            "lightSweep",
+            "whipPan",
+            "particleDissolve"
+          ],
+          "evidence": [
+            "tests/test_shared_libs.py"
+          ]
+        }
+      }
+    },
+    "transitions": {
+      "title": "انتقالات المشاهد",
+      "state": "executable",
+      "source": "medo-motion/motion/transitions.json",
+      "sourceCollection": "transitions",
+      "count": 14,
+      "unit": "scene transition",
+      "timing": "مدة انتقال صريحة لكل انتقال؛ القطع الحادّ ليس انتقالًا",
+      "preview": "docs/transitions.md",
+      "limits": [
+        "R لا يملك كتالوج الانتقالات؛ القطع الحادّ فقط"
+      ],
+      "engines": {
+        "K": {
+          "state": "supported",
+          "impl": "medo-motion/templates/render/lib/transition.js",
+          "symbols": [
+            "transitionLayer",
+            "compositeTransition"
+          ],
+          "evidence": [
+            "tests/test_transitions.py"
+          ]
+        },
+        "P": {
+          "state": "supported",
+          "impl": "medo-motion/templates/procedural-reels/transition.py",
+          "symbols": [
+            "composite"
+          ],
+          "evidence": [
+            "tests/test_transitions.py"
+          ]
+        },
+        "R": {
+          "state": "unsupported",
+          "evidence": [
+            "docs/transitions.md"
+          ]
+        }
+      }
+    },
+    "techniques-library": {
+      "title": "مكتبة التقنيات الوصفية",
+      "state": "descriptive",
+      "source": "assets/techniques.json",
+      "sourceCollection": "techniques",
+      "count": 2239,
+      "unit": "technique description",
+      "timing": "غير قابل للتطبيق: لا نافذة زمنية ولا دالة",
+      "why": "مدخلات وصفية فقط (summary/how/use_when) مع تصنيف primitive من عشر فئات؛ 58 منها تحمل evidence. ليست دوال رسم ولا تُعدّ حركات تنفيذية.",
+      "engines": {}
+    },
+    "element-moves": {
+      "title": "حركات عنصر مركّبة (10 حركات: قائمة · بارالاكس · مدار · مسار كلمات · تفكيك · قناع · عدّاد · كروت · كاميرا · شظايا)",
+      "state": "executable",
+      "source": "shared/js/moves.js",
+      "members": [
+        "pixel-list",
+        "parallax",
+        "orbit",
+        "word-path",
+        "explode",
+        "mask-wipe",
+        "data-count",
+        "card-stack",
+        "camera-push",
+        "particle-burst"
+      ],
+      "count": 10,
+      "unit": "element move",
+      "timing": "نافذة دخول لكل سطر (stagger + enter) وتقدّم كاميرا 0..1 للبارالاكس",
+      "preview": "docs/moves.md",
+      "limits": [
+        "K يملك محوّل رسم لكل حركة؛ P وR يملكان الدوال النقية فقط حاليًا (لا محوّل رسم)",
+        "pixel-list ينقّط الإزاحة على شبكة بكسل حسب حجم الخط، وليست فسيفساء بكسل",
+        "word-path مستقيم فقط؛ المسارات المتعددة غير مدعومة",
+        "mask-wipe يرسم مستطيل قصّ حادًا؛ feather معلن ولا يُنفَّذ بعد",
+        "parallax يحتاج ترتيب طبقات صريحًا من المشهد"
+      ],
+      "engines": {
+        "K": {
+          "state": "supported",
+          "impl": "medo-motion/templates/render/lib/moves-render.js",
+          "symbols": [
+            "drawPixelList",
+            "drawParallax",
+            "drawOrbit",
+            "drawWordPath",
+            "drawExplode",
+            "drawMaskWipe",
+            "drawCardStack",
+            "drawCameraPush",
+            "drawParticleBurst",
+            "drawDataCount"
+          ],
+          "evidence": [
+            "tests/test_moves_b1b.py"
+          ]
+        },
+        "P": {
+          "state": "conditional",
+          "conditions": [
+            "الدوال النقية متاحة في moves.py ومتكافئة رقميًا؛ لا محوّل رسم P بعد"
+          ],
+          "impl": "medo-motion/templates/procedural-reels/moves.py",
+          "symbols": [
+            "pixel_list_item",
+            "parallax_layer",
+            "orbit_item",
+            "word_path_item",
+            "explode_part",
+            "mask_wipe",
+            "data_count",
+            "card_stack_item",
+            "camera_push",
+            "particle_burst"
+          ],
+          "evidence": [
+            "tests/test_moves_b1b.py"
+          ]
+        },
+        "R": {
+          "state": "conditional",
+          "conditions": [
+            "الوظائف النقية متاحة في src/lib/moves.js؛ لا مكوّن R يستهلكها تلقائيًا بعد"
+          ],
+          "impl": "medo-motion/templates/remotion/src/lib/moves.js",
+          "symbols": [
+            "pixelListItem",
+            "parallaxLayer",
+            "orbitItem",
+            "wordPathItem",
+            "explodePart",
+            "maskWipe",
+            "dataCount",
+            "cardStackItem",
+            "cameraPush",
+            "particleBurst"
+          ],
+          "evidence": [
+            "tests/test_moves_b1b.py"
+          ]
+        }
+      }
+    }
+  }
+}

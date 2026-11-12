@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "stage": { "width": 1080, "height": 1920, "background": "paper" },
+  "duration": 7.0,
+  "scenes": [
+    {
+      "id": "intro",
+      "start": 0,
+      "duration": 3.2,
+      "camera": { "move": "camera-push", "params": { "toScale": 1.05, "duration": 3.2 } },
+      "elements": [
+        {
+          "id": "title",
+          "kind": "text",
+          "x": 540,
+          "y": 360,
+          "z": 3,
+          "at": 0.1,
+          "text": "لماذا تبرد الشريحة؟",
+          "size": 84,
+          "font": "Cairo",
+          "color": "ink",
+          "align": "center",
+          "maxWidth": 880,
+          "move": { "move": "word-path", "params": { "fromX": -1.4, "toX": 0, "enter": 0.6 } }
+        },
+        {
+          "id": "underline",
+          "kind": "shape",
+          "x": 300,
+          "y": 430,
+          "z": 2,
+          "at": 0.5,
+          "shape": "rect",
+          "w": 480,
+          "h": 10,
+          "radius": 5,
+          "fill": "salmon"
+        },
+        {
+          "id": "presenter",
+          "kind": "person",
+          "x": 540,
+          "y": 1650,
+          "z": 1,
+          "pose": "explain",
+          "h": 900
+        }
+      ]
+    },
+    {
+      "id": "how",
+      "start": 3.2,
+      "duration": 3.8,
+      "camera": { "move": "parallax", "params": { "depth": 0.35, "duration": 3.8, "panX": 0.4 } },
+      "elements": [
+        {
+          "id": "arrow",
+          "kind": "draw",
+          "x": 0,
+          "y": 0,
+          "z": 4,
+          "at": 0.2,
+          "points": [[250, 700], [470, 620], [720, 540]],
+          "stroke": "red",
+          "strokeWidth": 10,
+          "arrow": true
+        },
+        {
+          "id": "bars",
+          "kind": "data",
+          "x": 300,
+          "y": 980,
+          "z": 3,
+          "values": [38, 62, 51, 84],
+          "w": 480,
+          "h": 260,
+          "fill": "ink",
+          "gap": 0.3
+        },
+        {
+          "id": "caption",
+          "kind": "text",
+          "x": 540,
+          "y": 1740,
+          "z": 5,
+          "at": 1.2,
+          "text": "كل درجة حرارة أعلى تعني فقدًا أكبر",
+          "size": 52,
+          "font": "Cairo",
+          "color": "ink",
+          "align": "center",
+          "maxWidth": 920,
+          "move": { "move": "pixel-list", "params": { "rise": 0.5 } }
+        },
+        {
+          "id": "screen",
+          "kind": "image",
+          "x": 700,
+          "y": 1560,
+          "z": 1,
+          "src": "media/thermal-shot.png",
+          "w": 420,
+          "h": 260,
+          "fit": "contain"
+        }
+      ]
+    }
+  ]
+}
