@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "id": "nvme-exploded",
+  "archetype": "nvme_ssd",
+  "clock": "vo",
+  "scene": 2,
+  "start": 3.0,
+  "end": 8.0,
+  "wordTimings": "plan/word-timings.json",
+  "revealWindow": {
+    "unit": "vo_seconds",
+    "start": 3.0,
+    "end": 4.2
+  },
+  "qa": {
+    "maxOcclusion": 0.35,
+    "zone": "content",
+    "checkPlatformUi": true
+  },
+  "sources": [
+    {
+      "id": "nvm-base-2.0d",
+      "title": "NVM Express Base Specification Revision 2.0d",
+      "kind": "spec",
+      "ref": "https://nvmexpress.org/specifications/"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-pcie",
+      "evidence": "source",
+      "sourceId": "nvm-base-2.0d",
+      "locator": {
+        "kind": "section",
+        "value": "§3.1.2 PCIe Queue Transport, p. 44"
+      },
+      "quote": "Host submits commands directly across PCI Express lanes to controller queues.",
+      "copyIds": [
+        "nvme-step-1"
+      ],
+      "timing": "sync",
+      "anchor": {
+        "word": 1,
+        "text": "الكنترولر"
+      },
+      "start": 4.3,
+      "end": 6.0,
+      "activeTags": [
+        "pcie_bus",
+        "controller"
+      ],
+      "motion": {
+        "kind": "packet_flow",
+        "path": "pcie_to_controller",
+        "tint": "intake",
+        "rate": 1.4
+      }
+    },
+    {
+      "id": "step-nand",
+      "evidence": "source",
+      "sourceId": "nvm-base-2.0d",
+      "locator": {
+        "kind": "figure",
+        "value": "Figure 14, Non-Volatile Memory Subsystem, p. 51"
+      },
+      "quote": "Controller stripes data across parallel non-volatile flash channels and dies.",
+      "copyIds": [
+        "nvme-step-2"
+      ],
+      "timing": "reveal",
+      "anchor": {
+        "word": 3,
+        "text": "طبقات"
+      },
+      "start": 6.1,
+      "end": 7.8,
+      "activeTags": [
+        "nand_channel",
+        "nand_stack"
+      ],
+      "motion": {
+        "kind": "packet_flow",
+        "path": "controller_to_nand",
+        "tint": "active",
+        "rate": 1.2
+      }
+    }
+  ],
+  "explode": {
+    "amount": 0.8,
+    "start": 5.0,
+    "end": 7.6,
+    "hold": 0.34,
+    "spread": 130,
+    "focus": "pcb"
+  }
+}
