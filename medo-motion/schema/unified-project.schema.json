@@ -1,14 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Medo-king-01/video-motion/blob/main/medo-motion/schema/unified-project.schema.json",
-  "title": "Unified project contract \u2014 experimental media and scalar effects subset",
+  "title": "Unified motion project",
   "description": "Experimental 1.0 and 1.1 subsets: structural validation only. Semantic validation is performed by tools/unified_project_check.py. No P/K/R/Hybrid backend integration.",
   "type": "object",
   "properties": {
     "schemaVersion": {
       "enum": [
         "1.0",
-        "1.1"
+        "1.1",
+        "1.2"
       ]
     },
     "id": {
@@ -212,6 +213,12 @@
           "items": {
             "$ref": "#/$defs/clip"
           }
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/transition"
+          }
         }
       },
       "required": [
@@ -375,6 +382,44 @@
         "interpolation"
       ],
       "additionalProperties": false
+    },
+    "transition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "kind": {
+          "enum": [
+            "crossfade"
+          ]
+        },
+        "fromClipId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "toClipId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "fromClipId",
+        "toClipId",
+        "duration"
+      ],
+      "additionalProperties": false
     }
   },
   "allOf": [
@@ -405,6 +450,39 @@
                       }
                     }
                   }
+                },
+                "transitions": {
+                  "maxItems": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schemaVersion": {
+            "const": "1.1"
+          }
+        },
+        "required": [
+          "schemaVersion"
+        ]
+      },
+      "then": {
+        "properties": {
+          "tracks": {
+            "items": {
+              "properties": {
+                "clips": {
+                  "items": {
+                    "properties": {}
+                  }
+                },
+                "transitions": {
+                  "maxItems": 0
                 }
               }
             }
