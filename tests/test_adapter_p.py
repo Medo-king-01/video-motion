@@ -78,27 +78,20 @@ def test_preflight_is_supported_for_stills_text_and_crossfades(tmp_path: Path) -
 
 
 @pytest.mark.parametrize("mutation,code", [
-    (lambda p: p["tracks"][0]["clips"][0].update(speed={"num": 2, "den": 1}), "R03"),
-    (lambda p: p["tracks"][0]["clips"][0]["keyframes"].append(
-        {"property": "value", "effectId": "o",
-         "points": [{"t": 0, "value": 5000, "interpolation": "linear"}]}), "R04"),
-    (lambda p: p["tracks"][0]["clips"][0].update(assetId="a2"), "R05"),
+    # A graphics track is still refused: nothing draws it.
+    (lambda p: p["tracks"].append({"id": "g", "kind": "graphics", "enabled": True, "clips": []}), "R02"),
+    # Audio plays, but a speed ramp on it does not: the mixer has no resampler.
     (lambda p: p["tracks"].append({"id": "au", "kind": "audio", "enabled": True, "clips": [
         {"id": "m1", "kind": "media", "assetId": "a3", "start": 0, "duration": 240_000,
-         "sourceIn": 0, "effects": [], "keyframes": []}]}), "R02"),
+         "sourceIn": 0, "speed": {"num": 2, "den": 1}, "effects": [], "keyframes": []}]}), "R03"),
 ])
 def test_unsupported_features_are_refused_before_a_frame_is_drawn(tmp_path: Path, mutation, code) -> None:
     data = project(tmp_path)
-    if code == "R04":
-        data["tracks"][0]["clips"][0]["effects"] = [
-            {"id": "o", "type": "opacity", "version": 1, "enabled": True, "params": {"value": 5000}}]
+    if code in ("R02", "R03"):
+        data["assets"].append({"id": "a3", "kind": "audio", "uri": "tone.wav",
+                               "sha256": data["assets"][0]["sha256"], "duration": 480_000})
+        (tmp_path / "tone.wav").write_bytes(b"RIFF")
     mutation(data)
-    if code == "R05":
-        data["assets"].append({"id": "a2", "kind": "video", "uri": "shot.ppm",
-                               "sha256": data["assets"][0]["sha256"], "duration": 480_000})
-    if code == "R02":
-        data["assets"].append({"id": "a3", "kind": "audio", "uri": "shot.ppm",
-                               "sha256": data["assets"][0]["sha256"], "duration": 480_000})
     adapter = adapter_p.PAdapter()
     graph = adapter.compile(data)
     readiness = adapter.preflight(graph)
@@ -107,6 +100,82 @@ def test_unsupported_features_are_refused_before_a_frame_is_drawn(tmp_path: Path
     with pytest.raises(adapter_p.AdapterError) as excinfo:
         adapter.render(graph, (0, 1), tmp_path / "out", {"root": tmp_path})
     assert excinfo.value.code == code
+
+
+def test_a_video_clip_is_decoded_not_refused(tmp_path: Path) -> None:
+    """The old R05 refusal is gone: a real video frame is pulled at the clip's source tick."""
+    import av
+
+    video = tmp_path / "clip.mp4"
+    with av.open(str(video), mode="w") as container:
+        stream = container.add_stream("mpeg4", rate=30)
+        stream.width, stream.height, stream.pix_fmt = WIDTH, HEIGHT, "yuv420p"
+        for index in range(6):
+            frame = av.VideoFrame.from_ndarray(
+                __import__("numpy").full((HEIGHT, WIDTH, 3), 40 + index * 30, dtype="uint8"), format="rgb24")
+            frame.pts = index
+            for packet in stream.encode(frame):
+                container.mux(packet)
+        for packet in stream.encode():
+            container.mux(packet)
+    data = project(tmp_path)
+    payload = video.read_bytes()
+    data["assets"] = [{"id": "a1", "kind": "video", "uri": "clip.mp4", "duration": 240_000,
+                       "sha256": hashlib.sha256(payload).hexdigest()}]
+    data["tracks"][0]["clips"][0]["speed"] = {"num": 1, "den": 1}
+    adapter = adapter_p.PAdapter()
+    graph = adapter.compile(data)
+    assert adapter.preflight(graph)["status"] == "supported"
+    out = tmp_path / "frames"
+    adapter.render(graph, (0, 2), out, {"root": tmp_path, "audio": False})
+    manifest = json.loads((out / "render.json").read_text(encoding="utf-8"))
+    first = (out / manifest["written"][0]["file"]).read_bytes()
+    assert first[3::4] == b"\xff" * (WIDTH * HEIGHT)
+
+
+def test_keyframed_opacity_is_drawn(tmp_path: Path) -> None:
+    data = project(tmp_path)
+    clip = data["tracks"][0]["clips"][0]
+    clip["effects"] = [{"id": "o", "type": "opacity", "version": 1, "enabled": True,
+                        "params": {"value": 10000}}]
+    clip["keyframes"] = [{"property": "value", "effectId": "o",
+                          "points": [{"t": 0, "value": 0, "interpolation": "linear"},
+                                     {"t": 240_000, "value": 10000, "interpolation": "linear"}]}]
+    adapter = adapter_p.PAdapter()
+    graph = adapter.compile(data)
+    assert adapter.preflight(graph)["status"] == "supported"
+    from unified_reference_preview import render_frame
+
+    early = render_frame(data, tmp_path, 1)["pixels"]
+    late = render_frame(data, tmp_path, 25)["pixels"]
+    assert early[3] < late[3]
+
+
+def test_a_wipe_transition_is_drawn_left_to_right(tmp_path: Path) -> None:
+    data = project(tmp_path)
+    second = {"id": "a2", "kind": "image", "uri": "dark.ppm",
+              "sha256": data["assets"][0]["sha256"]}
+    payload = f"P6\n{WIDTH} {HEIGHT}\n255\n".encode("ascii") + bytes([250, 250, 250]) * (WIDTH * HEIGHT)
+    (tmp_path / "dark.ppm").write_bytes(payload)
+    second["sha256"] = hashlib.sha256(payload).hexdigest()
+    data["assets"].append(second)
+    video = data["tracks"][0]
+    video["clips"] = [
+        {"id": "c1", "kind": "media", "assetId": "a1", "start": 0, "duration": 120_000,
+         "sourceIn": 0, "effects": [], "keyframes": []},
+        {"id": "c2", "kind": "media", "assetId": "a2", "start": 120_000, "duration": 120_000,
+         "sourceIn": 0, "effects": [], "keyframes": []}]
+    video["transitions"] = [{"id": "tw1", "kind": "wipe", "direction": "left",
+                             "fromClipId": "c1", "toClipId": "c2", "duration": 8_000}]
+    from unified_project_check import validate
+    from unified_reference_preview import render_frame
+
+    assert validate(data) == []
+    tick_mid = 120_000
+    frame = render_frame(data, tmp_path, tick_mid // 8_000)["pixels"]
+    left = frame[(HEIGHT // 2) * WIDTH * 4 + 4]
+    right = frame[(HEIGHT // 2) * WIDTH * 4 + (WIDTH - 2) * 4]
+    assert left != right  # half the frame already switched to the incoming picture
 
 
 def test_render_writes_the_range_and_a_manifest_atomically(tmp_path: Path) -> None:

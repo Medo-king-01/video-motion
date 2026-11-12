@@ -63,8 +63,8 @@ def test_reject_unsupported_content_even_outside_frame(tmp_path):
     p["schemaVersion"] = "1.1"
     clip["effects"] = [{"id": "fx", "type": "opacity", "version": 1,
                         "enabled": False, "params": {"value": 5000}}]
-    with pytest.raises(PreviewError, match="effects"):
-        render_frame(p, tmp_path, 0)
+    # Opacity is drawable now, so the disabled effect simply does nothing.
+    assert render_frame(p, tmp_path, 1)["pixels"] == bytes([255, 0, 0, 255, 0, 128, 255, 255])
     clip["effects"] = []
     p["tracks"].append({"id": "v2", "kind": "video", "enabled": True, "clips": []})
     with pytest.raises(PreviewError, match="multiple"):
@@ -75,7 +75,7 @@ def test_reject_unsupported_content_even_outside_frame(tmp_path):
     p["tracks"].append({"id": "a", "kind": "audio", "enabled": True, "clips": [
         {"id": "ac", "kind": "media", "assetId": "audio", "start": 8000, "duration": 8000,
          "sourceIn": 0, "effects": [], "keyframes": []}]})
-    with pytest.raises(PreviewError, match="only video-track"):
+    with pytest.raises(PreviewError, match="only video and text"):
         render_frame(p, tmp_path, 0)
 
 
@@ -85,8 +85,10 @@ def test_reject_pixel_limit_and_non_image(tmp_path):
     with pytest.raises(PreviewError, match="pixel limit"):
         render_frame(p, tmp_path, 0)
     p = image_project(tmp_path)
-    p["assets"][0].update(kind="video", duration=24000)
-    with pytest.raises(PreviewError, match="still images"):
+    junk = b"not a video at all" * 64
+    (tmp_path / "image.ppm").write_bytes(junk)
+    p["assets"][0].update(kind="video", duration=24000, sha256=hashlib.sha256(junk).hexdigest())
+    with pytest.raises(PreviewError, match="V08"):
         render_frame(p, tmp_path, 0)
 
 

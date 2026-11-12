@@ -150,3 +150,66 @@ def test_recovery_is_offered_and_applied(editor) -> None:
     assert status == 200 and store.recover(path) is None
     status, _ = call(base, "/api/recover", {"action": "apply"})
     assert status == 400
+
+
+def test_the_media_bin_serves_a_thumbnail(editor) -> None:
+    base, session, _ = editor
+    status, body = call(base, "/api/media?asset=a1")
+    assert status == 200 and body.startswith(b"\x89PNG")
+    status, body = call(base, "/api/media?asset=ghost")
+    assert status == 404
+
+
+def test_uploading_media_copies_hashes_and_attaches_it(editor) -> None:
+    base, session, path = editor
+    payload = b"P6\n36 64\n255\n" + bytes([10, 20, 30]) * (36 * 64)
+    request = urllib.request.Request(base + "/api/media/upload", data=payload,
+                                     headers={"Content-Type": "application/octet-stream",
+                                              "X-Filename": "still.ppm"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        body = json.loads(response.read())
+    assert response.status == 200
+    asset = body["asset"]
+    assert asset["uri"] == "media/still.ppm"
+    assert (path.parent / "media/still.ppm").read_bytes() == payload
+    import hashlib
+
+    assert asset["sha256"] == hashlib.sha256(payload).hexdigest()
+    assert any(item["id"] == asset["id"] for item in body["assets"])
+
+
+def test_an_unsupported_upload_type_is_refused(editor) -> None:
+    base, session, _ = editor
+    request = urllib.request.Request(base + "/api/media/upload", data=b"hello",
+                                     headers={"X-Filename": "notes.txt"})
+    try:
+        urllib.request.urlopen(request, timeout=60)
+        raise AssertionError("expected a refusal")
+    except urllib.error.HTTPError as error:
+        assert error.code == 400
+        assert "unsupported media type" in error.read().decode("utf-8")
+
+
+def test_the_new_ops_edit_the_project(editor) -> None:
+    base, session, _ = editor
+    status, body = call(base, "/api/op", {"op": "add_track", "trackId": "t3", "kind": "text"})
+    assert status == 200 and len(json.loads(body)["project"]["tracks"]) == 3
+    status, body = call(base, "/api/op", {"op": "update_clip", "clipId": "c1", "duration": 120_000})
+    assert status == 200 and json.loads(body)["project"]["tracks"][0]["clips"][0]["duration"] == 120_000
+    status, body = call(base, "/api/op", {"op": "add_effect", "clipId": "c1",
+                                           "effect": {"id": "op", "type": "opacity", "version": 1,
+                                                      "enabled": True, "params": {"value": 8000}}})
+    assert status == 200
+    status, body = call(base, "/api/op", {"op": "add_keyframe", "clipId": "c1", "effectId": "op",
+                                           "tick": 0, "value": 0})
+    assert status == 200
+    curve = json.loads(body)["project"]["tracks"][0]["clips"][0]["keyframes"][0]
+    assert curve["points"][0]["value"] == 0
+    status, body = call(base, "/api/op", {"op": "add_text", "textId": "cap9", "value": "جديد",
+                                           "wrap": True})
+    assert status == 200 and json.loads(body)["project"]["texts"][-1]["id"] == "cap9"
+    status, body = call(base, "/api/op", {"op": "text", "textId": "cap1", "wrap": True,
+                                           "animation": {"kind": "words-up", "stagger": 24_000}})
+    assert status == 200 and json.loads(body)["project"]["texts"][0]["animation"]["kind"] == "words-up"
+    status, body = call(base, "/api/op", {"op": "enabled", "trackId": "tx1", "enabled": False})
+    assert status == 200 and json.loads(body)["project"]["tracks"][1]["enabled"] is False

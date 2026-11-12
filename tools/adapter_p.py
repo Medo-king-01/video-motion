@@ -50,43 +50,42 @@ class Cancelled(AdapterError):
 
 
 def _unsupported(project):
-    """Diagnostics for what this backend must not pretend to draw."""
+    """Diagnostics for what this backend still must not pretend to draw."""
     problems = []
     for ti, track in enumerate(project["tracks"]):
         if not track["enabled"]:
             continue
         path = f"$.tracks[{ti}]"
-        if track["kind"] == "audio":
-            if track["clips"]:
-                problems.append({"code": "R02", "path": path, "message":
-                                 "audio decoding is not implemented; export the mix with audio_export"})
+        if track["kind"] in ("graphics",):
+            problems.append({"code": "R02", "path": path, "message":
+                             f"{track['kind']} tracks are not drawn by engine P"})
             continue
-        if track["kind"] not in ("video", "text"):
-            problems.append({"code": "R02", "path": path, "message": f"{track['kind']} tracks are not drawn"})
+        if track["kind"] == "audio":
+            for ci, clip in enumerate(track["clips"]):
+                speed = clip.get("speed")
+                if speed and (speed["num"], speed["den"]) != (1, 1):
+                    problems.append({"code": "R03", "path": f"{path}.clips[{ci}].speed",
+                                     "message": "clip speed is not implemented for audio"})
             continue
         for ci, clip in enumerate(track["clips"]):
             clip_path = f"{path}.clips[{ci}]"
-            speed = clip.get("speed")
-            if speed and (speed["num"], speed["den"]) != (1, 1):
-                problems.append({"code": "R03", "path": clip_path + ".speed",
-                                 "message": "clip speed is not implemented"})
-            if clip["keyframes"]:
-                problems.append({"code": "R04", "path": clip_path + ".keyframes",
-                                 "message": "keyframed effects are not implemented"})
-            if track["kind"] == "video":
-                asset_id = clip.get("assetId")
-                asset = next((a for a in project["assets"] if a["id"] == asset_id), None)
-                if asset is not None and asset["kind"] != "image":
-                    problems.append({"code": "R05", "path": clip_path + ".assetId",
-                                     "message": f"{asset['kind']} decoding is not implemented; stills only"})
-                for ei, effect in enumerate(clip["effects"]):
-                    if effect["type"] != "opacity":
-                        problems.append({"code": "R06", "path": f"{clip_path}.effects[{ei}]",
-                                         "message": "only opacity is implemented on video"})
+            if track["kind"] == "text":
+                # The checker already refuses a curve whose effect is missing or not opacity,
+                # so there is nothing left for the adapter to reject here.
+                continue
+            asset_id = clip.get("assetId")
+            asset = next((a for a in project["assets"] if a["id"] == asset_id), None)
+            if asset is not None and asset["kind"] not in ("image", "video"):
+                problems.append({"code": "R05", "path": clip_path + ".assetId",
+                                 "message": f"{asset['kind']} cannot be drawn on a video track"})
         for tk, transition in enumerate(track.get("transitions") or []):
-            if transition["kind"] != "crossfade":
+            kind = transition["kind"]
+            if kind not in ("crossfade", "wipe"):
                 problems.append({"code": "R07", "path": f"{path}.transitions[{tk}]",
-                                 "message": f"{transition['kind']} is not implemented; crossfade only"})
+                                 "message": f"{kind} is not implemented"})
+            if kind == "wipe" and track["kind"] != "video":
+                problems.append({"code": "R07", "path": f"{path}.transitions[{tk}]",
+                                 "message": "a wipe needs a video track"})
     return problems
 
 
@@ -152,8 +151,19 @@ class PAdapter:
                 written.append({"frame": index, "file": name, "sha256": hashlib.sha256(payload).hexdigest()})
                 if callable(progress):
                     progress(index - start + 1, stop - start)
+            audio_artifact = None
+            if options.get("audio", True) and any(track["kind"] == "audio" and track["clips"]
+                                                   for track in project["tracks"] if track["enabled"]):
+                import audio_export  # noqa: PLC0415
+
+                pcm, mix_manifest = audio_export.build(project, root)
+                (staging / "mix.wav").write_bytes(pcm)
+                audio_artifact = {"file": "mix.wav", "bytes": len(pcm),
+                                  "sha256": hashlib.sha256(pcm).hexdigest(),
+                                  "peak": mix_manifest["totals"]["peak"]}
             manifest = {
                 "backend": BACKEND, "backendVersion": VERSION,
+                "audio": audio_artifact,
                 "graphVersion": graph.get("graphVersion"), "graphSha256": graph.get("graphSha256"),
                 "frames": [start, stop], "width": project["profile"]["width"],
                 "height": project["profile"]["height"], "format": "RGBA8",

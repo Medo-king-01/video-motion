@@ -27,8 +27,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from unified_project_check import validate  # noqa: E402
 
-CURRENT = "1.3"
-KNOWN = ("1.0", "1.1", "1.2", "1.3")
+CURRENT = "1.4"
+KNOWN = ("1.0", "1.1", "1.2", "1.3", "1.4")
 
 
 class MigrationError(ValueError):
@@ -61,9 +61,12 @@ def migrate(project):
                 track["transitions"] = []
                 added += 1
         steps.append({"step": "1.2", "change": "add empty transitions[] to every track", "tracks": added})
-    if _order(version) < _order(CURRENT):
-        steps.append({"step": CURRENT, "change": "keep the project as-is; 1.3 fields are optional",
+    if _order(version) < _order("1.3"):
+        steps.append({"step": "1.3", "change": "keep the project as-is; 1.3 fields are optional",
                       "note": "speed/streams/texts stay absent until an editor adds them"})
+    if _order(version) < _order("1.4"):
+        steps.append({"step": "1.4", "change": "keep the project as-is; wrap/animation/wipe are optional",
+                      "note": "text wrapping, word animation and wipe transitions are opt-in"})
     migrated["schemaVersion"] = CURRENT
     errors = validate(migrated)
     if errors:

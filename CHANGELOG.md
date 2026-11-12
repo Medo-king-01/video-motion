@@ -5,6 +5,47 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-12 (contract 1.4, video/audio in P, K + Hybrid, editor v2, text animation)
+
+The four remaining items of the plan's second wave landed together. What is measured here: a
+contract that describes motion instead of implying it, an adapter that decodes real video and mixes
+real audio, two more backends that answer the same contract honestly, an editor with a media bin and
+a keyframe editor, and Arabic captions that wrap and animate word by word.
+
+- **Contract 1.4** (`docs/contract-1.4.md`) — `text.wrap`, `text.animation` (`fade`/`words-up`/
+  `words-fade`, `stagger`, `ease`) guarded by `U11`; `transition.kind: "wipe"` with a required
+  `direction` and a ban on audio wipes (`U07`); `opacity` on text tracks (`U06`). `CURRENT` in
+  `unified_project_migrate.py` is `1.4` and migrating 1.3 changes no field.
+- **Engine P grew up** — the reference preview and the adapter now decode **video** (PyAV, bilinear
+  resize, speed-aware source ticks), **PNG/JPEG** stills, draw **opacity keyframes**, **hard-edge
+  wipe** transitions and weighted **audio** (mixed by `audio_export`, recorded as `mix.wav` with a
+  peak in the manifest). Retired: `R04` (keyframes) and video `R05`. Remaining refusals: `R02`
+  (graphics), `R03` (audio speed — no resampler), `R07` (unknown/audio wipe), `R08`–`R10`.
+- **Text that behaves** — auto-wrap measured through the shaper, multi-line layout that shrinks to
+  fit, per-word stagger with linear or cubic-out easing, and Arabic shaping kept per word.
+- **Engine K answers** (`tools/adapter_k.py`, `docs/adapters-k-hybrid.md`) — compiles and validates,
+  declares `graph.execute` unsupported, refuses to draw with `R11`. Its `project.read` claim is now
+  backed by a real adapter, so the capability gate accepts it.
+- **Hybrid is a routing decision** (`tools/adapter_hybrid.py`) — `compile()` writes a per-track
+  `routing` table, disabled/empty tracks are not routed, an undrawable track carrying clips is
+  `R12` (a guard: the checker rejects such a project first), and `render()` delegates to P while
+  stamping `routing` + `routedBy: "Hybrid"` into the manifest. `render_backend.py --check` now
+  reports **3 real adapters (Hybrid, K, P) and 1 null adapter (R)**.
+- **Editor v2** (`docs/editor-ui.md`) — media bin with lazy thumbnails and drag-and-drop upload
+  (64 MiB cap, SHA-256, de-dup rename, kind sniffing), a full inspector with an effect editor and a
+  keyframe editor, a project panel (name/duration/tracks/enabled), timeline drag with frame
+  snapping, and a 22-verb op table. New verbs: `add_text` (a text block plus its clip) and
+  `enabled`. The page was then driven against the live server through `jsdom`: load, duration edit,
+  track toggle, caption edit, add track, add effect, add keyframe, upload, undo — all pass with no
+  JS error. Two real bugs fell out of that: the inspector held a stale clip object (so a new effect
+  never appeared until you re-selected the clip) and keyframe ticks were project-global instead of
+  clip-local. Both are fixed. A real browser (CSS/RTL look) is still unchecked, and that is written
+  down, not hidden.
+- **Tests** — new: `test_adapter_k.py` (5), `test_adapter_hybrid.py` (7), `test_editor_ops.py` (7);
+  grown: `test_editor_server.py` (13), `test_adapter_p.py` (14), `test_unified_reference_preview.py`
+  (6), `test_render_backend_contract.py` (13). 26 suite failures remain and are environmental
+  (no ffmpeg on PATH, no device buffer, no libraqm); the same 26 fail at the merge commit.
+
 ## Unreleased — 2026-11-12 (contract 1.3, engine P adapter, editor, eight methods)
 
 The plan's remaining items 1–5 stopped being prose. What is measured here: a project that carries

@@ -128,6 +128,14 @@ def validate(project):
             errors.append(f"U10 {path}.direction: rtl text with no Arabic letters")
         if text["direction"] == "ltr" and any("\u0600" <= ch <= "\u06ff" for ch in text["value"]):
             errors.append(f"U10 {path}.direction: ltr text with Arabic letters")
+        animation = text.get("animation")
+        if animation is not None:
+            if animation["kind"] == "none" and len(animation) > 1:
+                errors.append(f"U11 {path}.animation: `none` carries no timing")
+            if animation["kind"].startswith("words-") and not text.get("wrap", False):
+                value_words = [word for word in text["value"].split() if word]
+                if len(value_words) < 2:
+                    errors.append(f"U11 {path}.animation: a word animation needs more than one word")
     for i, track in enumerate(project["tracks"]):
         path = f"$.tracks[{i}]"
         add_id(track["id"], path + ".id")
@@ -216,6 +224,12 @@ def validate(project):
                 continue
             if source["start"] + source["duration"] != target["start"]:
                 errors.append(f"U07 {tpath}: clips are not adjacent — no cut to dissolve")
+                continue
+            if transition["kind"] not in ("crossfade", "wipe"):
+                errors.append(f"U07 {tpath}.kind: {transition['kind']!r} is not a transition this build knows")
+                continue
+            if transition["kind"] == "wipe" and track["kind"] != "video":
+                errors.append(f"U07 {tpath}: a wipe needs a video track (audio has no geometry)")
                 continue
             length = transition["duration"]
             if length % 2:

@@ -5,54 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>محرر المشروع الموحّد</title>
 <style>
-  :root{--bg:#0c0c0d;--panel:#151517;--line:#2a2a2d;--ink:#e6e5e3;--dim:#9e9c99;--red:#cb271b;--ok:#4a9e6b;--warn:#c9a227}
+  :root{--bg:#0c0c0d;--panel:#151517;--line:#2a2a2d;--ink:#e6e5e3;--dim:#9e9c99;--red:#cb271b;--warn:#c9a227}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Cairo","Segoe UI",system-ui,sans-serif}
-  header{display:flex;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
-  header h1{font-size:15px;margin:0;font-weight:800;letter-spacing:.2px}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 "Cairo","Segoe UI",system-ui,sans-serif}
+  header{display:flex;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:6;flex-wrap:wrap}
+  header h1{font-size:14px;margin:0;font-weight:800}
   .spacer{flex:1}
-  button,input,select{font:inherit;color:var(--ink);background:#1d1d20;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+  button,input,select{font:inherit;color:var(--ink);background:#1d1d20;border:1px solid var(--line);border-radius:6px;padding:5px 8px}
   button{cursor:pointer}
   button:hover:not(:disabled){border-color:#3d3d41}
   button:disabled{opacity:.4;cursor:not-allowed}
   button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:700}
-  main{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:14px;padding:14px;align-items:start}
-  @media (max-width:860px){main{grid-template-columns:1fr}}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
-  .panel h2{font-size:12px;margin:0 0 10px;color:var(--dim);font-weight:700;letter-spacing:.4px}
+  button.tiny{padding:2px 6px;font-size:11px}
+  main{display:grid;grid-template-columns:280px 1fr 300px;gap:12px;padding:12px;align-items:start}
+  @media (max-width:1100px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:12px}
+  .panel h2{font-size:11px;margin:0 0 8px;color:var(--dim);font-weight:700;letter-spacing:.4px;display:flex;gap:6px;align-items:center}
   #stage{display:flex;justify-content:center;background:#000;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  #frame{max-height:56vh;max-width:100%;image-rendering:pixelated;display:block}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .muted{color:var(--dim);font-size:12px}
-  .mono{font-family:"DejaVu Sans Mono",ui-monospace,monospace;font-size:12px;direction:ltr;unicode-bidi:embed}
-  #timeline{margin-top:12px}
-  .track{display:grid;grid-template-columns:64px 1fr;gap:8px;align-items:center;margin-bottom:6px}
-  .track .name{font-size:11px;color:var(--dim);text-align:center;border:1px solid var(--line);border-radius:6px;padding:4px 0;background:#101012}
-  .lane{position:relative;height:34px;background:#101012;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  #frame{max-height:52vh;max-width:100%;display:block}
+  .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .muted{color:var(--dim);font-size:11px}
+  .mono{font-family:"DejaVu Sans Mono",ui-monospace,monospace;font-size:11px;direction:ltr;unicode-bidi:embed}
+  .track{display:grid;grid-template-columns:58px 1fr;gap:6px;align-items:center;margin-bottom:5px}
+  .track .name{font-size:10px;color:var(--dim);text-align:center;border:1px solid var(--line);border-radius:5px;padding:3px 0;background:#101012;cursor:pointer}
+  .track .name.off{opacity:.45}
+  .lane{position:relative;height:30px;background:#101012;border:1px solid var(--line);border-radius:5px;overflow:hidden}
   .clip{position:absolute;top:3px;bottom:3px;background:#26262a;border:1px solid #3a3a3f;border-radius:4px;overflow:hidden;
-        font-size:10px;color:var(--dim);padding:2px 5px;white-space:nowrap;cursor:pointer;direction:ltr}
+        font-size:10px;color:var(--dim);padding:2px 4px;white-space:nowrap;cursor:grab;direction:ltr;user-select:none}
   .clip.text{background:#2b2320;border-color:#5a3a2e}
   .clip.audio{background:#1f2a24;border-color:#2f4a3a}
   .clip.sel{border-color:var(--red);background:#3a201c;color:var(--ink)}
   .clip b{color:var(--ink);font-weight:600}
   #playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--red);pointer-events:none}
-  .banner{padding:8px 12px;border-radius:8px;margin-bottom:10px;font-size:13px}
+  .marker{position:absolute;top:0;bottom:0;width:2px;background:var(--warn);pointer-events:none}
+  .banner{padding:7px 10px;border-radius:8px;margin-bottom:10px;font-size:12px}
   .banner.err{background:#3a1a16;border:1px solid #6a2a22;color:#f0c4bd}
   .banner.ok{background:#15251c;border:1px solid #2b4636;color:#bcdcc8}
   .tag{font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
-  .cap{display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:6px}
-  .cap input{width:100%}
-  #log{max-height:150px;overflow:auto;white-space:pre-wrap;font-family:"DejaVu Sans Mono",monospace;font-size:11px;color:var(--dim);direction:ltr;text-align:left}
+  #log{max-height:120px;overflow:auto;white-space:pre-wrap;font-family:"DejaVu Sans Mono",monospace;font-size:10.5px;color:var(--dim);direction:ltr;text-align:left}
+  .bin{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  .cell{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#101012;cursor:pointer;position:relative}
+  .cell img{width:100%;display:block;max-height:74px;object-fit:cover}
+  .cell.sel{border-color:var(--red)}
+  .cell span{display:block;font-size:9.5px;padding:2px 4px;color:var(--dim);direction:ltr;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .field{display:grid;grid-template-columns:76px 1fr;gap:6px;align-items:center;margin-bottom:5px}
+  .field label{font-size:11px;color:var(--dim)}
+  .field input,.field select{width:100%}
+  .fx{border:1px solid var(--line);border-radius:6px;padding:5px;margin-bottom:6px;background:#101012}
+  .kf{font-size:10.5px;color:var(--dim);display:flex;gap:6px;align-items:center;justify-content:space-between}
+  .drop{outline:2px dashed transparent;transition:outline-color .15s}
+  .drop.over{outline-color:var(--red)}
+  .pill{font-size:10px;border:1px solid var(--line);border-radius:999px;padding:0 6px;color:var(--dim)}
 </style>
 </head>
 <body>
 <header>
   <h1>محرر المشروع الموحّد</h1>
   <span class="tag" id="backendTag">engine P</span>
-  <span class="muted" id="revTag"></span>
+  <span class="muted mono" id="revTag"></span>
   <span class="spacer"></span>
-  <button id="undo" title="تراجع">↶ تراجع</button>
-  <button id="redo" title="إعادة">↷ إعادة</button>
+  <button id="undo">↶ تراجع</button>
+  <button id="redo">↷ إعادة</button>
   <button id="save">حفظ</button>
   <button class="primary" id="export">تصدير MP4</button>
 </header>
@@ -60,47 +73,71 @@
 <main>
   <section>
     <div class="panel">
-      <h2>المعاينة</h2>
-      <div id="stage"><img id="frame" alt="إطار المعاينة"></div>
-      <div class="row" style="margin-top:10px">
-        <input id="frameIndex" type="range" min="0" max="0" value="0" style="flex:1">
-        <span class="mono" id="frameLabel">0</span>
-      </div>
+      <h2>Media Bin <span class="pill" id="assetCount">0</span></h2>
+      <div id="bin" class="bin drop"></div>
       <div class="row" style="margin-top:8px">
-        <button id="prev">−</button>
-        <button id="play">▶</button>
-        <button id="next">+</button>
-        <span class="muted">المعاينة = التصدير: نفس دالة الرسم</span>
+        <input id="file" type="file" multiple style="flex:1">
       </div>
+      <div class="row" style="margin-top:6px">
+        <select id="binTarget"></select>
+        <button id="addToTimeline">أضِف لرأس التشغيل</button>
+      </div>
+      <div class="muted" style="margin-top:6px">اسحب صورة/فيديو/صوت هنا أو استخدم الزر — الملف بيتنسخ جوّه المشروع ببصمته.</div>
     </div>
 
-    <div class="panel" style="margin-top:12px">
-      <h2>الاختيار</h2>
-      <div class="muted" id="selection">مافيش مقطع مختار</div>
-      <div class="row" style="margin-top:8px">
-        <button id="split">قص عند رأس التشغيل</button>
-        <button id="trim">قصّ من البداية لرأس التشغيل</button>
-        <button id="ripple">حذف والشد</button>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <input id="splitId" placeholder="معرّف المقطع الجديد" style="flex:1" value="cut1">
-      </div>
+    <div class="panel">
+      <h2>Inspector</h2>
+      <div id="inspector" class="muted">اختار مقطع من الـtimeline</div>
     </div>
 
-    <div class="panel" style="margin-top:12px">
-      <h2>النصوص العربية</h2>
-      <div id="captions"></div>
-      <div class="muted" id="captionsHint"></div>
+    <div class="panel">
+      <h2>المشروع</h2>
+      <div class="field"><label>الاسم</label><input id="projName"></div>
+      <div class="field"><label>المدة (ticks)</label><input id="projDuration" type="number" min="0"></div>
+      <div class="row"><button id="applyProject">تطبيق</button></div>
+      <div id="tracks" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:6px">
+        <select id="newTrackKind">
+          <option value="video">video</option>
+          <option value="text">text</option>
+          <option value="audio">audio</option>
+        </select>
+        <button id="addTrack">أضِف مسار</button>
+      </div>
     </div>
   </section>
 
   <section>
     <div id="banner"></div>
     <div class="panel">
+      <div id="stage"><img id="frame" alt="إطار المعاينة"></div>
+      <div class="row" style="margin-top:8px">
+        <input id="frameIndex" type="range" min="0" max="0" value="0" style="flex:1">
+        <span class="mono" id="frameLabel">0</span>
+        <button id="prev">−</button><button id="play">▶</button><button id="next">+</button>
+      </div>
+    </div>
+
+    <div class="panel">
       <h2>الـtimeline <span class="muted mono" id="clock"></span></h2>
       <div id="timeline"></div>
+      <div class="row" style="margin-top:8px">
+        <input id="splitId" placeholder="معرّف المقطع الجديد" value="cut1" style="flex:1">
+        <button id="split">قص عند رأس التشغيل</button>
+        <button id="trim">قصّ من البداية</button>
+        <button id="ripple">حذف والشد</button>
+      </div>
+      <div class="muted">اسحب أي مقطع أفقيًا لنقله؛ الحركة بتقف على إطار.</div>
     </div>
-    <div class="panel" style="margin-top:12px">
+  </section>
+
+  <section>
+    <div class="panel">
+      <h2>النصوص العربية</h2>
+      <div id="captions"></div>
+      <div class="muted" id="captionsHint"></div>
+    </div>
+    <div class="panel">
       <h2>السجل</h2>
       <div id="log"></div>
     </div>
@@ -109,7 +146,7 @@
 
 <script>
 const $ = (id) => document.getElementById(id);
-let state = null, selected = null, frame = 0, playing = false, timer = null;
+let state = null, selected = null, binSelected = null, frame = 0, playing = false, timer = null;
 
 function log(message) {
   $("log").textContent = `${new Date().toLocaleTimeString()}  ${message}\n` + $("log").textContent;
@@ -122,16 +159,224 @@ async function api(path, options) {
   return body;
 }
 
-function frameTicks(project) {
+const frameTicks = (project) => {
   const fps = project.profile.fps;
   return Math.round(project.timebase * fps.den / fps.num);
+};
+const totalFrames = (project) => Math.max(1, Math.ceil(project.duration / frameTicks(project)));
+const pct = (value, total) => (100 * value / Math.max(1, total)).toFixed(3) + "%";
+const snap = (ticks, project) => Math.round(ticks / frameTicks(project)) * frameTicks(project);
+
+function applyState(result) {
+  state.project = result.project || result;
+  if (result.undo !== undefined) state.undo = result.undo;
+  if (result.redo !== undefined) state.redo = result.redo;
+  frame = Math.min(frame, totalFrames(state.project) - 1);
+  render();
 }
 
-function totalFrames(project) {
-  return Math.ceil(project.duration / frameTicks(project));
+async function op(payload) {
+  try {
+    const result = await api("/api/op", { method: "POST", headers: { "Content-Type": "application/json" },
+                                           body: JSON.stringify(payload) });
+    applyState(result);
+    log(`${payload.op} ok`);
+    return result;
+  } catch (error) {
+    log(`${payload.op} failed: ${error.message}`);
+    banner(`رفض: ${error.message}`, true);
+    throw error;
+  }
 }
 
-function pct(value, total) { return (100 * value / total).toFixed(3) + "%"; }
+function banner(text, isError) {
+  $("banner").innerHTML = text ? `<div class="banner ${isError ? "err" : "ok"}">${text}</div>` : "";
+}
+
+function renderBin() {
+  const project = state.project;
+  const bin = $("bin");
+  bin.innerHTML = "";
+  $("assetCount").textContent = project.assets.length;
+  for (const asset of project.assets) {
+    const cell = document.createElement("div");
+    cell.className = `cell${binSelected === asset.id ? " sel" : ""}`;
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.src = `/api/media?asset=${encodeURIComponent(asset.id)}&t=${state.revision.slice(0, 6)}`;
+    img.alt = asset.uri;
+    const label = document.createElement("span");
+    label.textContent = `${asset.kind} · ${asset.id}`;
+    cell.append(img, label);
+    cell.onclick = () => { binSelected = asset.id; renderBin(); };
+    bin.appendChild(cell);
+  }
+  const target = $("binTarget");
+  target.innerHTML = "";
+  for (const track of project.tracks.filter((track) => ["video", "text", "audio"].includes(track.kind))) {
+    const option = document.createElement("option");
+    option.value = track.id;
+    option.textContent = `${track.kind} · ${track.id}`;
+    target.appendChild(option);
+  }
+}
+
+function locateClip(clipId) {
+  for (const track of state.project.tracks) {
+    const clip = track.clips.find((item) => item.id === clipId);
+    if (clip) return { track, clip };
+  }
+  return null;
+}
+
+function renderInspector() {
+  const project = state.project;
+  const host = $("inspector");
+  host.innerHTML = "";
+  if (!selected) { host.textContent = "اختار مقطع من الـtimeline"; return; }
+  // always re-resolve: the object captured on click goes stale the moment an op lands
+  const located = locateClip(selected.id);
+  if (!located) { selected = null; host.textContent = "المقطع ده اتشال"; return; }
+  selected.clip = located.clip;
+  selected.trackId = located.track.id;
+  selected.kind = located.track.kind;
+  const clip = selected.clip;
+  const field = (label, input) => {
+    const wrap = document.createElement("div");
+    wrap.className = "field";
+    const tag = document.createElement("label");
+    tag.textContent = label;
+    wrap.append(tag, input);
+    host.appendChild(wrap);
+  };
+  const numeric = (value, onChange) => {
+    const input = document.createElement("input");
+    input.type = "number";
+    input.value = value;
+    input.onchange = () => onChange(Number(input.value));
+    return input;
+  };
+  field("id", Object.assign(document.createElement("span"), { className: "mono", textContent: clip.id }));
+  field("start", numeric(clip.start, (value) => op({ op: "update_clip", clipId: clip.id, start: value })));
+  field("duration", numeric(clip.duration, (value) => op({ op: "update_clip", clipId: clip.id, duration: value })));
+  if (clip.assetId) {
+    field("sourceIn", numeric(clip.sourceIn, (value) => op({ op: "update_clip", clipId: clip.id, sourceIn: value })));
+    const speed = clip.speed || { num: 1, den: 1 };
+    const speedRow = document.createElement("div");
+    speedRow.className = "row";
+    const num = numeric(speed.num, () => {});
+    const den = numeric(speed.den, () => {});
+    const apply = document.createElement("button");
+    apply.className = "tiny";
+    apply.textContent = "سرعة";
+    apply.onclick = () => op({ op: "update_clip", clipId: clip.id, speedNum: Number(num.value), speedDen: Number(den.value) });
+    speedRow.append(num, Object.assign(document.createElement("span"), { className: "muted", textContent: "/" }), den, apply);
+    const wrap = document.createElement("div");
+    wrap.className = "field";
+    const label = document.createElement("label");
+    label.textContent = "speed";
+    wrap.append(label, speedRow);
+    host.appendChild(wrap);
+  }
+  const fxTitle = document.createElement("div");
+  fxTitle.className = "muted";
+  fxTitle.style.margin = "8px 0 4px";
+  fxTitle.textContent = "effects";
+  host.appendChild(fxTitle);
+  if (!clip.effects.length) {
+    const empty = document.createElement("div");
+    empty.className = "muted";
+    empty.textContent = "مافيش effects على المقطع";
+    host.appendChild(empty);
+  }
+  for (const effect of clip.effects) {
+    const box = document.createElement("div");
+    box.className = "fx";
+    const head = document.createElement("div");
+    head.className = "row";
+    head.innerHTML = `<span class="mono">${effect.type} · ${effect.id}</span>`;
+    const value = document.createElement("input");
+    value.type = "number";
+    value.value = effect.params.value;
+    value.style.width = "80px";
+    value.onchange = () => op({ op: "set_effect", clipId: clip.id, effectId: effect.id, value: Number(value.value) });
+    const remove = document.createElement("button");
+    remove.className = "tiny";
+    remove.textContent = "حذف";
+    remove.onclick = () => op({ op: "remove_effect", clipId: clip.id, effectId: effect.id });
+    head.append(value, remove);
+    box.appendChild(head);
+    const curve = (clip.keyframes || []).find((item) => item.effectId === effect.id);
+    const list = document.createElement("div");
+    for (const point of (curve ? curve.points : [])) {
+      const row = document.createElement("div");
+      row.className = "kf";
+      row.innerHTML = `<span class="mono">t=${point.t}</span><span class="mono">${point.value}</span>`;
+      const del = document.createElement("button");
+      del.className = "tiny";
+      del.textContent = "×";
+      del.onclick = () => op({ op: "remove_keyframe", clipId: clip.id, effectId: effect.id, tick: point.t });
+      row.appendChild(del);
+      list.appendChild(row);
+    }
+    const add = document.createElement("button");
+    add.className = "tiny";
+    add.textContent = "+ keyframe عند رأس التشغيل";
+    add.onclick = () => {
+      // keyframe ticks are clip-local, so the playhead has to be shifted by the clip's start
+      const global = frame * frameTicks(state.project);
+      const local = Math.max(0, Math.min(clip.duration, global - clip.start));
+      return op({ op: "add_keyframe", clipId: clip.id, effectId: effect.id, tick: local,
+                  value: Number(value.value) });
+    };
+    list.appendChild(add);
+    box.appendChild(list);
+    host.appendChild(box);
+  }
+  const addFx = document.createElement("div");
+  addFx.className = "row";
+  const fxKind = document.createElement("select");
+  const isText = selected.kind === "text";
+  fxKind.innerHTML = isText ? "<option value='opacity'>opacity</option>"
+                            : "<option value='opacity'>opacity</option><option value='gain'>gain</option>";
+  const fxGo = document.createElement("button");
+  fxGo.className = "tiny";
+  fxGo.textContent = "أضِف effect";
+  fxGo.onclick = () => op({ op: "add_effect", clipId: clip.id,
+                            effect: { id: `${fxKind.value}-${Date.now() % 10000}`, type: fxKind.value,
+                                      version: 1, enabled: true, params: { value: 10000 } } });
+  addFx.append(fxKind, fxGo);
+  host.appendChild(addFx);
+  const removeClip = document.createElement("button");
+  removeClip.className = "tiny";
+  removeClip.textContent = "احذف المقطع";
+  removeClip.style.marginTop = "8px";
+  removeClip.onclick = async () => { await op({ op: "delete_clip", clipId: clip.id }); selected = null; render(); };
+  host.appendChild(removeClip);
+}
+
+function renderProject() {
+  const project = state.project;
+  if (document.activeElement !== $("projName")) $("projName").value = project.name;
+  if (document.activeElement !== $("projDuration")) $("projDuration").value = project.duration;
+  const host = $("tracks");
+  host.innerHTML = "";
+  for (const track of project.tracks) {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `<span class="mono">${track.kind} · ${track.id}</span>`;
+    const toggle = document.createElement("button");
+    toggle.className = "tiny";
+    toggle.textContent = track.enabled ? "إيقاف" : "تشغيل";
+    toggle.onclick = () => op({ op: "enabled", trackId: track.id, enabled: !track.enabled }).catch(() => {});
+    const remove = document.createElement("button");
+    remove.className = "tiny";
+    remove.textContent = "حذف المسار";
+    remove.onclick = () => op({ op: "remove_track", trackId: track.id });
+    row.append(toggle, remove);
+    host.appendChild(row);
+  }
+}
 
 function render() {
   const project = state.project;
@@ -143,17 +388,20 @@ function render() {
   $("frameIndex").value = frame;
   $("frameLabel").textContent = `${frame} / ${total - 1}`;
   $("clock").textContent = `${project.duration} ticks · ${project.profile.width}×${project.profile.height} · ${project.profile.fps.num} fps`;
-  $("frame").src = `/api/frame?index=${frame}`;
+  $("frame").src = `/api/frame?index=${frame}&t=${Date.now()}`;
+  renderBin(); renderInspector(); renderProject();
 
   const timeline = $("timeline");
   timeline.innerHTML = "";
   for (const track of project.tracks) {
     const row = document.createElement("div");
     row.className = "track";
-    row.innerHTML = `<div class="name">${track.kind}<br><span class="muted">${track.enabled ? "on" : "off"}</span></div>`;
+    const name = document.createElement("div");
+    name.className = `name${track.enabled ? "" : " off"}`;
+    name.textContent = `${track.kind}\n${track.id}`;
+    name.onclick = () => op({ op: "enabled", trackId: track.id, enabled: !track.enabled }).catch(() => {});
     const lane = document.createElement("div");
     lane.className = "lane";
-    lane.dataset.track = track.id;
     for (const clip of track.clips) {
       const block = document.createElement("div");
       block.className = `clip ${track.kind}${selected && selected.id === clip.id ? " sel" : ""}`;
@@ -161,6 +409,7 @@ function render() {
       block.style.width = pct(clip.duration, project.duration);
       block.innerHTML = `<b>${clip.id}</b> ${clip.textId ? clip.textId : clip.assetId || ""}`;
       block.title = `${clip.id}\nstart ${clip.start} · ${clip.duration} ticks`;
+      block.onpointerdown = (event) => startDrag(event, clip, track, lane);
       block.onclick = () => { selected = { id: clip.id, trackId: track.id, kind: track.kind, clip }; render(); };
       lane.appendChild(block);
     }
@@ -168,64 +417,103 @@ function render() {
       const target = track.clips.find((clip) => clip.id === transition.toClipId);
       if (!target) continue;
       const marker = document.createElement("div");
-      marker.className = "clip";
+      marker.className = "marker";
       marker.style.left = pct(target.start - transition.duration / 2, project.duration);
-      marker.style.width = "2px";
-      marker.style.background = "var(--warn)";
-      marker.style.border = "none";
-      marker.title = `${transition.kind} ${transition.duration} ticks`;
+      marker.title = `${transition.kind} ${transition.duration}`;
       lane.appendChild(marker);
     }
     const head = document.createElement("div");
     head.id = "playhead";
     head.style.left = pct(frame * frameTicks(project), project.duration);
     lane.appendChild(head);
-    row.appendChild(lane);
+    lane.onpointerdown = (event) => {
+      if (event.target !== lane) return;
+      const rect = lane.getBoundingClientRect();
+      const ticks = Math.max(0, Math.min(project.duration, Math.round((event.clientX - rect.left) / rect.width * project.duration)));
+      frame = Math.min(totalFrames(project) - 1, Math.floor(ticks / frameTicks(project)));
+      render();
+    };
+    row.append(name, lane);
     timeline.appendChild(row);
   }
 
   const captions = $("captions");
   captions.innerHTML = "";
   for (const text of project.texts || []) {
-    const wrap = document.createElement("div");
-    wrap.className = "cap";
+    const box = document.createElement("div");
+    box.className = "fx";
     const input = document.createElement("input");
     input.value = text.value;
-    input.onchange = () => op({ op: "caption", textId: text.id, value: input.value });
-    const meta = document.createElement("span");
-    meta.className = "muted mono";
-    meta.textContent = `${text.font} ${text.size} ${text.direction}`;
-    wrap.append(input, meta);
-    captions.appendChild(wrap);
+    input.onchange = () => op({ op: "text", textId: text.id, value: input.value });
+    const row = document.createElement("div");
+    row.className = "row";
+    row.style.marginTop = "5px";
+    const wrap = document.createElement("label");
+    wrap.className = "muted";
+    const wrapBox = document.createElement("input");
+    wrapBox.type = "checkbox";
+    wrapBox.checked = Boolean(text.wrap);
+    wrapBox.onchange = () => op({ op: "text", textId: text.id, wrap: wrapBox.checked });
+    wrap.append(wrapBox, document.createTextNode(" wrap"));
+    const anim = document.createElement("select");
+    anim.innerHTML = ["none", "fade", "words-up", "words-fade"].map(
+      (kind) => `<option value="${kind}"${(text.animation?.kind || "none") === kind ? " selected" : ""}>${kind}</option>`).join("");
+    anim.onchange = () => op({ op: "text", textId: text.id,
+                               animation: anim.value === "none" ? "none"
+                                 : { kind: anim.value, stagger: 24000, ease: "cubic-out" } });
+    row.append(wrap, anim);
+    box.append(input, row);
+    captions.appendChild(box);
   }
   $("captionsHint").textContent = (project.texts || []).length
-    ? "التعديل بيحفظ في المشروع — وبيبان في المعاينة والتصدير فورًا"
-    : "المشروع مافيهوش نصوص؛ أضفها من tools/workflows.py أو أكتب block في JSON";
+    ? "wrap بيقسّم النص لأسطر داخل الإطار، والـanimation كلمة‑كلمة بترتيب زمني."
+    : "المشروع مافيهوش نصوص؛ أضف block من JSON أو من tools/workflows.py";
 
-  $("selection").textContent = selected
-    ? `${selected.id} · ${selected.kind} · start ${selected.clip.start} · ${selected.clip.duration} ticks`
-    : "مافيش مقطع مختار";
   for (const id of ["split", "trim", "ripple"]) $(id).disabled = !selected;
 }
 
-async function op(payload) {
-  try {
-    const result = await api("/api/op", { method: "POST", headers: { "Content-Type": "application/json" },
-                                           body: JSON.stringify(payload) });
-    state.project = result.project;
-    state.undo = result.undo;
-    state.redo = result.redo;
-    frame = Math.min(frame, Math.max(0, totalFrames(state.project) - 1));
-    render();
-    log(`${payload.op} ok`);
-  } catch (error) {
-    log(`${payload.op} failed: ${error.message}`);
-    banner(`رفض: ${error.message}`, true);
-  }
+let drag = null;
+function startDrag(event, clip, track, lane) {
+  const project = state.project;
+  const rect = lane.getBoundingClientRect();
+  const perPixel = project.duration / rect.width;
+  drag = { clip, track, startX: event.clientX, original: clip.start, perPixel, moved: false };
+  event.target.setPointerCapture?.(event.pointerId);
+  const move = (moveEvent) => {
+    if (!drag) return;
+    const delta = Math.round((moveEvent.clientX - drag.startX) * drag.perPixel);
+    if (Math.abs(delta) > frameTicks(project) / 2) drag.moved = true;
+  };
+  const up = async (upEvent) => {
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+    const delta = Math.round((upEvent.clientX - drag.startX) * drag.perPixel);
+    const targetStart = Math.max(0, snap(drag.original + delta, project));
+    const moved = drag.moved;
+    drag = null;
+    if (moved) {
+      await op({ op: "move", clipId: clip.id, trackId: track.id, start: targetStart }).catch(() => {});
+    }
+  };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
 }
 
-function banner(text, isError) {
-  $("banner").innerHTML = text ? `<div class="banner ${isError ? "err" : "ok"}">${text}</div>` : "";
+async function uploadFiles(files) {
+  for (const file of files) {
+    const buffer = await file.arrayBuffer();
+    try {
+      const result = await api("/api/media/upload", { method: "POST",
+        headers: { "Content-Type": "application/octet-stream", "X-Filename": file.name }, body: buffer });
+      state.project = Object.assign(state.project, { assets: result.assets });
+      binSelected = result.asset.id;
+      render();
+      log(`uploaded ${file.name} -> ${result.asset.id}`);
+    } catch (error) {
+      log(`upload failed: ${error.message}`);
+      banner(`الرفع اترفض: ${error.message}`, true);
+    }
+  }
 }
 
 async function load() {
@@ -256,10 +544,8 @@ $("play").onclick = () => {
   $("play").textContent = playing ? "⏸" : "▶";
   clearInterval(timer);
   if (!playing) return;
-  timer = setInterval(() => {
-    frame = (frame + 1) % totalFrames(state.project);
-    render();
-  }, 1000 / (state.project.profile.fps.num / state.project.profile.fps.den));
+  const fps = state.project.profile.fps.num / state.project.profile.fps.den;
+  timer = setInterval(() => { frame = (frame + 1) % totalFrames(state.project); render(); }, 1000 / fps);
 };
 $("split").onclick = () => op({ op: "split", clipId: selected.id, at: frame * frameTicks(state.project),
                                 newId: $("splitId").value || "cut1" });
@@ -270,6 +556,31 @@ $("ripple").onclick = () => op({ op: "ripple", start: selected.clip.start,
                                  trackIds: state.project.tracks.map((track) => track.id) });
 $("undo").onclick = () => op({ op: "undo" });
 $("redo").onclick = () => op({ op: "redo" });
+$("applyProject").onclick = () => op({ op: "project", name: $("projName").value,
+                                       duration: Number($("projDuration").value) }).catch(() => {});
+$("addTrack").onclick = () => {
+  const kind = $("newTrackKind").value;
+  const id = `${kind}-${Date.now() % 10000}`;
+  op({ op: "add_track", trackId: id, kind }).catch(() => {});
+};
+$("addToTimeline").onclick = () => {
+  const trackId = $("binTarget").value;
+  if (!trackId || !binSelected) { banner("اختار مسار وأصل من الـbin الأول", true); return; }
+  const track = state.project.tracks.find((track) => track.id === trackId);
+  if (track.kind === "text") { banner("مسار النص بياخد نصوص، مش وسائط", true); return; }
+  const start = frame * frameTicks(state.project);
+  const duration = Math.max(frameTicks(state.project), Math.min(state.project.duration - start || frameTicks(state.project), 4 * 240000));
+  op({ op: "add_clip", trackId, clipId: `clip-${Date.now() % 100000}`, assetId: binSelected,
+       start, duration, sourceIn: 0 }).catch(() => {});
+};
+$("file").onchange = (event) => uploadFiles(event.target.files);
+$("bin").addEventListener("dragover", (event) => { event.preventDefault(); $("bin").classList.add("over"); });
+$("bin").addEventListener("dragleave", () => $("bin").classList.remove("over"));
+$("bin").addEventListener("drop", (event) => {
+  event.preventDefault();
+  $("bin").classList.remove("over");
+  uploadFiles(event.dataTransfer.files);
+});
 $("save").onclick = async () => {
   try {
     const result = await api("/api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });

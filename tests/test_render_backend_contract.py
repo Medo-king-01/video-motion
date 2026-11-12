@@ -122,7 +122,11 @@ def run(*args: str) -> subprocess.CompletedProcess[str]:
 def test_cli_check_passes() -> None:
     result = run("--check")
     assert result.returncode == 0, result.stderr
-    assert "real adapter(s) (P)" in result.stdout
+    assert "real adapter(s) (Hybrid, K, P)" in result.stdout
+
+
+def test_the_cli_knows_which_adapters_are_real() -> None:
+    assert set(rb.real_adapters()) == {"P", "K", "Hybrid"}
 
 
 def test_cli_prints_one_backend() -> None:

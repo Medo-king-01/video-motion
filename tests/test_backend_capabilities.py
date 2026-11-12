@@ -105,7 +105,7 @@ def test_only_a_backend_with_an_adapter_claims_to_read_the_unified_project(manif
 
 def test_claiming_graph_execution_before_an_adapter_fails(manifest) -> None:
     broken = copy.deepcopy(manifest)
-    broken["backends"]["K"]["features"]["graph.execute"] = {
+    broken["backends"]["R"]["features"]["graph.execute"] = {
         "version": 1, "state": "supported", "evidence": ["docs/editor-architecture.md"]}
     errors = caps.validate(broken)
     assert any("cannot be claimed before an adapter exists" in error for error in errors), errors

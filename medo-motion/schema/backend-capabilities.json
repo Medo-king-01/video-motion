@@ -30,7 +30,8 @@
           "state": "supported",
           "evidence": [
             "tools/adapter_p.py",
-            "tests/test_adapter_p.py"
+            "tests/test_adapter_p.py",
+            "docs/adapter-p.md"
           ]
         },
         "draft.half": {
@@ -81,13 +82,11 @@
         },
         "transitions.catalog": {
           "version": 1,
-          "state": "conditional",
+          "state": "supported",
           "evidence": [
             "tools/adapter_p.py",
+            "tools/unified_reference_preview.py",
             "docs/adapter-p.md"
-          ],
-          "conditions": [
-            "crossfade only (SMPTE_Dissolve / CMX dissolve); wipes and speed ramps are refused with R07"
           ]
         },
         "three.layer": {
@@ -110,9 +109,10 @@
       "features": {
         "project.read": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_k.py",
+            "tests/test_adapter_k.py"
           ]
         },
         "graph.execute": {
@@ -279,16 +279,18 @@
       "features": {
         "project.read": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_hybrid.py",
+            "tests/test_adapter_hybrid.py"
           ]
         },
         "graph.execute": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "tools/unified_render_graph.py"
+            "tools/adapter_hybrid.py",
+            "tests/test_adapter_hybrid.py"
           ]
         },
         "draft.half": {
