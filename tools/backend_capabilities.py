@@ -8,9 +8,9 @@ exists today, not a roadmap. This tool enforces the rules that make such a state
 * a state is one of `supported`, `conditional`, `unsupported`, `unknown`,
 * `conditional` carries at least one human-readable condition,
 * `supported`/`conditional` carries evidence, and every evidence path exists in the repo,
-* no backend may claim to read the unified project or execute a graph until an adapter exists
-  (that is the phase-0 gate in docs/editor-architecture.md; the guard is meant to be removed
-  together with the adapter, not before).
+* no backend may claim to read the unified project or execute a graph until `tools/adapter_<x>.py`
+  exists for it (the phase-0 gate in docs/editor-architecture.md; the claim and the adapter land in
+  the same commit, and the guard keeps the other three honest).
 
 This says nothing about whether a feature works. It says whether the project is honest about it.
 
@@ -31,6 +31,11 @@ STATES = ("supported", "conditional", "unsupported", "unknown")
 FEATURE_ID = re.compile(r"^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$")
 # Features nothing can do before the render-backend contract is implemented.
 UNBACKED = ("project.read", "graph.execute")
+
+
+def adapter_path(backend: str) -> Path:
+    """Where a backend's adapter must live for its read/execute claims to be allowed."""
+    return ROOT / "tools" / f"adapter_{backend.lower()}.py"
 
 
 def _no_duplicates(pairs):
@@ -137,10 +142,10 @@ def validate(manifest, root: Path = ROOT) -> list[str]:
             for item in evidence:
                 if not _evidence_ok(item):
                     errors.append(f"M05 {loc}.evidence: {item!r} is not an existing repo-relative file")
-            if fid in UNBACKED and state in ("supported", "conditional"):
+            if fid in UNBACKED and state in ("supported", "conditional") and not adapter_path(backend).exists():
                 errors.append(
                     f"M06 {loc}: {fid} cannot be claimed before an adapter exists "
-                    "(docs/editor-architecture.md §11); implement it or lower the state")
+                    f"(expected {adapter_path(backend).relative_to(ROOT)}); implement it or lower the state")
     return errors
 
 

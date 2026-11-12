@@ -36,7 +36,7 @@ def test_empty_project_is_valid():
 
 @pytest.mark.parametrize("mutation,code", [
     (lambda p: p.update(schemaVersion="2.0"), "U01"),
-    (lambda p: p.update(schemaVersion="1.3"), "U01"),
+    (lambda p: p.update(schemaVersion="1.4"), "U01"),
     (lambda p: p.update(unrecognized=True), "U01"),
     (lambda p: p.update(duration=True), "U01"),
     (lambda p: p["tracks"][0]["clips"][0]["effects"].append({}), "U01"),

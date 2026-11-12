@@ -113,6 +113,21 @@ def validate(project):
         assets[asset["id"]] = asset
         if not _safe_uri(asset["uri"]):
             errors.append(f"U04 {path}.uri: expected safe project-relative path")
+        streams = asset.get("streams")
+        if streams is not None:
+            if asset["kind"] != "video":
+                errors.append(f"U09 {path}.streams: only a video asset has streams to choose")
+            if set(streams) - {"video", "audio"}:
+                errors.append(f"U09 {path}.streams: unknown stream key")
+    texts = {}
+    for i, text in enumerate(project.get("texts") or []):
+        path = f"$.texts[{i}]"
+        add_id(text["id"], path + ".id")
+        texts[text["id"]] = text
+        if text["direction"] == "rtl" and not any("\u0600" <= ch <= "\u06ff" for ch in text["value"]):
+            errors.append(f"U10 {path}.direction: rtl text with no Arabic letters")
+        if text["direction"] == "ltr" and any("\u0600" <= ch <= "\u06ff" for ch in text["value"]):
+            errors.append(f"U10 {path}.direction: ltr text with Arabic letters")
     for i, track in enumerate(project["tracks"]):
         path = f"$.tracks[{i}]"
         add_id(track["id"], path + ".id")
@@ -129,7 +144,8 @@ def validate(project):
                 epath = f"{loc}.effects[{k}]"
                 add_id(effect["id"], epath + ".id")
                 effects[effect["id"]] = effect
-                if (effect["type"], track["kind"]) not in {("opacity", "video"), ("gain", "audio")}:
+                if (effect["type"], track["kind"]) not in {("opacity", "video"), ("opacity", "text"),
+                                                           ("gain", "audio")}:
                     errors.append(f"U06 {epath}: effect incompatible with track")
                 maximum = 10000 if effect["type"] == "opacity" else 20000
                 if effect["params"]["value"] > maximum:
@@ -153,6 +169,14 @@ def validate(project):
                     if point["value"] > maximum:
                         errors.append(f"U06 {ppath}.value: value outside effect range")
                     previous = point["t"]
+            if clip.get("textId") is not None:
+                if track["kind"] != "text":
+                    errors.append(f"U10 {loc}: a text clip needs a text track")
+                elif clip["textId"] not in texts:
+                    errors.append(f"U10 {loc}.textId: unknown text")
+                if clip["sourceIn"] != 0:
+                    errors.append(f"U10 {loc}.sourceIn: text has no source range")
+                continue
             asset = assets.get(clip["assetId"])
             if asset is None:
                 errors.append(f"U03 {loc}.assetId: unknown asset")
@@ -161,7 +185,12 @@ def validate(project):
                        "text": set(), "graphics": set()}
             if asset["kind"] not in allowed[track["kind"]]:
                 errors.append(f"U05 {loc}: asset incompatible with track")
-            source_end = clip["sourceIn"] + clip["duration"]
+            speed = clip.get("speed") or {"num": 1, "den": 1}
+            if math.gcd(speed["num"], speed["den"]) != 1:
+                errors.append(f"U08 {loc}.speed: fraction must be reduced")
+            if speed["num"] < 1 or speed["den"] < 1:
+                errors.append(f"U08 {loc}.speed: must be positive")
+            source_end = clip["sourceIn"] + -(-clip["duration"] * speed["num"] // speed["den"])
             if asset["kind"] != "image" and (source_end > asset["duration"] or source_end > MAX_INT):
                 errors.append(f"U05 {loc}: source range exceeds asset duration")
             if asset["kind"] == "image" and clip["sourceIn"] != 0:

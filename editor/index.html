@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>محرر المشروع الموحّد</title>
+<style>
+  :root{--bg:#0c0c0d;--panel:#151517;--line:#2a2a2d;--ink:#e6e5e3;--dim:#9e9c99;--red:#cb271b;--ok:#4a9e6b;--warn:#c9a227}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Cairo","Segoe UI",system-ui,sans-serif}
+  header{display:flex;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+  header h1{font-size:15px;margin:0;font-weight:800;letter-spacing:.2px}
+  .spacer{flex:1}
+  button,input,select{font:inherit;color:var(--ink);background:#1d1d20;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+  button{cursor:pointer}
+  button:hover:not(:disabled){border-color:#3d3d41}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:700}
+  main{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:14px;padding:14px;align-items:start}
+  @media (max-width:860px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .panel h2{font-size:12px;margin:0 0 10px;color:var(--dim);font-weight:700;letter-spacing:.4px}
+  #stage{display:flex;justify-content:center;background:#000;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  #frame{max-height:56vh;max-width:100%;image-rendering:pixelated;display:block}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .muted{color:var(--dim);font-size:12px}
+  .mono{font-family:"DejaVu Sans Mono",ui-monospace,monospace;font-size:12px;direction:ltr;unicode-bidi:embed}
+  #timeline{margin-top:12px}
+  .track{display:grid;grid-template-columns:64px 1fr;gap:8px;align-items:center;margin-bottom:6px}
+  .track .name{font-size:11px;color:var(--dim);text-align:center;border:1px solid var(--line);border-radius:6px;padding:4px 0;background:#101012}
+  .lane{position:relative;height:34px;background:#101012;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .clip{position:absolute;top:3px;bottom:3px;background:#26262a;border:1px solid #3a3a3f;border-radius:4px;overflow:hidden;
+        font-size:10px;color:var(--dim);padding:2px 5px;white-space:nowrap;cursor:pointer;direction:ltr}
+  .clip.text{background:#2b2320;border-color:#5a3a2e}
+  .clip.audio{background:#1f2a24;border-color:#2f4a3a}
+  .clip.sel{border-color:var(--red);background:#3a201c;color:var(--ink)}
+  .clip b{color:var(--ink);font-weight:600}
+  #playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--red);pointer-events:none}
+  .banner{padding:8px 12px;border-radius:8px;margin-bottom:10px;font-size:13px}
+  .banner.err{background:#3a1a16;border:1px solid #6a2a22;color:#f0c4bd}
+  .banner.ok{background:#15251c;border:1px solid #2b4636;color:#bcdcc8}
+  .tag{font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
+  .cap{display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:6px}
+  .cap input{width:100%}
+  #log{max-height:150px;overflow:auto;white-space:pre-wrap;font-family:"DejaVu Sans Mono",monospace;font-size:11px;color:var(--dim);direction:ltr;text-align:left}
+</style>
+</head>
+<body>
+<header>
+  <h1>محرر المشروع الموحّد</h1>
+  <span class="tag" id="backendTag">engine P</span>
+  <span class="muted" id="revTag"></span>
+  <span class="spacer"></span>
+  <button id="undo" title="تراجع">↶ تراجع</button>
+  <button id="redo" title="إعادة">↷ إعادة</button>
+  <button id="save">حفظ</button>
+  <button class="primary" id="export">تصدير MP4</button>
+</header>
+
+<main>
+  <section>
+    <div class="panel">
+      <h2>المعاينة</h2>
+      <div id="stage"><img id="frame" alt="إطار المعاينة"></div>
+      <div class="row" style="margin-top:10px">
+        <input id="frameIndex" type="range" min="0" max="0" value="0" style="flex:1">
+        <span class="mono" id="frameLabel">0</span>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button id="prev">−</button>
+        <button id="play">▶</button>
+        <button id="next">+</button>
+        <span class="muted">المعاينة = التصدير: نفس دالة الرسم</span>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <h2>الاختيار</h2>
+      <div class="muted" id="selection">مافيش مقطع مختار</div>
+      <div class="row" style="margin-top:8px">
+        <button id="split">قص عند رأس التشغيل</button>
+        <button id="trim">قصّ من البداية لرأس التشغيل</button>
+        <button id="ripple">حذف والشد</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input id="splitId" placeholder="معرّف المقطع الجديد" style="flex:1" value="cut1">
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <h2>النصوص العربية</h2>
+      <div id="captions"></div>
+      <div class="muted" id="captionsHint"></div>
+    </div>
+  </section>
+
+  <section>
+    <div id="banner"></div>
+    <div class="panel">
+      <h2>الـtimeline <span class="muted mono" id="clock"></span></h2>
+      <div id="timeline"></div>
+    </div>
+    <div class="panel" style="margin-top:12px">
+      <h2>السجل</h2>
+      <div id="log"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let state = null, selected = null, frame = 0, playing = false, timer = null;
+
+function log(message) {
+  $("log").textContent = `${new Date().toLocaleTimeString()}  ${message}\n` + $("log").textContent;
+}
+
+async function api(path, options) {
+  const response = await fetch(path, options);
+  const body = await response.json().catch(() => ({ error: "unreadable response" }));
+  if (!response.ok) throw new Error(body.error || response.statusText);
+  return body;
+}
+
+function frameTicks(project) {
+  const fps = project.profile.fps;
+  return Math.round(project.timebase * fps.den / fps.num);
+}
+
+function totalFrames(project) {
+  return Math.ceil(project.duration / frameTicks(project));
+}
+
+function pct(value, total) { return (100 * value / total).toFixed(3) + "%"; }
+
+function render() {
+  const project = state.project;
+  $("revTag").textContent = state.revision.slice(0, 10);
+  $("undo").disabled = !state.undo;
+  $("redo").disabled = !state.redo;
+  const total = totalFrames(project);
+  $("frameIndex").max = Math.max(0, total - 1);
+  $("frameIndex").value = frame;
+  $("frameLabel").textContent = `${frame} / ${total - 1}`;
+  $("clock").textContent = `${project.duration} ticks · ${project.profile.width}×${project.profile.height} · ${project.profile.fps.num} fps`;
+  $("frame").src = `/api/frame?index=${frame}`;
+
+  const timeline = $("timeline");
+  timeline.innerHTML = "";
+  for (const track of project.tracks) {
+    const row = document.createElement("div");
+    row.className = "track";
+    row.innerHTML = `<div class="name">${track.kind}<br><span class="muted">${track.enabled ? "on" : "off"}</span></div>`;
+    const lane = document.createElement("div");
+    lane.className = "lane";
+    lane.dataset.track = track.id;
+    for (const clip of track.clips) {
+      const block = document.createElement("div");
+      block.className = `clip ${track.kind}${selected && selected.id === clip.id ? " sel" : ""}`;
+      block.style.left = pct(clip.start, project.duration);
+      block.style.width = pct(clip.duration, project.duration);
+      block.innerHTML = `<b>${clip.id}</b> ${clip.textId ? clip.textId : clip.assetId || ""}`;
+      block.title = `${clip.id}\nstart ${clip.start} · ${clip.duration} ticks`;
+      block.onclick = () => { selected = { id: clip.id, trackId: track.id, kind: track.kind, clip }; render(); };
+      lane.appendChild(block);
+    }
+    for (const transition of track.transitions || []) {
+      const target = track.clips.find((clip) => clip.id === transition.toClipId);
+      if (!target) continue;
+      const marker = document.createElement("div");
+      marker.className = "clip";
+      marker.style.left = pct(target.start - transition.duration / 2, project.duration);
+      marker.style.width = "2px";
+      marker.style.background = "var(--warn)";
+      marker.style.border = "none";
+      marker.title = `${transition.kind} ${transition.duration} ticks`;
+      lane.appendChild(marker);
+    }
+    const head = document.createElement("div");
+    head.id = "playhead";
+    head.style.left = pct(frame * frameTicks(project), project.duration);
+    lane.appendChild(head);
+    row.appendChild(lane);
+    timeline.appendChild(row);
+  }
+
+  const captions = $("captions");
+  captions.innerHTML = "";
+  for (const text of project.texts || []) {
+    const wrap = document.createElement("div");
+    wrap.className = "cap";
+    const input = document.createElement("input");
+    input.value = text.value;
+    input.onchange = () => op({ op: "caption", textId: text.id, value: input.value });
+    const meta = document.createElement("span");
+    meta.className = "muted mono";
+    meta.textContent = `${text.font} ${text.size} ${text.direction}`;
+    wrap.append(input, meta);
+    captions.appendChild(wrap);
+  }
+  $("captionsHint").textContent = (project.texts || []).length
+    ? "التعديل بيحفظ في المشروع — وبيبان في المعاينة والتصدير فورًا"
+    : "المشروع مافيهوش نصوص؛ أضفها من tools/workflows.py أو أكتب block في JSON";
+
+  $("selection").textContent = selected
+    ? `${selected.id} · ${selected.kind} · start ${selected.clip.start} · ${selected.clip.duration} ticks`
+    : "مافيش مقطع مختار";
+  for (const id of ["split", "trim", "ripple"]) $(id).disabled = !selected;
+}
+
+async function op(payload) {
+  try {
+    const result = await api("/api/op", { method: "POST", headers: { "Content-Type": "application/json" },
+                                           body: JSON.stringify(payload) });
+    state.project = result.project;
+    state.undo = result.undo;
+    state.redo = result.redo;
+    frame = Math.min(frame, Math.max(0, totalFrames(state.project) - 1));
+    render();
+    log(`${payload.op} ok`);
+  } catch (error) {
+    log(`${payload.op} failed: ${error.message}`);
+    banner(`رفض: ${error.message}`, true);
+  }
+}
+
+function banner(text, isError) {
+  $("banner").innerHTML = text ? `<div class="banner ${isError ? "err" : "ok"}">${text}</div>` : "";
+}
+
+async function load() {
+  state = await api("/api/project");
+  render();
+  try {
+    const readiness = await api("/api/capabilities");
+    $("backendTag").textContent = `${readiness.capabilities.backend} ${readiness.capabilities.backendVersion}`;
+    if (readiness.preflight.status !== "supported") {
+      const reasons = readiness.preflight.diagnostics.map((d) => `${d.code} ${d.path}: ${d.message}`);
+      banner("المحرّك P بيرفض رسم المشروع ده:<br>" + reasons.join("<br>"), true);
+    } else if (state.autosave && state.autosave.stale) {
+      banner(`فيه autosave من ${state.autosave.savedAt} لكن الملف اتغيّر بعده — مش هيتستخدم تلقائيًا.`, true);
+    } else {
+      banner("", false);
+    }
+  } catch (error) {
+    banner(`تعذّر قراءة القدرات: ${error.message}`, true);
+  }
+  log(`loaded ${state.project.name} (${state.revision.slice(0, 10)})`);
+}
+
+$("frameIndex").oninput = (event) => { frame = Number(event.target.value); render(); };
+$("prev").onclick = () => { frame = Math.max(0, frame - 1); render(); };
+$("next").onclick = () => { frame = Math.min(totalFrames(state.project) - 1, frame + 1); render(); };
+$("play").onclick = () => {
+  playing = !playing;
+  $("play").textContent = playing ? "⏸" : "▶";
+  clearInterval(timer);
+  if (!playing) return;
+  timer = setInterval(() => {
+    frame = (frame + 1) % totalFrames(state.project);
+    render();
+  }, 1000 / (state.project.profile.fps.num / state.project.profile.fps.den));
+};
+$("split").onclick = () => op({ op: "split", clipId: selected.id, at: frame * frameTicks(state.project),
+                                newId: $("splitId").value || "cut1" });
+$("trim").onclick = () => op({ op: "trim", clipId: selected.id, start: frame * frameTicks(state.project),
+                               end: selected.clip.start + selected.clip.duration });
+$("ripple").onclick = () => op({ op: "ripple", start: selected.clip.start,
+                                 end: selected.clip.start + selected.clip.duration,
+                                 trackIds: state.project.tracks.map((track) => track.id) });
+$("undo").onclick = () => op({ op: "undo" });
+$("redo").onclick = () => op({ op: "redo" });
+$("save").onclick = async () => {
+  try {
+    const result = await api("/api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    state.revision = result.revision;
+    render();
+    log(`saved ${result.revision.slice(0, 10)}`);
+  } catch (error) { log(`save failed: ${error.message}`); banner(`فشل الحفظ: ${error.message}`, true); }
+};
+$("export").onclick = async () => {
+  $("export").disabled = true;
+  log("export started");
+  try {
+    const result = await api("/api/export", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    log(`export ok: ${result.file} ${result.bytes} bytes / ${result.frames} frames`);
+    banner(`اتصدّر ${result.file} — ${result.frames} إطار، ${result.bytes} بايت (sha256 ${result.sha256.slice(0, 12)}…)`, false);
+  } catch (error) {
+    log(`export failed: ${error.message}`);
+    banner(`التصدير اترفض: ${error.message}`, true);
+  } finally { $("export").disabled = false; }
+};
+
+load();
+</script>
+</body>
+</html>

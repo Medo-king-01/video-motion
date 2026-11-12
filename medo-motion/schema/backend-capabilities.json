@@ -19,16 +19,18 @@
       "features": {
         "project.read": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/unified_project_check.py",
+            "tools/adapter_p.py"
           ]
         },
         "graph.execute": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "tools/unified_render_graph.py"
+            "tools/adapter_p.py",
+            "tests/test_adapter_p.py"
           ]
         },
         "draft.half": {
@@ -48,37 +50,44 @@
         },
         "range.render": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_p.py",
+            "tests/test_adapter_p.py"
           ]
         },
         "alpha.layer": {
           "version": 1,
-          "state": "unsupported",
+          "state": "supported",
           "evidence": [
-            "docs/hybrid.md"
+            "tools/unified_reference_preview.py",
+            "tools/adapter_p.py"
           ]
         },
         "text.arabic": {
           "version": 1,
           "state": "supported",
           "evidence": [
-            "tests/test_arabic_shape.py"
+            "tools/unified_reference_preview.py",
+            "docs/adapter-p.md"
           ]
         },
         "icons.animated": {
           "version": 1,
-          "state": "supported",
+          "state": "unsupported",
           "evidence": [
             "docs/icons.md"
           ]
         },
         "transitions.catalog": {
           "version": 1,
-          "state": "supported",
+          "state": "conditional",
           "evidence": [
-            "docs/transitions.md"
+            "tools/adapter_p.py",
+            "docs/adapter-p.md"
+          ],
+          "conditions": [
+            "crossfade only (SMPTE_Dissolve / CMX dissolve); wipes and speed ramps are refused with R07"
           ]
         },
         "three.layer": {
@@ -92,7 +101,7 @@
           "version": 1,
           "state": "supported",
           "evidence": [
-            "docs/editor-architecture.md"
+            "tools/adapter_p.py"
           ]
         }
       }

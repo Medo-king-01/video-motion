@@ -25,6 +25,7 @@ from unified_project_time import frame_ticks  # noqa: E402
 from unified_reference_preview import PreviewError, render_frame  # noqa: E402
 
 VERSION = 1
+PROGRESS_EVERY = 10
 MAX_FRAMES = 1800
 CODEC = "libx264"
 ROOT_FIELDS = {"version", "source", "video", "audio", "file", "totals", "decode"}
@@ -56,7 +57,14 @@ def project_frames(project: dict) -> int:
 
 
 def build(project: dict, root: Path, out_path: Path, *, audio: Path | None = None,
-          crf: int = 20, preset: str = "medium", max_frames: int = MAX_FRAMES) -> dict:
+          crf: int = 20, preset: str = "medium", max_frames: int = MAX_FRAMES,
+          progress=None, cancel=None) -> dict:
+    """Encode the project to MP4.
+
+    `progress(done, total)` is called every `PROGRESS_EVERY` frames, and `cancel()` is polled
+    at the same cadence; cancelling raises M07 and removes the partial file so a killed
+    render never leaves something that looks finished.
+    """
     errors = validate(project)
     if errors:
         raise VideoError("M01", "project is invalid: " + "; ".join(errors))
@@ -97,6 +105,8 @@ def build(project: dict, root: Path, out_path: Path, *, audio: Path | None = Non
 
         frame_hashes = []
         for index in range(total):
+            if cancel is not None and cancel():
+                raise VideoError("M07", f"cancelled at frame {index} of {total}")
             try:
                 frame = render_frame(project, Path(root), index)
             except PreviewError as exc:
@@ -108,6 +118,8 @@ def build(project: dict, root: Path, out_path: Path, *, audio: Path | None = Non
             video_frame.pts = index
             for packet in stream.encode(video_frame):
                 container.mux(packet)
+            if progress is not None and (index % PROGRESS_EVERY == 0 or index == total - 1):
+                progress(index + 1, total)
 
         for packet in stream.encode():
             container.mux(packet)
@@ -144,6 +156,8 @@ def build(project: dict, root: Path, out_path: Path, *, audio: Path | None = Non
                 container.mux(packet)
     finally:
         container.close()
+        if cancel is not None and cancel():
+            out_path.unlink(missing_ok=True)
 
     frame_root = _sha("".join(frame_hashes).encode("ascii"))
     probe = inspect(out_path)

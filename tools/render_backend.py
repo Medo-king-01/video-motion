@@ -126,10 +126,21 @@ def main(argv=None) -> int:
         return 0
     problems = [problem for name in BACKENDS
                 for problem in conformance_problems(NullAdapter(name))]
+    real = {}
+    try:
+        import adapter_p  # noqa: PLC0415
+
+        real["P"] = adapter_p.PAdapter()
+    except ImportError:  # pragma: no cover - the adapter ships with engine P
+        pass
+    for name, adapter in real.items():
+        problems.extend(conformance_problems(adapter))
     if problems:
         print("\n".join(problems), file=sys.stderr)
         return 1
-    print(f"OK: the contract is satisfied by {len(BACKENDS)} null adapters; none renders yet.")
+    null = [name for name in BACKENDS if name not in real]
+    print(f"OK: {len(real)} real adapter(s) ({', '.join(sorted(real)) or 'none'}) and "
+          f"{len(null)} null adapter(s) ({', '.join(null) or 'none'}) keep the contract.")
     return 0
 
 

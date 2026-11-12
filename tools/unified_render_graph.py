@@ -49,12 +49,22 @@ def compile_project(project):
         clips = []
         for clip_index, clip in enumerate(track["clips"]):
             start, end = clip["start"], clip["start"] + clip["duration"]
-            step = frame_step if track["kind"] == "video" else sample_step
-            clips.append({
+            step = sample_step if track["kind"] == "audio" else frame_step
+            entry = {
                 "clipId": clip["id"], "projectPath": f"$.tracks[{track_index}].clips[{clip_index}]",
-                "assetId": clip["assetId"], "tickRange": [start, end],
+                "tickRange": [start, end],
                 "sampleRange": [_ceil_div(start, step), _ceil_div(end, step)],
-            })
+            }
+            if clip.get("textId") is not None:
+                entry["textId"] = clip["textId"]
+            else:
+                entry["assetId"] = clip["assetId"]
+                speed = clip.get("speed") or {"num": 1, "den": 1}
+                entry["speed"] = [speed["num"], speed["den"]]
+                entry["sourceTicks"] = [_ceil_div(clip["sourceIn"] * speed["num"], speed["den"]),
+                                        _ceil_div((clip["sourceIn"] + clip["duration"]) * speed["num"],
+                                                  speed["den"])]
+            clips.append(entry)
         tracks.append({"trackId": track["id"], "kind": track["kind"], "enabled": track["enabled"],
                        "projectPath": f"$.tracks[{track_index}]", "clips": clips})
     return {

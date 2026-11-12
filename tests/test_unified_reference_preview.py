@@ -30,7 +30,7 @@ def test_image_preview_gap_boundaries_and_determinism(tmp_path):
     assert render_frame(p, tmp_path, 0)["pixels"] == b"\x00" * 8
     frame = render_frame(p, tmp_path, 1)
     assert frame == {"width": 2, "height": 1, "frameIndex": 1, "tick": 8000, "format": "RGBA8",
-                     "pixels": bytes([255, 0, 0, 255, 0, 128, 255, 255])}
+                     "pixels": bytes([255, 0, 0, 255, 0, 128, 255, 255]), "texts": 0}
     assert render_frame(p, tmp_path, 1) == frame
     assert render_frame(p, tmp_path, 2)["pixels"] == b"\x00" * 8
     assert p == before

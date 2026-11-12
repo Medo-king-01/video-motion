@@ -33,7 +33,9 @@ def test_plan_exact_ranges_and_order():
                           "frameCount": 61, "audioSampleCount": 96001}
     assert g["tracks"][0]["clips"][0] == {
         "clipId": "c1", "projectPath": "$.tracks[0].clips[0]", "assetId": "a1",
-        "tickRange": [1, 480000], "sampleRange": [1, 60]}
+        "tickRange": [1, 480000], "sampleRange": [1, 60],
+        # 1.3: the graph states the speed it plays at and the source ticks it consumes.
+        "speed": [1, 1], "sourceTicks": [0, 479999]}
     assert [t["trackId"] for t in g["tracks"]] == ["v1", "empty"]
     assert not g["executable"]
     g["project"]["tracks"][0]["clips"][0]["start"] = 99
