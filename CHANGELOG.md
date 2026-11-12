@@ -5,6 +5,463 @@ documentation. It starts at **2026-11-09** and is newest-first. The toolkit's ow
 (scaffold 1.0 → 2.7, 2026-11-01 → 11-09) is frozen in `medo-motion/CHANGELOG.md`; new entries belong
 **here**, never in both (there is a test for that).
 
+## Unreleased — 2026-11-12 (MP4, WAV, OTIO import, crossfades, K/R canvases)
+
+Five gaps closed in one batch, each measured before it was claimed. The earlier "no MP4 is claimed,
+because this environment has no encoder" note was **wrong**: there is no `ffmpeg` CLI, but PyAV ships a
+full encoder (`libx264`, `h264`, `aac`, `pcm_s16le`), so an H.264 file is producible — and now produced.
+
+- `tools/video_export.py` (new) — project → MP4 through the same `unified_reference_preview` frames the
+  timeline uses, encoded by PyAV (`libx264`, `yuv420p`, faststart), with optional AAC audio muxed from a
+  `audio_export` WAV. `check --decode` re-decodes and compares picture hashes. Codes M01–M06, 1800-frame
+  cap. Determinism is stated correctly: `video.frameRoot` pins the rendered frames and `decode.sha256`
+  pins the decoded pictures; the H.264 *bytes* are **not** guaranteed identical between runs (x264 frame
+  threading), and the sidecar never pretends otherwise.
+- `tools/audio_export.py` (new) — the project's audio tracks mixed to mono PCM16 WAV: `sourceIn` trim,
+  `start` placement, per-tick `gain` evaluation, integer summing, saturation, `pcm.sha256` in the sidecar.
+  16-bit WAV decodes with no dependency; other formats go through PyAV. Codes A01–A05.
+- `tools/otio_import.py` (new) — the reverse of `otio_export`: ticks read from `metadata.medo` (not from
+  rounded frames), metadata cross-checked against the OTIO structure, and a foreign timeline refused with
+  `N02` instead of being guessed. `roundtrip` proves project and timeline come back byte-identical.
+  Codes N01–N06.
+- **Crossfades in the model** — `schemaVersion "1.2"` adds `tracks[].transitions`
+  (`kind: crossfade`, `fromClipId`, `toClipId`, even `duration` centred on the cut). The checker enforces
+  adjacency, evenness, non-overlap, video-only (`U07`); the reference renderer blends with integer maths;
+  OTIO writes `Transition.1`/`SMPTE_Dissolve` with half-length offsets and reads them back; EDL writes a
+  centred CMX `D` dissolve (both events widened by half the length) and its importer trims that half back.
+- **K/R canvas paths** — `tools/canvas_engines.py` (new) turns the existing canvas document into engine K
+  `--scale` arguments and engine R's generated `src/canvas.ts`, under the same rule engine P already
+  uses: a uniform device downscale of 1080×1920 or a refusal by name (`X02` reshape, `X03` larger,
+  `X04` odd/scale mismatch). Engine R's `Root.tsx` now composes at `CANVAS.width/height` and scales the
+  1080×1920 stage as a whole.
+- Docs: `docs/delivery.md` rewritten around five formats with the O/N/A/M/Q/E10/X code tables, canvas
+  section, and an explicit "what is not claimed" list; README index and this file corrected.
+- Audio crossfades: a transition on an audio track is a linear gain ramp in the mix (the outgoing clip
+  falls to zero as the incoming one rises), reading each side's **handles** outside its own edges; media
+  without them is refused with `A06` naming the clip, and EDL writes the same dissolve on the `A` channel.
+  The manifest records the window per clip (`fade: {start, end, rising}`).
+- Tests: `test_video_export.py` **20**, `test_audio_export.py` **22**, `test_otio_import.py` **17**,
+  `test_model_transitions.py` **26**, `test_canvas_engines.py` **18**; `ci_groups` now covers 146 files
+  (contracts 50 · unit 49 · render 47).
+
+Measured: the 8 s / 360×640 demo encodes 120 frames in ~0.9 s to a 16 KB MP4 whose decoded fingerprint
+re-verifies with `check --decode`; a 4 s audio mix writes 384,000 samples at 48 kHz with `peak 0.366`; a crossfade renders an
+exact half-mix on the cut frame and the same project survives OTIO export → import → export unchanged;
+`draft-15` resolves to `--scale 0.5` for K and `CANVAS = {width: 540, height: 960, scale: 0.5, fps: 15}`
+for R, while `reel-1x1` is refused with "not a uniform scale of 1080×1920".
+
+Still not claimed: byte-identical MP4s between runs, stereo/mp3 audio, wipes or audio crossfades, and engine K's own `ffmpeg` shell-out (the binary is absent here, so that path stays
+unexercised — our encoding is PyAV).
+
+## Unreleased — 2026-11-12 (CMX3600 dissolves: transitions now survive EDL too)
+
+The last hole in the transitions story was the EDL: the exporter refused any project carrying a crossfade
+(`E10`) rather than dropping it silently. Now it writes the CMX dissolve the project actually means.
+
+- `tools/edl_export.py` — a `D <frames>` event centred on the cut: the outgoing event is widened by `d/2`
+  at its tail (`recordOut`, `sourceOut`) and the incoming one by `d/2` at its head (`recordIn`, and
+  `sourceIn` for real media; a still only moves its record position because it is held from source zero).
+  Overlap on a channel is allowed only up to the declared dissolve (`E06` otherwise).
+- `tools/edl_import.py` — reads `D`, requires the event overlap to equal the dissolve length, trims `d/2`
+  back off both neighbours and records the `transitions` entry with `schemaVersion "1.2"`. A mismatch is
+  `I06`: the cut would be a guess.
+- `E10` keeps its name but now means what it should: a dissolve that cannot be expressed — half a frame, or
+  media without enough handle — and the message names the clip and the missing ticks.
+- Tests: `test_model_transitions.py` **26** (dissolve export, exact round trip through `edl_import`,
+  handle refusal, overlap mismatch refusal); `test_edl_export.py` 44 · `test_edl_import.py` 16 ·
+  `test_delivery_loop.py` 20 stay green.
+
+Measured: the 4 s two-shot demo exports as `001 … C …` + `002 … D    10 …` with `recordOut 520000` /
+`recordIn 440000`, and importing that EDL returns clips at `(0, 480000)` and `(480000, 480000)` with a
+`80000`-tick crossfade — the re-exported event lines are identical.
+
+## Unreleased — 2026-11-12 (three delivery formats, three honest limits)
+
+Delivery now covers what a project actually holds: cuts (EDL), cuts plus effects/keyframes (OTIO), and a
+rendered frame sequence with a manifest that can be re-verified. No MP4 was claimed at this point,
+because this environment has no `ffmpeg` binary — later the same day PyAV turned out to encode H.264
+fine, and that claim was corrected above.
+
+- `tools/otio_export.py` — `build`/`check` for OpenTimelineIO JSON: `Timeline.1` → `Stack.1` → `Track.1`
+  → `Clip.1`, `RationalTime` at the timeline rate, effects and keyframe curves carried in
+  `metadata.medo`, disabled tracks preserved as `enabled: false`, the project hash on the stack, and
+  transitions named as `not modelled`. Codes O01–O05.
+- `tools/sequence_export.py` — PNG frames through the same `unified_reference_preview` the timeline uses,
+  plus `sequence.json` with pixel and file hashes; `check` re-reads the files (an edited or missing frame
+  fails). Codes Q01–Q05, 900-frame cap, `--frames` selection.
+- `medo-motion/motion/profiles.json` — three new profiles: `reel-4x5`, `reel-1x1`, `reel-16x9`. The
+  unified path renders them; engine P refuses a non-9:16 canvas by name (its design space is fixed).
+- `docs/delivery.md` — which format carries what, both code tables, the size limits, and what is not
+  claimed. README/map/profiles updated.
+- Tests: `test_otio_export.py` **23**, `test_sequence_export.py` **22**, plus profile updates in
+  `test_profiles.py`/`test_profile_render.py`.
+
+Measured: the 8 s demo exports 4 clips / 3 tracks to OTIO; an 8×8 four-frame project exports 4 PNGs whose
+hashes verify; `reel-1x1` renders a 1080×1080 sequence while `canvas --profile reel-1x1` is refused by the
+engine with "not a uniform scale of 1080×1920".
+
+Not claimed: no video encoding, no audio export, no OTIO import, and no transitions (the project model has
+none).
+
+## Unreleased — 2026-11-12 (a smaller canvas, not a different one: the device scale follows the profile)
+
+The previous step wired only the frame rate and refused any size change. Engine P already separates a fixed
+1080×1920 design space from the device buffer (`REEL_SCALE`), so a declared 540×960 draft maps onto that
+existing mechanism instead of being refused.
+
+- `canvas_profile.py` — `size_scale`/`plan`: a 9:16 size becomes a device scale (540×960 → 0.5), the same
+  size is 1.0, and a reshaped (other aspect) or larger-than-master request is refused by name. `describe`
+  now prints profile, device size, rate and scale.
+- `run_all.py` sets `REEL_SCALE` from the plan before importing `lib`, and refuses when the resulting
+  `DW/DH` does not match the declared canvas (e.g. `REEL_DRAFT=1` mixed with a profile) instead of logging
+  a lie.
+- `layout_p.py` scales its safe zones with the device size: draft-15 gives W×H 540×960, content zone
+  100..675, margin 20, while keeping the proportions of the brand layout.
+- `tests/test_profile_render.py` grew to **31**: half-size plan, reshaped refusal, oversize refusal, the
+  design default, describe output, and a subprocess run proving layout is 540×960 @ 15 fps for draft-15.
+
+Measured: `REEL_CANVAS=canvas-draft-15.json` → `layout_p` 540×960 @ 15 fps and `lib` `DW×DH` 540×960 with
+`REEL_SCALE=0.5`; without an override both stay 1080×1920 @ 30.
+
+Not claimed: no other aspect ratios (4:5, 1:1, 16:9 are refused, not implemented), no upscale, and K/R
+still have their own canvas paths.
+
+## Unreleased — 2026-11-12 (the EDL comes back: import with real media, no invented data)
+
+`edl_export` could hand a timeline out; this closes the loop and brings one back. An EDL has reels and
+timecodes only, so the importer resolves them against real files, hashes them, and refuses to guess.
+
+- `tools/edl_import.py` — `build edl --media DIR -o project.json`. The rate comes from our own sidecar
+  (`*.edl.json`) or an explicit `--fps`; each reel is matched to a file by the same rule the exporter used
+  (`SHOT_A` ↔ `shot-a.png`), then hashed with its duration probed. Stills stay images with source 0, audio
+  becomes an audio track, gaps stay where they were, overlaps on a track are refused. Codes I01 shape, I02
+  no rate, I03 missing reel/media, I04 overlap or invalid result, I05 contradiction (rate/profile, frame ≥
+  fps, unsupported channel, still not at zero), I06 PyAV missing.
+- Durations are max(last event, sidecar `totals.durationTc`) so the project's tail is not truncated.
+- `tests/test_edl_import.py` — **16 tests**: full round trip (same clip geometry, same event lines), audio +
+  stills, gaps, opening the result in `timeline_session`, and every refusal plus the CLI.
+
+Measured on the B5 demo: project → EDL (3 events) → imported project with identical
+`start/duration/sourceIn`, and the EDL rebuilt from it matches the original event lines exactly.
+
+Not claimed: no AAF/OTIO, no transitions or keyframes (the format cannot carry them), no timecode-rate
+conversion (a 25 fps EDL into a 30 fps profile is refused, not resampled), and no audio beyond one clip per
+channel.
+
+## Unreleased — 2026-11-12 (a profile now reaches the renderer — the rate, explicitly)
+
+Until now the declared profiles described a project but the Python engine still rendered at 30. The rate is
+now carried into engine P, through one explicit document, and the canvas **size** is refused loudly rather
+than silently mis-rendered.
+
+- `tools/profiles.py canvas` — `--profile <id>` or `--project <file>` writes `{profile, w, h, fps, note}` for
+  `$REEL_CANVAS`. `motion-film-60` still needs `--approval` (exit 3 otherwise); a project block also reports
+  `"declared": true/false` against the registry. New code `P07` for a non-integer rate.
+- `templates/procedural-reels/canvas_profile.py` — one small helper: `env_fps`, `check_size`, `describe`.
+  Unreadable or absent overrides fall back to 30 silently; a size that differs from the renderer's canvas
+  stops `run_all.py` before the first frame with the reason.
+- `layout_p.py` and `run_all.py` read the override; `run_all.py` logs `canvas: profile … · WxH · N fps`.
+- `tests/test_profile_render.py` — **28 tests**: blocks per profile, approval gate, project blocks, a
+  non-integer rate, garbage overrides, the size refusal, and real subprocess runs proving `layout_p.FPS` is
+  30 by default and 60 / 12 / 15 with the corresponding canvas file.
+
+Measured: `REEL_CANVAS=out/c60.json` → `layout_p.FPS == 60`; `draft-15`'s 540×960 is refused by the engine
+(`width 540 requested but the renderer draws 1080`) while its rate 15 still applies to the layout.
+
+Not claimed: engine P still cannot change canvas size (its safe zones come from `brand.json`), K/R are
+untouched, and nothing reads the project file automatically during a render — the wiring is explicit.
+
+## Unreleased — 2026-11-12 (the delivery loop: edit or review, then export the EDL)
+
+The exporter existed but had to be called on a file. Both real doors now open onto it, so the EDL always
+describes the current edit rather than a copy that someone remembered to update.
+
+- `timeline_session.Session.to_edl/export_edl` — the B5 session can hand out its own edit as CMX3600; CLI
+  `export project -o reel.edl` and `script … --edl out.edl` (export after the edit is saved). A refusal
+  surfaces as session code `T06` carrying the EDL code (e.g. `E05` for an enabled text track).
+- `cut_plan.py edl` — kept cuts only, assembled gaplessly on one video channel, seconds rounded once to
+  the nearest frame (`round(seconds × fps)`); a range that collapses to zero frames is refused (`E04`).
+  A plan that fails `validate` exits 1 without writing anything.
+- Stills: an `image` asset on a video track exports as a `STILL` event (`source 0 → duration`) with a
+  comment, since a still has no source duration. Audio-on-video (and the reverse) stays `E03`.
+- `tests/test_delivery_loop.py` — **20 tests** across both doors (edit changes the EDL, refusals, CLI
+  round trips, determinism, the 999-event cap, plan rounding). `test_edl_export.py` grew to **44** with
+  the still cases. `test_delivery_loop` joins the `contracts` CI group.
+
+Measured: the B5 demo (4 s, three still clips) exports 3 `STILL` events, `00:00:04:00`; the B4 demo plan
+(6 s, 4 cuts, one rejected) exports 3 events, record length `00:00:04:15`; both parse and re-validate.
+
+Not claimed: still no transitions/keyframes in the EDL, no import direction, and no profile-to-engine
+adapter — the EDL describes cuts and timecodes only.
+
+## Unreleased — 2026-11-12 (owner decisions recorded; EDL delivery lands)
+
+The owner answered the three open questions from `exploitation-map.md` §8: 60 fps stays **experimental, on
+request only**; delivery to edit tools is **EDL first**; and the studio keeps **one identity** (Medo's) —
+no per-client brand files. Two of those are decisions, the third needed code.
+
+- `tools/edl_export.py` — CMX3600 export from the unified project, so a timeline can be handed to another
+  editor without a project file or a render. One event per enabled clip (`V` first, then `A`/`A2`), reels
+  from asset names, ASCII `TITLE` with the real name preserved in a comment, and a `*.edl.json` sidecar that
+  can be re-checked. Codes E01 invalid project, E02 non-integer/drop-frame fps, E03 asset mismatch, E04
+  off-frame or out-of-range ticks, E05 unrepresentable/empty, E06 channel overlap, E07 >999 events, E08
+  unreadable text, E09 manifest drift.
+- `medo-motion/motion/profiles.json` — `motion-film-60.use` now says "experimental, on request only" and
+  `reel-30.use` records it as the single default; the `requiresApproval` gate is unchanged.
+- `docs/edl.md` — shape, codes, sidecar, measured 4-event 8 s export, and what EDL cannot carry (effects,
+  keyframes, transitions, speed).
+- `tests/test_edl_export.py` — **42 tests**: timecodes per profile, reels, ordering, disabled tracks, two
+  audio channels, refusals for every code, 1000-event cap, parse round trip, manifest drift, CLI.
+- Docs updated: exploitation map (delivery rows and decision table now dated), profiles/subtitles "next",
+  development status, README index.
+
+Measured: an 8 s project (1,920,000 ticks, 30 fps) exports 4 events (c1/c2/c3 on `V`, m1 on `A`), duration
+`00:00:08:00`; rebuilding twice yields the same EDL text and manifest; `check --edl` passes and catches a
+manifest/EDL count mismatch as E09.
+
+Not claimed: no CapCut/DaVinci native project, no import direction, no transitions (every event is `C`), and
+no per-editor compatibility guarantee beyond the format tests.
+
+## Unreleased — 2026-11-12 (B6 complete: declared delivery profiles, 12/15/30/60 fps, SRT/VTT)
+
+Owner order: ابدأ. The last batch on the map. A project can now be sampled at four declared rates without
+its timing moving one tick, and its on-screen copy becomes subtitle files — with 60 fps still requiring the
+owner's explicit approval rather than becoming a quiet default.
+
+- `medo-motion/motion/profiles.json` — one registry, `timebase 240000`: `reel-30` (default, 8000 ticks/frame),
+  `motion-film-60` (4000, `requiresApproval: true`), `stop-motion-12` (20000), `draft-15` (16000, 540×960).
+- `tools/profiles.py` — `list` / `check` / `apply --approval --dry-run`. Codes P01 shape, P02 id/default,
+  P03 numbers, P04 approval missing (exit 3), P05 invalid project or foreign timebase, P06 fps that does not
+  divide the timebase. Applying deep-copies, changes only the four `profile` fields, and validates before and
+  after; `duration`, `tracks` and `timebase` are untouched.
+- `tools/subtitles.py` — `copy.json` → SRT + VTT + `subtitles.json`. Sorted, non-overlapping cues, 0.04 s gap,
+  0.6 s minimum reading time, two lines of 42 characters, VTT markup escaping. Codes S01 shape, S02 order/
+  overlap/id, S03 timing, S04 text, S05 totals, S06 settings. `check` re-validates the manifest on its own.
+- `tests/test_profiles.py` + `tests/test_subtitles.py` — **54 tests**: registry contract, frame counts,
+  approval gate, determinism, both text formats, manifest mutations, CLI round trips and exit codes.
+
+Measured: 4 s project (960,000 ticks) → 120 / 240 / 48 / 60 frames at 30 / 60 / 12 / 15 fps, duration
+unchanged; `motion-film-60` without `--approval` exits 3. The reel fixture yields 11 cues ending 23.20 s, and
+two runs produce byte-identical SRT, VTT and JSON.
+
+Not claimed: `layout_p.py` still defaults to `FPS = 30` (wiring a profile into an engine needs an adapter),
+no 4:5 / 1:1 / 16:9 profiles (the gates only measure 9:16), no burned-in subtitles, and no render-time
+guarantee. The exploitation map is now closed; what remains is owner decisions, not another batch.
+
+## Unreleased — 2026-11-12 (B5 complete: a timeline session that re-renders identically)
+
+Owner order: continue. The project core, history, store, snap and reference preview already existed;
+B5 connects them into one session and closes the loop the phase was defined by.
+
+- `tools/timeline_session.py` — `Session.open` / `apply` / `save` / `render` / `status` over a replayable
+  command list (`trim`, `split`, `move`, `ripple`, `snap`, `undo`, `redo`). Codes T01 unknown op, T02
+  shape, T03 value, T04 nothing to undo/redo, T05 save conflict; a failed command changes nothing.
+- Save is revision-checked (`unified_project_store`), autosave runs per command, and saving to a new
+  path is create-only. History is deliberately per-session, not persisted.
+- Rendering goes through `unified_reference_preview`; identity is `pixelSha256` (raw RGBA), with
+  `fileSha256` reported for inspection and `graphDigest` for the compiled plan.
+- CLI: `check`, `status`, `frame`, `script` (writes the edited project plus `*.frames.json` with per-frame
+  hashes). Exit 0/1/2.
+- `tests/test_timeline_mvp.py` — **28 tests**: edits, undo/redo, refusals, revision conflict, render
+  identity before/after reopen, CLI round trip and autosave. Added to the `contracts` CI group.
+
+Measured on the 4s / 120-frame demo: trim + ripple + split + move changes frames 70/80/110 and leaves
+0/30 untouched; reopening the saved file reproduces every `pixelSha256`; two CLI runs are byte-identical
+for both the project and the frame manifest.
+
+Not claimed: no editor UI, no video export, no multi-track preview (the reference preview accepts one
+enabled video track), and no persisted undo stack.
+
+## Unreleased — 2026-11-12 (B4 complete: video ingest and a reviewable cut plan, no executor)
+
+Owner order: start B4 in one push. A clip can now be read once, turned into shots, and handed back as
+a plan a human edits — and the tool refuses to cut anything itself.
+
+- `tools/video_ingest.py` — PyAV ingest to `media-report.json`: sha256, size, fps, frames, duration,
+  codec, VFR flag, and one **visual delta** per frame pair from a 16×9 **RGB** grid. Luma alone missed a
+  green→red cut during development, so colour is part of the signature; the frame cap is 7200.
+- `tools/cut_plan.py` — `build` (threshold + minShot, short shots merged, last cut pinned to the measured
+  duration), `check` (codes C00–C06, including totals recomputation), `review`, `set id=keep|reject`,
+  `preview` (deterministic SVG timeline + HTML table), and `render` → **exit 3** on purpose.
+- `medo-motion/schema/cut-plan.schema.json` — structural reference; the semantic contract is Python.
+- `docs/cut-plan.md` documents the pipeline, the maths and the declared limits.
+- `tests/test_video_ingest.py` (15) and `tests/test_cut_plan.py` (35) — the clip is synthesised in the
+  test, so no media asset enters the repository; both files are in the `contracts` CI group.
+
+Measured on a 6.00s / 180-frame clip: 4 shots (1.50 · 2.00 · 1.50 · 1.00), cut scores 75.84 / 88.26 /
+63.16; rejecting one shot moves totals to keep 4.50s · reject 1.50s while the sum stays 6.00s.
+
+Not claimed: audio analysis, semantic scene understanding, VFR re-timing, thumbnails, or execution —
+`render` refuses by design until B5.
+
+## Unreleased — 2026-11-12 (B3 complete: exploded views over the machine kit)
+
+Owner order: start B3 in one push. The machine explainer could reveal and highlight parts; it could
+not take them apart. It can now, deterministically, and reassemble to the exact same geometry.
+
+- `shared/js/machine-kit.js` gains `explodeProgressAt`, `explodeMachineModel`, `EXPLODE_LIMITS` and a
+  validation block for `spec.explode` (amount 0..1, window inside the spec, hold 0..0.9, spread 0..240,
+  focus must match a part tag). Copied byte-for-byte to K and R by `sync_shared_libs`.
+- The explosion is a 3D transform applied **before** iso projection: radial direction from the model
+  centre, per-id FNV jitter, layer + rank lift, optional `focus` tag that holds still. Part ids and
+  order are untouched.
+- `procedural-reels/machine_kit.py` mirrors it (same rounding, same hash), so P draws the same frame.
+- `medo-motion/motion/examples/exploded-nvme.json` is the reference spec (NVMe, `focus: pcb`).
+- `tools/machine_explode_preview.mjs` records `drawMachineGeometry` into six SVG frames with one
+  union viewBox; byte-identical per run.
+- `docs/explode.md` documents the contract, the schedule maths and the declared limits.
+- `tests/test_machine_explode.py` — **18 tests** (schedule, both validators rejecting the same broken
+  config, identity/order, determinism, bounds growth and exact reassembly, focus hold, P↔K parity,
+  preview determinism); added to the `contracts` CI group.
+
+Measured: bounds width 406.86 closed → 659.21 open (×1.62) → back to 406.86 at `end`, with the same
+`partId` order and the same vertices as a spec without `explode`. Not claimed: BOM labels, per-part
+stagger, camera moves or a real video render.
+
+## Unreleased — 2026-11-12 (B2 complete: a scene is data, not scene code)
+
+Owner order: finish B2 in one push. A board is now a single JSON file with six element kinds and one
+interpreter; anything outside the studio's vocabulary is refused with a code, never ignored.
+
+- `medo-motion/schema/board.schema.json` — structural reference (root, stage, scene, element, move).
+- `tools/board_check.py` — the real validator: structural + semantic, codes `B00` (root/version/duration),
+  `B01` (unknown/missing field), `B02` (stage), `B03` (scenes/ids/overlap/duplicates/64-element cap),
+  `B04` (element fields, per-kind requirements), `B05` (moves, `at` inside the scene), `B06` (brand role),
+  `B07` (pose catalog), `B09` (unsafe image path). CLI exits 0/1/2, `--json` returns counts.
+- `shared/js/board.js` — `boardFrame(board, time)` samples the active scene to z-sorted draw ops plus a
+  centre-scaled camera; `drawBoardFrame(ctx, frame, assets)` paints them with `save`/`restore` per op and
+  throws (never blanks) when a `person`/`image` has no asset. Copied byte-identically to K and R.
+- `medo-motion/motion/boards/explainer-sample.json` — two scenes, 7 s, all six kinds, camera push plus
+  parallax; `python3 tools/board_check.py` → `Valid board: data=1 · draw=1 · image=1 · person=1 · shape=1 · text=2`.
+- `tools/board_preview.mjs` — four SVG frames, byte-identical per run.
+- `tests/test_board.py` — **30 tests**; added to the `contracts` CI group.
+- **Fix (found in the preview):** a `person` op carried `h` but no `w`, so the SVG preview emitted
+  `width="NaN"` and `drawImage` got an undefined width. `boardFrame` now defaults person width to
+  `0.62 × h` (explicit `w` allowed and validated), the preview no longer prints NaN, and a test pins it.
+  The sample board also opens on a visible presenter instead of an empty first frame.
+
+Not claimed: no video render (no Chromium here), no audio, no interactive timeline — those are B5/B6.
+R carries the interpreter but no Canvas adapter, so its capability stays `conditional`.
+
+## Unreleased — 2026-11-12 (B1b complete: ten element moves, with P/R honesty corrected)
+
+Owner order: finish B1b. The catalog now carries **78 executable moves** (51 caption entrances,
+3 element effects, 14 transitions, 10 element moves), and the ten element moves are new code, not
+inventory.
+
+- `shared/js/moves.js` gains `orbitItem`, `wordPathItem`, `explodePart`, `maskWipe`, `dataCount`,
+  `cardStackItem`, `cameraPush`, `particleBurst` next to `pixelListItem`/`parallaxLayer`/`cameraProgress`.
+  Pure functions only: bad arguments throw, `particleBurst` uses the same integer hash as the other
+  effects (no `Math.random`), and `maskWipe` has four directions.
+- `procedural-reels/moves.py` mirrors all ten; K↔P parity is measured on a sampled grid (≤1e-9),
+  including half-up rounding for `dataCount`.
+- `render/lib/moves-render.js` adds nine Canvas adapters plus `drawDataCount`; transforms are pinned
+  through a fake context (save/restore balance, clip/rotate counts, centre-scaled camera).
+- `tools/moves_preview.mjs` now writes **40 SVG frames** for all ten moves, byte-identical per run.
+- `tests/test_moves_b1b.py` grows from 21 to **37 tests**.
+- **Correction:** `element-moves` previously claimed P "supported" on pure functions alone. P and R
+  are now `conditional` (pure library, no draw adapter); K is `supported`. The catalog must not call
+  a pure function a rendered move.
+
+Not claimed: no real render happened here (no Chromium/toolkit in the sandbox); the K adapter's
+frame parity arrives with B5. `feather` stays a declared-but-unimplemented parameter.
+
+## Unreleased — 2026-11-12 (B1b: the first two new moves, not just a catalog of the old ones)
+
+Owner order: continue B1. `pixel-list` and `parallax` now exist as real element moves, so the catalog
+grew from 68 to **70 executable moves** and no longer only records inherited families.
+
+- `shared/js/moves.js` (pure, no RNG, no state) copied to K and R by `sync_shared_libs`:
+  `pixelListItem(index, elapsed, …)` returns opacity/x/y/scale with the offset snapped to whole
+  pixels of the font size, and `parallaxLayer(depth, progress, …)` pins depth 0 and follows the
+  camera fully at depth 1; `cameraProgress` clamps and eases absolute time. Bad arguments throw.
+- `procedural-reels/moves.py` mirrors it for engine P with the same numbers (half-up rounding
+  expressed as `floor(v*fs+0.5)` so JS and Python agree).
+- `render/lib/moves-render.js` (K) adds `drawPixelList` (per-row opacity + pixel-snapped translate)
+  and `drawParallax` (translate + scale about the frame centre).
+- Preview: `node tools/moves_preview.mjs out.html` writes eight SVG frames with no timestamps, and
+  the test asserts two runs are byte-identical.
+- `tests/test_moves_b1b.py` (21 tests): start/settle boundaries, pixel snapping, rejection rules,
+  K↔P numeric parity on a sampled grid, exact adapter transforms through a fake Canvas2D context,
+  and the preview's determinism.
+- `moves.json` gains the `element-moves` family (K/P supported, R conditional: the pure functions
+  ship but no R component consumes them yet); `docs/moves.md` documents the two moves and the
+  remaining eight of B1b.
+
+Not claimed: this is not a rendered scene test (no Chromium in this sandbox). The adapter transforms
+are pinned with a fake context; a real frame comparison arrives with the K adapter in B5.
+
+## Unreleased — 2026-11-12 (B1: the executable motion catalog, and what is only prose)
+
+Owner order: start executing the exploitation map. B1 is the catalog contract, not a new animation.
+`medo-motion/motion/moves.json` now answers "how many moves can this studio actually run?" in one
+place: **68 executable** (51 caption entrances on P/K/R, 3 element effects on K/P with R conditional,
+14 scene transitions on K/P with R unsupported) and **2,239 descriptive units** that are explicitly
+*not* moves. `tools/moves.py --check` fails when a family's declared count differs from its source,
+when a supported engine names a missing file or a symbol that is not in it, when evidence is absent
+or outside the tree, when a `conditional` has no condition, when a `descriptive` family claims an
+engine, or when an `executable` family supports no engine. `tests/test_moves.py` (20 tests) guards
+the contract. `docs/moves.md` documents the rule and the next step (B1b: new families with a real
+function, a frame test and a preview — not another description).
+
+Why it matters: the technique library was about to be read as a move bank. It is not, and the
+regression is now a failing test rather than a review comment. Nothing here renders or claims new
+capability; every positive state points at code and evidence that already existed at `4cd725c`.
+
+## Unreleased — 2026-11-12 (exploitation map: what to build, adapt, defer or reject)
+
+Documentation only; no engine, tool or contract changed. `docs/exploitation-map.md` turns the owner's
+system map (Hojas Studio + Video Ad Editor) into decisions against the tree at `4cd725c`. It corrects
+six premises before any plan is built on them: the (AUTO:techniques) technique library is descriptive
+(10 `primitive` categories, 58 entries with evidence, no function reference); the "102 moves" upstream
+mixes timing rules with draw functions (already measured in `docs/editor-source-review.md`); only 17
+of the 163 styles are adapted from Majed Video; the Board gap is a declarative layer, not drawing
+(Machine Explainer / Slide Wall / One-Take / Fixed Stage already draw); Smart Cut's missing half is
+ingest and cutting raw video, not speech understanding; and 60fps is a new profile with its own gates,
+not a flag. Then: per-system status with evidence, build/adapt/defer/reject decisions, batches B1–B6
+with acceptance criteria, and six owner decisions (identity per client, project library, 60fps,
+CapCut/EDL export, TTS/AI adapter, mobile review). Linked from `editor-architecture.md` §9 and
+`docs/README.md`. No performance numbers were measured here.
+
+## Unreleased — 2026-11-12 (phase-0 architecture: the contract and an honest capability manifest)
+
+Owner order: build the architecture before the Timeline UI. Two deliverables, no engine, no editor:
+
+- **`docs/editor-architecture.md`** — the binding phase-0 specification: the six layers and their
+  dependency direction, the time model (integer ticks only, half-open ranges, keyframes relative to
+  the clip), Project/Timeline/Media/Effect models with a named 1.2 delta list, the rendered-backend
+  adapter contract, the capability states, the reuse boundary for `hojas-studio` (PolyForm
+  Noncommercial: ideas only) and `video-ad-editor` (MIT code, per-asset CREDITS still reviewed), the
+  phase 0–6 map with exit criteria, and a checklist of what is implemented versus proposed. It
+  changes no behaviour and claims no capability that the tree cannot back up.
+- **`medo-motion/schema/backend-capabilities.json` + `tools/backend_capabilities.py --check`** —
+  11 features × P/K/R/Hybrid, each with a state (`supported|conditional|unsupported|unknown`),
+  conditions when conditional and repo-relative evidence for every positive claim. The checker fails
+  on a missing answer, an invalid state, a conditional without a condition, a claim without existing
+  evidence, a duplicate JSON key, or any backend claiming `project.read`/`graph.execute` before an
+  adapter exists. `tests/test_backend_capabilities.py` (18 tests); the manifest is listed in the
+  `contracts` CI group.
+- **`tools/render_backend.py`** — the adapter contract frozen in code rather than prose: a
+  `RenderBackend` protocol (`capabilities`, `compile`, `preflight`, `render(graph, frames, out,
+  options)`, `cancel`), `conformance_problems()` that rejects a backend missing a method, answering
+  fewer features than the manifest or contradicting it at runtime, and a `NullAdapter` per backend
+  that returns `unsupported`/`R01` and raises on `render`. `tests/test_render_backend_contract.py`
+  (23 tests) freezes the signatures.
+
+Not measured: nothing here was benchmarked. The matrix is read from the code and tests that exist at
+`4cd725c` plus this change.
+
+## Unreleased — 2026-11-12 (one page to follow the development plan)
+
+Documentation only; no engine, tool or contract changed. `docs/development-plan-status.md` merges the
+three plans that were tracked separately — the unified-editor roadmap, the second studio review's risk
+plan, and the P/K/R unification path — into one dated status page. Every status row was read back from
+the tree at `4cd725c` (no adapters for the unified project, no visual editor, no migration; review
+wave 1 closed except N9 and the owner's N4 decision; engine-unification stages 1–3 done, 4–5 never
+requested). Also records that `.github/workflows/` is gone, so verification is `bash tools/ci.sh` and
+`make` by hand. Listed in `docs/README.md`. Nothing here was measured; the performance numbers stay
+in `docs/studio-review-2026-11-10.md` with their dates.
+
 ## Unreleased — 2026-11-11 (hosted workflows removed)
 
 Owner decision: all six GitHub Actions workflows are deleted (`ci.yml`, `dependency-audit.yml`,
